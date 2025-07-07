@@ -1239,7 +1239,6 @@ float WHWorld::patchpermm = 0;
 	float WHWorld::Alg_Mn = 1500;     // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
 	//float WHWorld::Alg_Mn = 90;
 	//float WHWorld::Alg_Mn = 200; //143;
-
 #endif
 
 float WHWorld::thresholdTNFdamage = 10.0; //ng

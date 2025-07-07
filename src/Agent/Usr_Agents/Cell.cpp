@@ -73,7 +73,6 @@ Cell::Cell(Patch* patchPtr) {
 	} else if (typeid(*this) == typeid(NP)) {
 		NP::numOfNP++;
 	}
-
 	Cell::numOfCells++;
 }
 
