@@ -2589,6 +2589,7 @@ void WHWorld::updateCells() {
 			cells.deleteData(i, tid);
 			delete cell;
 			DeletedCell++;
+			/* Added by MM to check types of cell stages and subtract from respective counters: */
 			if (typeid(*this) == typeid(Stem)) {
 				Stem::numOfStem--;
 			}
@@ -2678,12 +2679,12 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 		int in = reservoir[i];
 		if (in < 0 || in > (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny) continue;
 			switch (agentType) {
-				case chondrocyte: {
+				case stem: {
 					tempPatchPtr = &(this->worldPatch[in]);
-					Chondrocyte* newChond = new Chondrocyte(tempPatchPtr);
+					Stem* newStem = new Stem(tempPatchPtr);
 					#ifdef _OMP
 						int tid = omp_get_thread_num();
-						this->localNewChondros[tid]->push_back(newChond);
+						this->localNewCells[tid]->push_back(newStem);
 					#else
 						if (!this->chonds.addData(newChond, DEFAULT_TID)) {
 							cerr << "Error: Could not add chondrocyte in sproutAgent()" << endl;
@@ -2697,7 +2698,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
         			
 					break;
       			}
-				case achondrocyte: {
+				case progen: {
 					tempPatchPtr = &(this->worldPatch[in]);
 					Chondrocyte* newChond = new Chondrocyte(tempPatchPtr);
 					#ifdef _OMP
