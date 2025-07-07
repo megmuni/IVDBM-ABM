@@ -2589,6 +2589,15 @@ void WHWorld::updateCells() {
 			cells.deleteData(i, tid);
 			delete cell;
 			DeletedCell++;
+			if (typeid(*this) == typeid(Stem)) {
+				Stem::numOfStem--;
+			}
+			else if (typeid(*this) == typeid(Progen)) {
+				Progen::numOfProgen--:
+			}
+			else if (typeid(*this) == typeid(NP)) {
+				NP::numOfNP--;
+			}
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
