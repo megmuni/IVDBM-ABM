@@ -1,0 +1,1599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="89">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="examples" displayName="examples" projectFiles="true">
+      <itemPath>examples/ex_diffuse_temperature.cpp</itemPath>
+      <itemPath>examples/test_not_main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="findCudaTests"
+                   displayName="findCudaTests"
+                   projectFiles="true">
+      <logicalFolder name="CMakeFiles" displayName="CMakeFiles" projectFiles="true">
+        <logicalFolder name="clean_cuda_depends.dir"
+                       displayName="clean_cuda_depends.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/clean_cuda_depends.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/clean_cuda_depends.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/clean_cuda_depends.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/clean_cuda_depends.dir/progress.make</itemPath>
+        </logicalFolder>
+        <logicalFolder name="cuda_compile.dir"
+                       displayName="cuda_compile.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.depend</itemPath>
+        </logicalFolder>
+        <logicalFolder name="cuda_compile_example.dir"
+                       displayName="cuda_compile_example.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/CXX.includecache</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_example.dir/progress.make</itemPath>
+        </logicalFolder>
+        <logicalFolder name="cuda_compile_ptx.dir"
+                       displayName="cuda_compile_ptx.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.depend</itemPath>
+        </logicalFolder>
+        <logicalFolder name="lib_example.dir"
+                       displayName="lib_example.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/CXX.includecache</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/lib_example.dir/progress.make</itemPath>
+        </logicalFolder>
+        <logicalFolder name="myTest.dir" displayName="myTest.dir" projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/myTest.dir/progress.make</itemPath>
+        </logicalFolder>
+        <logicalFolder name="test-conflict.dir"
+                       displayName="test-conflict.dir"
+                       projectFiles="true">
+          <logicalFolder name="path_with_spaces"
+                         displayName="path_with_spaces"
+                         projectFiles="true">
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.NVCC-depend</itemPath>
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.cmake</itemPath>
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.depend</itemPath>
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.NVCC-depend</itemPath>
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.cmake</itemPath>
+            <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.depend</itemPath>
+          </logicalFolder>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/CXX.includecache</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/progress.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.depend</itemPath>
+        </logicalFolder>
+        <logicalFolder name="test.dir" displayName="test.dir" projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/test.dir/CXX.includecache</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/progress.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.depend</itemPath>
+        </logicalFolder>
+        <logicalFolder name="test_lib.dir"
+                       displayName="test_lib.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/progress.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.NVCC-depend</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.depend</itemPath>
+        </logicalFolder>
+        <logicalFolder name="test_with_spaces.dir"
+                       displayName="test_with_spaces.dir"
+                       projectFiles="true">
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/CXX.includecache</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/DependInfo.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/build.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/cmake_clean.cmake</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/depend.internal</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/depend.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/flags.make</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/link.txt</itemPath>
+          <itemPath>findCudaTests/CMakeFiles/test_with_spaces.dir/progress.make</itemPath>
+        </logicalFolder>
+        <itemPath>findCudaTests/CMakeFiles/CMakeDirectoryInformation.cmake</itemPath>
+        <itemPath>findCudaTests/CMakeFiles/progress.marks</itemPath>
+      </logicalFolder>
+      <logicalFolder name="path with spaces"
+                     displayName="path with spaces"
+                     projectFiles="true">
+        <itemPath>findCudaTests/path with spaces/conflict.cpp</itemPath>
+        <itemPath>findCudaTests/path with spaces/conflict.cu</itemPath>
+        <itemPath>findCudaTests/path with spaces/file with spaces.h</itemPath>
+        <itemPath>findCudaTests/path with spaces/no-conflict.cpp</itemPath>
+        <itemPath>findCudaTests/path with spaces/no-conflict.cu</itemPath>
+      </logicalFolder>
+      <itemPath>findCudaTests/CMakeLists.txt</itemPath>
+      <itemPath>findCudaTests/July3CUDA.cu</itemPath>
+      <itemPath>findCudaTests/July3header.h</itemPath>
+      <itemPath>findCudaTests/July3main.cu</itemPath>
+      <itemPath>findCudaTests/Makefile</itemPath>
+      <itemPath>findCudaTests/cmake_install.cmake</itemPath>
+      <itemPath>findCudaTests/conflict-main.cpp</itemPath>
+      <itemPath>findCudaTests/conflict.cpp</itemPath>
+      <itemPath>findCudaTests/conflict.cu</itemPath>
+      <itemPath>findCudaTests/cuda-driver-error.h</itemPath>
+      <itemPath>findCudaTests/external_dependency.h</itemPath>
+      <itemPath>findCudaTests/external_dependency3.h</itemPath>
+      <itemPath>findCudaTests/main-ptx.cpp</itemPath>
+      <itemPath>findCudaTests/main.cc</itemPath>
+      <itemPath>findCudaTests/main_for_lib.cc</itemPath>
+      <itemPath>findCudaTests/myTest.cu</itemPath>
+      <itemPath>findCudaTests/test_bin.cu</itemPath>
+      <itemPath>findCudaTests/test_lib.cu</itemPath>
+      <itemPath>findCudaTests/test_ptx.cu</itemPath>
+      <itemPath>findCudaTests/test_with_spaces.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="src" displayName="src" projectFiles="true">
+      <logicalFolder name="Agent" displayName="Agent" projectFiles="true">
+        <logicalFolder name="Usr_Agents" displayName="Usr_Agents" projectFiles="true">
+          <itemPath>src/Agent/Usr_Agents/Collagen.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Collagen.h</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Chondrocyte.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Chondrocyte.h</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Hyaluronan.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Hyaluronan.h</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Macrophage.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Macrophage.h</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Neutrophil.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Neutrophil.h</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Platelet.cpp</itemPath>
+          <itemPath>src/Agent/Usr_Agents/Platelet.h</itemPath>
+        </logicalFolder>
+        <itemPath>src/Agent/Agent.cpp</itemPath>
+        <itemPath>src/Agent/Agent.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="FieldVariable"
+                     displayName="FieldVariable"
+                     projectFiles="true">
+        <logicalFolder name="Usr_FieldVariables"
+                       displayName="Usr_FieldVariables"
+                       projectFiles="true">
+          <itemPath>src/FieldVariable/Usr_FieldVariables/WHChemical.cpp</itemPath>
+          <itemPath>src/FieldVariable/Usr_FieldVariables/WHChemical.h</itemPath>
+        </logicalFolder>
+        <itemPath>src/FieldVariable/FieldVariable.cpp</itemPath>
+        <itemPath>src/FieldVariable/FieldVariable.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Patch" displayName="Patch" projectFiles="true">
+        <logicalFolder name="CMakeFiles" displayName="CMakeFiles" projectFiles="true">
+          <logicalFolder name="Patch.dir" displayName="Patch.dir" projectFiles="true">
+            <itemPath>src/Patch/CMakeFiles/Patch.dir/DependInfo.cmake</itemPath>
+            <itemPath>src/Patch/CMakeFiles/Patch.dir/build.make</itemPath>
+            <itemPath>src/Patch/CMakeFiles/Patch.dir/depend.make</itemPath>
+            <itemPath>src/Patch/CMakeFiles/Patch.dir/flags.make</itemPath>
+            <itemPath>src/Patch/CMakeFiles/Patch.dir/progress.make</itemPath>
+          </logicalFolder>
+          <itemPath>src/Patch/CMakeFiles/CMakeDirectoryInformation.cmake</itemPath>
+          <itemPath>src/Patch/CMakeFiles/progress.marks</itemPath>
+        </logicalFolder>
+        <itemPath>src/Patch/Patch.cpp</itemPath>
+        <itemPath>src/Patch/Patch.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="World" displayName="World" projectFiles="true">
+        <logicalFolder name="Lattice" displayName="Lattice" projectFiles="true">
+          <itemPath>src/World/Lattice/Lattice.cpp</itemPath>
+          <itemPath>src/World/Lattice/Lattice.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="Usr_World" displayName="Usr_World" projectFiles="true">
+          <itemPath>src/World/Usr_World/woundHealingWorld.cpp</itemPath>
+          <itemPath>src/World/Usr_World/woundHealingWorld.h</itemPath>
+        </logicalFolder>
+        <itemPath>src/World/World.cpp</itemPath>
+        <itemPath>src/World/World.h</itemPath>
+      </logicalFolder>
+      <itemPath>src/enums.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>CMakeLists.txt</itemPath>
+    </logicalFolder>
+    <itemPath>main.cpp</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+    <Elem>examples</Elem>
+    <Elem>findCudaTests</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/nyvonna_abm</output>
+        </linkerTool>
+      </compileType>
+      <item path="examples/ex_diffuse_temperature.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="examples/test_not_main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <folder path="src/Agent">
+        <ccTool>
+          <incDir>
+            <pElem>src/World</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <item path="findCudaTests/CMakeFiles/CMakeDirectoryInformation.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/progress.marks"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeLists.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3CUDA.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3header.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3main.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/cmake_install.cmake" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict-main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/cuda-driver-error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/external_dependency.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/external_dependency3.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/main-ptx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/main.cc" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/main_for_lib.cc" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/myTest.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/conflict.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/conflict.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/file with spaces.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/no-conflict.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/no-conflict.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/test_bin.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_lib.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_ptx.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_with_spaces.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Agent.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Agent.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Collagen.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Collagen.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Chondrocyte.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Chondrocyte.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Hyaluronan.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Hyaluronan.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Macrophage.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Macrophage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Neutrophil.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Neutrophil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Platelet.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Platelet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/FieldVariable/FieldVariable.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/FieldVariable/FieldVariable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/FieldVariable/Usr_FieldVariables/WHChemical.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/FieldVariable/Usr_FieldVariables/WHChemical.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/CMakeDirectoryInformation.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/progress.marks"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/Patch.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Patch/Patch.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/World/Lattice/Lattice.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/World/Lattice/Lattice.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/World/Usr_World/woundHealingWorld.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/World/Usr_World/woundHealingWorld.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/World/World.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/World/World.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/enums.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="examples/ex_diffuse_temperature.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="examples/test_not_main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/CMakeDirectoryInformation.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/clean_cuda_depends.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile.dir/cuda_compile_generated_test_bin.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_example.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/cuda_compile_ptx.dir/cuda_compile_ptx_generated_test_ptx.cu.ptx.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/lib_example.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/myTest_generated_myTest.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/myTest.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/progress.marks"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/path_with_spaces/test-conflict_generated_no-conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test-conflict.dir/test-conflict_generated_conflict.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test.dir/test_generated_test_bin.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.NVCC-depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_lib.dir/test_lib_generated_test_lib.cu.o.depend"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/CXX.includecache"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/cmake_clean.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/depend.internal"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/link.txt"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeFiles/test_with_spaces.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/CMakeLists.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3CUDA.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3header.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/July3main.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/cmake_install.cmake" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict-main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/conflict.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/cuda-driver-error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="findCudaTests/external_dependency.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/external_dependency3.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/main-ptx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/main.cc" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/main_for_lib.cc" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/myTest.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/conflict.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/conflict.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/file with spaces.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/no-conflict.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/path with spaces/no-conflict.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="findCudaTests/test_bin.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_lib.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_ptx.cu" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="findCudaTests/test_with_spaces.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Agent.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Agent.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Collagen.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Collagen.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Chondrocyte.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Chondrocyte.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Hyaluronan.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Hyaluronan.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Macrophage.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Macrophage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Neutrophil.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Neutrophil.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Platelet.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Agent/Usr_Agents/Platelet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/FieldVariable/FieldVariable.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/FieldVariable/FieldVariable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/FieldVariable/Usr_FieldVariables/WHChemical.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/FieldVariable/Usr_FieldVariables/WHChemical.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/CMakeDirectoryInformation.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/DependInfo.cmake"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/build.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/depend.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/flags.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/Patch.dir/progress.make"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/CMakeFiles/progress.marks"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/Patch/Patch.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/Patch/Patch.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/World/Lattice/Lattice.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/World/Lattice/Lattice.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/World/Usr_World/woundHealingWorld.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="src/World/Usr_World/woundHealingWorld.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/World/World.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/World/World.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/enums.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
