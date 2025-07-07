@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/graceyu/project/graceyu/VFB-ABM/src/ArrayChain/ArrayChain.cpp
+ArrayChain.h
+/home/graceyu/project/graceyu/VFB-ABM/src/ArrayChain/ArrayChain.h
+
+/home/graceyu/project/graceyu/VFB-ABM/src/ArrayChain/ArrayChain.h
+ArrayChainNode.h
+/home/graceyu/project/graceyu/VFB-ABM/src/ArrayChain/ArrayChainNode.h
+
+/home/graceyu/project/graceyu/VFB-ABM/src/ArrayChain/ArrayChainNode.h
+stdlib.h
+-
+stdio.h
+-
+iostream
+-
+vector
+-
+../common.h
+/home/graceyu/project/graceyu/VFB-ABM/src/common.h
+
+/home/graceyu/project/graceyu/VFB-ABM/src/common.h
+atomic
+-
+atomic
+/home/graceyu/project/graceyu/VFB-ABM/src/atomic
+enums.h
+/home/graceyu/project/graceyu/VFB-ABM/src/enums.h
+
+/home/graceyu/project/graceyu/VFB-ABM/src/enums.h
+
