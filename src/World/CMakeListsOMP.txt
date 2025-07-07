@@ -1,0 +1,28 @@
+set(WORLD_SRC World.cpp)
+file( GLOB USR_WORLD_SRC Usr_World/*.cpp)
+#modified by Yvonna Jun 17th, 2013: add subdirectory Usr_World
+
+set(world_lib_type SHARED)
+#because Agent needs functions from WHWorld!!!!
+add_library(World ${world_lib_type} ${WORLD_SRC} ${USR_WORLD_SRC})
+
+target_link_libraries(World FieldVariable)
+#World is shared and is referenced by Agent! Without the last command, the linking process wouldnt work!
+
+# Added by Nuttiiya for SIMD report
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -vec-report3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -vec-report3")
+# Added by Nuttiiya
+find_package(OpenMP)
+if (OPENMP_FOUND)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  add_definitions(-D_OMP)
+endif()
+
+# Added by Nuttiiya
+## Compiler flags
+if(CMAKE_COMPILER_IS_GNUCXX)
+#  message("        Setting -pg flag in src/World/")
+#  set(CMAKE_CXX_FLAGS "-pg")
+endif()

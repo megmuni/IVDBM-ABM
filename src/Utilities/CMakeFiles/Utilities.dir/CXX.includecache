@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/graceyu/project/graceyu/VFB-ABM/src/Utilities/timer.cpp
+timer.h
+/home/graceyu/project/graceyu/VFB-ABM/src/Utilities/timer.h
+
+/home/graceyu/project/graceyu/VFB-ABM/src/Utilities/timer.h
+stdlib.h
+-
+stdio.h
+-
+stddef.h
+-
+unistd.h
+-
+sys/time.h
+-
+
