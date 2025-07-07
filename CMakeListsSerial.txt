@@ -1,0 +1,112 @@
+cmake_minimum_required (VERSION 2.6)
+SET(CMAKE_C_COMPILER "/usr/bin/gcc")
+SET(CMAKE_CXX_COMPILER "/usr/bin/g++")
+#SET(CMAKE_C_COMPILER "/opt/common/intel/composer_xe_2015.0.090/bin/intel64/icc")
+#SET(CMAKE_CXX_COMPILER "/opt/common/intel/composer_xe_2015.0.090/bin/intel64/icpc")
+message("C_COMPILER = ${CMAKE_C_COMPILER}")
+message("CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
+#include(CMakeForceCompiler)
+#CMAKE_FORCE_C_COMPILER(icc "Intel C Compiler")
+#CMAKE_FORCE_CXX_COMPILER(icpc "Intel C++ Compiler")
+#project (NYVONNA_CPU_ABM)
+
+message(" (1) cxx compiler = ${CMAKE_CXX_COMPILER}")
+
+#added by Yvonna June 2 2013 to enable nvcc
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/cuda" ${CMAKE_MODULE_PATH})
+# message("CMAKE_SIZEOF_VOID_P = ${CMAKE_SIZEOF_VOID_P}")
+# message("CUDA_64_BIT_DEVICE_CODE = ${CUDA_64_BIT_DEVICE_CODE}")
+
+message(" (2) cxx compiler = ${CMAKE_CXX_COMPILER}")
+
+# find_package(CUDA)
+# find_package(CUDA QUIET REQUIRED)
+find_package(CUDA REQUIRED)
+# find_package(CUDA 2.1)
+# find_package(CUDA 2.2)
+# find_package(CUDA 2.3)
+# find_package(CUDA 2.1 REQUIRED)
+# find_package(CUDA 2.2 REQUIRED)
+# find_package(CUDA 2.3 REQUIRED)
+# find_package(CUDA 2.1 EXACT)
+# find_package(CUDA 2.2 EXACT)
+# find_package(CUDA 2.3 EXACT)
+# find_package(CUDA 2.1 EXACT REQUIRED)
+# find_package(CUDA 2.2 EXACT REQUIRED)
+# find_package(CUDA 2.3 EXACT REQUIRED)
+# find_package(CUDA 2.2 EXACT QUIET REQUIRED)
+
+ if (CUDA_FOUND)
+   message("CUDA found")
+ else()
+   message("CUDA not found")
+ endif()
+
+
+#added by Yvonna June 2 2013 to enable nvcc 
+message(" (3) cxx compiler = ${CMAKE_CXX_COMPILER}")
+
+SET(CMAKE_BUILD_TYPE DEBUG) #to enable debugging. Change to release for production
+#SET(CMAKE_BUILD_TYPE RELEASE)
+
+
+set(NYVONNA_LIBS World Agent FieldVariable Patch ECM ArrayChain Utilities Diffusion)
+
+
+
+#added "Patch" as part of library - Yvonna, Jun 6 2013
+
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}; src)
+
+#####################
+#
+#  MPI
+#####################
+#find_package ( MPI )
+message(" --->")
+message(" CXX is set to ${CXX}")
+message(" cxx_compiler is set to ${CMAKE_CXX_COMPILER}")
+
+
+set(CUDA_SAMPLES_INC "/opt/common/cuda/cuda-7.0.28/samples/common/inc")
+cuda_include_directories(${CUDA_SAMPLES_INC})
+include_directories(${CUDA_SAMPLES_INC})
+
+
+
+add_subdirectory(src)
+
+add_executable(Nyvonna main.cpp)
+add_executable(ex_diffuse_temperature examples/ex_diffuse_temperature.cpp)
+add_executable(testRun examples/test_not_main.cpp)
+
+
+set( allLIBS ${NYVONNA_LIBS} cufft)
+
+target_link_libraries(Nyvonna ${allLIBS})
+target_link_libraries(ex_diffuse_temperature ${allLIBS})
+target_link_libraries(testRun ${allLIBS})
+
+message("here 2")
+
+## Added by Nuttiiya for atomic flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+## Added by Nuttiiya for OMP
+#find_package(OpenMP)
+#if(OPENMP_FOUND)
+#  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#endif()
+
+## Added by Nuttiiya to run profiler
+## Compiler Flags
+if(CMAKE_COMPILER_IS_GNUCXX)
+  #message("Setting -lpthread flag")
+  #set(CMAKE_CXX_FLAGS "-lpthread")
+endif()
+
+
