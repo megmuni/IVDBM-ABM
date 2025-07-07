@@ -1,0 +1,22 @@
+set(ECM_SRC ECM.cpp)
+file( GLOB USR_ECM_SRC Usr_ECM/*.cpp)
+
+set(lib_type SHARED)
+add_library(ECM ${lib_type} ${ECM_SRC} ${USR_ECM_SRC})
+
+target_link_libraries(ECM World)
+
+include_directories( ${PROJECT_SOURCE_DIR}/src)
+
+# Added by Nuttiiya for SIMD report
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -vec-report3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -vec-report3")
+
+# Added by Nuttiiya
+find_package(OpenMP)
+if (OPENMP_FOUND)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  add_definitions(-D_OMP)
+endif()
+
