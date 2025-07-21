@@ -109,31 +109,15 @@ class Agent {
      * Return: void
      * Parameters: void            
      */
-    static void calculateECMSynthesisRate();
-
-    /*
-     * Description:	Calls subroutines calculating parameters characterizing stem cell behavior in Ca-Alg
-     *
-     * Return: void
-     * Parameters: void            
-     */
-    static void stemCaAlgBehavior();
+    static void calculateECMSynthesisRate(int agentType);
     
     /*
-     * Description:	Calls subroutines calculating parameters characterizing NP progenitor behavior in Ca-Alg
+     * Description:	Calls subroutines calculating parameters characterizing cell behavior in Ca-Alg
      *
      * Return: void
      * Parameters: void            
      */
-    static void progenCaAlgBehavior();
-    
-    /*
-     * Description:	Calls subroutines calculating parameters characterizing NP cell behavior in Ca-Alg
-     *
-     * Return: void
-     * Parameters: void            
-     */
-    static void NPCaAlgBehavior();
+    static void cellCaAlgBehavior();
     
 #endif //MODEL_SCAFFOLD
 
@@ -280,8 +264,6 @@ class Agent {
     static bool CaAlgFlag;          // Flag indicating if static parameters have been set             
     static float proliferationRate; // Change in population (% of initial population) over 1 hour
     static float viabilityRate;     // Viability Rate (%) of cells 
-    static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
-    static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
     static float HASynthRate;       // Amount of HA synthesized in Ca-Alg(10^-4 ug)
 #endif
 
@@ -289,8 +271,6 @@ class Agent {
 #ifdef MODEL_SCAFFOLD
     static float CaAlgProlif[5];     // Parameters invloved in Chondrocyte proliferation in CaAlg Gel
     static float CaAlgViability[3];  // Parameters invloved in Chondrocyte viability in CaAlg Gel
-    static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
-    static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
     static float HASynth[3];         // Parameters invloved in HA synthesis in CaAlg Gel
 #endif
 

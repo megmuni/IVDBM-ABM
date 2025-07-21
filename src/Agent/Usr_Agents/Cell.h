@@ -183,7 +183,7 @@ class Cell: public Agent {
      *
      * Parameters: number  -- Number of new cells to hatch
      */
-    void hatchnewcell(int number, int agentType);
+    virtual void hatchnewcell(int number, int agentType);
 
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
@@ -221,6 +221,15 @@ class Stem: public Cell {
        * Parameters: void
        */
     void differentiateStem();
+
+    /*
+       * Description: Calculates ECM component synthesis expressions.
+       *
+       * Return: void
+       *
+       * Parameters: void
+       */
+    void calculateECMStem();
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
@@ -228,9 +237,14 @@ class Stem: public Cell {
   static int numOfStem; // Keeps track of the quantity of living stem cells
   static float migrationSpeed;    // Speed (patch/tick) stem cells move in world
 
+  static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
+  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in stem cell migration speed in CaAlg Gel
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
+  static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
+  static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
   static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[5]; // Parameters involved in stem cell differentiation
@@ -267,6 +281,9 @@ class Progen: public Cell {
   static int numOfProgen; // Keeps track of the quantity of living progenitor cells
   static float migrationSpeed;    // Speed (patch/tick) pre-NP cells move in world
 
+  //static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug) // may not be applicable to Pre-NP
+  //static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
@@ -297,8 +314,13 @@ class NP: public Cell {
   static int numOfNP; // Keeps track of the quantity of living NP cells
   static float migrationSpeed;    // Speed (patch/tick) NP cells move in world
 
+  static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
+  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
+  static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
+  static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
 };
 
 #endif

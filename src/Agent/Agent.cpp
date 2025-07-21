@@ -38,15 +38,11 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 
 float Agent::viabilityRate = 97; // %
 float Agent::proliferationRate = 27;
-float Agent::collagenSynthRate = 1; 
-float Agent::aggrecanSynthRate = 1.5;//1;
 float Agent::HASynthRate = 0;
 bool  Agent::CaAlgFlag = false; 
 
 float Agent::CaAlgViability[3] = {0.7321, 97.452, 6};
 float Agent::CaAlgProlif[5] = {13.06, 3.69, 101.18, 0.056, 30.44}; //{12, 11.8, 21.5, 20};
-float Agent::CollagenSynth[3] = {10, 6.45, 3.6}; //{8922, 255400, 0.02429};
-float Agent::AggrecanSynth[3] = {10, 38, 16.6}; //{183.4, 4702, 0.0009759};
 float Agent::HASynth[3] = {0,0,0};
 
 using namespace std;
@@ -178,7 +174,7 @@ bool Agent::rollDice(float percent) {
 	}
 
 	/* --------------------------- ECM SYNTHESIS RATE --------------------------- */
-	void Agent::calculateECMSynthesisRate(){
+	void Agent::calculateECMSynthesisRate(int agentType){
 		/* Cellular Activity and ECM synthesis dependent on Elastic Modulus (E) and pore size (poreWidth)
 		 * 		  Collagen per cell = a*(b*E + c) + d*(-e*poreWidth + f)
 		 * 		  Aggrecan per cell = g*(h*E + i) + j*(-k*poreWidth + l)
@@ -188,16 +184,35 @@ bool Agent::rollDice(float percent) {
 		 *        Aggrecan production decreased with Elastic modulus 
 		 *        Collagen production depends on pore size and not Elastic modulus 
 		 */
+		
+		float meanTNF = this->meanNeighborChem(TNF);
+		float meanTGF = this->meanNeighborChem(TGF);
+		float meanIL1 = this->meanNeighborChem(IL1beta);
 
 		#ifdef CALIBRATION
-			Agent::collagenSynthRate = Agent::CollagenSynth[0]*(Agent::CollagenSynth[1]*WHWorld::reportDay() + Agent::CollagenSynth[2]);
-			Agent::aggrecanSynthRate = Agent::AggrecanSynth[0]*(Agent::AggrecanSynth[1]*WHWorld::reportDay() + Agent::AggrecanSynth[2]);
+
+		switch (agentType) {
+		case stem: {
+			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+			if (meanTGF < 100000) {// pg/ml
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+			}
+			else {
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+				break;
+			}
+		}
+		case np: {
+			NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
+			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
+		}
+		}
 		#else		
-			Agent::collagenSynthRate = 10*(6.45*WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
-			Agent::aggrecanSynthRate = 20*(38*WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
+			NP::collagenSynthRate = 10*(6.45*WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
+			NP::aggrecanSynthRate = 20*(38*WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
 		#endif
-		cout << "        Collagen Synthesis Rate = " << Agent::collagenSynthRate << endl; 
-		cout << "        Agggrecan Synthesis Rate = " << Agent::aggrecanSynthRate << endl; 
+		cout << "        Collagen Synthesis Rate = " << NP::collagenSynthRate << endl; 
+		cout << "        Agggrecan Synthesis Rate = " << NP::aggrecanSynthRate << endl; 
 		return; 
 	}
 
