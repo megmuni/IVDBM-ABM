@@ -173,7 +173,7 @@ class Cell: public Agent {
      * 				     meanTGF  -- Average TGF concentration of the activated chondrocyte's neighbors
      * 				     meanIL1  -- Average IL1 concentration of the activated chondrocyte's neighbors
      */
-    void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
+    //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
 
     /*
      * Description:	Hatches a new cell on 'number' unoccupied neighbors.
@@ -193,7 +193,7 @@ class Cell: public Agent {
   /* -------------------------- Calibration variables ------------------------- */
   static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
   static float activation[5];           // Parameters involved in cell activation and deactivation
-  static float ECMsynthesis[17];        // Parameters involved in ECM synthesis
+  static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
   static float proliferation[6];        // Parameters invloved in cell proliferation
 };
 
@@ -226,6 +226,14 @@ class Stem: public Cell {
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
   static int numOfStem; // Keeps track of the quantity of living stem cells
+  static float migrationSpeed;    // Speed (patch/tick) stem cells move in world
+
+  /* -------------------------- Calibration variables ------------------------- */
+  static float CaAlgMigration[2];  // Parameters invloved in stem cell migration speed in CaAlg Gel
+  static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
+  static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
+  static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
+  static float differentiation[5]; // Parameters involved in stem cell differentiation
 };
 
 /*
@@ -257,6 +265,15 @@ class Progen: public Cell {
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
   static int numOfProgen; // Keeps track of the quantity of living progenitor cells
+  static float migrationSpeed;    // Speed (patch/tick) pre-NP cells move in world
+
+  /* -------------------------- Calibration variables ------------------------- */
+  static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
+  static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
+  static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
+  static float proliferation[4]; // Parameters involved in pre-NP cell proliferation (coefficients for probabilistic differentiation
+  static float differentiation[5]; // Parameters involved in pre-NP cell differentiation
+
 };
 
 /*
@@ -278,6 +295,10 @@ class NP: public Cell {
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
   static int numOfNP; // Keeps track of the quantity of living NP cells
+  static float migrationSpeed;    // Speed (patch/tick) NP cells move in world
+
+  /* -------------------------- Calibration variables ------------------------- */
+  static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
 };
 
 #endif

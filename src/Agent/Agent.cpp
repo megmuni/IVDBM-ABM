@@ -36,7 +36,6 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 	int Agent::neighbor[8] = {9, 10, 11, 12, 14, 15, 16, 17}; // We do not include neighbor 13 (no movement to self (0,0,0))
 #endif
 
-float Agent::migrationSpeed = 1;  // patch/tick
 float Agent::viabilityRate = 97; // %
 float Agent::proliferationRate = 27;
 float Agent::collagenSynthRate = 1; 
@@ -44,7 +43,6 @@ float Agent::aggrecanSynthRate = 1.5;//1;
 float Agent::HASynthRate = 0;
 bool  Agent::CaAlgFlag = false; 
 
-float Agent::CaAlgMigration[2] = {0.11, 1.30};
 float Agent::CaAlgViability[3] = {0.7321, 97.452, 6};
 float Agent::CaAlgProlif[5] = {13.06, 3.69, 101.18, 0.056, 30.44}; //{12, 11.8, 21.5, 20};
 float Agent::CollagenSynth[3] = {10, 6.45, 3.6}; //{8922, 255400, 0.02429};
@@ -124,6 +122,7 @@ bool Agent::rollDice(float percent) {
 	}
 
 	/* --------------------------- PROLIFERATION RATE --------------------------- */
+	/* NOTE: this function will not be used in IVDBM-ABM (stem cell version)      */
 	void Agent::calculateProliferationRate(){
 		/* Change in cell population (% of initial population) for gel with given %Alg(w/w) at time t (hours)
 		 * 		   Cell population = (-a*Alg(w/w) + b)*ln(t_hours) + (c * Alg(w/w) + d)

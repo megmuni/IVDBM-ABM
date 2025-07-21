@@ -20,8 +20,33 @@ using namespace std;
 int Cell::numOfCells = 0;
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
 float Cell::activation[5] = {500, 50, 0, 25, 2.5};
-float Cell::ECMsynthesis[17] = {1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2, 1, 0, 50, 5, 10};
+float Cell::ECMsynthesis[12] = {1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2};
 float Cell::proliferation[6] = {24, 10, 1, 0, 25, 2};
+
+int Stem::numOfStem = 0;
+float Stem::migrationSpeed = 1; // patch/tick
+
+float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
+float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
+float Stem::ECMsynthesis[4] = {};
+float Stem::proliferation[4] = {};
+float Stem::differentiation[5] = {};
+
+int Progen::numOfProgen = 0; 
+float Progen::migrationSpeed = 1;    // patch/tick
+
+float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
+float Progen::cytokineSynthesis[3] = {  };
+float Progen::ECMsynthesis[4] = {};
+float Progen::proliferation[4] = {};
+float Progen::differentiation[5] = {};
+
+int NP::numOfNP = 0;
+float NP::migrationSpeed = 1;    // patch/tick
+
+float NP::CaAlgMigration[2] = { 0.11, 1.30 };
+
+
 
 Cell::Cell() {
 	cout << "default cell alloc" << endl;
@@ -811,86 +836,86 @@ void Chondrocyte::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 			}
 	}
 
-void Chondrocyte::makeHyaluronan(float meanTNF, float meanTGF, float meanIL1) {
-	int read_index;
-	// Check if the location has been modified in this tick
-	if (isModified(this->index)) {
-		read_index = write_t;		// If it has, work off of the intermediate value
-	} else {
-		read_index = read_t;		// If it has NOT, work off of the original value
-	}
-	
-  	// Location of chondrocyte in x,y,z dimensions of world.
-	int x = this->ix[read_index];
-	int y = this->iy[read_index];
-	int z = this->iz[read_index];
-  
-  	// Number of patches in x,y,z dimensions of world
-	int nx = Agent::nx;
-	int ny = Agent::ny;
-	int nz = Agent::nz;
-	vector <int> damagedneighbors;
-
-	#ifndef CALIBRATION
-		int stimulation = Chondrocyte::ECMsynthesis[12]*(log10(Chondrocyte::ECMsynthesis[12] + meanTGF + meanTNF + meanIL1)) + Chondrocyte::ECMsynthesis[13];
-	#else  
-		int stimulation = 1*log10(1 + meanTGF + meanTNF + meanIL1) + 0;
-	#endif  
-
-	int dx, dy, dz, in, randInt, target;
-
-	// Make list of damaged neighboring patches
-	#ifndef MODEL_3D
-		for (int i = 9; i < 18; i++) {
-	#else
-		for (int i = 0; i < 27; i++) {
-	#endif
-			dx = Agent::dX[i];
-			dy = Agent::dY[i];
-			dz = Agent::dZ[i];
-			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-			
-			// Try a new neighboring patch if this one is outside the world dimensions.
-			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-		
-			// Add the valid damaged neighboring patch to the list.
-			if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
-	}
-
-	// Target a random damaged neighboring patch, if there are any.
-	if (damagedneighbors.size() > 0) {
-		int tid = 0;
-		#ifdef _OMP
-			tid = omp_get_thread_num();    // Get thread id in order to access the seed that belongs to this thread
-		#endif
-
-		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
-		target = damagedneighbors[randInt];
-		dx = Agent::dX[target];
-		dy = Agent::dY[target];
-		dz = Agent::dZ[target];
-		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-
-		// Based on mean TGF, TNF, IL1, chance, move to new patch and sprout HA
-		#ifndef CALIBRATION
-			if (rollDice(Chondrocyte::ECMsynthesis[14] + stimulation)) { 			
-		#else  
-			if (rollDice(50 + stimulation)) { 
-		#endif  
-				this->move(dx, dy, dz, read_index);
-
-			}
-		#ifndef CALIBRATION
-			} else if (rollDice(Chondrocyte::ECMsynthesis[15] + stimulation/Chondrocyte::ECMsynthesis[16])) {
-		#else  
-			} else if (rollDice(5 + stimulation/10)) {		
-		#endif 
-				in = this->index[read_t];
-				#ifdef OPT_ECM
-					Agent::agentECMPtr[in].set_dirty(); 
-				#endif
-			}
-}
+//void Chondrocyte::makeHyaluronan(float meanTNF, float meanTGF, float meanIL1) {
+//	int read_index;
+//	// Check if the location has been modified in this tick
+//	if (isModified(this->index)) {
+//		read_index = write_t;		// If it has, work off of the intermediate value
+//	} else {
+//		read_index = read_t;		// If it has NOT, work off of the original value
+//	}
+//	
+//  	// Location of chondrocyte in x,y,z dimensions of world.
+//	int x = this->ix[read_index];
+//	int y = this->iy[read_index];
+//	int z = this->iz[read_index];
+//  
+//  	// Number of patches in x,y,z dimensions of world
+//	int nx = Agent::nx;
+//	int ny = Agent::ny;
+//	int nz = Agent::nz;
+//	vector <int> damagedneighbors;
+//
+//	#ifndef CALIBRATION
+//		int stimulation = Chondrocyte::ECMsynthesis[12]*(log10(Chondrocyte::ECMsynthesis[12] + meanTGF + meanTNF + meanIL1)) + Chondrocyte::ECMsynthesis[13];
+//	#else  
+//		int stimulation = 1*log10(1 + meanTGF + meanTNF + meanIL1) + 0;
+//	#endif  
+//
+//	int dx, dy, dz, in, randInt, target;
+//
+//	// Make list of damaged neighboring patches
+//	#ifndef MODEL_3D
+//		for (int i = 9; i < 18; i++) {
+//	#else
+//		for (int i = 0; i < 27; i++) {
+//	#endif
+//			dx = Agent::dX[i];
+//			dy = Agent::dY[i];
+//			dz = Agent::dZ[i];
+//			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
+//			
+//			// Try a new neighboring patch if this one is outside the world dimensions.
+//			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+//		
+//			// Add the valid damaged neighboring patch to the list.
+//			if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
+//	}
+//
+//	// Target a random damaged neighboring patch, if there are any.
+//	if (damagedneighbors.size() > 0) {
+//		int tid = 0;
+//		#ifdef _OMP
+//			tid = omp_get_thread_num();    // Get thread id in order to access the seed that belongs to this thread
+//		#endif
+//
+//		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
+//		target = damagedneighbors[randInt];
+//		dx = Agent::dX[target];
+//		dy = Agent::dY[target];
+//		dz = Agent::dZ[target];
+//		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
+//
+//		// Based on mean TGF, TNF, IL1, chance, move to new patch and sprout HA
+//		#ifndef CALIBRATION
+//			if (rollDice(Chondrocyte::ECMsynthesis[14] + stimulation)) { 			
+//		#else  
+//			if (rollDice(50 + stimulation)) { 
+//		#endif  
+//				this->move(dx, dy, dz, read_index);
+//
+//			}
+//		#ifndef CALIBRATION
+//			} else if (rollDice(Chondrocyte::ECMsynthesis[15] + stimulation/Chondrocyte::ECMsynthesis[16])) {
+//		#else  
+//			} else if (rollDice(5 + stimulation/10)) {		
+//		#endif 
+//				in = this->index[read_t];
+//				#ifdef OPT_ECM
+//					Agent::agentECMPtr[in].set_dirty(); 
+//				#endif
+//			}
+//}
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
