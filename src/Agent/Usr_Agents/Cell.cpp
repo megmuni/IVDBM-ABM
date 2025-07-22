@@ -167,6 +167,16 @@ Cell::~Cell() {}
 
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
+	if (this->alive[read_t] == true) {
+		if (typeid(*this) == typeid(Stem)) {
+			this->Stem::stem_cellFunction;
+		}
+		else if (typeid(*this) == typeid(Progen)) {
+			this->Progen::progen_cellFunction;
+		} else if (typeid(*this) == typeid(NP)) {
+			this->NP::NP_cellFunction;
+		}
+	}
 	//if (this->activate[read_t] == false) this->chond_cellFunction();
 	//else this->achond_cellFunction();
 }
@@ -418,17 +428,17 @@ void Cell::die() {
 //	}
 //}
 
-void Cell::cellDeactivation() {
-	int in = this->index[read_t];
-	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick 
-	if (this->activate[read_t] == true&& this->life[read_t] > 1) {
-		this->type[write_t] = stem;
-		this->activate[write_t] = false;
-		this->color[write_t] = cstem;
-		Agent::agentPatchPtr[in].setOccupied();
-		Agent::agentPatchPtr[in].occupiedby[write_t] = stem;
-	}
-}
+//void Cell::cellDeactivation() {
+//	int in = this->index[read_t];
+//	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick 
+//	if (this->activate[read_t] == true&& this->life[read_t] > 1) {
+//		this->type[write_t] = stem;
+//		this->activate[write_t] = false;
+//		this->color[write_t] = cstem;
+//		Agent::agentPatchPtr[in].setOccupied();
+//		Agent::agentPatchPtr[in].occupiedby[write_t] = stem;
+//	}
+//}
 
 void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 	int in = this->index[read_t];

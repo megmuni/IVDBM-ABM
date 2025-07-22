@@ -125,7 +125,7 @@ class Cell: public Agent {
      * Return: void
      * Parameters: void
      */
-    void cellDeactivation();
+    //void cellDeactivation();
 
     /* 
      * Description: Copies the location of 'original' agent and initializes a new chondrocyte at a distance away determined by dx, dy, dz.

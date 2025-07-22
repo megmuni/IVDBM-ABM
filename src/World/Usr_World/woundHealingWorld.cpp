@@ -2686,36 +2686,54 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 						int tid = omp_get_thread_num();
 						this->localNewCells[tid]->push_back(newStem);
 					#else
-						if (!this->chonds.addData(newChond, DEFAULT_TID)) {
-							cerr << "Error: Could not add chondrocyte in sproutAgent()" << endl;
+						if (!this-> cells.addData(newStem, DEFAULT_TID)) {
+							cerr << "Error: Could not add stem cell in sproutAgent()" << endl;
 							exit(-1);
 						}
 					#endif
         			
 					this->worldPatch[in].setOccupied();
-        			this->worldPatch[in].occupiedby[write_t] = chondrocyte;
+        			this->worldPatch[in].occupiedby[write_t] = stem;
 					this->worldPatch[in].dirty = true;
         			
 					break;
       			}
 				case progen: {
 					tempPatchPtr = &(this->worldPatch[in]);
-					Chondrocyte* newChond = new Chondrocyte(tempPatchPtr);
+					Progen* newProgen = new Progen(tempPatchPtr);
 					#ifdef _OMP
 						int tid = omp_get_thread_num();
-						this->localNewChondros[tid]->push_back(newChond);
+						this->localNewCells[tid]->push_back(newProgen);
 					#else
-						if (!this->chonds.addData(newChond, DEFAULT_TID)) {
-							cerr << "Error: Could not add chondrocyte in sproutAgent()" << endl;
+						if (!this->cells.addData(newProgen, DEFAULT_TID)) {
+							cerr << "Error: Could not add pre-np cell in sproutAgent()" << endl;
 							exit(-1);
 						}
 					#endif
 
-					newChond->chondActivation();
 					this->worldPatch[in].setOccupied();
-					this->worldPatch[in].occupiedby[write_t] = chondrocyte;
+					this->worldPatch[in].occupiedby[write_t] = progen;
 					this->worldPatch[in].dirty = true;
 					
+					break;
+				}
+				case np: {
+					tempPatchPtr = &(this->worldPatch[in]);
+					NP* newNP = new NP(tempPatchPtr);
+					#ifdef _OMP
+						int tid = omp_get_thread_num();
+						this->localNewCells[tid]->push_back(newNP);
+					#else
+						if (!this->cells.addData(newNP, DEFAULT_TID)) {
+							cerr << "Error: Could not add np cell in sproutAgent()" << endl;
+							exit(-1);
+						}
+					#endif
+
+					this->worldPatch[in].setOccupied();
+					this->worldPatch[in].occupiedby[write_t] = np;
+					this->worldPatch[in].dirty = true;
+
 					break;
 				}
       			case orig_coll: {
@@ -2780,21 +2798,55 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 			for (int i = 0; i < num; i++) {
 				if (reservoir[i] < 0 || reservoir[i] > (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny) continue;
 				switch (agentType) {
-					case chondrocyte: {
+					case stem: {
 						tempPatchPtr = &(this->worldPatch[reservoir[i]]);
-						Chondrocyte* newChond = new Chondrocyte(tempPatchPtr);
+						Stem* newStem = new Stem(tempPatchPtr);
 						#ifdef _OMP
 							int tid = omp_get_thread_num();
-							this->localNewChondros[tid]->push_back(newChond);
+							this->localNewCells[tid]->push_back(newStem);
 						#else
-							if (!this->chonds.addData(newChond, DEFAULT_TID)) {
-								cerr << "Error: Could not add chondrocyte in sproutAgentInWorld()" << endl;
+							if (!this->cells.addData(newStem, DEFAULT_TID)) {
+								cerr << "Error: Could not add stem cell in sproutAgentInWorld()" << endl;
 								exit(-1);
 							}
 						#endif
 						//this->worldPatch[reservoir[i]].occupied = true;
 						this->worldPatch[reservoir[i]].setOccupied();
-						this->worldPatch[reservoir[i]].occupiedby = chondrocyte;
+						this->worldPatch[reservoir[i]].occupiedby = stem;
+						break;
+					}
+					case progen: {
+						tempPatchPtr = &(this->worldPatch[reservoir[i]]);
+						Progen* newProgen = new Progen(tempPatchPtr);
+						#ifdef _OMP
+							int tid = omp_get_thread_num();
+							this->localNewCells[tid]->push_back(newProgen);
+						#else
+							if (!this->cells.addData(newProgen, DEFAULT_TID)) {
+								cerr << "Error: Could not add pre-np cell in sproutAgentInWorld()" << endl;
+								exit(-1);
+							}
+						#endif
+						//this->worldPatch[reservoir[i]].occupied = true;
+						this->worldPatch[reservoir[i]].setOccupied();
+						this->worldPatch[reservoir[i]].occupiedby = progen;
+						break;
+					}
+					case np: {
+						tempPatchPtr = &(this->worldPatch[reservoir[i]]);
+						NP* newNP = new NP(tempPatchPtr);
+						#ifdef _OMP
+							int tid = omp_get_thread_num();
+							this->localNewCells[tid]->push_back(newNP);
+						#else
+							if (!this->cells.addData(newNP, DEFAULT_TID)) {
+								cerr << "Error: Could not add np cell in sproutAgentInWorld()" << endl;
+								exit(-1);
+							}
+						#endif
+						//this->worldPatch[reservoir[i]].occupied = true;
+						this->worldPatch[reservoir[i]].setOccupied();
+						this->worldPatch[reservoir[i]].occupiedby = np;
 						break;
 					}
 				}
@@ -2996,12 +3048,12 @@ void WHWorld::updateCellsInitial() {
 		
 		int numThreads = omp_get_num_threads();
 		for (int tid = 0; tid < numThreads; tid++) {
-			/* ------------------------------ CHONDROCYTES ------------------------------ */
-			vector<Chondrocyte*>* fvec_ptr = localNewChondros[tid];
-			for (vector<Chondrocyte*>::iterator chond_it = fvec_ptr->begin(); chond_it != fvec_ptr->end(); chond_it++) {
-				Chondrocyte* newChond = *chond_it;
-				if(!chonds.addData(newChond, tid)) {
-					cerr << "Error: Could not add chondrocyte" << endl;
+			/* ------------------------------ Cells ------------------------------ */
+			vector<Cell*>* fvec_ptr = localNewCells[tid];
+			for (vector<Cell*>::iterator cell_it = fvec_ptr->begin(); cell_it != fvec_ptr->end(); cell_it++) {
+				Cell* newCell = *cell_it;
+				if(!cells.addData(newCell, tid)) {
+					cerr << "Error: Could not add cell" << endl;
 					exit(-1);
 				}
 			}
@@ -3009,21 +3061,22 @@ void WHWorld::updateCellsInitial() {
 		}
 	#endif
 
-	/* ------------------------------ CHONDROCYTES ------------------------------ */
+	/* ------------------------------ Cells ------------------------------ */
 	// No need for deletion since these are new cells
-	int chondrosSize = chonds.size();
+	int cellsSize = cells.size();
 	#pragma omp parallel for
-	for (int i = 0 ; i < chondrosSize; i++) {
+	for (int i = 0 ; i < cellsSize; i++) {
 		#ifdef _OMP
 			int tid = omp_get_thread_num();
 		#else
 			int tid = DEFAULT_TID;
 		#endif
-		Chondrocyte* chond = chonds.getDataAt(i);
-		if (!chond) continue;
-		chond->updateAgent();
+		Stem* cell = cells.getDataAt(i);
+		if (!cell) continue;
+		cell->updateAgent();
 	}
-	Chondrocyte::numOfChondrocytes = chonds.actualSize();
+	Cell::numOfCells = cells.actualSize();
+	Stem::numOfStem = cells.actualSize();
 }
 
 int WHWorld::userInput() {
@@ -3179,16 +3232,30 @@ void WHWorld::outputWorld_csv() {
 	int orig_coll = 0; int frag_coll = 0; double new_coll = 0; 
 	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
 	int HA = 0; int fHA = 0;
-	cout << " chondrocytes: " << chonds.actualSize() << endl;
+	int stemSize = 0; int progenSize = 0; int npSize = 0;
 
-	int chondrosSize = chonds.size();
-	for (int i = 0; i < chondrosSize; i++) {
-		Chondrocyte* chond = chonds.getDataAt(i);
-		if (!chond) continue;
-		if (chond->isAlive() == false) continue;
-		if (chond->activate[read_t] == false) f++;
+	int cellsSize = cells.size();
+	for (int i = 0; i < cellsSize; i++) {
+		Cell* cell = cells.getDataAt(i);
+		if (!cell) continue;
+		if (cell->isAlive() == false) continue;
+		if (cell->activate[read_t] == false) f++;
+		if (typeid(*cell) == typeid(Stem)) {
+			stemSize++;
+		}
+		else if (typeid(*cell) == typeid(Progen)) {
+			progenSize++;
+		}
+		else if (typeid(*cell) == typeid(NP)) {
+			npSize++;
+		}
 		else af++;
 	}
+
+	cout << " total cells: " << cells.actualSize() << endl;
+	cout << " stem cells: " << stemSize << endl;
+	cout << " pre-np cells: " << progenSize << endl;
+	cout << " np cells: " << npSize << endl;
 
 	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
@@ -3404,8 +3471,16 @@ void WHWorld::patchassign_csv() {
 			for (int ix = 0; ix < nx; ix++) {
 				in = ix + iy*nx + iz*nx*ny;
 				if (worldPatch[in].isOccupied()) {
-					if (worldPatch[in].occupiedby[read_t] == chondrocyte) {
+					if (worldPatch[in].occupiedby[read_t] == stem) {
 						output_file6 << "f";
+						continue;
+					}
+					else if (worldPatch[in].occupiedby[read_t] == progen) {
+						output_file6 << "g";
+						continue;
+					}
+					else if (worldPatch[in].occupiedby[read_t] == np) {
+						output_file6 << "h";
 						continue;
 					}
 				}
@@ -3425,8 +3500,16 @@ void WHWorld::patchassign_csv() {
 			for (int ix = 0; ix < nx; ix++) {
 				in = ix + iy*nx + iz*nx*ny;
 				if (worldPatch[in].isOccupiedWrite()) {
-					if (worldPatch[in].occupiedby[write_t] == chondrocyte) {
-						output_file7 << "f";
+					if (worldPatch[in].occupiedby[read_t] == stem) {
+						output_file6 << "f";
+						continue;
+					}
+					else if (worldPatch[in].occupiedby[read_t] == progen) {
+						output_file6 << "g";
+						continue;
+					}
+					else if (worldPatch[in].occupiedby[read_t] == np) {
+						output_file6 << "h";
 						continue;
 					}
 				}
