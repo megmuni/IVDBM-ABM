@@ -85,7 +85,7 @@ class Agent {
      * Return: void
      * Parameters: void             
      */
-    static void calculateMigrationSpeed();
+    static void calculateMigrationSpeed(int agentType);
 
     /*
      * Description:	Calculates the rate of duplication per hour in Ca-Alg hydrogel 

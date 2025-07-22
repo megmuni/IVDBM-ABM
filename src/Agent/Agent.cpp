@@ -89,31 +89,84 @@ bool Agent::rollDice(float percent) {
 #ifdef MODEL_SCAFFOLD
 
 	/* ----------------------------- 		MIGRATION SPEED 		 ---------------------------- */
-	void Agent::calculateMigrationSpeed(){
+	void Agent::calculateMigrationSpeed(int agentType){
 		/* Calculate migration speed (patch/tick) of Chondrocyte in Ca-Alg Gel given elastic modulus (E)
 		*        
 		*        Cells move through gel in brownian motion and along chemical gradients
 		*        Cells favor attachment and move faster in hydrogels with high elastic modulus
 		*/
-		#ifdef CALIBRATION
-			float migration_ummin = 0.1096*log(Agent::agentWorldPtr->E) + 0.2431; // um/min
+		switch (agentType) {
+		case stem: {
+			#ifdef CALIBRATION
+				float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
 
-			if (rollDice(0.5)){  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-				Agent::migrationSpeed = ceil(migration_ummin*30/(Agent::agentWorldPtr->patchlength*pow(10,3)));    //patch/tick 
-			} else {
-				Agent::migrationSpeed = floor(migration_ummin*30/(Agent::agentWorldPtr->patchlength*pow(10,3)));    //patch/tick 
-			}
-		#else
-			float migration_ummin = 0.1096*log(Agent::agentWorldPtr->E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#else
+				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
 
-			if (rollDice(0.5)){  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-				Agent::migrationSpeed = ceil(migration_ummin*30/(Agent::agentWorldPtr->patchlength*pow(10,3)));    //patch/tick 
-			} else {
-				Agent::migrationSpeed = floor(migration_ummin*30/(Agent::agentWorldPtr->patchlength*pow(10,3)));    //patch/tick 
-			}
-		#endif
-		
-		cout << "        Migration Speed (patch/tick) = " << Agent::migrationSpeed << endl; 
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#endif
+			cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+			break;
+		}
+		case progen: {
+			#ifdef CALIBRATION
+				float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
+
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#else
+				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + ((NP::migrationSpeed - Stem::migrationSpeed)/2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#endif
+			cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+			break;
+
+		}
+		case np: {
+			#ifdef CALIBRATION
+				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min
+
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#else
+				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+
+				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+					NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+				else {
+					NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+				}
+			#endif
+			cout << "        NP cell migration Speed (patch/tick) = " << NP::migrationSpeed << endl;
+			break;
+		}
+		}
 		return; 
 	}
 
@@ -207,7 +260,8 @@ bool Agent::rollDice(float percent) {
 			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
 		}
 		}
-		#else		
+		#else
+		// add SWITCH for agent type here after calibration
 			NP::collagenSynthRate = 10*(6.45*WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
 			NP::aggrecanSynthRate = 20*(38*WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
 		#endif
@@ -216,7 +270,7 @@ bool Agent::rollDice(float percent) {
 		return; 
 	}
 
-	void Agent::chondrocyteCaAlgBehavior(){
+	void Agent::cellCaAlgBehavior(){
 		if (WHWorld::clock == 0){
 			Agent::calculateMigrationSpeed(); 
 			Agent::calculateECMSynthesisRate();
