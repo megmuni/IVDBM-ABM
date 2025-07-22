@@ -170,8 +170,7 @@ void Cell::cellFunction() {
 	if (this->alive[read_t] == true) {
 		if (typeid(*this) == typeid(Stem)) {
 			this->Stem::stem_cellFunction;
-		}
-		else if (typeid(*this) == typeid(Progen)) {
+		} else if (typeid(*this) == typeid(Progen)) {
 			this->Progen::progen_cellFunction;
 		} else if (typeid(*this) == typeid(NP)) {
 			this->NP::NP_cellFunction;
