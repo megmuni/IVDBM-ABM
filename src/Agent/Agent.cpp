@@ -589,6 +589,74 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	return this->move(dx, dy, dz, read_index);
 }
 
+virtual void Agent::hatchnewcell(int number, int agentType) {
+	int newcells = 0;
+
+	// Location of cell in x,y,z dimensions of the world
+	int x = this->ix[read_t];
+	int y = this->iy[read_t];
+	int z = this->iz[read_t];
+
+	// Number of patches in x,y,z dimensions of world
+	int nx = Agent::nx;
+	int ny = Agent::ny;
+	int nz = Agent::nz;
+
+	// Shuffle neighboring patches and go through them in a random order:
+	#ifdef MODEL_3D
+		random_shuffle(&Agent::neighbor[0], &Agent::neighbor[26]);
+		for (int i = 0; i < 27 && newcells < number; i++) {
+	#else
+		random_shuffle(&Agent::neighbor[0], &Agent::neighbor[7]);
+		for (int i = 0; i < 8 && newcells < number; i++) {
+	#endif
+
+		// Distance away from target neighboring patch in x,y,z dimensions
+		int dx = Agent::dX[neighbor[i]];
+		int dy = Agent::dY[neighbor[i]];
+		int dz = Agent::dZ[neighbor[i]];
+
+		// Patch row major index of target neighboring patch:
+		int in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+
+		// Try a new target neighboring patch if this one is not inside the world dimensions, or is occupied.
+		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+		int targetType = agentPatchPtr[in].type[read_t];
+
+		// Create a new cell of agentType at the valid target neighboring patch:
+		Cell* newcell = NULL;
+		switch (agentType) {
+		case stem:
+			Stem* newcell = new Stem(x + dx, y + dy, z + dz);
+			break;
+		case progen:
+			Progen* newcell = new Progen(x + dx, y + dy, z + dz);
+			break;
+		case np:
+			NP* newcell = new NP(x + dx, y + dy, z + dz);
+			break;
+		}
+		newcells++;
+
+		// Update target neighboring patch as occupied:
+		Agent::agentPatchPtr[in].setOccupied();
+		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType;
+
+		/* If executing OMP version, add the pointer to this new cell to the thread-local list first.
+			* WHWorld::UpdateCells() will take care of putting it in the global list at the end
+			*/
+#ifdef _OMP
+		int tid = omp_get_thread_num();
+		Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
+#else
+			// If executing serial version, add the pointer to this new cell to the global list right away
+		Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
+#endif
+
+		newcell->wiggle();
+	}
+}
+
 void Agent::updateAgent() {
 	this->ix[read_t] = this->ix[write_t];
 	this->iy[read_t] = this->iy[write_t];

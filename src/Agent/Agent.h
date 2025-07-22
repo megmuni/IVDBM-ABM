@@ -235,6 +235,16 @@ class Agent {
      */
     virtual void copyAndInitialize(Agent* original, int dx, int dy, int dz = 0);
 
+    /*
+    * Description:	Hatches a new cell on 'number' unoccupied neighbors.
+    *              Does not update numOfCells; this must be done elsewhere.
+    *
+    * Return: void
+    *
+    * Parameters: number  -- Number of new cells to hatch
+    */
+    virtual void hatchnewcell(int number, int agentType);
+
 /* -------------------------------------------------------------------------- */
 /*                              PUBLIC VARIABLES                              */
 /* -------------------------------------------------------------------------- */

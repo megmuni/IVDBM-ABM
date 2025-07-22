@@ -173,8 +173,8 @@ void Cell::cellFunction() {
 	//else this->achond_cellFunction();
 }
 
-void Cell::chond_cellFunction() {  //NOTE MM: this function code has to be copied into stem_cellFunction, progen_cellFunction, and NP_cellFunction. 
-								   //chond_cellFunction will no longer be used
+void NP::NP_cellFunction() {  
+
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
 	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
@@ -227,24 +227,23 @@ void Cell::chond_cellFunction() {  //NOTE MM: this function code has to be copie
 				}
 
 			#ifndef CALIBRATION
-				float chondProlif = Chondrocyte::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Chondrocyte::proliferation[3];
-				if (rollDice(Chondrocyte::proliferation[4] + chondProlif/Chondrocyte::proliferation[5])) {
+				float cellProlif = Cell::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Cell::proliferation[3];
+				if (rollDice(Cell::proliferation[4] + cellProlif/Cell::proliferation[5])) {
 			#else
-				float chondProlif = 1*log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF) + 0;
-				if (rollDice(25 + chondProlif/2)) { 
+				float cellProlif = 1*log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF) + 0;
+				if (rollDice(25 + cellProlif/2)) { 
 			#endif	
-					this->hatchnewchondrocyte(2);
+					this->hatchnewcell(2);
 					this->die();
 					return;
 				}
 				}				
-
 				// Unactivated chondrocytes proliferate every 24 hours.
 				} else{
 		#endif
 
 	#ifndef CALIBRATION
-		if (fmod((float) hours, Chondrocyte::proliferation[0]) == 0) {
+		if (fmod((float) hours, Cell::proliferation[0]) == 0) {
 	#else  
 		if (fmod(hours, 24) == 0) {
 	#endif  
@@ -265,13 +264,13 @@ void Cell::chond_cellFunction() {  //NOTE MM: this function code has to be copie
 			}
 
 		#ifndef CALIBRATION
-			float chondProlif = Chondrocyte::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Chondrocyte::proliferation[3];  
-			if (rollDice(Chondrocyte::proliferation[4] + chondProlif/Chondrocyte::proliferation[5])) {  
+			float cellProlif = Cell::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Cell::proliferation[3];  
+			if (rollDice(Cell::proliferation[4] + cellProlif/Cell::proliferation[5])) {  
 		#else  
-			float chondProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF);
-			if (rollDice(25 + chondProlif/2)) {		
+			float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF);
+			if (rollDice(25 + cellProlif/2)) {		
 		#endif 
-				this->hatchnewchondrocyte(2);
+				this->hatchnewcell(2);
 				this->die();
 				return;
 			}
@@ -288,20 +287,20 @@ void Cell::chond_cellFunction() {  //NOTE MM: this function code has to be copie
     /* -------------------------------------------------------------------------- */
     /*                                 ACTIVATION                                 */
     /* -------------------------------------------------------------------------- */
-	// An unactivated chondrocyte can be activated if it is in the damage zone:
-	if (Agent::agentPatchPtr[in].inDamzone == true) {
-		// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
-		int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
-		
-	#ifndef CALIBRATION
-		if ((patchTGF > 10 && rollDice(Chondrocyte::activation[1])) || (patchTGF > Chondrocyte::activation[2]) || (rollDice(Chondrocyte::activation[3]))) { 
-	#else  
-		if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
-	#endif
-			this->chondActivation();
-		}
-		}
-	}
+	//// An unactivated chondrocyte can be activated if it is in the damage zone:
+	//if (Agent::agentPatchPtr[in].inDamzone == true) {
+	//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
+	//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
+	//	
+	//#ifndef CALIBRATION
+	//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
+	//#else  
+	//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
+	//#endif
+	//		this->chondActivation();
+	//	}
+	//	}
+	//}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                    DEATH                                   */
@@ -326,112 +325,73 @@ void Cell::chond_cellFunction() {  //NOTE MM: this function code has to be copie
 	if (this->life[read_t] <= 0) this->die();	
 }
 
-void Cell::hatchnewcell(int number, int agentType) {
-	int newcells = 0;
-  
-  	// Location of cell in x,y,z dimensions of the world
-	int x = this->ix[read_t];
-	int y = this->iy[read_t];
-	int z = this->iz[read_t];
-  
-  	// Number of patches in x,y,z dimensions of world
-	int nx = Agent::nx;
-	int ny = Agent::ny;
-	int nz = Agent::nz;
-
-	// Shuffle neighboring patches and go through them in a random order:
-	#ifdef MODEL_3D
-		random_shuffle(&Agent::neighbor[0], &Agent::neighbor[26]);
-		for (int i = 0; i < 27 && newcells < number; i++) {
-	#else
-		random_shuffle(&Agent::neighbor[0], &Agent::neighbor[7]);
-		for (int i = 0; i < 8 && newcells < number; i++) {
-	#endif
-
-		// Distance away from target neighboring patch in x,y,z dimensions
-		int dx = Agent::dX[neighbor[i]];
-		int dy = Agent::dY[neighbor[i]];
-		int dz = Agent::dZ[neighbor[i]];
-			
-		// Patch row major index of target neighboring patch:
-		int in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-
-		// Try a new target neighboring patch if this one is not inside the world dimensions, or is occupied.
-		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-		int targetType = agentPatchPtr[in].type[read_t];
-
-		// Create a new cell of agentType at the valid target neighboring patch:
-		Cell* newcell = NULL;
-		switch (agentType) {
-			case stem:
-				Stem* newcell = new Stem(x + dx, y + dy, z + dz);
-				break;
-			case progen:
-				Progen* newcell = new Progen(x + dx, y + dy, z + dz);
-				break;
-			case np:
-				NP* newcell = new NP(x + dx, y + dy, z + dz);
-				break;
-		}
-		newcells++;
-
-		// Update target neighboring patch as occupied:
-		Agent::agentPatchPtr[in].setOccupied();
-		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType;
-			
-		/* If executing OMP version, add the pointer to this new cell to the thread-local list first. 
-			* WHWorld::UpdateCells() will take care of putting it in the global list at the end 
-			*/
-		#ifdef _OMP
-			int tid = omp_get_thread_num();
-			Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
-		#else
-			// If executing serial version, add the pointer to this new cell to the global list right away
-			Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
-		#endif
-
-		newcell->wiggle();
-	}
-}
-
 void Cell::cellSniff() {
 	int in = this->index[read_t];
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
 		if (rollDice(80) && this->moveToHighestChem(pcellgrad) == true){
-
 			#ifdef MODEL_SCAFFOLD
+			if (typeid(*this) == typeid(Stem)) {
 				// If cell is moving on Ca-Alg substrate:
-				if (Agent::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-					
+				if (Stem::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 					// Move up to "migrationSpeed" patches per tick:
-					for (int dx = 0; dx < Agent::migrationSpeed; dx++) this->wiggle(); 
-
-				// If cell is not actively migrating, consider chance of moving to next patch:
-				} else if(rollDice(0.25)){		
-					this->wiggle(); 
+					for (int dx = 0; dx < Stem::migrationSpeed; dx++) this->wiggle();
 				}
-			#else
-					this->wiggle();
-			#endif
+			}
+			else if (typeid(*this) == typeid(Progen)) {
+				if (Progen::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+					// Move up to "migrationSpeed" patches per tick:
+					for (int dx = 0; dx < Progen::migrationSpeed; dx++) this->wiggle();
+				}
+			}
+			else if (typeid(*this) == typeid(NP)) {
+				if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+					// Move up to "migrationSpeed" patches per tick:
+					for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
+				}
+			}
+				// If cell is not actively migrating, consider chance of moving to next patch:
+		} else if(rollDice(0.25)){		
+			this->wiggle(); 
+		}
+		#else
+			this->wiggle();
+		#endif
         }
 
 	} else {
 		#ifdef MODEL_SCAFFOLD
 			// If cell is moving on Ca-Alg substrate:
-			if (Agent::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int dx = 0; dx < Agent::migrationSpeed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
-			} else if(rollDice(0.25)) this->wiggle(); 							   // If cell is not actively migrating, consider chance of moving to next patch
+		if (typeid(*this) == typeid(Stem)) {
+			// If cell is moving on Ca-Alg substrate:
+			if (Stem::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				// Move up to "migrationSpeed" patches per tick:
+				for (int dx = 0; dx < Stem::migrationSpeed; dx++) this->wiggle();
+			}
+		}
+		else if (typeid(*this) == typeid(Progen)) {
+			if (Progen::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				// Move up to "migrationSpeed" patches per tick:
+				for (int dx = 0; dx < Progen::migrationSpeed; dx++) this->wiggle();
+			}
+		}
+		else if (typeid(*this) == typeid(NP)) {
+			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				// Move up to "migrationSpeed" patches per tick:
+				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
+			}
+		}
+		else if (rollDice(0.25)) this->wiggle(); 							   // If cell is not actively migrating, consider chance of moving to next patch
 		#else
 			this->wiggle();
 		#endif
 	}
 
-	// TGF can excite stem cell and overcome gradient: //NOTE MM: double check this for MSCs
-	if ((this->meanNeighborChem(pTGF)) > 0) {
+	// TGF can excite NP cell and overcome gradient: //NOTE MM: double check this for MSCs
+	if ((typeid(*this) == typeid(NP) && this->meanNeighborChem(pTGF) > 0)) {
 		#ifdef MODEL_SCAFFOLD
 			// If cell is moving on Ca-Alg substrate:
-			if (Agent::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int dx = 0; dx < Agent::migrationSpeed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
+			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
+				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
 			} else if(rollDice(0.25)) this->wiggle(); 							   // If cell is not actively migrating, consider chance of moving to next patch: 		
 		#else
 			this->wiggle();
@@ -459,17 +419,17 @@ void Cell::die() {
 //	}
 //}
 
-//void Chondrocyte::chondDeactivation() {
-//	int in = this->index[read_t];
-//	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick 
-//	if (this->activate[read_t] == true&& this->life[read_t] > 1) {
-//		this->type[write_t] = chondrocyte;
-//		this->activate[write_t] = false;
-//		this->color[write_t] = cchondrocyte;
-//		Agent::agentPatchPtr[in].setOccupied();
-//		Agent::agentPatchPtr[in].occupiedby[write_t] = chondrocyte;
-//	}
-//}
+void Cell::cellDeactivation() {
+	int in = this->index[read_t];
+	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick 
+	if (this->activate[read_t] == true&& this->life[read_t] > 1) {
+		this->type[write_t] = stem;
+		this->activate[write_t] = false;
+		this->color[write_t] = cstem;
+		Agent::agentPatchPtr[in].setOccupied();
+		Agent::agentPatchPtr[in].occupiedby[write_t] = stem;
+	}
+}
 
 void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 	int in = this->index[read_t];
@@ -546,7 +506,7 @@ void Stem::stem_cellFunction() {
 						float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF); 
 						if (rollDice(stemProlif)) { 										
 					#endif  
-							this->hatchnewcell(1);
+							this->Agent::hatchnewcell(1);
 							//this->die();
 							return;
 						}
@@ -554,42 +514,51 @@ void Stem::stem_cellFunction() {
 					} else {
 	#endif
 
-	#ifndef CALIBRATION
-		if (fmod((float)hours, Stem::proliferation[1])) == 0 {
-	#else  
-		if (fmod(hours, 24) == 0) {
-	#endif  
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			//int countfHA = this->countNeighborECM(fha);
-			int TGFrelated = 0;
+			#ifndef CALIBRATION
+				if (fmod((float)hours, Stem::proliferation[1])) == 0 {
+			#else  
+				if (fmod(hours, 24) == 0) {
+			#endif  
+					float meanTNF = this->meanNeighborChem(TNF);
+					float meanTGF = this->meanNeighborChem(TGF);
+					float meanIL1 = this->meanNeighborChem(IL1beta);
+					//int countfHA = this->countNeighborECM(fha);
+					int TGFrelated = 0;
 
-  		#ifndef CALIBRATION
-			if (meanTGF <= meanTGF <= Stem::proliferation[0]) {
-  		#else  
-			if (meanTGF <= 10) {
-  		#endif  
-				TGFrelated = 1; // Low TGF (0.1-1nm) stimulate chond proliferation and attraction. 
-			} else {
-				TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
+  				#ifndef CALIBRATION
+					if (meanTGF <= meanTGF <= Stem::proliferation[0]) {
+  				#else  
+					if (meanTGF <= 10) {
+  				#endif  
+						TGFrelated = 1; // Low TGF (0.1-1nm) stimulate chond proliferation and attraction. 
+					} else {
+						TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
+					}
+
+				#ifndef CALIBRATION
+					float stemProlif = log10(1 + Stem::proliferation[2] * meanTNF + Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+					if (rollDice(stemProlif) {
+				#else
+					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+						if (rollDice(stemProlif)) {
+				#endif
+						this->Agent::hatchnewcell(1);
+						//this->die();
+						return;
+					}
+					}
 			}
 
-		#ifndef CALIBRATION
-			float stemProlif = log10(1 + Stem::proliferation[2] * meanTNF + Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-			if (rollDice(stemProlif) {
-		#else
-			float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(stemProlif)) {
-		#endif
-				this->hatchnewcell(1);
-				//this->die();
-				return;
-			}
-			}
-
+	/* -------------------------------------------------------------------------- */
+	/*                              Differentiation                               */
+	/* -------------------------------------------------------------------------- */
 	#ifdef MODEL_SCAFFOLD
+		in = this->index[read_t];
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			if (fmod((float)hours, 48 == 0) { // differentiation attempted every 48 hours
+				Stem::differentiateStem(1, progen);
 			}
+		}
 	#endif
 
 	/* -------------------------------------------------------------------------- */
@@ -626,11 +595,11 @@ void Stem::stem_cellFunction() {
 			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
 			int in = this->index[read_t];
 			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int i = 0; i < Agent::collagenSynthRate; i++){
+				for (int i = 0; i < Stem::collagenSynthRate; i++){
 					this->makeOCollagen(meanTGF, meanIL1); 
 				}
 
-				for (int i = 0; i < Agent::aggrecanSynthRate; i++){
+				for (int i = 0; i < Stem::aggrecanSynthRate; i++){
 					this->makeOAggrecan(meanTNF, meanTGF, meanIL1); 
 				}
 
@@ -647,9 +616,9 @@ void Stem::stem_cellFunction() {
 
 	// Change in chemicals due to cells:
 	#ifndef CALIBRATION
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(patchTGF + Chondrocyte::cytokineSynthesis[2]*patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + (Chondrocyte::cytokineSynthesis[4]*patchIL1beta)/(1 + Chondrocyte::cytokineSynthesis[5]*patchTGF);	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF + Cell::cytokineSynthesis[2]*patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[3] + (Cell::cytokineSynthesis[4]*patchIL1beta)/(1 + Cell::cytokineSynthesis[5]*patchTGF);	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[6] + (Cell::cytokineSynthesis[7]*patchTNF)/(Cell::cytokineSynthesis[8] + Cell::cytokineSynthesis[9]*patchTGF); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 	#else
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05*(patchTGF + 10*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4*patchIL1beta)/(1 + 4*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
@@ -660,6 +629,7 @@ void Stem::stem_cellFunction() {
 	/*                                DEACTIVATION                                */
 	/* -------------------------------------------------------------------------- */
   	// Activated chondrocytes might be deactivated once the damage is cleared:
+	/*
 	totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 	
 	#ifndef CALIBRATION
@@ -667,28 +637,200 @@ void Stem::stem_cellFunction() {
 	#else  
 		if (totaldamage == 0 && rollDice(2.5)) this->chondDeactivation();
 	#endif  
-
+	*/
 	/* -------------------------------------------------------------------------- */
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
-	// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time 
+	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
 	#ifdef CALIBRATION
-		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-	#else
-		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-	#endif
-			if (rollDice(100 - Agent::viabilityRate)){
-				this->die();
-				return; 
-			}
+		if (rollDice(Stem::apoptosisChance)) {
+			this->die();
+			return;
 		}
-
+	#else
+		if (rollDice(0.05)) { // from Netlogo model
+			this->die();
+			return;
+		}
+	#endif
     	// Activated chondrocytes can die naturally:
 		this->life[write_t] = this->life[read_t] - 1;
 		if (this->life[read_t] <= 0) {
 			this->die();
 		}
+}
+
+void Progen::progen_cellFunction() {
+	int in = this->index[read_t];
+	double hours = Agent::agentWorldPtr->reportHour();
+	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+
+	/* -------------------------------------------------------------------------- */
+	/*                                PROLIFERATION                               */
+	/* -------------------------------------------------------------------------- */
+
+#ifdef MODEL_SCAFFOLD
+	in = this->index[read_t];
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#ifdef CALIBRATION
+		if (fmod((float)hours, Progen::proliferation[0]) == 0) {
+#else 
+		if (fmod(hours, 24) == 0) {
+#endif 
+			float meanTNF = this->meanNeighborChem(TNF);
+			float meanTGF = this->meanNeighborChem(TGF);
+			float meanIL1 = this->meanNeighborChem(IL1beta);
+			//int countfHA = this->countNeighborECM(fha);
+
+#ifndef CALIBRATION
+			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+			if (rollDice(progenProlif) {
+#else  
+			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+				if (rollDice(progenProlif)) {
+#endif  
+					this->Agent::hatchnewcell(1);
+					//this->die();
+						return;
+				}
+			}
+			} else {
+#endif
+
+#ifndef CALIBRATION
+		if (fmod((float)hours, Progen::proliferation[0])) == 0 {
+#else  
+		if (fmod(hours, 24) == 0) {
+#endif  
+			float meanTNF = this->meanNeighborChem(TNF);
+			float meanTGF = this->meanNeighborChem(TGF);
+			float meanIL1 = this->meanNeighborChem(IL1beta);
+			//int countfHA = this->countNeighborECM(fha);
+
+#ifndef CALIBRATION
+			float progen = log10(1 + meanTNF - meanIL1 + meanTGF);
+			if (rollDice(progenProlif) {
+#else
+			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+				if (rollDice(progenProlif)) {
+#endif
+					this->Agent::hatchnewcell(1);
+					//this->die();
+						return;
+				}
+			}
+			}
+	/* -------------------------------------------------------------------------- */
+	/*                              Differentiation                               */
+	/* -------------------------------------------------------------------------- */
+#ifdef MODEL_SCAFFOLD
+	in = this->index[read_t];
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (fmod((float)hours, 48 == 0) { // differentiation attempted every 48 hours
+			Progen::differentiateProgen(1, np);
+		}
 	}
+#endif
+
+	/* -------------------------------------------------------------------------- */
+	/*                                  MOVEMENT                                  */
+	/* -------------------------------------------------------------------------- */
+
+	// Activated chondrocytes only move along their preferred gradient if there is damage.	
+	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+
+	if (totaldamage != 0) this->cellSniff();
+
+	/* -------------------------------------------------------------------------- */
+	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+	/* -------------------------------------------------------------------------- */
+	// Calculates chemical gradients and patch chemical concentrations:
+	//	int in = this->index[read_t];
+	float meanTNF = this->meanNeighborChem(pTNF);
+	float meanTGF = this->meanNeighborChem(pTGF);
+	float meanIL1 = this->meanNeighborChem(pIL1beta);
+	int countnHA = 0;
+	int countfHA = 0;
+	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+//	// Makes collagen and aggrecan every 12 hours.
+//#ifndef CALIBRATION
+//	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+//#else 
+//	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+//#endif
+//
+//#ifdef MODEL_SCAFFOLD
+//		// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+//		int in = this->index[read_t];
+//		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//			for (int i = 0; i < Stem::collagenSynthRate; i++) {
+//				this->makeOCollagen(meanTGF, meanIL1);
+//			}
+//
+//			for (int i = 0; i < Stem::aggrecanSynthRate; i++) {
+//				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+//			}
+//
+//		}
+//		else {
+//			this->makeOCollagen(meanTGF, meanIL1);
+//			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+//		}
+//
+//#else
+//		this->makeOCollagen(meanTGF, meanIL1);
+//		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+//#endif
+//	}
+
+	// Change in chemicals due to cells:
+#ifndef CALIBRATION
+	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF + Cell::cytokineSynthesis[2] * patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[3] + (Cell::cytokineSynthesis[4] * patchIL1beta) / (1 + Cell::cytokineSynthesis[5] * patchTGF);	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[6] + (Cell::cytokineSynthesis[7] * patchTNF) / (Cell::cytokineSynthesis[8] + Cell::cytokineSynthesis[9] * patchTGF); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+#else
+	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+#endif
+
+	/* -------------------------------------------------------------------------- */
+	/*                                DEACTIVATION                                */
+	/* -------------------------------------------------------------------------- */
+	// Activated chondrocytes might be deactivated once the damage is cleared:
+	/*
+	totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+
+	#ifndef CALIBRATION
+		if (totaldamage == 0 && rollDice(Chondrocyte::activation[4])) this->chondDeactivation();
+	#else
+		if (totaldamage == 0 && rollDice(2.5)) this->chondDeactivation();
+	#endif
+	*/
+	/* -------------------------------------------------------------------------- */
+	/*                                    DEATH                                   */
+	/* -------------------------------------------------------------------------- */
+	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
+#ifdef CALIBRATION
+	if (rollDice(Progen::apoptosisChance)) {
+		this->die();
+		return;
+	}
+#else
+	if (rollDice(0.1)) { // from Netlogo model
+		this->die();
+		return;
+	}
+#endif
+	// can die naturally:
+	this->life[write_t] = this->life[read_t] - 1;
+	if (this->life[read_t] <= 0) {
+		this->die();
+	}
+}
 
 void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	int read_index;
@@ -747,8 +889,8 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 
 		// Based on chance, chemical concentrations, move to new patch and sprout ocollagen
 		#ifndef CALIBRATION
-			int stimulation = (Chondrocyte::ECMsynthesis[0]*(log10(meanTGF + Chondrocyte::ECMsynthesis[1])/(Chondrocyte::ECMsynthesis[2] + meanIL1*Chondrocyte::ECMsynthesis[2]));
-			if ((rollDice(Chondrocyte::ECMsynthesis[3] + stimulation)) || (rollDice(Chondrocyte::ECMsynthesis[4] + stimulation/Chondrocyte::ECMsynthesis[5])) || (rollDice(Chondrocyte::ECMsynthesis[6] + stimulation/Chondrocyte::ECMsynthesis[7]))) {
+			int stimulation = (Cell::ECMsynthesis[0]*(log10(meanTGF + Cell::ECMsynthesis[1])/(Cell::ECMsynthesis[2] + meanIL1*Cell::ECMsynthesis[2]));
+			if ((rollDice(Cell::ECMsynthesis[3] + stimulation)) || (rollDice(Cell::ECMsynthesis[4] + stimulation/Cell::ECMsynthesis[5])) || (rollDice(Cell::ECMsynthesis[6] + stimulation/Cell::ECMsynthesis[7]))) {
 		#else 
 			int stimulation = ((log10(1 + (meanTGF)))/(1+ meanIL1)); 
 			if ((rollDice(50 + stimulation)) || (rollDice(25 + stimulation/2)) || (rollDice(10+stimulation/5))) {
@@ -919,31 +1061,12 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 //			}
 //}
 
-void stem_cellFunction() {
-
-
-
-}
-
-
-void progen_cellFunction() {
-
-
-
-}
-
-void NP_cellFunction() {
-
-
-
-}
-
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
 
 	int in = this->index[read_t]
 	if (rollDice(0.7)) { // asymmetric differentiation
-		Cell::hatchnewcell(number, agentType); // only create new progenitor cell nearby
+		Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
 	} else { // symmetric differentiation
 		Cell* temp = &this;
 		Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
@@ -952,7 +1075,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 		else
 			cout << "Casting Successful" << endl;
 		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
-		Cell::hatchnewcell(number, agentType); // create new progenitor cell nearby
+		Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
 }
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
@@ -960,7 +1083,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 
 	int in = this->index[read_t]
 	if (rollDice(0.7)) { // asymmetric differentiation
-		Cell::hatchnewcell(number, agentType); // only create new NP cell nearby
+		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
 		Cell* temp = &this;
@@ -970,5 +1093,5 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		else
 			cout << "Casting Successful" << endl;
 		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
-		Cell::hatchnewcell(number, agentType); // create new NP cell nearby
+		Agent::hatchnewcell(number, agentType); // create new NP cell nearby
 }

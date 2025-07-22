@@ -120,12 +120,12 @@ class Cell: public Agent {
     /*void chondActivation();
 
     /*
-     * Description:	Deactivates an activated chondrocyte. Updates the chondrocyte class members.
+     * Description:	Deactivates an activated MSC. Updates the cell class members.
      *
      * Return: void
      * Parameters: void
      */
-    /*void chondDeactivation();
+    void cellDeactivation();
 
     /* 
      * Description: Copies the location of 'original' agent and initializes a new chondrocyte at a distance away determined by dx, dy, dz.
@@ -175,16 +175,6 @@ class Cell: public Agent {
      */
     //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
 
-    /*
-     * Description:	Hatches a new cell on 'number' unoccupied neighbors.
-     *              Does not update numOfCells; this must be done elsewhere.
-     *
-     * Return: void
-     *
-     * Parameters: number  -- Number of new cells to hatch
-     */
-    virtual void hatchnewcell(int number, int agentType);
-
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
@@ -220,7 +210,7 @@ class Stem: public Cell {
        *
        * Parameters: void
        */
-    void differentiateStem();
+    void differentiateStem(int number, int agentType);
 
     /*
        * Description: Calculates ECM component synthesis expressions.
@@ -239,6 +229,7 @@ class Stem: public Cell {
 
   static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+  static float apoptosisChance;
 
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in stem cell migration speed in CaAlg Gel
@@ -273,13 +264,14 @@ class Progen: public Cell {
        *
        * Parameters: void
        */
-    void differentiateProgen();
+    void differentiateProgen(int number, int agentType);
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
   static int numOfProgen; // Keeps track of the quantity of living progenitor cells
   static float migrationSpeed;    // Speed (patch/tick) pre-NP cells move in world
+  static float apoptosisChance;
 
   //static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug) // may not be applicable to Pre-NP
   //static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
