@@ -502,9 +502,9 @@ void Stem::stem_cellFunction() {
 					if (meanTGF <= 10) {
 				#endif 
 
-						TGFrelated = 1;  // Low TGF (0.1-1nm) stimulate proliferation and attraction. 
+						TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
 					} else {
-						TGFrelated = -1; // High TGF (1-10nm) inhibits proliferation. 
+						TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
 					}
 
 					#ifndef CALIBRATION
