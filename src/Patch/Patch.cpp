@@ -248,12 +248,16 @@ void Patch::updatePatch() {
 
 void Patch::render() {
 	if (this->isOccupied()) {
-		if (this->occupiedby[read_t] == chondrocyte) {
-			this->color[write_t] = cchondrocyte;
+		if (this->occupiedby[read_t] == stem) {
+			this->color[write_t] = cstem;
 		}
 
-		if (this->occupiedby[read_t] == achondrocyte) {
-			this->color[write_t] = cachondrocyte;
+		if (this->occupiedby[read_t] == progen) {
+			this->color[write_t] = cprogen;
+		}
+		
+		if (this->occupiedby[read_t] == np) {
+			this->color[write_t] = cnp;
 		}
 	} else {
 		this->color[write_t] = this->getColorfromType();
