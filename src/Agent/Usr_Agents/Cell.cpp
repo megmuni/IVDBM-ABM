@@ -25,23 +25,25 @@ float Cell::proliferation[6] = {24, 10, 1, 0, 25, 2};
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
+float Stem::apoptosisChance = 0.05;
 
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
-float Stem::CollagenSynth[3] = {  };
-float Stem::AggrecanSynth[3] = {  };
-float Stem::ECMsynthesis[4] = {};
-float Stem::proliferation[4] = {};
-float Stem::differentiation[5] = {};
+//float Stem::ECMsynthesis[4] = {};
+float Stem::CollagenSynth[3] = { 10, 6.45, 3.6 };
+float Stem::AggrecanSynth[3] = { 10, 38, 16.6 };
+float Stem::proliferation[4] = {10, 24, 0.8, 0.001};
+float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
+float Progen::apoptosisChance = 0.1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
-float Progen::cytokineSynthesis[3] = {  };
-float Progen::ECMsynthesis[4] = {};
-float Progen::proliferation[4] = {};
-float Progen::differentiation[5] = {};
+float Progen::cytokineSynthesis[3] = { 50, 0, -0.807 };
+//float Progen::ECMsynthesis[4] = {};
+float Progen::proliferation[1] = {24};
+float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick
@@ -49,10 +51,6 @@ float collagenSynthRate = 1;
 float aggrecanSynthRate = 1.5;
 
 float NP::CaAlgMigration[2] = { 0.11, 1.30 };
-float Stem::CollagenSynth[3] = { 10, 6.45, 3.6 };
-float Stem::AggrecanSynth[3] = { 10, 38, 16.6 };
-
-
 
 Cell::Cell() {
 	cout << "default cell alloc" << endl;
@@ -233,7 +231,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = 1*log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF) + 0;
 				if (rollDice(25 + cellProlif/2)) { 
 			#endif	
-					this->hatchnewcell(2);
+					this->Agent::hatchnewcell(2);
 					this->die();
 					return;
 				}
@@ -270,7 +268,7 @@ void NP::NP_cellFunction() {
 			float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF);
 			if (rollDice(25 + cellProlif/2)) {		
 		#endif 
-				this->hatchnewcell(2);
+				this->Agent::hatchnewcell(2);
 				this->die();
 				return;
 			}
@@ -392,7 +390,8 @@ void Cell::cellSniff() {
 			// If cell is moving on Ca-Alg substrate:
 			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
 				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
-			} else if(rollDice(0.25)) this->wiggle(); 							   // If cell is not actively migrating, consider chance of moving to next patch: 		
+			}
+			else if (rollDice(0.25)) { this->wiggle(); } 						   // If cell is not actively migrating, consider chance of moving to next patch: 		
 		#else
 			this->wiggle();
 		#endif 
@@ -964,8 +963,8 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 		// Based on mean TGf, IL1, TNF, chance, move to new patch and sprout oaggrecan.
 		#ifndef CALIBRATION
 			if 
-			int stimulation = Chondrocyte::ECMsynthesis[8]*log10((meanTGF + Chondrocyte::ECMsynthesis[9])/(Chondrocyte::ECMsynthesis[9] + meanTNF));
-			if (rollDice(Chondrocyte::ECMsynthesis[10] + stimulation/Chondrocyte::ECMsynthesis[11])) {
+			int stimulation = Cell::ECMsynthesis[8]*log10((meanTGF + Cell::ECMsynthesis[9])/(Cell::ECMsynthesis[9] + meanTNF));
+			if (rollDice(Cell::ECMsynthesis[10] + stimulation/Cell::ECMsynthesis[11])) {
 		#else 
 			int stimulation = log10((1 + meanTGF)/(1  + meanTNF));
 			if (rollDice(25 + stimulation/2)){ 
@@ -1063,35 +1062,44 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
-
-	int in = this->index[read_t]
-	if (rollDice(0.7)) { // asymmetric differentiation
-		Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
-	} else { // symmetric differentiation
-		Cell* temp = &this;
-		Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
-		if (dp2 == nullptr)
-			cout << "Casting Failed" << endl;
-		else
-			cout << "Casting Successful" << endl;
-		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
-		Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
+	int in = this->index[read_t];
+	float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
+	if (rollDice(stemDiff)) {
+		if (rollDice(0.7)) { // asymmetric differentiation
+			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
+		}
+		else { // symmetric differentiation
+			Cell* temp = &this;
+			Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
+			if (dp2 == nullptr) {
+				cout << "Casting Failed" << endl;
+			}
+			else {
+				cout << "Casting Successful" << endl;
+			}
+			Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
+			Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
+		}
+	}
 }
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
-	int in = this->index[read_t]
+	int in = this->index[read_t];
 	if (rollDice(0.7)) { // asymmetric differentiation
 		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
 		Cell* temp = &this;
 		NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
-		if (dp2 == nullptr)
+		if (dp2 == nullptr) {
 			cout << "Casting Failed" << endl;
-		else
+		}
+		else {
 			cout << "Casting Successful" << endl;
+		}
 		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
 		Agent::hatchnewcell(number, agentType); // create new NP cell nearby
+	}
 }

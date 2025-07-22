@@ -113,9 +113,9 @@ void processParameters(string filename) {
   for (int i = 0; i < 17; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      Chondrocyte::ECMsynthesis[i] = value_as_float;
+      Cell::ECMsynthesis[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Chondrocyte::ECMsynthesis[" << i << "] = " << Chondrocyte::ECMsynthesis[i] << endl;
+        cout << "Chondrocyte::ECMsynthesis[" << i << "] = " << Cell::ECMsynthesis[i] << endl;
       #endif
     } else {
       cerr << "Error in assigning value to chondrocyte ECM synthesis parameter #"<< i << endl;
@@ -126,9 +126,9 @@ void processParameters(string filename) {
   for (int i = 0; i < 6; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      Chondrocyte::proliferation[i] = value_as_float;
+      Cell::proliferation[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Chondrocyte::proliferation[" << i << "] = " << Chondrocyte::proliferation[i] << endl;
+        cout << "Chondrocyte::proliferation[" << i << "] = " << Cell::proliferation[i] << endl;
       #endif
     } else {
       cerr << "Error in assigning value to chondrocyte proliferation parameter #"<< i << endl;

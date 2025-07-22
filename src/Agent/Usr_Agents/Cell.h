@@ -211,15 +211,6 @@ class Stem: public Cell {
        * Parameters: void
        */
     void differentiateStem(int number, int agentType);
-
-    /*
-       * Description: Calculates ECM component synthesis expressions.
-       *
-       * Return: void
-       *
-       * Parameters: void
-       */
-    void calculateECMStem();
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
