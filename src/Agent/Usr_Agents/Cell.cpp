@@ -508,7 +508,7 @@ void Stem::stem_cellFunction() {
 					}
 
 					#ifndef CALIBRATION
-						float stemProlif = log10(1 + Stem::proliferation[2]*meanTNF + Stem::proliferation[3]*meanIL1 + TGFrelated*meanTGF);
+						float stemProlif = log10(1 - Stem::proliferation[2]*meanTNF - Stem::proliferation[3]*meanIL1 + TGFrelated*meanTGF);
 						if (rollDice(stemProlif) {  
 					#else  
 						float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF); 
@@ -544,7 +544,7 @@ void Stem::stem_cellFunction() {
 					}
 
 				#ifndef CALIBRATION
-					float stemProlif = log10(1 + Stem::proliferation[2] * meanTNF + Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+					float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
 					if (rollDice(stemProlif) {
 				#else
 					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
