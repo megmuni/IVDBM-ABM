@@ -88,7 +88,7 @@ class WHWorld: public World {
      *
      * Parameters: &agent  -- Reference to cell that will be destroyed
      */
-    void destroyCell(cell* &agent);
+    void destroyCell(Cell* &agent);
 
     /*
      * Description:	Assign a patch type to each patch within bounds of type 
