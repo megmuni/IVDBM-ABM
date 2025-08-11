@@ -3071,7 +3071,7 @@ void WHWorld::updateCellsInitial() {
 		#else
 			int tid = DEFAULT_TID;
 		#endif
-		Stem* cell = cells.getDataAt(i);
+		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;
 		cell->updateAgent();
 	}
