@@ -253,7 +253,7 @@ class Progen: public Cell {
        * Parameters: patchPtr  -- Pointer to patch on which pre-NP cell will reside.
        *                          NOTE: The pointer cannot be NULL.
        */
-    Progen(Patch* patchPtr)
+      Progen(Patch* patchPtr);
 
     /*
        * Description:	Performs biological function of an NP progenitor cell.
@@ -305,7 +305,7 @@ class NP: public Cell {
        * Parameters: patchPtr  -- Pointer to patch on which NP cell will reside.
        *                          NOTE: The pointer cannot be NULL.
        */
-    NP(Patch* patchPtr)
+      NP(Patch* patchPtr);
     /*
        * Description:	Performs biological function of an NP cell.
        *
