@@ -109,7 +109,7 @@ class Agent {
      * Return: void
      * Parameters: void            
      */
-    static void calculateECMSynthesisRate(int agentType);
+    void calculateECMSynthesisRate(int agentType);
     
     /*
      * Description:	Calls subroutines calculating parameters characterizing cell behavior in Ca-Alg

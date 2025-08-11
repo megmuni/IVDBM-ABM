@@ -198,7 +198,7 @@ bool Agent::rollDice(float percent) {
 		float deltaCellPopulation = (cellPopulation_t < 0 || cellPopulation_t - cellPopulation_tMinusOne < 0)? 0: cellPopulation_t - cellPopulation_tMinusOne; 
 
 		// Calculate % of current chondrocytes that need to proliferate during current tick:
-		Agent::proliferationRate = 100*(deltaCellPopulation*Agent::agentWorldPtr->initialCells[0])/(Agent::agentWorldPtr->chonds.size()); 
+		Agent::proliferationRate = 100*(deltaCellPopulation*Agent::agentWorldPtr->initialCells[0])/(Agent::agentWorldPtr->cells.size()); 
 		cout << " Proliferation Rate (%) = " << Agent::proliferationRate << endl;         
 		return; 
 	}
