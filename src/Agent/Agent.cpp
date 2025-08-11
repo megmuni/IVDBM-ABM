@@ -270,10 +270,21 @@ bool Agent::rollDice(float percent) {
 		return; 
 	}
 
-	void Agent::cellCaAlgBehavior(){
+	void Agent::cellCaAlgBehavior() {
+		switch (this->type[read_t]) {
+			case stem: {
+				agentType = stem;
+			}
+			case progen: {
+				agentType = progen;
+			}
+			case np: {
+				agentType = np;
+			}
+		}
 		if (WHWorld::clock == 0){
-			Agent::calculateMigrationSpeed(); 
-			Agent::calculateECMSynthesisRate();
+			Agent::calculateMigrationSpeed(agentType); 
+			Agent::calculateECMSynthesisRate(agentType);
 
 		} else if (WHWorld::clock > 0) {
 			Agent::calculateProliferationRate();
