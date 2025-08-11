@@ -1897,7 +1897,7 @@ void WHWorld::initializeCells() {
     //cout << "Begin Initializing Cells..." << endl;
 
 	// Instantiate Cell list:
-	initialCells = ArrayChain<Cell*>(DEFAULT_DATA_SMALL, 4, NULL, NULL);  // WHWorld::destroyChond);
+	cells = ArrayChain<Cell*>(DEFAULT_DATA_SMALL, 4, NULL, NULL);  // WHWorld::destroyChond);
     //cout << "Initialize Cells..." << endl; 
 
     // If initial cell count not input, seed scaffold with stem cells at density 10^6 cell/mL
