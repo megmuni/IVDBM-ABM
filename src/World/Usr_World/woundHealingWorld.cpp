@@ -2594,7 +2594,7 @@ void WHWorld::updateCells() {
 				Stem::numOfStem--;
 			}
 			else if (typeid(*this) == typeid(Progen)) {
-				Progen::numOfProgen--:
+				Progen::numOfProgen--;
 			}
 			else if (typeid(*this) == typeid(NP)) {
 				NP::numOfNP--;

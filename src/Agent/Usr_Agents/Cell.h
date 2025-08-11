@@ -193,6 +193,14 @@ class Cell: public Agent {
  */
 class Stem: public Cell {
   public:
+    /*
+       * Description:	Stem constructor. Initializes stem cell attributes.
+       *
+       * Return: void
+       * Parameters: patchPtr  -- Pointer to patch on which stem cell will reside.
+       *                          NOTE: The pointer cannot be NULL.
+       */
+    Stem(Patch* patchPtr);
   
     /*
        * Description:	Performs biological function of a stem cell.
@@ -238,7 +246,15 @@ class Stem: public Cell {
  */
 class Progen: public Cell {
   public:
-    
+    /*
+       * Description:	Pre-NP constructor. Initializes pre-NP cell attributes.
+       *
+       * Return: void
+       * Parameters: patchPtr  -- Pointer to patch on which pre-NP cell will reside.
+       *                          NOTE: The pointer cannot be NULL.
+       */
+    Progen(Patch* patchPtr)
+
     /*
        * Description:	Performs biological function of an NP progenitor cell.
        *
@@ -282,7 +298,14 @@ class Progen: public Cell {
  */
 class NP: public Cell {
   public:
-  
+    /*
+       * Description:	NP constructor. Initializes NP cell attributes.
+       *
+       * Return: void
+       * Parameters: patchPtr  -- Pointer to patch on which NP cell will reside.
+       *                          NOTE: The pointer cannot be NULL.
+       */
+    NP(Patch* patchPtr)
     /*
        * Description:	Performs biological function of an NP cell.
        *

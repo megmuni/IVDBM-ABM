@@ -63,18 +63,10 @@ Cell::Cell(Patch* patchPtr) {
 	this->index[write_t] = patchPtr->index;
 	this->alive[write_t] = true;
 
-	#ifndef MODEL_SCAFFOLD
-		// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours:
-		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand()%12);
-		else this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
-	#else
-		this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
-	#endif
-
 	this->activate[write_t] = false;
-	this->color[write_t] = ccell;
+	//this->color[write_t] = ccell;
 	this->size[write_t] = 2;
-	this->type[write_t] = cell;
+	//this->type[write_t] = cell;
 	this->ix[read_t] = patchPtr->indice[0];
 	this->iy[read_t] = patchPtr->indice[1];
 	this->iz[read_t] = patchPtr->indice[2];
@@ -91,9 +83,9 @@ Cell::Cell(Patch* patchPtr) {
 	#endif
 	
 	this->activate[read_t] = false;
-	this->color[read_t] = ccell;
+	//this->color[read_t] = ccell;
 	this->size[read_t] = 2;
-	this->type[read_t] = cell;
+	//this->type[read_t] = cell;
 	/* Added by MM to check types of cell stages and add to respective counters: */
 	if (typeid(*this) == typeid(Stem)) {
 		Stem::numOfStem++;
@@ -103,6 +95,44 @@ Cell::Cell(Patch* patchPtr) {
 		NP::numOfNP++;
 	}
 	Cell::numOfCells++;
+}
+
+Stem::Stem(Patch* patchPtr) {
+	Cell::Cell(patchPtr);
+
+	this->color[write_t] = cstem;
+	this->type[write_t] = stem;
+
+	this->color[read_t] = cstem;
+	this->type[read_t] = stem;
+}
+
+Progen::Stem(Patch* patchPtr) {
+	Cell::Cell(patchPtr);
+
+	this->color[write_t] = cprogen;
+	this->type[write_t] = progen;
+
+	this->color[read_t] = cprogen;
+	this->type[read_t] = progen;
+}
+
+NP::Stem(Patch* patchPtr) {
+	Cell::Cell(patchPtr);
+
+	this->color[write_t] = cnp;
+	this->type[write_t] = np;
+
+	this->color[read_t] = cnp;
+	this->type[read_t] = np;
+
+	#ifndef MODEL_SCAFFOLD
+		// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours:
+		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand() % 12);
+		else this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+	#else
+		this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+	#endif
 }
 
 Cell::Cell(int x, int y, int z) {
