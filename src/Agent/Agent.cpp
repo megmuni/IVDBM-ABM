@@ -556,7 +556,21 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
-        int radius = Agent::migrationSpeed; // Cells in Ca-Alg can move up to 'migrationSpeed' patches radius per tick 
+		switch (this->type[read_t]) {
+			case stem: {
+				int radius = Stem::migrationSpeed;
+				//agentType = stem;
+			}
+			case progen: {
+				int radius = Progen::migrationSpeed;
+				//agentType = progen;
+			}
+			case np: {
+				int radius = NP::migrationSpeed;
+				//agentType = np;
+			}
+		}
+        //int radius = Agent::migrationSpeed; // Cells in Ca-Alg can move up to 'migrationSpeed' patches radius per tick 
 
         // Find the neighbor inside world dimensions with the highest concentration of chemical of type chemIndex:
 		for (int deltaz = -radius; deltaz <= radius; deltaz++) {
@@ -600,7 +614,7 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	return this->move(dx, dy, dz, read_index);
 }
 
-virtual void Agent::hatchnewcell(int number, int agentType) {
+void Agent::hatchnewcell(int number, int agentType) {
 	int newcells = 0;
 
 	// Location of cell in x,y,z dimensions of the world
