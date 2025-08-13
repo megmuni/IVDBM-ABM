@@ -360,8 +360,8 @@ class NP: public Cell {
 
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
-  //static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
-  //static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
+  static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
+  static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
 };
 
 #endif
