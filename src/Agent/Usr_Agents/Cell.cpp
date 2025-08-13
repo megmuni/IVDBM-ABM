@@ -201,11 +201,12 @@ void Cell::cellFunction() {
 		//Cell temp;
 		Cell* temp = this;
 		if (typeid(*this) == typeid(Stem)) {
-			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+			//Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+			Stem tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			tmp.Stem::stem_cellFunction();
+			tmp->Stem::stem_cellFunction();
 		} else if (typeid(*this) == typeid(Progen)) {
 			this->Progen::progen_cellFunction;
 		} else if (typeid(*this) == typeid(NP)) {
