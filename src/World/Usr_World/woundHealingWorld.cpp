@@ -1329,7 +1329,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	this->initializeCells();
 	#ifdef MODEL_SCAFFOLD
 		this->initializeCaAlg(); 
-		Agent::cellCaAlgBehavior(); 
+		this->Agent::cellCaAlgBehavior(); 
 	#endif
 	this->initializeDamage();
 
