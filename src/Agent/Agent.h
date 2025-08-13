@@ -117,7 +117,7 @@ class Agent {
      * Return: void
      * Parameters: void            
      */
-    void cellCaAlgBehavior();
+    static void cellCaAlgBehavior();
     
 #endif //MODEL_SCAFFOLD
 
