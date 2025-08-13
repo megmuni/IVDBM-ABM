@@ -26,6 +26,8 @@ float Cell::proliferation[6] = {24, 10, 1, 0, 25, 2};
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
 float Stem::apoptosisChance = 0.05;
+float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
+float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
@@ -47,10 +49,13 @@ float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick
-float collagenSynthRate = 1;
-float aggrecanSynthRate = 1.5;
+float NP::collagenSynthRate = 1;
+float NP::aggrecanSynthRate = 1.5;
 
 float NP::CaAlgMigration[2] = { 0.11, 1.30 };
+float NP::CollagenSynth[3] = { 10, 6.45, 3.6 };
+float NP::AggrecanSynth[3] = { 20, 38, 16.6 };
+
 
 Cell::Cell() {
 	cout << "default cell alloc" << endl;
@@ -192,6 +197,12 @@ Cell::Cell(int x, int y, int z) {
 	}
 	Cell::numOfCells++;  
 }
+
+Stem::Stem(int x, int y, int z) {}
+
+Progen::Progen(int x, int y, int z) {}
+
+NP::NP(int x, int y, int z) {}
 
 Cell::~Cell() {}
 
