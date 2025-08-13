@@ -198,6 +198,7 @@ Cell::~Cell() {}
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
+		Cell temp;
 		Cell* temp = &this;
 		if (typeid(*this) == typeid(Stem)) {
 			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
