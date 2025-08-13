@@ -1328,8 +1328,12 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	this->initializeChem();
 	this->initializeCells();
 	#ifdef MODEL_SCAFFOLD
-		this->initializeCaAlg(); 
-		this->Agent::cellCaAlgBehavior(); 
+		this->initializeCaAlg();
+		Agent tmpAgent;
+		Agent* tmpThis = &tmpAgent;
+		tmpThis->Agent::cellCaAlgBehavior();
+
+		//Agent::cellCaAlgBehavior(); 
 	#endif
 	this->initializeDamage();
 
