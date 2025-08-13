@@ -1329,8 +1329,8 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	this->initializeCells();
 	#ifdef MODEL_SCAFFOLD
 		this->initializeCaAlg();
-		Agent tmpAgent;
-		Agent* tmpThis = &tmpAgent;
+		Cell tmpAgent;
+		Cell* tmpThis = &tmpAgent;
 		tmpThis->Agent::cellCaAlgBehavior();
 
 		//Agent::cellCaAlgBehavior(); 
