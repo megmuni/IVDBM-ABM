@@ -198,8 +198,8 @@ Cell::~Cell() {}
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
-		Cell temp;
-		Cell* temp = &this;
+		//Cell temp;
+		Cell* temp = this;
 		if (typeid(*this) == typeid(Stem)) {
 			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
@@ -227,8 +227,8 @@ void NP::NP_cellFunction() {
 
 		#ifdef MODEL_SCAFFOLD
 			// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
-			if (Agent::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int dx = 0; dx < Agent::migrationSpeed; dx++) this->wiggle(); 
+			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
+				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle(); 
 			
 			} else if(rollDice(0.25)){ // If cell is not actively migrating, consider chance of moving to next patch            
 				this->wiggle(); 
@@ -276,7 +276,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = 1*log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF) + 0;
 				if (rollDice(25 + cellProlif/2)) { 
 			#endif	
-					this->Agent::hatchnewcell(2);
+					this->Agent::hatchnewcell(np, 2);
 					this->die();
 					return;
 				}
@@ -313,7 +313,7 @@ void NP::NP_cellFunction() {
 			float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF);
 			if (rollDice(25 + cellProlif/2)) {		
 		#endif 
-				this->Agent::hatchnewcell(2);
+				this->Agent::hatchnewcell(np, 2);
 				this->die();
 				return;
 			}
