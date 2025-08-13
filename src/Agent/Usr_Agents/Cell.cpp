@@ -90,7 +90,7 @@ Cell::Cell(Patch* patchPtr) {
 	if (typeid(*this) == typeid(Stem)) {
 		Stem::numOfStem++;
 	} else if (typeid(*this) == typeid(Progen)) {
-		Progen::numOfProgen++:
+		Progen::numOfProgen++;
 	} else if (typeid(*this) == typeid(NP)) {
 		NP::numOfNP++;
 	}
@@ -98,7 +98,7 @@ Cell::Cell(Patch* patchPtr) {
 }
 
 Stem::Stem(Patch* patchPtr) {
-	Cell::Cell(patchPtr);
+	//Cell::Cell(patchPtr);
 
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
@@ -107,8 +107,8 @@ Stem::Stem(Patch* patchPtr) {
 	this->type[read_t] = stem;
 }
 
-Progen::Stem(Patch* patchPtr) {
-	Cell::Cell(patchPtr);
+Progen::Progen(Patch* patchPtr) {
+	//Cell::Cell(patchPtr);
 
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
@@ -117,8 +117,8 @@ Progen::Stem(Patch* patchPtr) {
 	this->type[read_t] = progen;
 }
 
-NP::Stem(Patch* patchPtr) {
-	Cell::Cell(patchPtr);
+NP::NP(Patch* patchPtr) {
+	//Cell::Cell(patchPtr);
 
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
@@ -185,7 +185,7 @@ Cell::Cell(int x, int y, int z) {
 		Stem::numOfStem++;
 	}
 	else if (typeid(*this) == typeid(Progen)) {
-		Progen::numOfProgen++:
+		Progen::numOfProgen++;
 	}
 	else if (typeid(*this) == typeid(NP)) {
 		NP::numOfNP++;
@@ -198,8 +198,13 @@ Cell::~Cell() {}
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
+		Cell* temp = &this;
 		if (typeid(*this) == typeid(Stem)) {
-			this->Stem::stem_cellFunction;
+			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+			if (tmp == nullptr) {
+				cout << "Casting Failed" << endl;
+			}
+			tmp->Stem::stem_cellFunction;
 		} else if (typeid(*this) == typeid(Progen)) {
 			this->Progen::progen_cellFunction;
 		} else if (typeid(*this) == typeid(NP)) {
@@ -1112,9 +1117,6 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
 			if (dp2 == nullptr) {
 				cout << "Casting Failed" << endl;
-			}
-			else {
-				cout << "Casting Successful" << endl;
 			}
 			Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
 			Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
