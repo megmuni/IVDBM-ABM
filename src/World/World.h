@@ -13,6 +13,7 @@
 #define	WORLD_H
 
 #include "../Agent/Agent.h"
+#include "../ArrayChain/ArrayChain.h"
 #include "../FieldVariable/FieldVariable.h"
 #include "../Patch/Patch.h"
 

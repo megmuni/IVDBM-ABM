@@ -19,6 +19,7 @@
 
 using namespace std;
 
+#include "../src/ArrayChain/ArrayChain.h"
 #include "../src/World/World.h"
 #include "../src/Patch/Patch.h"
 #include "../src/Agent/Agent.h"

@@ -18,7 +18,8 @@
 
 #include "../common.h"
 #include "../enums.h"
-//#include "../World/World.h"
+#include "../World/World.h"
+//#include "../ArrayChain/ArrayChain.h"
 
 class World;
 class WHWorld;
