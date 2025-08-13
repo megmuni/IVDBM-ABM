@@ -406,7 +406,6 @@ void Cell::cellSniff() {
 		#else
 			this->wiggle();
 		#endif
-        }
 
 	} else {
 		#ifdef MODEL_SCAFFOLD
