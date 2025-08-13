@@ -229,7 +229,7 @@ int main(int argc, char** argv) {
 } // End Main
 
 int outputColor(WHWorld* myWorld, char* fileName) {
-	int dam = 0, tissue = 0, numCaAlg = 0, cell = 0, newCell = 0, stem = 0, progen = 0, np = 0, total = 0, black = 0, actDam = 0;
+	int dam = 0, tissue = 0, numCaAlg = 0, cells = 0, newCell = 0, stems = 0, progens = 0, nps = 0, total = 0, black = 0, actDam = 0;
 	ofstream outfile(fileName);
 
   /* Prepare legacy VTK file format for for visualization with Paraview 3.0 */
@@ -260,8 +260,17 @@ int outputColor(WHWorld* myWorld, char* fileName) {
 					outfile << (myWorld->worldPatch[in].color[read_t]) << " "; // Output the color on each patch
 
 					// Count the number of cells and patch types:
-					if (myWorld->worldPatch[in].occupiedby[read_t] == achondrocyte || myWorld->worldPatch[in].occupiedby[read_t] == chondrocyte)
-						chond++;
+					if (myWorld->worldPatch[in].occupiedby[read_t] == cell)
+						cells++;
+
+					else if (myWorld->worldPatch[in].type[read_t] == stem)
+						stems++;
+
+					else if (myWorld->worldPatch[in].type[read_t] == progen)
+						progens++;
+
+					else if (myWorld->worldPatch[in].type[read_t] == np)
+						nps++;
 
 					else if (myWorld->worldPatch[in].type[read_t] == CaAlg) 
 						numCaAlg++;
@@ -281,7 +290,7 @@ int outputColor(WHWorld* myWorld, char* fileName) {
 
     /* // Output the cell & patch type counts: 
     cout << "file name is " << fileName << endl;
-	cout << " the counts are: all cells " << cell << " , stem " << stem << " , progenitors " << progen << " , NP cells " << np << endl;		
+	cout << " the counts are: all cells " << cells << " , stems " << stem << " , progenitors " << progens << " , NP cells " << nps << endl;		
 	cout << " damage " << black << " , CaAlg " << numCaAlg << " , total " << total << endl;
 	cout << " to check, the num of cells are " << Cell::numOfCells << endl; 
 	*/
