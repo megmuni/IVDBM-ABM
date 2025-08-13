@@ -201,16 +201,24 @@ void Cell::cellFunction() {
 		//Cell temp;
 		Cell* temp = this;
 		if (typeid(*this) == typeid(Stem)) {
-			//Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
-			Stem tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+			//Stem tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
 			tmp->Stem::stem_cellFunction();
 		} else if (typeid(*this) == typeid(Progen)) {
-			this->Progen::progen_cellFunction;
+			Progen* tmp = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
+			if (tmp == nullptr) {
+				cout << "Casting Failed" << endl;
+			}
+			tmp->Progen::progen_cellFunction;
 		} else if (typeid(*this) == typeid(NP)) {
-			this->NP::NP_cellFunction;
+			NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
+			if (tmp == nullptr) {
+				cout << "Casting Failed" << endl;
+			}
+			tmp->NP::NP_cellFunction;
 		}
 	}
 	//if (this->activate[read_t] == false) this->chond_cellFunction();
@@ -1125,7 +1133,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
-			Cell* temp = &this;
+			Cell* temp = this;
 			Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
 			if (dp2 == nullptr) {
 				cout << "Casting Failed" << endl;
@@ -1144,7 +1152,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
-		Cell* temp = &this;
+		Cell* temp = this;
 		NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
 		if (dp2 == nullptr) {
 			cout << "Casting Failed" << endl;
