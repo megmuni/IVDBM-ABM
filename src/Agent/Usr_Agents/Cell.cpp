@@ -212,13 +212,13 @@ void Cell::cellFunction() {
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			tmp->Progen::progen_cellFunction;
+			tmp->Progen::progen_cellFunction();
 		} else if (typeid(*this) == typeid(NP)) {
 			NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			tmp->NP::NP_cellFunction;
+			tmp->NP::NP_cellFunction();
 		}
 	}
 	//if (this->activate[read_t] == false) this->chond_cellFunction();
