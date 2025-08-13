@@ -1329,6 +1329,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	this->initializeCells();
 	#ifdef MODEL_SCAFFOLD
 		this->initializeCaAlg();
+		/* Create a temp Cell object to be able to call the Agent function cellCaAlgBehavior, as Agent is an abstract class */
 		Cell tmpAgent;
 		Cell* tmpThis = &tmpAgent;
 		tmpThis->Agent::cellCaAlgBehavior();
@@ -2096,7 +2097,11 @@ int WHWorld::go() {
 
 		/* ------------------------------ CELL FUNCTION ----------------------------- */
 		#ifdef MODEL_SCAFFOLD
-			Agent::cellCaAlgBehavior(); 
+			/* Create a temp Cell object to be able to call the Agent function cellCaAlgBehavior, as Agent is an abstract class */
+			Cell tmpAgent;
+			Cell* tmpThis = &tmpAgent;
+			tmpThis->Agent::cellCaAlgBehavior();
+			//Agent::cellCaAlgBehavior(); 
 		#endif
 		this->executeCells();
 
