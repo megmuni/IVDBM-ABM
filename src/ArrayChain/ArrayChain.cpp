@@ -185,4 +185,4 @@ bool ArrayChain<T>::allocateNewNode() {
 }
 
 template class ArrayChain<int *>;
-template class ArrayChain<Chondrocyte *>;
+template class ArrayChain<Cell *>;

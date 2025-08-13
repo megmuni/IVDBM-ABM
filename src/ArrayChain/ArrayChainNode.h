@@ -17,7 +17,7 @@
 #include <vector>
 #include "../common.h"
 
-class Chondrocyte;
+class Cell;
 
 /*
  * ARRAYCHAINNODE CLASS DESCRIPTION:     The ArrayChainNode class manages agent/cell location information.
