@@ -70,16 +70,16 @@ void processParameters(string filename) {
     */
 
 
-  // Set chondrocyte cytokine synthesis parameters
+  // Set cell cytokine synthesis parameters
     for (int i = 0; i < 10; ++i) { 
       if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
-        Chondrocyte::cytokineSynthesis[i] = value_as_float;
+        Cell::cytokineSynthesis[i] = value_as_float;
         #ifdef PRINT_PARAMETER_VALUES
-          cout << "Chondrocyte::cytokineSynthesis[" << i << "] = " << Chondrocyte::cytokineSynthesis[i] << endl;
+          cout << "Cell::cytokineSynthesis[" << i << "] = " << Cell::cytokineSynthesis[i] << endl;
         #endif
       } else {
-        cerr << "Error in assigning value to chondrocyte cytokine synthesis parameter #"<< i << endl;
+        cerr << "Error in assigning value to cell cytokine synthesis parameter #"<< i << endl;
       }
     
   }
@@ -96,42 +96,42 @@ void processParameters(string filename) {
   }
 
 
-  // Set chondrocyte activation parameters:
+  // Set cell activation parameters:
   for (int i = 0; i < 5; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      Chondrocyte::activation[i] = value_as_float;
+      Cell::activation[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Chondrocyte::activation[" << i << "] = " << Chondrocyte::activation[i] << endl;
+        cout << "Cell::activation[" << i << "] = " << Cell::activation[i] << endl;
       #endif
     } else {
-      cerr << "Error in assigning value to chondrocyte activation parameter #"<< i << endl;
+      cerr << "Error in assigning value to cell activation parameter #"<< i << endl;
     }
   }
 
-  // Set chondrocyte ECM synthesis parameters:
+  // Set cell ECM synthesis parameters:
   for (int i = 0; i < 17; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
       Cell::ECMsynthesis[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Chondrocyte::ECMsynthesis[" << i << "] = " << Cell::ECMsynthesis[i] << endl;
+        cout << "Cell::ECMsynthesis[" << i << "] = " << Cell::ECMsynthesis[i] << endl;
       #endif
     } else {
-      cerr << "Error in assigning value to chondrocyte ECM synthesis parameter #"<< i << endl;
+      cerr << "Error in assigning value to cell ECM synthesis parameter #"<< i << endl;
     }
   }
 
-  // Set chondrocyte proliferation parameters:
+  // Set cell proliferation parameters:
   for (int i = 0; i < 6; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
       Cell::proliferation[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Chondrocyte::proliferation[" << i << "] = " << Cell::proliferation[i] << endl;
+        cout << "Cell::proliferation[" << i << "] = " << Cell::proliferation[i] << endl;
       #endif
     } else {
-      cerr << "Error in assigning value to chondrocyte proliferation parameter #"<< i << endl;
+      cerr << "Error in assigning value to cell proliferation parameter #"<< i << endl;
     }
   }
 
@@ -238,29 +238,29 @@ void processParameters(string filename) {
     } 
   */
 
-  // Set Agent collagen synthesis parameters (biomaterial)
+  // Set NP collagen synthesis parameters (biomaterial)
   for (int i = 0; i < 3; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      Agent::CollagenSynth[i] = value_as_float;
+      NP::CollagenSynth[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Agent::CollagenSynth[" << i << "] = " << Agent::CollagenSynth[i] << endl;
+        cout << "NP::CollagenSynth[" << i << "] = " << NP::CollagenSynth[i] << endl;
       #endif
     } else {
-      cerr << "Error in assigning value to agent collagen synthesis parameter #"<< i << endl;
+      cerr << "Error in assigning value to NP collagen synthesis parameter #"<< i << endl;
     }
   }
 
-  // Set Agent aggrecan synthesis parameters (biomaterial)
+  // Set NP aggrecan synthesis parameters (biomaterial)
   for (int i = 0; i < 3; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
       Agent::AggrecanSynth[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "Agent::AggrecanSynth[" << i << "] = " << Agent::AggrecanSynth[i] << endl;
+        cout << "NP::AggrecanSynth[" << i << "] = " << NP::AggrecanSynth[i] << endl;
       #endif
     } else {
-      cerr << "Error in assigning value to agent aggrecan synthesis parameter #"<< i << endl;
+      cerr << "Error in assigning value to NP aggrecan synthesis parameter #"<< i << endl;
     }
   }
 
@@ -363,7 +363,7 @@ void outputTotalChem(WHWorld* myWorld, string filename) {
   tp += myWorld->WHWorldChem.totalIL1beta;
 
   //Output:
-  output_file << fixed << myWorld->chonds.actualSize() << "\t";
+  output_file << fixed << myWorld->cells.actualSize() << "\t";
   output_file << col << "\t";
   output_file << agg << "\t";
   output_file << tp << "\t";
