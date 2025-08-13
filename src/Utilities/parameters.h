@@ -255,7 +255,7 @@ void processParameters(string filename) {
   for (int i = 0; i < 3; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      Agent::AggrecanSynth[i] = value_as_float;
+      NP::AggrecanSynth[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
         cout << "NP::AggrecanSynth[" << i << "] = " << NP::AggrecanSynth[i] << endl;
       #endif
