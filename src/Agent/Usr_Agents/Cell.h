@@ -201,6 +201,18 @@ class Stem: public Cell {
        *                          NOTE: The pointer cannot be NULL.
        */
     Stem(Patch* patchPtr);
+
+
+    /*
+     * Description:	Stem constructor. Initializes stem class members.
+     *
+     * Return: void
+     *
+     * Parameters: x  -- Position of cell in x dimension
+     *             y  -- Position of cell in y dimension
+     *             z  -- Position of cell in z dimension
+     */
+    Stem(int x, int y, int z);
   
     /*
        * Description:	Performs biological function of a stem cell.
@@ -253,7 +265,18 @@ class Progen: public Cell {
        * Parameters: patchPtr  -- Pointer to patch on which pre-NP cell will reside.
        *                          NOTE: The pointer cannot be NULL.
        */
-      Progen(Patch* patchPtr);
+    Progen(Patch* patchPtr);
+
+    /*
+     * Description:	Pre-NP constructor. Initializes progen class members.
+     *
+     * Return: void
+     *
+     * Parameters: x  -- Position of cell in x dimension
+     *             y  -- Position of cell in y dimension
+     *             z  -- Position of cell in z dimension
+     */
+    Progen(int x, int y, int z);
 
     /*
        * Description:	Performs biological function of an NP progenitor cell.
@@ -305,7 +328,19 @@ class NP: public Cell {
        * Parameters: patchPtr  -- Pointer to patch on which NP cell will reside.
        *                          NOTE: The pointer cannot be NULL.
        */
-      NP(Patch* patchPtr);
+    NP(Patch* patchPtr);
+
+    /*
+       * Description:	NP constructor. Initializes NP class members.
+       *
+       * Return: void
+       *
+       * Parameters: x  -- Position of cell in x dimension
+       *             y  -- Position of cell in y dimension
+       *             z  -- Position of cell in z dimension
+       */
+    NP(int x, int y, int z);
+
     /*
        * Description:	Performs biological function of an NP cell.
        *

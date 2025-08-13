@@ -271,6 +271,7 @@ bool Agent::rollDice(float percent) {
 	}
 
 	void Agent::cellCaAlgBehavior() {
+		enum Agent::agenttype_t agentType;
 		switch (this->type[read_t]) {
 			case stem: {
 				agentType = stem;
@@ -556,6 +557,7 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
+	int radius;
 		switch (this->type[read_t]) {
 			case stem: {
 				int radius = Stem::migrationSpeed;
@@ -651,15 +653,18 @@ void Agent::hatchnewcell(int number, int agentType) {
 		// Create a new cell of agentType at the valid target neighboring patch:
 		Cell* newcell = NULL;
 		switch (agentType) {
-		case stem:
-			Stem* newcell = new Stem(x + dx, y + dy, z + dz);
-			break;
-		case progen:
-			Progen* newcell = new Progen(x + dx, y + dy, z + dz);
-			break;
-		case np:
-			NP* newcell = new NP(x + dx, y + dy, z + dz);
-			break;
+			case stem: {
+				Stem* newcell = new Stem(x + dx, y + dy, z + dz);
+				} 
+				break;
+			case progen: {
+				Progen* newcell = new Progen(x + dx, y + dy, z + dz);
+				}	
+				break;
+			case np: {
+				NP* newcell = new NP(x + dx, y + dy, z + dz);
+				}
+				break;
 		}
 		newcells++;
 
