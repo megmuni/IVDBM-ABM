@@ -556,7 +556,7 @@ void Stem::stem_cellFunction() {
 						float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF); 
 						if (rollDice(stemProlif)) { 										
 					#endif  
-							this->Agent::hatchnewcell(1);
+							this->Agent::hatchnewcell(1, stem);
 							//this->die();
 							return;
 						}
@@ -592,7 +592,7 @@ void Stem::stem_cellFunction() {
 					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 						if (rollDice(stemProlif)) {
 				#endif
-						this->Agent::hatchnewcell(1);
+						this->Agent::hatchnewcell(1, stem);
 						//this->die();
 						return;
 					}
@@ -605,7 +605,7 @@ void Stem::stem_cellFunction() {
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (fmod((float)hours, 48 == 0) { // differentiation attempted every 48 hours
+			if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
 				Stem::differentiateStem(1, progen);
 			}
 		}
@@ -739,7 +739,7 @@ void Progen::progen_cellFunction() {
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
 #endif  
-					this->Agent::hatchnewcell(1);
+					this->Agent::hatchnewcell(1, progen);
 					//this->die();
 						return;
 				}
@@ -764,7 +764,7 @@ void Progen::progen_cellFunction() {
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
 #endif
-					this->Agent::hatchnewcell(1);
+					this->Agent::hatchnewcell(1, progen);
 					//this->die();
 						return;
 				}
@@ -776,7 +776,7 @@ void Progen::progen_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (fmod((float)hours, 48 == 0) { // differentiation attempted every 48 hours
+		if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
 			Progen::differentiateProgen(1, np);
 		}
 	}
@@ -1113,6 +1113,11 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
+
+	float meanTNF = this->meanNeighborChem(TNF);
+	float meanTGF = this->meanNeighborChem(TGF);
+	float meanIL1 = this->meanNeighborChem(IL1beta);
+
 	int in = this->index[read_t];
 	float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
 	if (rollDice(stemDiff)) {
