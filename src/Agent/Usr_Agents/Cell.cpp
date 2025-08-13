@@ -216,7 +216,7 @@ void Cell::cellFunction() {
 	//else this->achond_cellFunction();
 }
 
-void NP::NP_cellFunction() {  
+void NP::NP_cellFunction() {
 
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
@@ -225,33 +225,35 @@ void NP::NP_cellFunction() {
 	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
 	if (totaldamage == 0) {
 
-		#ifdef MODEL_SCAFFOLD
-			// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
-			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle(); 
-			
-			} else if(rollDice(0.25)){ // If cell is not actively migrating, consider chance of moving to next patch            
-				this->wiggle(); 
-			}
-		#else
-				this->wiggle();
-		#endif
+#ifdef MODEL_SCAFFOLD
+		// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
+		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
 
-	} else {
+		}
+		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
+			this->wiggle();
+		}
+#else
+		this->wiggle();
+#endif
+
+	}
+	else {
 
 		/* -------------------------------------------------------------------------- */
 		/*                                PROLIFERATION                               */
 		/* -------------------------------------------------------------------------- */
-		#ifdef MODEL_SCAFFOLD
-			// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
-			in = this->index[read_t];
-			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
+#ifdef MODEL_SCAFFOLD
+	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
+		in = this->index[read_t];
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 
-			#ifdef CALIBRATION
-				if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice (Agent::proliferationRate)){   //check every hour 
-			#else 
-				if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice (Agent::proliferationRate)){ //check every hour
-			#endif
+#ifdef CALIBRATION
+			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
+#else 
+			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) { //check every hour
+#endif
 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -259,113 +261,117 @@ void NP::NP_cellFunction() {
 				int countfHA = 0;
 				int TGFrelated = 0;
 
-			#ifndef CALIBRATION
-				if (meanTGF <= 10) { 
-			#else 
+#ifndef CALIBRATION
 				if (meanTGF <= 10) {
-			#endif
+#else 
+				if (meanTGF <= 10) {
+#endif
 					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction. 
-				} else {
+				}
+				else {
 					TGFrelated = -1; // High TGF (1-10 ng) inhibits proliferation.
 				}
 
-			#ifndef CALIBRATION
-				float cellProlif = Cell::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Cell::proliferation[3];
-				if (rollDice(Cell::proliferation[4] + cellProlif/Cell::proliferation[5])) {
-			#else
-				float cellProlif = 1*log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF) + 0;
-				if (rollDice(25 + cellProlif/2)) { 
-			#endif	
+#ifndef CALIBRATION
+				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
+				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
+#else
+				float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
+				if (rollDice(25 + cellProlif / 2)) {
+#endif	
 					this->Agent::hatchnewcell(np, 2);
 					this->die();
 					return;
 				}
-				}				
-				// Unactivated chondrocytes proliferate every 24 hours.
-				} else{
-		#endif
-
-	#ifndef CALIBRATION
-		if (fmod((float) hours, Cell::proliferation[0]) == 0) {
-	#else  
-		if (fmod(hours, 24) == 0) {
-	#endif  
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			int countfHA =  this->countNeighborECM(fha);
-			int TGFrelated = 0;
-
-		#ifndef CALIBRATION
-			if (meanTGF <= 10) {
-		#else
-			if (meanTGF <= 10) {
-		#endif
-				TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
-			} else {
-				TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
 			}
+			// Unactivated chondrocytes proliferate every 24 hours.
+		}
+		else {
+#endif
 
-		#ifndef CALIBRATION
-			float cellProlif = Cell::proliferation[2]*(log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF)) + Cell::proliferation[3];  
-			if (rollDice(Cell::proliferation[4] + cellProlif/Cell::proliferation[5])) {  
-		#else  
-			float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF);
-			if (rollDice(25 + cellProlif/2)) {		
-		#endif 
-				this->Agent::hatchnewcell(np, 2);
+#ifndef CALIBRATION
+			if (fmod((float)hours, Cell::proliferation[0]) == 0) {
+#else  
+			if (fmod(hours, 24) == 0) {
+#endif  
+				float meanTNF = this->meanNeighborChem(TNF);
+				float meanTGF = this->meanNeighborChem(TGF);
+				float meanIL1 = this->meanNeighborChem(IL1beta);
+				int countfHA = this->countNeighborECM(fha);
+				int TGFrelated = 0;
+
+#ifndef CALIBRATION
+				if (meanTGF <= 10) {
+#else
+				if (meanTGF <= 10) {
+#endif
+					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
+				}
+				else {
+					TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
+				}
+
+#ifndef CALIBRATION
+				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
+				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
+#else  
+				float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+				if (rollDice(25 + cellProlif / 2)) {
+#endif 
+					this->Agent::hatchnewcell(np, 2);
+					this->die();
+					return;
+				}
+			}
+#ifdef MODEL_SCAFFOLD
+		}
+#endif
+
+		/* -------------------------------------------------------------------------- */
+		/*                                  MOVEMENT                                  */
+		/* -------------------------------------------------------------------------- */
+		this->cellSniff();
+
+		/* -------------------------------------------------------------------------- */
+		/*                                 ACTIVATION                                 */
+		/* -------------------------------------------------------------------------- */
+		//// An unactivated chondrocyte can be activated if it is in the damage zone:
+		//if (Agent::agentPatchPtr[in].inDamzone == true) {
+		//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
+		//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
+		//	
+		//#ifndef CALIBRATION
+		//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
+		//#else  
+		//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
+		//#endif
+		//		this->chondActivation();
+		//	}
+		//	}
+		//}
+
+		/* -------------------------------------------------------------------------- */
+		/*                                    DEATH                                   */
+		/* -------------------------------------------------------------------------- */
+
+		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
+#ifdef MODEL_SCAFFOLD
+#ifdef CALIBRATION
+		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#else
+		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#endif
+			if (rollDice(100 - Agent::viabilityRate)) {
 				this->die();
 				return;
 			}
-			}
-		#ifdef MODEL_SCAFFOLD
-			}
-		#endif
+		}
+#endif
 
-    /* -------------------------------------------------------------------------- */
-    /*                                  MOVEMENT                                  */
-    /* -------------------------------------------------------------------------- */
-	this->cellSniff();
-
-    /* -------------------------------------------------------------------------- */
-    /*                                 ACTIVATION                                 */
-    /* -------------------------------------------------------------------------- */
-	//// An unactivated chondrocyte can be activated if it is in the damage zone:
-	//if (Agent::agentPatchPtr[in].inDamzone == true) {
-	//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
-	//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
-	//	
-	//#ifndef CALIBRATION
-	//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
-	//#else  
-	//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
-	//#endif
-	//		this->chondActivation();
-	//	}
-	//	}
-	//}
-
-	/* -------------------------------------------------------------------------- */
-	/*                                    DEATH                                   */
-	/* -------------------------------------------------------------------------- */
-	
-	// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
-	#ifdef MODEL_SCAFFOLD
-		#ifdef CALIBRATION
-			if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-		#else
-			if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-		#endif
-				if (rollDice(100 - Agent::viabilityRate)){
-					this->die();
-					return; 
-				}
-			}
-	#endif
-
-    // Unactivated chondrocytes can die naturally:
-	this->life[write_t] = this->life[read_t] - 1;
-	if (this->life[read_t] <= 0) this->die();	
+		// Unactivated chondrocytes can die naturally:
+		this->life[write_t] = this->life[read_t] - 1;
+		if (this->life[read_t] <= 0) this->die();
+	}
 }
 
 void Cell::cellSniff() {
