@@ -245,8 +245,8 @@ class Stem: public Cell {
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in stem cell migration speed in CaAlg Gel
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
-  static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
-  static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
+  static float CollagenSynth[1];   // Parameters invloved in collagen synthesis in CaAlg Gel
+  static float AggrecanSynth[1];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
   static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[5]; // Parameters involved in stem cell differentiation
