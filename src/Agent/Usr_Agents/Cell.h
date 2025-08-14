@@ -304,7 +304,7 @@ class Progen: public Cell {
   static float apoptosisChance;
 
   //static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug) // may not be applicable to Pre-NP
-  //static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
 
   /* -------------------------- Calibration variables ------------------------- */
   static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel

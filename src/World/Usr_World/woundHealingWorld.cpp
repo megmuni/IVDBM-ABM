@@ -1836,7 +1836,7 @@ void printWindow(float* a, int h, int w, int r){
 		
 		int countCaAlg = WHWorld::initialCaAlg;
 
-		if (this->baselineChem.size() == 6) {
+		if (this->baselineChem.size() == 3) {
 			for (int iz = 0; iz < this->nz; iz++) {
 			/* Try initializing chemicals with the threads that will access them later since the default allocation policy on Linux platforms is first-touch. 
 			This is a best-effort implementation, since we cannot guarantee size of data accessed per thread to be an integer multiple  of page size. */
@@ -3107,14 +3107,14 @@ int WHWorld::userInput() {
 
 		numChem = temp;
 		this->baselineChem.resize(temp);
-		//cout << "The number of baseline chemicals are: " << this->baselineChem.size() << endl;
+		cout << "The number of baseline chemicals are: " << this->baselineChem.size() << endl;
 		for (int ichem = 0; ichem < baselineChem.size(); ichem++) {
 			//cout << "Reading the baselineChemical " << ichem << endl;
 			infile >> garbage;
 			infile >> this->baselineChem[ichem];
 			//cout << garbage;
 			//cin >> garbage;
-			//cout << "baselineChem " << ichem << " is " << this->baselineChem[ichem] << endl;
+			cout << "baselineChem " << ichem << " is " << this->baselineChem[ichem] << endl;
 		}
 
         /* ---------------------------------- CELLS --------------------------------- */
@@ -3125,33 +3125,33 @@ int WHWorld::userInput() {
 		//cout << garbage;
 		//cin >> garbage;
 		this->initialCells.resize(tempCells);
-		//cout << "The number of types of cells is: " << this->initialCells.size() << endl;
+		cout << "The number of types of cells is: " << this->initialCells.size() << endl;
 		for (int icell = 0; icell< initialCells.size(); icell++) {
 			//cout << "Reading the initial # of cell type " << icell + 1 << endl;
 			infile >> garbage;
 			infile >> this->initialCells[icell];
 			//cout << garbage;
 			//cin >> garbage;
-			//cout<<"# of cell " << icell << " is " << this->initialCells[icell] << endl;
+			cout<<"# of cell " << icell << " is " << this->initialCells[icell] << endl;
 		}
 
         /* -------------------------- Ca-Alg PROPERTIES -------------------------- */
 		//cout << "Reading 1% (w/v) Alg volume (mL)" << endl;
 		infile >> garbage;
 		infile >> this->Alg_v;
-		//cout << "Volume of Alg (mL) = " << this->Alg_v << endl;
+		cout << "Volume of Alg (mL) = " << this->Alg_v << endl;
 
 		//cout << "Reading 1.67% (w/v) Ca volume (mL)" << endl;
 		infile >> garbage;
 		infile >> this->Ca_v;
-		//cout << "Volume of Ca (mL) = " << this->Ca_v << endl;
+		cout << "Volume of Ca (mL) = " << this->Ca_v << endl;
 
         float totalVolume = this->Alg_v + this->Ca_v; 
 
         this->Alg_wv = 2;
 		//this->Alg_wv = 1.95;
 
-        cout << "Total Volume (mL): " << totalVolume << endl; 
+		cout << "Total Volume from file (mL): " << totalVolume << endl;
 
         /* --------------------------- CYTOKINE PROPERTIES -------------------------- */
 		//cout << "Reading Cytokine Properties..." << endl;
@@ -3209,6 +3209,21 @@ int WHWorld::userInput() {
         cout << "-------------------------------------------" << endl; 
 	}  // end of if file opens properly
 	else cout << "Cannot open file!" << endl;
+
+
+	//this->baselineChem[3]; //added manually for testing
+	//cout << "The number of baseline chemicals are: " << this->baselineChem.size() << endl;
+
+	//this->initialCells[3]; //added manually for testing
+	//cout << "The number of types of cells is: " << this->initialCells.size() << endl;
+
+	//this->Alg_v = 0.0275; //added manually for testing
+	//this->Ca_v = 0.005;
+
+	//float totalVolume = this->Alg_v + this->Ca_v;
+
+	//cout << "Total Volume (mL): " << totalVolume << endl;
+
 	return 0;
 }
 
@@ -3222,7 +3237,7 @@ void WHWorld::outputWorld_csv() {
         
 		
 		//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
-		ofstream output_file("output/Output_Biomarkers_1500Mw_14mM.csv", ios::app);	
+		ofstream output_file("output/Output_Biomarkers.csv", ios::app);	
 		//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
@@ -3232,7 +3247,7 @@ void WHWorld::outputWorld_csv() {
 	}
 
     //ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
-	ofstream output_file("output/Output_Biomarkers_1500Mw_14mM.csv", ios::app);
+	ofstream output_file("output/Output_Biomarkers.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);
@@ -3283,10 +3298,11 @@ void WHWorld::outputWorld_csv() {
 	output_file << fixed << std::setprecision(5) << new_coll/1000.0 << "," << new_agg/1000.0 << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
-	output_file << af << "," << f+af << ","; //cells
+	//output_file << af << "," << f+af << ","; //cells
+	output_file << stemSize << "," << progenSize << "," << npSize << "," << stemSize + progenSize + npSize << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << Agent::viabilityRate << endl;
+		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << endl;
 	#else
 		output_file  << endl;
 	#endif

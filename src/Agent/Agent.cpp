@@ -261,9 +261,21 @@ bool Agent::rollDice(float percent) {
 		}
 		}
 		#else
-		// add SWITCH for agent type here after calibration
-			NP::collagenSynthRate = 10*(6.45*WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
-			NP::aggrecanSynthRate = 20*(38*WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
+		switch (agentType) {
+		case stem: {
+			Stem::collagenSynthRate = 10 + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+			if (meanTGF < 100000) {// pg/ml
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+			}
+			else {
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+				break;
+			}
+		} case np: {
+			NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
+			NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
+		}
+		}
 		#endif
 		cout << "        Collagen Synthesis Rate = " << NP::collagenSynthRate << endl; 
 		cout << "        Agggrecan Synthesis Rate = " << NP::aggrecanSynthRate << endl; 

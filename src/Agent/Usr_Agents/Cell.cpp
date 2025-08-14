@@ -18,10 +18,10 @@
 
 using namespace std;
 int Cell::numOfCells = 0;
+float Cell::proliferation[6] = { 24, 10, 1, 0, 25, 2 };
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
-float Cell::activation[5] = {500, 50, 0, 25, 2.5};
-float Cell::ECMsynthesis[12] = {1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2};
-float Cell::proliferation[6] = {24, 10, 1, 0, 25, 2};
+float Cell::activation[5] = {500, 50, 0, 25, 2.5}; // these are in sample.txt, but unutilized in new version
+float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // these are in sample.txt, but unutilized in new version
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
@@ -32,14 +32,15 @@ float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalcu
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
 //float Stem::ECMsynthesis[4] = {};
-float Stem::CollagenSynth[3] = { 10, 6.45, 3.6 };
-float Stem::AggrecanSynth[3] = { 10, 38, 16.6 };
+float Stem::CollagenSynth[1] = { 10 };
+float Stem::AggrecanSynth[1] = { 5 };
 float Stem::proliferation[4] = {10, 24, 0.8, 0.001};
 float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
 float Progen::apoptosisChance = 0.1;
+float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
 float Progen::cytokineSynthesis[3] = { 50, 0, -0.807 };
@@ -282,7 +283,7 @@ void NP::NP_cellFunction() {
 				int TGFrelated = 0;
 
 #ifndef CALIBRATION
-				if (meanTGF <= 10) {
+				if (meanTGF <= Cell::proliferation[1]) {
 #else 
 				if (meanTGF <= 10) {
 #endif
@@ -299,7 +300,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
 				if (rollDice(25 + cellProlif / 2)) {
 #endif	
-					this->Agent::hatchnewcell(np, 2);
+					this->Agent::hatchnewcell(1, np);
 					this->die();
 					return;
 				}
@@ -321,7 +322,7 @@ void NP::NP_cellFunction() {
 				int TGFrelated = 0;
 
 #ifndef CALIBRATION
-				if (meanTGF <= 10) {
+				if (meanTGF <= Cell::proliferation[1]) {
 #else
 				if (meanTGF <= 10) {
 #endif
@@ -338,7 +339,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 				if (rollDice(25 + cellProlif / 2)) {
 #endif 
-					this->Agent::hatchnewcell(np, 2);
+					this->Agent::hatchnewcell(1, np);
 					this->die();
 					return;
 				}
@@ -369,6 +370,62 @@ void NP::NP_cellFunction() {
 		//	}
 		//	}
 		//}
+
+		/* -------------------------------------------------------------------------- */
+		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+		/* -------------------------------------------------------------------------- */
+		// Calculates chemical gradients and patch chemical concentrations:
+		//	int in = this->index[read_t];
+		float meanTNF = this->meanNeighborChem(pTNF);
+		float meanTGF = this->meanNeighborChem(pTGF);
+		float meanIL1 = this->meanNeighborChem(pIL1beta);
+		int countnHA = 0;
+		int countfHA = 0;
+		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+		// Makes collagen and aggrecan every 12 hours.
+#ifndef CALIBRATION
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+#else 
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+#endif
+
+#ifdef MODEL_SCAFFOLD
+			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+			int in = this->index[read_t];
+			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				for (int i = 0; i < NP::collagenSynthRate; i++) {
+					this->makeOCollagen(meanTGF, meanIL1);
+				}
+
+				for (int i = 0; i < NP::aggrecanSynthRate; i++) {
+					this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+				}
+
+			}
+			else {
+				this->makeOCollagen(meanTGF, meanIL1);
+				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+			}
+
+#else
+			this->makeOCollagen(meanTGF, meanIL1);
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
+		}
+
+		// Change in chemicals due to cells:
+#ifndef CALIBRATION
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+#else
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+#endif
 
 		/* -------------------------------------------------------------------------- */
 		/*                                    DEATH                                   */
@@ -595,7 +652,7 @@ void Stem::stem_cellFunction() {
 					int TGFrelated = 0;
 
   				#ifndef CALIBRATION
-					if (meanTGF <= meanTGF <= Stem::proliferation[0]) {
+					if (meanTGF <= Stem::proliferation[0]) {
   				#else  
 					if (meanTGF <= 10) {
   				#endif  
@@ -685,13 +742,13 @@ void Stem::stem_cellFunction() {
 
 	// Change in chemicals due to cells:
 	#ifndef CALIBRATION
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF + Cell::cytokineSynthesis[2]*patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[3] + (Cell::cytokineSynthesis[4]*patchIL1beta)/(1 + Cell::cytokineSynthesis[5]*patchTGF);	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[6] + (Cell::cytokineSynthesis[7]*patchTNF)/(Cell::cytokineSynthesis[8] + Cell::cytokineSynthesis[9]*patchTGF); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Stem::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Stem::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5]*((patchIL1beta)/(1 + Cell::cytokineSynthesis[6]*patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8]* ((patchTNF)/(1 + Cell::cytokineSynthesis[9]*patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 	#else
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05*(patchTGF + 10*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4*patchIL1beta)/(1 + 4*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5*patchTNF)/(1 + 3.2*patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 50 + (2.25*patchTGF + 1.3*patchIL1beta + 5.11*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += -0.807 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 	#endif
 
 	/* -------------------------------------------------------------------------- */
@@ -799,7 +856,6 @@ void Progen::progen_cellFunction() {
 			Progen::differentiateProgen(1, np);
 		}
 	}
-#endif
 
 	/* -------------------------------------------------------------------------- */
 	/*                                  MOVEMENT                                  */
@@ -824,46 +880,42 @@ void Progen::progen_cellFunction() {
 	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
 	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-//	// Makes collagen and aggrecan every 12 hours.
-//#ifndef CALIBRATION
-//	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
-//#else 
-//	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
-//#endif
-//
-//#ifdef MODEL_SCAFFOLD
-//		// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-//		int in = this->index[read_t];
-//		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//			for (int i = 0; i < Stem::collagenSynthRate; i++) {
-//				this->makeOCollagen(meanTGF, meanIL1);
-//			}
-//
-//			for (int i = 0; i < Stem::aggrecanSynthRate; i++) {
-//				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-//			}
-//
-//		}
-//		else {
-//			this->makeOCollagen(meanTGF, meanIL1);
-//			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-//		}
-//
-//#else
-//		this->makeOCollagen(meanTGF, meanIL1);
-//		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-//#endif
-//	}
+	// Makes  aggrecan every 12 hours.
+#ifndef CALIBRATION
+	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+#else 
+	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+#endif
+
+#ifdef MODEL_SCAFFOLD
+		// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+		int in = this->index[read_t];
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			for (int i = 0; i < Progen::aggrecanSynthRate; i++) {
+				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+			}
+
+		}
+		else {
+			this->makeOCollagen(meanTGF, meanIL1);
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+		}
+
+#else
+		this->makeOCollagen(meanTGF, meanIL1);
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
+	}
 
 	// Change in chemicals due to cells:
 #ifndef CALIBRATION
-	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF + Cell::cytokineSynthesis[2] * patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[3] + (Cell::cytokineSynthesis[4] * patchIL1beta) / (1 + Cell::cytokineSynthesis[5] * patchTGF);	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[6] + (Cell::cytokineSynthesis[7] * patchTNF) / (Cell::cytokineSynthesis[8] + Cell::cytokineSynthesis[9] * patchTGF); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Progen::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Progen::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
-	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (2.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
 
 	/* -------------------------------------------------------------------------- */
@@ -899,6 +951,7 @@ void Progen::progen_cellFunction() {
 	if (this->life[read_t] <= 0) {
 		this->die();
 	}
+#endif
 }
 
 void Cell::makeOCollagen(float meanTGF, float meanIL1) {
@@ -907,73 +960,116 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	// Check if the location has been modified in this tick
 	if (isModified(this->index)) {
 		read_index = write_t;  // If it has, work off of the intermediate value
-	} else {
+	}
+	else {
 		read_index = read_t;  // If it has NOT, work off of the original value
 	}
 
 	int dx, dy, dz;
 
-  	// Location of chondrocyte in x,y,z dimensions of world.
+	// Location of cell in x,y,z dimensions of world.
 	int x = this->ix[read_index];
 	int y = this->iy[read_index];
 	int z = this->iz[read_index];
 
-  	// Number of patches in x,y,z dimensions of world
+	// Number of patches in x,y,z dimensions of world
 	int nx = Agent::nx;
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 	int randInt, target, in;
-	vector <int> damagedneighbors;
+	vector <int> neighbors;
+	//vector <int> damagedneighbors;
 
-	// Make a list of damaged neighboring patches
+	// Make a list of neighboring patches
 	#ifndef MODEL_3D
-		for (int i = 9; i < 18; i++) {
+	for (int i = 9; i < 18; i++) {
 	#else
-		for (int i = 0; i < 27; i++) {
+	for (int i = 0; i < 27; i++) {
 	#endif
-			dx = Agent::dX[i];
-			dy = Agent::dY[i];
-			dz = Agent::dZ[i];
-			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-    
-			// Try a new neighboring patch if this one is outside the world dimensions:
-			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-			
-			// Add the valid damaged neighboring patch to the list:
-			if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
-		}
+		dx = Agent::dX[i];
+		dy = Agent::dY[i];
+		dz = Agent::dZ[i];
+		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+
+		// Try a new neighboring patch if this one is outside the world dimensions:
+		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+
+		// Add the valid neighboring patch to the list:
+		neighbors.push_back(i);
+	}
 
 	// Target a random damaged neighboring patch, if there are any.
-	if (damagedneighbors.size() > 0) {
+	if (neighbors.size() > 0) {
 		int tid = 0;
-		#ifdef _OMP
-			tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-		#endif
+	#ifdef _OMP
+		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
+	#endif
 
-		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
-		target = damagedneighbors[randInt];
+		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
+		target = neighbors[randInt];
 		dx = Agent::dX[target];
 		dy = Agent::dY[target];
 		dz = Agent::dZ[target];
 
-		// Based on chance, chemical concentrations, move to new patch and sprout ocollagen
-		#ifndef CALIBRATION
-			int stimulation = (Cell::ECMsynthesis[0]*(log10(meanTGF + Cell::ECMsynthesis[1])/(Cell::ECMsynthesis[2] + meanIL1*Cell::ECMsynthesis[2]));
-			if ((rollDice(Cell::ECMsynthesis[3] + stimulation)) || (rollDice(Cell::ECMsynthesis[4] + stimulation/Cell::ECMsynthesis[5])) || (rollDice(Cell::ECMsynthesis[6] + stimulation/Cell::ECMsynthesis[7]))) {
-		#else 
-			int stimulation = ((log10(1 + (meanTGF)))/(1+ meanIL1)); 
-			if ((rollDice(50 + stimulation)) || (rollDice(25 + stimulation/2)) || (rollDice(10+stimulation/5))) {
-		#endif 
-				in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-				this->move(dx, dy, dz, read_index);
-				
-				Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand()%2;
-				#ifdef OPT_ECM
-					Agent::agentECMPtr[in].set_dirty(); 
-				#endif
-			}
-			}
+		// Move to new patch and sprout ocollagen
+		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+		this->move(dx, dy, dz, read_index);
+
+		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
+	#ifdef OPT_ECM
+		Agent::agentECMPtr[in].set_dirty();
+	#endif
 	}
+
+	//// Make a list of damaged neighboring patches
+	//#ifndef MODEL_3D
+	//	for (int i = 9; i < 18; i++) {
+	//#else
+	//	for (int i = 0; i < 27; i++) {
+	//#endif
+	//		dx = Agent::dX[i];
+	//		dy = Agent::dY[i];
+	//		dz = Agent::dZ[i];
+	//		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
+ //   
+	//		// Try a new neighboring patch if this one is outside the world dimensions:
+	//		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+	//		
+	//		// Add the valid damaged neighboring patch to the list:
+	//		if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
+	//	}
+
+	//// Target a random damaged neighboring patch, if there are any.
+	//if (damagedneighbors.size() > 0) {
+	//	int tid = 0;
+	//	#ifdef _OMP
+	//		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
+	//	#endif
+
+	//	randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
+	//	target = damagedneighbors[randInt];
+	//	dx = Agent::dX[target];
+	//	dy = Agent::dY[target];
+	//	dz = Agent::dZ[target];
+
+	//	// Based on chance, chemical concentrations, move to new patch and sprout ocollagen
+	//	#ifndef CALIBRATION
+	//		int stimulation = (Cell::ECMsynthesis[0]*(log10(meanTGF + Cell::ECMsynthesis[1])/(Cell::ECMsynthesis[2] + meanIL1*Cell::ECMsynthesis[2]));
+	//		if ((rollDice(Cell::ECMsynthesis[3] + stimulation)) || (rollDice(Cell::ECMsynthesis[4] + stimulation/Cell::ECMsynthesis[5])) || (rollDice(Cell::ECMsynthesis[6] + stimulation/Cell::ECMsynthesis[7]))) {
+	//	#else 
+	//		int stimulation = ((log10(1 + (meanTGF)))/(1+ meanIL1)); 
+	//		if ((rollDice(50 + stimulation)) || (rollDice(25 + stimulation/2)) || (rollDice(10+stimulation/5))) {
+	//	#endif 
+	//			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
+	//			this->move(dx, dy, dz, read_index);
+	//			
+	//			Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand()%2;
+	//			#ifdef OPT_ECM
+	//				Agent::agentECMPtr[in].set_dirty(); 
+	//			#endif
+	//		}
+	//	}
+}
 
 void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 	int read_index;
@@ -986,7 +1082,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 	int dx, dy, dz;
 
-  	// Location of chondrocyte in x,y,z dimensions of world.
+  	// Location of cell in x,y,z dimensions of world.
 	int x = this->ix[read_index];
 	int y = this->iy[read_index];
 	int z = this->iz[read_index];
@@ -996,58 +1092,49 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 	int randInt, target, in;
-	vector <int> damagedneighbors;
+	vector <int> neighbors;
 
-	// Make list of damaged neighboring patches:
+	// Make a list of neighboring patches
 	#ifndef MODEL_3D
-		for (int i = 9; i < 18; i++) {
+	for (int i = 9; i < 18; i++) {
 	#else
-		for (int i = 0; i < 27; i++) {
+	for (int i = 0; i < 27; i++) {
 	#endif
-			dx = Agent::dX[i];
-			dy = Agent::dY[i];
-			dz = Agent::dZ[i];
-			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-			
-			// Try a new neighboring patch if this one is outside the world dimensions.
-			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-			
-			// Add the valid damaged neighboring patch to the list.
-			if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
-		}
+		dx = Agent::dX[i];
+		dy = Agent::dY[i];
+		dz = Agent::dZ[i];
+		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 
-	// Target a random damaged neighboring patch, if there are any.
-	if (damagedneighbors.size() > 0) {
+		// Try a new neighboring patch if this one is outside the world dimensions:
+		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+
+		// Add the valid neighboring patch to the list:
+		neighbors.push_back(i);
+	}
+	
+	// Target a random neighboring patch, if there are any.
+	if (neighbors.size() > 0) {
 		int tid = 0;
-		#ifdef _OMP
-			tid = omp_get_thread_num(); // Get thread id in order to access the seed that belongs to this thread
-		#endif
+#ifdef _OMP
+		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
+#endif
 
-		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
-		target = damagedneighbors[randInt];
+		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
+		target = neighbors[randInt];
 		dx = Agent::dX[target];
 		dy = Agent::dY[target];
 		dz = Agent::dZ[target];
-		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
 
-		// Based on mean TGf, IL1, TNF, chance, move to new patch and sprout oaggrecan.
-		#ifndef CALIBRATION
-			if 
-			int stimulation = Cell::ECMsynthesis[8]*log10((meanTGF + Cell::ECMsynthesis[9])/(Cell::ECMsynthesis[9] + meanTNF));
-			if (rollDice(Cell::ECMsynthesis[10] + stimulation/Cell::ECMsynthesis[11])) {
-		#else 
-			int stimulation = log10((1 + meanTGF)/(1  + meanTNF));
-			if (rollDice(25 + stimulation/2)){ 
-		#endif
-				this->move(dx, dy, dz, read_index);
-				Agent::agentECMPtr[in].oaggrecan[write_t] = Agent::agentECMPtr[in].oaggrecan[read_t] + 1 + rand()%2;
-				#ifdef OPT_ECM
-					Agent::agentECMPtr[in].set_dirty(); 
-				#endif
-				// cout << " sprout new aggrecan at " << in << endl; 
-			}
-			}
+		// Move to new patch and sprout ocollagen
+		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+		this->move(dx, dy, dz, read_index);
+
+		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
+#ifdef OPT_ECM
+		Agent::agentECMPtr[in].set_dirty();
+#endif
 	}
+}
 
 //void Chondrocyte::makeHyaluronan(float meanTNF, float meanTGF, float meanIL1) {
 //	int read_index;

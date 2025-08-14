@@ -73,7 +73,7 @@ void World::setupGrid(int nx, int ny, int nz, REAL x_min, REAL x_max, REAL y_min
                 //outfile << " x=" << x[in] << "  y=" << y[in] << "  z=" << z[in] << "  in=" << in << endl;
             }
             //outfile.close();
-    //cout << " Setting Grid completed." << endl;
+    cout << " Setting Grid completed." << endl;
 }
 
 void World::outputWorld_VTK_binary(const char* filename, double t) {
