@@ -44,7 +44,7 @@ float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
 float Progen::cytokineSynthesis[3] = { 50, 0, -0.807 };
-//float Progen::ECMsynthesis[4] = {};
+float Progen::AggrecanSynth[1] = { 1 };
 float Progen::proliferation[1] = {24};
 float Progen::differentiation[3] = {0.7, 0.3, 48};
 
