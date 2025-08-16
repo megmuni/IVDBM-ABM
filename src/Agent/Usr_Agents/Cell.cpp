@@ -33,7 +33,7 @@ float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
 //float Stem::ECMsynthesis[4] = {};
 float Stem::CollagenSynth[1] = { 10 };
-float Stem::AggrecanSynth[1] = { 5 };
+float Stem::AggrecanSynth[1] = { 100000 };
 float Stem::proliferation[4] = {10, 24, 0.8, 0.001};
 float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
