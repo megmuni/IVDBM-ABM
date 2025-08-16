@@ -255,6 +255,10 @@ bool Agent::rollDice(float percent) {
 				break;
 			}
 		}
+		case progen: {
+			Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+			break;
+		}
 		case np: {
 			NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
 			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
