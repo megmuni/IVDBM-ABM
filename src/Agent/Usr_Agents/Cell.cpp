@@ -60,6 +60,17 @@ float NP::AggrecanSynth[3] = { 20, 38, 16.6 };
 
 Cell::Cell() {
 	cout << "default cell alloc" << endl;
+
+	// added for debugging: print out what cell type
+	if (typeid(*this) == typeid(Stem)) {
+		cout << "cell type stem";
+	}
+	else if (typeid(*this) == typeid(Progen)) {
+		cout << "cell type progen";
+	}
+	else if (typeid(*this) == typeid(NP)) {
+		cout << "cell type NP";
+	}
 }
 
 Cell::Cell(Patch* patchPtr) {
