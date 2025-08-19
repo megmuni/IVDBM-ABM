@@ -618,7 +618,8 @@ void Stem::stem_cellFunction() {
 			cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
 		}
 		else {
-			cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+			//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+			cout << "agent patch type is invalid!" << endl;
 		}
 		
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
