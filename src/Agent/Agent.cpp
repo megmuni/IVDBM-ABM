@@ -247,7 +247,7 @@ bool Agent::rollDice(float percent) {
 		switch (agentType) {
 		case stem: {
 			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			if (meanTGF < Stem::aggrecanSynth[0]) {// pg/ml
+			if (meanTGF < Stem::AggrecanSynth[0]) {// pg/ml
 				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
 			}
 			else {
