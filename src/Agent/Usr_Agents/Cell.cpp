@@ -614,6 +614,8 @@ void Stem::stem_cellFunction() {
 	// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
+		cout << "[in] is " << in << endl;
+		cout << "[read_t] is " << read_t << endl;
 		//add print statements for [in] and [read_t]
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
