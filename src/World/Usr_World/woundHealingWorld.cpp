@@ -3046,7 +3046,7 @@ void WHWorld::degradeCaAlg(int numOfPatches){
 }
 #endif //MODEL_SCAFFOLD
 
-void debugInfo() {
+void WHWorld::debugInfo() {
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
 		Cell* cell = cells.getDataAt(i);
