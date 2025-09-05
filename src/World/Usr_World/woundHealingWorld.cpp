@@ -3046,6 +3046,30 @@ void WHWorld::degradeCaAlg(int numOfPatches){
 }
 #endif //MODEL_SCAFFOLD
 
+void debugInfo() {
+	int cellsSize = cells.size();
+	for (int i = 0; i < cellsSize; i++) {
+		Cell* cell = cells.getDataAt(i);
+		if (!cell) continue;
+		if (cell->isAlive() == false) continue;
+		if (cell->activate[read_t] == false) f++;
+		if (typeid(*cell) == typeid(Stem)) {
+			stemSize++;
+		}
+		else if (typeid(*cell) == typeid(Progen)) {
+			progenSize++;
+		}
+		else if (typeid(*cell) == typeid(NP)) {
+			npSize++;
+		}
+		else af++;
+	}
+	cout << "total cells = " << cellsSize << endl;
+	cout << " stem cells: " << stemSize << endl;
+	cout << " pre-np cells: " << progenSize << endl;
+	cout << " np cells: " << npSize << endl;
+}
+
 /*
  * Steps:
  *   1. If OMP, add cells from thread-local lists to corresponding global lists

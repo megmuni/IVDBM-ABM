@@ -361,6 +361,14 @@ class WHWorld: public World {
      * Parameters:        numOfPatches  -- number of CaAlg patches to "degrade" and be replaced with patch type tissue                  
      */
     void degradeCaAlg(int numOfPatches);
+
+    /*
+     * Description: Print out extra info for debugging purposes
+     *
+     * Return:
+     * Parameters:
+     */
+    void debugInfo();
 //#endif
 
 /****************************************************************

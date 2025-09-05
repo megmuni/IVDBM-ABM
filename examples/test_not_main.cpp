@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
 	long elapsed_times[numTicks];   // in milliseconds
 
 	for (int tick = 0; tick < numTicks; tick++) {
-
+		myWorld.debugInfo(); // debug function
 		#ifdef PARAVIEW_RENDERING
 			// Prepare output filenames and output current state of wound healing world:
 			char simulation[50] = "output/Simulation/5daysimulation_";
