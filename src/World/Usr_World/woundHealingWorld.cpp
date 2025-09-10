@@ -3320,13 +3320,13 @@ void WHWorld::outputWorld_csv() {
 		if (!cell) continue;
 		if (cell->isAlive() == false) continue;
 		if (cell->activate[read_t] == false) f++;
-		if (typeid(*cell) == typeid(Stem)) {
+		if (typeid(cell) == typeid(Stem)) {
 			stemSize++;
 		}
-		else if (typeid(*cell) == typeid(Progen)) {
+		else if (typeid(cell) == typeid(Progen)) {
 			progenSize++;
 		}
-		else if (typeid(*cell) == typeid(NP)) {
+		else if (typeid(cell) == typeid(NP)) {
 			npSize++;
 		}
 		else af++;

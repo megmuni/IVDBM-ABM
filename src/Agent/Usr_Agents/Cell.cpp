@@ -1229,6 +1229,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
+	cout << "attempting differentiation of stem cell" << endl;
 
 	float meanTNF = this->meanNeighborChem(TNF);
 	float meanTGF = this->meanNeighborChem(TGF);
@@ -1254,6 +1255,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
+	cout << "attempting differentiation of pre-np cell" << endl;
 
 	int in = this->index[read_t];
 	if (rollDice(0.7)) { // asymmetric differentiation
