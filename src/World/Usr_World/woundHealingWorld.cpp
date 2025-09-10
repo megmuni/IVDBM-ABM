@@ -2709,6 +2709,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 					this->worldPatch[in].setOccupied();
         			this->worldPatch[in].occupiedby[write_t] = stem;
 					this->worldPatch[in].dirty = true;
+					cout << "patch index " << in << endl; //added for debugging
         			
 					break;
       			}
@@ -3332,9 +3333,9 @@ void WHWorld::outputWorld_csv() {
 	}
 
 	cout << " total cells: " << cells.actualSize() << endl;
-	cout << " stem cells: " << Stem::numOfStem << endl;
-	cout << " pre-np cells: " << Progen::numOfProgen << endl;
-	cout << " np cells: " << NP::numOfNP << endl;
+	cout << " stem cells: " << stemSize << endl;
+	cout << " pre-np cells: " << progenSize << endl;
+	cout << " np cells: " << npSize << endl;
 
 	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
