@@ -106,7 +106,7 @@ Cell::Cell(Patch* patchPtr) {
 }
 
 Stem::Stem(Patch* patchPtr) {
-	//Cell::Cell(patchPtr);
+	Cell(patchPtr);
 
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
@@ -116,7 +116,7 @@ Stem::Stem(Patch* patchPtr) {
 }
 
 Progen::Progen(Patch* patchPtr) {
-	//Cell::Cell(patchPtr);
+	Cell(patchPtr);
 
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
@@ -126,7 +126,7 @@ Progen::Progen(Patch* patchPtr) {
 }
 
 NP::NP(Patch* patchPtr) {
-	//Cell::Cell(patchPtr);
+	Cell(patchPtr);
 
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
