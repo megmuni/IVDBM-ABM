@@ -3316,7 +3316,6 @@ void WHWorld::outputWorld_csv() {
 		else af++;
 	}
 
-	cout << " total patches: " << patchlist
 	cout << " total cells: " << cells.actualSize() << endl;
 	cout << " stem cells: " << Stem::numOfStem << endl;
 	cout << " pre-np cells: " << Progen::numOfProgen << endl;
