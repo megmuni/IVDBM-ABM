@@ -3068,13 +3068,13 @@ void WHWorld::debugInfo() {
 		if (!cell) continue;
 		if (cell->isAlive() == false) continue;
 		//if (cell->activate[read_t] == false) f++;
-		if (typeid(*cell) == typeid(Stem)) {
+		if (typeid(cell) == typeid(Stem)) {
 			stemSize++;
 		}
-		else if (typeid(*cell) == typeid(Progen)) {
+		else if (typeid(cell) == typeid(Progen)) {
 			progenSize++;
 		}
-		else if (typeid(*cell) == typeid(NP)) {
+		else if (typeid(cell) == typeid(NP)) {
 			npSize++;
 		}
 		//else af++;
@@ -3084,9 +3084,9 @@ void WHWorld::debugInfo() {
 	numCaAlg = countPatchType(CaAlg);
 	cout << " total patches: " << numCaAlg << endl;
 	cout << " total cells: " << cells.actualSize() << endl;
-	cout << " stem cells: " << Stem::numOfStem << endl;
-	cout << " pre-np cells: " << Progen::numOfProgen << endl;
-	cout << " np cells: " << NP::numOfNP << endl;
+	cout << " stem cells: " << stemSize << endl;
+	cout << " pre-np cells: " << progenSize << endl;
+	cout << " np cells: " << npSize << endl;
 }
 
 /*
