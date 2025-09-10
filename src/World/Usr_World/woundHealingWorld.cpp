@@ -2695,11 +2695,16 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 						int tid = omp_get_thread_num();
 						this->localNewCells[tid]->push_back(newStem);
 					#else
-						if (!this-> cells.addData(newStem, DEFAULT_TID)) {
+						if (!this->cells.addData(newStem, DEFAULT_TID)) {
 							cerr << "Error: Could not add stem cell in sproutAgent()" << endl;
 							exit(-1);
 						}
 					#endif
+					/* Added by MM to check types of cell stages and add to respective counters: */
+					if (typeid(*this) == typeid(Stem)) {
+						Stem::numOfStem++;
+					}
+					Cell::numOfCells++;
         			
 					this->worldPatch[in].setOccupied();
         			this->worldPatch[in].occupiedby[write_t] = stem;
@@ -2720,6 +2725,11 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 							exit(-1);
 						}
 					#endif
+					/* Added by MM to check types of cell stages and add to respective counters: */
+					if (typeid(*this) == typeid(Progen)) {
+						Progen::numOfProgen++;
+					}
+					Cell::numOfCells++;
 
 					this->worldPatch[in].setOccupied();
 					this->worldPatch[in].occupiedby[write_t] = progen;
@@ -2740,6 +2750,11 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 							exit(-1);
 						}
 					#endif
+					/* Added by MM to check types of cell stages and add to respective counters: */
+					if (typeid(*this) == typeid(NP)) {
+						NP::numOfNP++;
+					}
+					Cell::numOfCells++;
 
 					this->worldPatch[in].setOccupied();
 					this->worldPatch[in].occupiedby[write_t] = np;
