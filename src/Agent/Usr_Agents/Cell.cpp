@@ -617,7 +617,7 @@ void Stem::stem_cellFunction() {
 		#ifdef CALIBRATION
 			if (fmod((float)hours, Stem::proliferation[1]) == 0) {
 		#else 
-			if (fmod(hours, 24) == 0) {
+			if (fmod((float)hours, 24) == 0) {
 		#endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -653,7 +653,7 @@ void Stem::stem_cellFunction() {
 			#ifndef CALIBRATION
 				if (fmod((float)hours, Stem::proliferation[1])) == 0 {
 			#else  
-				if (fmod(hours, 24) == 0) {
+				if (fmod((float)hours, 24) == 0) {
 			#endif  
 					float meanTNF = this->meanNeighborChem(TNF);
 					float meanTGF = this->meanNeighborChem(TGF);
