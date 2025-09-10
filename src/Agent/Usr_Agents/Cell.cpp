@@ -692,6 +692,7 @@ void Stem::stem_cellFunction() {
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
+				cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
 		}
@@ -863,6 +864,7 @@ void Progen::progen_cellFunction() {
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 		if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
+			cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
 		}
 	}
@@ -1229,7 +1231,6 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
-	cout << "attempting differentiation of stem cell" << endl;
 
 	float meanTNF = this->meanNeighborChem(TNF);
 	float meanTGF = this->meanNeighborChem(TGF);
@@ -1242,7 +1243,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
-			Cell* temp = this;
+			Stem* temp = this;
 			Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
 			if (dp2 == nullptr) {
 				cout << "Casting Failed" << endl;
@@ -1255,14 +1256,13 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
-	cout << "attempting differentiation of pre-np cell" << endl;
 
 	int in = this->index[read_t];
 	if (rollDice(0.7)) { // asymmetric differentiation
 		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
-		Cell* temp = this;
+		Progen* temp = this;
 		NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
 		if (dp2 == nullptr) {
 			cout << "Casting Failed" << endl;
