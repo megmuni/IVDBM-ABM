@@ -147,8 +147,8 @@ int main(int argc, char** argv) {
 
 		// Run the simulation for 1 tick (30 min):
 		clock_t t1 = clock();
-		//cerr << "executing go() at tick " << tick << " ..." << endl;
-		//cout << "entering go() at tick " << tick << endl;
+		cerr << "executing go() at tick " << tick << " ..." << endl;
+		cout << "entering go() at tick " << tick << endl;
 		gettimeofday(&start, NULL);
 		myWorld.go();
 

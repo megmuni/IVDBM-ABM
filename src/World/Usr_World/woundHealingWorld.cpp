@@ -1333,7 +1333,6 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 		Cell tmpAgent;
 		Cell* tmpThis = &tmpAgent;
 		tmpThis->Agent::cellCaAlgBehavior();
-
 		//Agent::cellCaAlgBehavior(); 
 	#endif
 	this->initializeDamage();
@@ -3048,8 +3047,6 @@ void WHWorld::degradeCaAlg(int numOfPatches){
 
 void WHWorld::debugInfo() {
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
-
-
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
 		Cell* cell = cells.getDataAt(i);
@@ -3067,10 +3064,25 @@ void WHWorld::debugInfo() {
 		}
 		//else af++;
 	}
-	cout << "total cells = " << cellsSize << endl;
-	cout << " stem cells: " << stemSize << endl;
-	cout << " pre-np cells: " << progenSize << endl;
-	cout << " np cells: " << npSize << endl;
+
+	int numPatches = 0;
+	int in;
+	// count the number of CaAlg patches at the moment
+	for (int iz = zmin; iz < zmax; iz++) {
+		for (int iy = ymin; iy < ymax; iy++) {
+			for (int ix = xmin; ix < xmax; ix++) {
+				in = ix + iy * nx + iz * nx * ny;
+				if (WHWorld::worldPatch[in].type[read_t] == CaAlg) {
+					numPatches++;
+				}
+			}
+		}
+	}
+
+	cout << " total cells: " << cells.actualSize() << endl;
+	cout << " stem cells: " << Stem::numOfStem << endl;
+	cout << " pre-np cells: " << Progen::numOfProgen << endl;
+	cout << " np cells: " << NP::numOfNP << endl;
 }
 
 /*
@@ -3113,9 +3125,18 @@ void WHWorld::updateCellsInitial() {
 		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;
 		cell->updateAgent();
+		/* Added by MM to check types of cell stages and add to respective counters: */
+		if (typeid(*this) == typeid(Stem)) {
+			Stem::numOfStem++;
+		}
+		else if (typeid(*this) == typeid(Progen)) {
+			Progen::numOfProgen++;
+		}
+		else if (typeid(*this) == typeid(NP)) {
+			NP::numOfNP++;
+		}
 	}
 	Cell::numOfCells = cells.actualSize();
-	Stem::numOfStem = cells.actualSize();
 }
 
 int WHWorld::userInput() {
@@ -3306,10 +3327,11 @@ void WHWorld::outputWorld_csv() {
 		else af++;
 	}
 
+	cout << " total patches: " << patchlist
 	cout << " total cells: " << cells.actualSize() << endl;
-	cout << " stem cells: " << stemSize << endl;
-	cout << " pre-np cells: " << progenSize << endl;
-	cout << " np cells: " << npSize << endl;
+	cout << " stem cells: " << Stem::numOfStem << endl;
+	cout << " pre-np cells: " << Progen::numOfProgen << endl;
+	cout << " np cells: " << NP::numOfNP << endl;
 
 	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
