@@ -3066,8 +3066,8 @@ void WHWorld::debugInfo() {
 	}
 
 	int numCaAlg = 0;
-	numCaAlg = countPatchType(CaAlg)
-    cout << " total patches: " << numCaAlg << endl;
+	numCaAlg = countPatchType(CaAlg);
+	cout << " total patches: " << numCaAlg << endl;
 	cout << " total cells: " << cells.actualSize() << endl;
 	cout << " stem cells: " << Stem::numOfStem << endl;
 	cout << " pre-np cells: " << Progen::numOfProgen << endl;
