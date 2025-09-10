@@ -3065,20 +3065,9 @@ void WHWorld::debugInfo() {
 		//else af++;
 	}
 
-	int numPatches = 0;
-	int in;
-	// count the number of CaAlg patches at the moment
-	for (int iz = zmin; iz < zmax; iz++) {
-		for (int iy = ymin; iy < ymax; iy++) {
-			for (int ix = xmin; ix < xmax; ix++) {
-				in = ix + iy * nx + iz * nx * ny;
-				if (WHWorld::worldPatch[in].type[read_t] == CaAlg) {
-					numPatches++;
-				}
-			}
-		}
-	}
-
+	int numCaAlg = 0;
+	numCaAlg = countPatchType(CaAlg)
+    cout << " total patches: " << numCaAlg << endl;
 	cout << " total cells: " << cells.actualSize() << endl;
 	cout << " stem cells: " << Stem::numOfStem << endl;
 	cout << " pre-np cells: " << Progen::numOfProgen << endl;
