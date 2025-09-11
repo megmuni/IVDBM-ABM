@@ -1249,7 +1249,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			//	cout << "Casting Failed" << endl;
 			//}
 			this->die(); // 'kill' current cell
-			Agent::hatchnewcell(number, stem, 1);
+			Agent::hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
 			Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
 		}
 	}
