@@ -637,6 +637,7 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 	int lx = 0;
 	int ly = 0;
 	int lz = 0;
+	int in = 0;
 
 	// Location of cell in x,y,z dimensions of the world
 	int x = this->ix[read_t];
@@ -663,7 +664,7 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 			int dz = Agent::dZ[neighbor[i]];
 
 			// Patch row major index of target neighboring patch:
-			int in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+			in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 
 			// Hatching coordinates:
 			int lx = x + dx;
@@ -675,7 +676,7 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 			int targetType = agentPatchPtr[in].type[read_t];
 		}
 		else { // here == 1; option to hatch a new cell on current patch
-			int in = this->getIndex();
+			in = this->getIndex();
 
 			// Hatching coordinates:
 			int lx = x;
