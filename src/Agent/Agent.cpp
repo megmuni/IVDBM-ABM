@@ -632,7 +632,7 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	return this->move(dx, dy, dz, read_index);
 }
 
-void Agent::hatchnewcell(int number, int agentType, int here = 0) {
+void Agent::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 
 	// Location of cell in x,y,z dimensions of the world
