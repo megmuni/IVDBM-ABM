@@ -703,19 +703,20 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 		// Update target neighboring patch as occupied:
 		Agent::agentPatchPtr[in].setOccupied();
 		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType;
-	}
-	/* If executing OMP version, add the pointer to this new cell to the thread-local list first.
-		* WHWorld::UpdateCells() will take care of putting it in the global list at the end
-		*/
+
+		/* If executing OMP version, add the pointer to this new cell to the thread-local list first.
+	* WHWorld::UpdateCells() will take care of putting it in the global list at the end
+	*/
 #ifdef _OMP
-	int tid = omp_get_thread_num();
-	Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
+		int tid = omp_get_thread_num();
+		Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
 #else
-		// If executing serial version, add the pointer to this new cell to the global list right away
-	Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
+	// If executing serial version, add the pointer to this new cell to the global list right away
+		Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
 #endif
 
-	newcell->wiggle();
+		newcell->wiggle();
+	}
 }
 
 void Agent::updateAgent() {
