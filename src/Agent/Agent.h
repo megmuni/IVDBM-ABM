@@ -242,7 +242,9 @@ class Agent {
     *
     * Return: void
     *
-    * Parameters: number  -- Number of new cells to hatch
+    * Parameters: number    -- Number of new cells to hatch
+    *             agentType -- Type of agent/cell to hatch
+    *             here      -- Whether to hatch on neighboring patches (default 0) or current patch (1)
     */
     virtual void hatchnewcell(int number, int agentType, int here = 0);
 
