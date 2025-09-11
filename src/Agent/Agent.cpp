@@ -695,7 +695,7 @@ void Agent::hatchnewcell(int number, int agentType) {
 		int tid = omp_get_thread_num();
 		Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
 #else
-			// If executing serial version, add the pointer to this new cell to the global list right away
+	    // If executing serial version, add the pointer to this new cell to the global list right away
 		Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
 #endif
 
