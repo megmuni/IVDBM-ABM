@@ -1243,12 +1243,13 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
-			Stem* temp = this;
-			Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
-			if (dp2 == nullptr) {
-				cout << "Casting Failed" << endl;
-			}
-			Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
+			//Stem* temp = this;
+			//Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
+			//if (dp2 == nullptr) {
+			//	cout << "Casting Failed" << endl;
+			//}
+			this->die(); // 'kill' current cell
+			Agent::hatchnewcell(number, stem, 1);
 			Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
 		}
 	}
