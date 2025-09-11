@@ -244,7 +244,7 @@ class Agent {
     *
     * Parameters: number  -- Number of new cells to hatch
     */
-    virtual void hatchnewcell(int number, int agentType);
+    virtual void hatchnewcell(int number, int agentType, int here = 0);
 
 /* -------------------------------------------------------------------------- */
 /*                              PUBLIC VARIABLES                              */
