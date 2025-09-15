@@ -684,20 +684,17 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 			int lz = z;
 		}
 		// Create a new cell of agentType at the valid target neighboring patch:
-		Cell* newcell = NULL;
+		Cell* newcell = nullptr;
 		switch (agentType) {
-		case stem: {
+		case stem:
 			Stem* newcell = new Stem(lx, ly, lz);
-		}
-				 break;
-		case progen: {
+			break;
+		case progen:
 			Progen* newcell = new Progen(lx, ly, lz);
-		}
-				   break;
-		case np: {
+			break;
+		case np:
 			NP* newcell = new NP(lx, ly, lz);
-		}
-			   break;
+			break;
 		}
 		newcells++;
 
@@ -715,7 +712,6 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 	// If executing serial version, add the pointer to this new cell to the global list right away
 		Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
 #endif
-
 		newcell->wiggle();
 	}
 }
