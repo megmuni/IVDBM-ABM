@@ -193,13 +193,22 @@ class Cell: public Agent {
  */
 class Stem: public Cell {
   public:
+
     /*
-       * Description:	Stem constructor. Initializes stem cell attributes.
-       *
-       * Return: void
-       * Parameters: patchPtr  -- Pointer to patch on which stem cell will reside.
-       *                          NOTE: The pointer cannot be NULL.
-       */
+     * Description:	Default Stem constructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    Stem();
+
+    /*
+     * Description:	Stem constructor. Initializes stem cell attributes.
+     *
+     * Return: void
+     * Parameters: patchPtr  -- Pointer to patch on which stem cell will reside.
+     *                          NOTE: The pointer cannot be NULL.
+     */
     Stem(Patch* patchPtr);
 
 
@@ -213,6 +222,14 @@ class Stem: public Cell {
      *             z  -- Position of cell in z dimension
      */
     Stem(int x, int y, int z);
+
+    /*
+     * Description:	Stem destructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    ~Stem();
   
     /*
        * Description:	Performs biological function of a stem cell.
@@ -260,6 +277,14 @@ class Stem: public Cell {
 class Progen: public Cell {
   public:
     /*
+     * Description:	Default Pre-NP constructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    Progen();
+
+    /*
        * Description:	Pre-NP constructor. Initializes pre-NP cell attributes.
        *
        * Return: void
@@ -278,6 +303,14 @@ class Progen: public Cell {
      *             z  -- Position of cell in z dimension
      */
     Progen(int x, int y, int z);
+    
+    /*
+     * Description:	Pre-NP destructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    ~Progen();
 
     /*
        * Description:	Performs biological function of an NP progenitor cell.
@@ -324,6 +357,14 @@ class Progen: public Cell {
 class NP: public Cell {
   public:
     /*
+     * Description:	Default NP constructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    NP();
+
+    /*
        * Description:	NP constructor. Initializes NP cell attributes.
        *
        * Return: void
@@ -342,6 +383,14 @@ class NP: public Cell {
        *             z  -- Position of cell in z dimension
        */
     NP(int x, int y, int z);
+
+    /*
+     * Description:	NP destructor.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    ~NP();
 
     /*
        * Description:	Performs biological function of an NP cell.

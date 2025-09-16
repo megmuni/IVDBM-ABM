@@ -57,22 +57,36 @@ float NP::CaAlgMigration[2] = { 0.11, 1.30 };
 float NP::CollagenSynth[3] = { 10, 6.45, 3.6 };
 float NP::AggrecanSynth[3] = { 20, 38, 16.6 };
 
-
+//DEFAULT CONSTRUCTORS
 Cell::Cell() {
 	cout << "default cell alloc" << endl;
 
 	// added for debugging: print out what cell type
-	if (typeid(*this) == typeid(Stem)) {
-		cout << "cell type stem";
-	}
-	else if (typeid(*this) == typeid(Progen)) {
-		cout << "cell type progen";
-	}
-	else if (typeid(*this) == typeid(NP)) {
-		cout << "cell type NP";
-	}
+	//if (typeid(*this) == typeid(stem)) {
+	//	cout << "cell type stem";
+	//}
+	//else if (typeid(*this) == typeid(progen)) {
+	//	cout << "cell type progen";
+	//}
+	//else if (typeid(*this) == typeid(np)) {
+	//	cout << "cell type np";
+	//}
 }
 
+Stem::Stem() {
+	cout << "default stem alloc" << endl;
+}
+
+Progen::Progen() {
+	cout << "default pre-np alloc" << endl;
+}
+
+NP::NP() {
+	cout << "default np alloc" << endl;
+}
+
+
+//CONSTRUCTORS FOR PATCH POINTERS
 Cell::Cell(Patch* patchPtr) {
 	this->ix[write_t] = patchPtr->indice[0];
 	this->iy[write_t] = patchPtr->indice[1];
@@ -140,6 +154,7 @@ NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 	#endif
 }
 
+//CONSTRUCTORS WITH COORDINATES
 Cell::Cell(int x, int y, int z) {
 	this->ix[write_t] = x;
 	this->iy[write_t] = y;
@@ -198,13 +213,13 @@ Cell::Cell(int x, int y, int z) {
 	Cell::numOfCells++;  
 }
 
-Stem::Stem(int x, int y, int z) {}
+Stem::Stem(int x, int y, int z) : Cell(x, y, z) {}
 
-Progen::Progen(int x, int y, int z) {}
+Progen::Progen(int x, int y, int z) : Cell(x, y, z) {}
 
-NP::NP(int x, int y, int z) {}
+NP::NP(int x, int y, int z) : Cell(x, y, z) {}
 
-//Destructors
+//DESTRUCTORS
 Cell::~Cell() {}
 
 Stem::~Stem() {}
@@ -213,7 +228,7 @@ Progen::~Progen() {}
 
 NP::~NP() {}
 
-
+//CELL FUNCTIONS
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
