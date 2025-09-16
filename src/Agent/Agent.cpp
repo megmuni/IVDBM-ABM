@@ -686,22 +686,22 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 		// Create a new cell of agentType at the valid target neighboring patch:
 		Cell* newcell = nullptr;
 		switch (agentType) {
-		case stem:
-		{
-			Stem* newcell = new Stem(lx, ly, lz);
-		}
-		break;
-		case progen:
-		{
-			Progen* newcell = new Progen(lx, ly, lz);
-		}
-		break;
-		case np:
-		{
-			NP* newcell = new NP(lx, ly, lz);
-		}
-		break;
-		}
+			case stem:
+			{
+				newcell = new Stem(lx, ly, lz);
+			}
+			break;
+			case progen:
+			{
+				newcell = new Progen(lx, ly, lz);
+			}
+			break;
+			case np:
+			{
+				newcell = new NP(lx, ly, lz);
+			}
+			break;
+			}
 		newcells++;
 
 		// Update target neighboring patch as occupied:
