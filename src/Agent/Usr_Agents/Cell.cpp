@@ -204,7 +204,15 @@ Progen::Progen(int x, int y, int z) {}
 
 NP::NP(int x, int y, int z) {}
 
+//Destructors
 Cell::~Cell() {}
+
+Stem::~Stem() {}
+
+Progen::~Progen() {}
+
+NP::~NP() {}
+
 
 void Cell::cellFunction() {
 	if (this->alive[read_t] == false) return;
