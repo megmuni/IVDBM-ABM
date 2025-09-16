@@ -687,14 +687,20 @@ void Agent::hatchnewcell(int number, int agentType, int here) {
 		Cell* newcell = nullptr;
 		switch (agentType) {
 		case stem:
+		{
 			Stem* newcell = new Stem(lx, ly, lz);
-			break;
+		}
+		break;
 		case progen:
+		{
 			Progen* newcell = new Progen(lx, ly, lz);
-			break;
+		}
+		break;
 		case np:
+		{
 			NP* newcell = new NP(lx, ly, lz);
-			break;
+		}
+		break;
 		}
 		newcells++;
 
