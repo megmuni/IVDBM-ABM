@@ -3311,7 +3311,7 @@ void WHWorld::outputWorld_csv() {
 	int f = 0; int af = 0;
 	int orig_coll = 0; int frag_coll = 0; double new_coll = 0; 
 	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
-	int HA = 0; int fHA = 0
+	int HA = 0; int fHA = 0;
 
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
@@ -3323,7 +3323,7 @@ void WHWorld::outputWorld_csv() {
 			Stem::numOfStem++;
 		}
 		else if (cell->type[read_t] == progen) {
-			Progen::numOfProgen;;
+			Progen::numOfProgen;
 		}
 		else if (cell->type[read_t] == np) {
 			NP::numOfNP;
@@ -3363,7 +3363,7 @@ void WHWorld::outputWorld_csv() {
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
 	//output_file << af << "," << f+af << ","; //cells
-	output_file << stemSize << "," << progenSize << "," << npSize << "," << stemSize + progenSize + npSize << ","; // cell counts
+	output_file << Stem::numOfStem << "," << Progen::numOfProgen << "," << NP::numOfNP << "," << cells.actualSize() <<","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
 		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << endl;
