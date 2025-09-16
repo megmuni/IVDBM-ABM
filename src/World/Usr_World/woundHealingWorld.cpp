@@ -3311,8 +3311,7 @@ void WHWorld::outputWorld_csv() {
 	int f = 0; int af = 0;
 	int orig_coll = 0; int frag_coll = 0; double new_coll = 0; 
 	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
-	int HA = 0; int fHA = 0;
-	int stemSize = 0; int progenSize = 0; int npSize = 0;
+	int HA = 0; int fHA = 0
 
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
@@ -3321,13 +3320,13 @@ void WHWorld::outputWorld_csv() {
 		if (cell->isAlive() == false) continue;
 		if (cell->activate[read_t] == false) f++;
 		if (cell->type[read_t] == stem) {
-			stemSize++;
+			Stem::numOfStem++;
 		}
 		else if (cell->type[read_t] == progen) {
-			progenSize++;
+			Progen::numOfProgen;;
 		}
 		else if (cell->type[read_t] == np) {
-			npSize++;
+			NP::numOfNP;
 		}
 		//if (typeid(cell) == typeid(Stem)) {
 		//	stemSize++;
@@ -3342,9 +3341,9 @@ void WHWorld::outputWorld_csv() {
 	}
 
 	cout << " total cells: " << cells.actualSize() << endl;
-	cout << " stem cells: " << stemSize << endl;
-	cout << " pre-np cells: " << progenSize << endl;
-	cout << " np cells: " << npSize << endl;
+	cout << " stem cells: " << Stem::numOfStem << endl;
+	cout << " pre-np cells: " << Progen::numOfProgen << endl;
+	cout << " np cells: " << NP::numOfNP << endl;
 
 	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
