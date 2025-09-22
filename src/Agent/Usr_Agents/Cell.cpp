@@ -230,6 +230,7 @@ NP::~NP() {}
 
 //CELL FUNCTIONS
 void Cell::cellFunction() {
+	// Calls the individual cell stage functions
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
 		//Cell temp;
@@ -240,18 +241,21 @@ void Cell::cellFunction() {
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
+			cout << "Calling stem cell functions" << endl;
 			tmp->Stem::stem_cellFunction();
 		} else if (typeid(*this) == typeid(Progen)) {
 			Progen* tmp = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
+			cout << "Calling pre-NP cell functions" << endl;
 			tmp->Progen::progen_cellFunction();
 		} else if (typeid(*this) == typeid(NP)) {
 			NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
+			cout << "Calling NP cell functions" << endl;
 			tmp->NP::NP_cellFunction();
 		}
 	}
