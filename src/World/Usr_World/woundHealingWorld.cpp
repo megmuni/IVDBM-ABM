@@ -2586,6 +2586,18 @@ void WHWorld::updateCells() {
 		if (!cell) continue;  // cell was deleted
 		cell->updateAgent();
 
+		// Update cell stage counts
+		/* Added by MM to check types of cell stages and add to respective counters: */
+		if (typeid(*cell) == typeid(Stem)) {
+			Stem::numOfStem++;
+		}
+		else if (typeid(*cell) == typeid(Progen)) {
+			Progen::numOfProgen++;
+		}
+		else if (typeid(*cell) == typeid(NP)) {
+			NP::numOfNP++;
+		}
+
 		int DeletedCell = 0;
 		// Remove dead cells
 		if (cell->isAlive() == false) {
@@ -2598,13 +2610,13 @@ void WHWorld::updateCells() {
 			delete cell;
 			DeletedCell++;
 			/* Added by MM to check types of cell stages and subtract from respective counters: */
-			if (typeid(*this) == typeid(Stem)) {
+			if (typeid(*cell) == typeid(Stem)) {
 				Stem::numOfStem--;
 			}
-			else if (typeid(*this) == typeid(Progen)) {
+			else if (typeid(*cell) == typeid(Progen)) {
 				Progen::numOfProgen--;
 			}
-			else if (typeid(*this) == typeid(NP)) {
+			else if (typeid(*cell) == typeid(NP)) {
 				NP::numOfNP--;
 			}
 		}
@@ -3131,13 +3143,13 @@ void WHWorld::updateCellsInitial() {
 		if (!cell) continue;
 		cell->updateAgent();
 		/* Added by MM to check types of cell stages and add to respective counters: */
-		if (typeid(*this) == typeid(Stem)) {
+		if (typeid(*cell) == typeid(Stem)) {
 			Stem::numOfStem++;
 		}
-		else if (typeid(*this) == typeid(Progen)) {
+		else if (typeid(*cell) == typeid(Progen)) {
 			Progen::numOfProgen++;
 		}
-		else if (typeid(*this) == typeid(NP)) {
+		else if (typeid(*cell) == typeid(NP)) {
 			NP::numOfNP++;
 		}
 	}
@@ -3319,15 +3331,15 @@ void WHWorld::outputWorld_csv() {
 		if (!cell) continue;
 		if (cell->isAlive() == false) continue;
 		if (cell->activate[read_t] == false) f++;
-		if (cell->type[read_t] == stem) {
-			Stem::numOfStem++;
-		}
-		else if (cell->type[read_t] == progen) {
-			Progen::numOfProgen;
-		}
-		else if (cell->type[read_t] == np) {
-			NP::numOfNP;
-		}
+		//if (cell->type[read_t] == stem) {
+		//	Stem::numOfStem++;
+		//}
+		//else if (cell->type[read_t] == progen) {
+		//	Progen::numOfProgen++;
+		//}
+		//else if (cell->type[read_t] == np) {
+		//	NP::numOfNP++;
+		//}
 		//if (typeid(cell) == typeid(Stem)) {
 		//	stemSize++;
 		//}
