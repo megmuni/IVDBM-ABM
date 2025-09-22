@@ -1286,15 +1286,16 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
-		Progen* temp = this;
-		NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
-		if (dp2 == nullptr) {
-			cout << "Casting Failed" << endl;
-		}
-		else {
-			cout << "Casting Successful" << endl;
-		}
-		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType; // switch current patch to be marked as occupied by new cell type
+		//Progen* temp = this;
+		//NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
+		//if (dp2 == nullptr) {
+		//	cout << "Casting Failed" << endl;
+		//}
+		//else {
+		//	cout << "Casting Successful" << endl;
+		//}
+		this->die();
+		Agent::hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
 		Agent::hatchnewcell(number, agentType); // create new NP cell nearby
 	}
 }
