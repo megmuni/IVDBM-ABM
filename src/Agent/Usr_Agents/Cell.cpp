@@ -673,42 +673,43 @@ void Stem::stem_cellFunction() {
 			}
 		}
 		else {
-	#endif
+#endif
 
-			#ifdef CALIBRATION
-				if (fmod((float)hours, Stem::proliferation[1]) == 0) {
-			#else  
-				if (fmod((float)hours, 24) == 0) {
-			#endif  
-					float meanTNF = this->meanNeighborChem(TNF);
-					float meanTGF = this->meanNeighborChem(TGF);
-					float meanIL1 = this->meanNeighborChem(IL1beta);
-					//int countfHA = this->countNeighborECM(fha);
-					int TGFrelated = 0;
+#ifdef CALIBRATION
+			if (fmod((float)hours, Stem::proliferation[1]) == 0) {
+#else  
+			if (fmod((float)hours, 24) == 0) {
+#endif  
+				float meanTNF = this->meanNeighborChem(TNF);
+				float meanTGF = this->meanNeighborChem(TGF);
+				float meanIL1 = this->meanNeighborChem(IL1beta);
+				//int countfHA = this->countNeighborECM(fha);
+				int TGFrelated = 0;
 
-  				#ifdef CALIBRATION
-					if (meanTGF <= Stem::proliferation[0]) {
-  				#else  
-					if (meanTGF <= 10) {
-  				#endif  
-						TGFrelated = 1; // Low TGF (0.1-1nm) stimulate chond proliferation and attraction. 
-					} else {
-						TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
-					}
+#ifdef CALIBRATION
+				if (meanTGF <= Stem::proliferation[0]) {
+#else  
+				if (meanTGF <= 10) {
+#endif  
+					TGFrelated = 1; // Low TGF (0.1-1nm) stimulate chond proliferation and attraction. 
+				}
+				else {
+					TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
+				}
 
-				#ifdef CALIBRATION
-					float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-					if (rollDice(stemProlif) {
-				#else
-					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-						if (rollDice(stemProlif)) {
-				#endif
-						this->Agent::hatchnewcell(1, stem);
-						//this->die();
-						return;
-					}
-					}
+#ifdef CALIBRATION
+				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+				if (rollDice(stemProlif)) {
+#else
+				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+				if (rollDice(stemProlif)) {
+#endif
+					this->Agent::hatchnewcell(1, stem);
+					//this->die();
+					return;
+				}
 			}
+		}
 
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
@@ -871,7 +872,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			float progen = log10(1 + meanTNF - meanIL1 + meanTGF);
-			if (rollDice(progenProlif) {
+			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
