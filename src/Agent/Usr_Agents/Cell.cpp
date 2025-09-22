@@ -871,7 +871,7 @@ void Progen::progen_cellFunction() {
 			//int countfHA = this->countNeighborECM(fha);
 
 #ifdef CALIBRATION
-			float progen = log10(1 + meanTNF - meanIL1 + meanTGF);
+			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
