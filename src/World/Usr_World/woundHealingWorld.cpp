@@ -2585,22 +2585,23 @@ void WHWorld::updateCells() {
 		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;  // cell was deleted
 		cell->updateAgent();
-
-		// Update cell stage counts
-		/* Added by MM to check types of cell stages and add to respective counters: */
-		if (typeid(*cell) == typeid(Stem)) {
-			Stem::numOfStem++;
-		}
-		else if (typeid(*cell) == typeid(Progen)) {
-			Progen::numOfProgen++;
-		}
-		else if (typeid(*cell) == typeid(NP)) {
-			NP::numOfNP++;
-		}
-
 		int DeletedCell = 0;
+
+		if (cell->isAlive() == true) {
+			// Update cell stage counts
+			/* Added by MM to check types of cell stages and add to respective counters: */
+			if (typeid(*cell) == typeid(Stem)) {
+				Stem::numOfStem++;
+			}
+			else if (typeid(*cell) == typeid(Progen)) {
+				Progen::numOfProgen++;
+			}
+			else if (typeid(*cell) == typeid(NP)) {
+				NP::numOfNP++;
+			}
+
 		// Remove dead cells
-		if (cell->isAlive() == false) {
+		} else if (cell->isAlive() == false) {
 			// Get residing patch index and update its occupancy
 			int in = cell->getIndex();
 			this->worldPatch[in].clearOccupied();
