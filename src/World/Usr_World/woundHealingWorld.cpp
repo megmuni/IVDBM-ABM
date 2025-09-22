@@ -2709,7 +2709,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 					this->worldPatch[in].setOccupied();
         			this->worldPatch[in].occupiedby[write_t] = stem;
 					this->worldPatch[in].dirty = true;
-					cout << "patch index " << in << endl; //added for debugging
+					//cout << "patch index " << in << endl; //added for debugging
         			
 					break;
       			}
