@@ -441,8 +441,8 @@ void NP::NP_cellFunction() {
 		// Change in chemicals due to cells:
 #ifdef CALIBRATION
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
@@ -636,41 +636,43 @@ void Stem::stem_cellFunction() {
 			cout << "agent patch type is invalid!" << endl;
 		}
 		
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-		#ifdef CALIBRATION
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#ifdef CALIBRATION
 			if (fmod((float)hours, Stem::proliferation[1]) == 0) {
-		#else 
+#else 
 			if (fmod((float)hours, 24) == 0) {
-		#endif 
+#endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
 				float meanIL1 = this->meanNeighborChem(IL1beta);
 				//int countfHA = this->countNeighborECM(fha);
 				int TGFrelated = 0;
-				#ifdef CALIBRATION
-					if (meanTGF <= Stem::proliferation[0]) {
-				#else  
-					if (meanTGF <= 10) {
-				#endif 
+#ifdef CALIBRATION
+				if (meanTGF <= Stem::proliferation[0]) {
+#else  
+				if (meanTGF <= 10) {
+#endif 
 
-						TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
-					} else {
-						TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
-					}
+					TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
+				}
+				else {
+					TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
+				}
 
-					#ifdef CALIBRATION
-						float stemProlif = log10(1 - Stem::proliferation[2]*meanTNF - Stem::proliferation[3]*meanIL1 + TGFrelated*meanTGF);
-						if (rollDice(stemProlif) {  
-					#else  
-						float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated*meanTGF); 
-						if (rollDice(stemProlif)) { 										
-					#endif  
-							this->Agent::hatchnewcell(1, stem);
-							//this->die();
-							return;
-						}
-						}
-					} else {
+#ifdef CALIBRATION
+				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+				if (rollDice(stemProlif)) {
+#else  
+				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+				if (rollDice(stemProlif)) {
+#endif  
+					this->Agent::hatchnewcell(1, stem);
+					//this->die();
+					return;
+				}
+			}
+		}
+		else {
 	#endif
 
 			#ifdef CALIBRATION
@@ -777,8 +779,8 @@ void Stem::stem_cellFunction() {
 	// Change in chemicals due to cells:
 	#ifdef CALIBRATION
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Stem::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Stem::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5]*((patchIL1beta)/(1 + Cell::cytokineSynthesis[6]*patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8]* ((patchTNF)/(1 + Cell::cytokineSynthesis[9]*patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Stem::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5]*((patchIL1beta)/(1 + Cell::cytokineSynthesis[6]*patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8]* ((patchTNF)/(1 + Cell::cytokineSynthesis[9]*patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 	#else
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 50 + (2.25*patchTGF + 1.3*patchIL1beta + 5.11*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
@@ -844,7 +846,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			if (rollDice(progenProlif) {
+			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
@@ -945,8 +947,8 @@ void Progen::progen_cellFunction() {
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
 	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Progen::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Progen::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF)); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Progen::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
 	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (2.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
