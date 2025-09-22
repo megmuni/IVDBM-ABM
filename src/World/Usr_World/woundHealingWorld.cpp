@@ -2606,9 +2606,6 @@ void WHWorld::updateCells() {
 			this->worldPatch[in].clearOccupied();
 			this->worldPatch[in].occupiedby[write_t] = nothing;
 			this->worldPatch[in].dirty = true;
-			cells.deleteData(i, tid);
-			delete cell;
-			DeletedCell++;
 			/* Added by MM to check types of cell stages and subtract from respective counters: */
 			if (typeid(*cell) == typeid(Stem)) {
 				Stem::numOfStem--;
@@ -2619,6 +2616,9 @@ void WHWorld::updateCells() {
 			else if (typeid(*cell) == typeid(NP)) {
 				NP::numOfNP--;
 			}
+			cells.deleteData(i, tid);
+			delete cell;
+			DeletedCell++;
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
@@ -2712,11 +2712,11 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 							exit(-1);
 						}
 					#endif
-					/* Added by MM to check types of cell stages and add to respective counters: */
-					if (typeid(*this) == typeid(Stem)) {
-						Stem::numOfStem++;
-					}
-					Cell::numOfCells++;
+					///* Added by MM to check types of cell stages and add to respective counters: */
+					//if (typeid(*this) == typeid(Stem)) {
+					//	Stem::numOfStem++;
+					//}
+					//Cell::numOfCells++;
         			
 					this->worldPatch[in].setOccupied();
         			this->worldPatch[in].occupiedby[write_t] = stem;
@@ -2738,11 +2738,11 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 							exit(-1);
 						}
 					#endif
-					/* Added by MM to check types of cell stages and add to respective counters: */
-					if (typeid(*this) == typeid(Progen)) {
-						Progen::numOfProgen++;
-					}
-					Cell::numOfCells++;
+					///* Added by MM to check types of cell stages and add to respective counters: */
+					//if (typeid(*this) == typeid(Progen)) {
+					//	Progen::numOfProgen++;
+					//}
+					//Cell::numOfCells++;
 
 					this->worldPatch[in].setOccupied();
 					this->worldPatch[in].occupiedby[write_t] = progen;
@@ -2763,11 +2763,11 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 							exit(-1);
 						}
 					#endif
-					/* Added by MM to check types of cell stages and add to respective counters: */
-					if (typeid(*this) == typeid(NP)) {
-						NP::numOfNP++;
-					}
-					Cell::numOfCells++;
+					///* Added by MM to check types of cell stages and add to respective counters: */
+					//if (typeid(*this) == typeid(NP)) {
+					//	NP::numOfNP++;
+					//}
+					//Cell::numOfCells++;
 
 					this->worldPatch[in].setOccupied();
 					this->worldPatch[in].occupiedby[write_t] = np;
