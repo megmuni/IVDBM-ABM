@@ -676,7 +676,7 @@ void Stem::stem_cellFunction() {
 	#endif
 
 			#ifdef CALIBRATION
-				if (fmod((float)hours, Stem::proliferation[1])) == 0 {
+				if (fmod((float)hours, Stem::proliferation[1]) == 0) {
 			#else  
 				if (fmod((float)hours, 24) == 0) {
 			#endif  
@@ -837,7 +837,7 @@ void Progen::progen_cellFunction() {
 #ifdef CALIBRATION
 		if (fmod((float)hours, Progen::proliferation[0]) == 0) {
 #else 
-		if (fmod(hours, 24) == 0) {
+		if (fmod((float)hours, 24) == 0) {
 #endif 
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -860,9 +860,9 @@ void Progen::progen_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-		if (fmod((float)hours, Progen::proliferation[0])) == 0 {
+		if (fmod((float)hours, Progen::proliferation[0]) == 0) {
 #else  
-		if (fmod(hours, 24) == 0) {
+		if (fmod((float)hours, 24) == 0) {
 #endif  
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
