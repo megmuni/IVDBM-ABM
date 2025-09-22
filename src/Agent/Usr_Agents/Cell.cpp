@@ -200,17 +200,17 @@ Cell::Cell(int x, int y, int z) {
 		this->size[read_t] = 2;
 		this->type[read_t] = cell;
 	#endif
-	/* Added by MM to check types of cell stages and add to respective counters: */
-	if (typeid(*this) == typeid(Stem)) {
-		Stem::numOfStem++;
-	}
-	else if (typeid(*this) == typeid(Progen)) {
-		Progen::numOfProgen++;
-	}
-	else if (typeid(*this) == typeid(NP)) {
-		NP::numOfNP++;
-	}
-	Cell::numOfCells++;  
+	///* Added by MM to check types of cell stages and add to respective counters: */
+	//if (typeid(*this) == typeid(Stem)) {
+	//	Stem::numOfStem++;
+	//}
+	//else if (typeid(*this) == typeid(Progen)) {
+	//	Progen::numOfProgen++;
+	//}
+	//else if (typeid(*this) == typeid(NP)) {
+	//	NP::numOfNP++;
+	//}
+	//Cell::numOfCells++;  
 }
 
 Stem::Stem(int x, int y, int z) : Cell(x, y, z) {}
