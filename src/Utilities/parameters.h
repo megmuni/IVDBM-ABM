@@ -71,7 +71,7 @@ void processParameters(string filename) {
 
     // Set stem migration parameters m1-m2
     for (int i = 0; i < 2; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::CaAlgMigration[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -85,7 +85,7 @@ void processParameters(string filename) {
 
     // Set stem proliferation parameters m3-m6
     for (int i = 0; i < 4; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::proliferation[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -99,7 +99,7 @@ void processParameters(string filename) {
 
     // Set stem cytokine synthesis parameters m7-m9
     for (int i = 0; i < 3; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::cytokineSynthesis[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -112,7 +112,7 @@ void processParameters(string filename) {
     }
 
     // Set stem collagen synthesis parameters m10
-    if (getline(lineStream, value, '\n')) {
+    if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Stem::CollagenSynth[0] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -124,7 +124,7 @@ void processParameters(string filename) {
     }
 
     // Set stem aggrecan synthesis parameters m11
-    if (getline(lineStream, value, '\n')) {
+    if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Stem::AggrecanSynth[0] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -137,7 +137,7 @@ void processParameters(string filename) {
 
     // Set stem differentiation parameters m12-m16
     for (int i = 0; i < 5; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::differentiation[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -151,7 +151,7 @@ void processParameters(string filename) {
 
     // Set pre-NP migration parameters p1-p2
     for (int i = 0; i < 2; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Progen::CaAlgMigration[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -164,7 +164,7 @@ void processParameters(string filename) {
     }
 
     // Set pre-NP proliferation parameter p3
-    if (getline(lineStream, value, '\n')) {
+    if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Progen::proliferation[0] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -177,7 +177,7 @@ void processParameters(string filename) {
 
     // Set pre-NP cytokine synthesis parameters p4-p6
     for (int i = 0; i < 3; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Progen::cytokineSynthesis[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -190,7 +190,7 @@ void processParameters(string filename) {
     }
 
     // Set pre-NP aggrecan synthesis parameter p7
-    if (getline(lineStream, value, '\n')) {
+    if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Progen::AggrecanSynth[0] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -203,7 +203,7 @@ void processParameters(string filename) {
 
     // Set pre-NP differentiation parameters p8-p10
     for (int i = 0; i < 3; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Progen::differentiation[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -217,7 +217,7 @@ void processParameters(string filename) {
 
     // Set NP migration parameters k0-k1
     for (int i = 0; i < 2; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             NP::CaAlgMigration[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -231,7 +231,7 @@ void processParameters(string filename) {
 
     // Set NP proliferation parameters k2-k7
     for (int i = 0; i < 6; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Cell::proliferation[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -245,7 +245,7 @@ void processParameters(string filename) {
 
     // Set NP/general cytokine synthesis parameters k8-k17
     for (int i = 0; i < 10; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Cell::cytokineSynthesis[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -259,7 +259,7 @@ void processParameters(string filename) {
 
     // Set NP collagen synthesis parameters k18-k20
     for (int i = 0; i < 3; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             NP::CollagenSynth[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -273,7 +273,7 @@ void processParameters(string filename) {
 
     // Set NP aggrecan synthesis parameters k21-k23
     for (int i = 0; i < 3; ++i) {
-        if (getline(lineStream, value, '\n')) {
+        if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             NP::AggrecanSynth[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -311,7 +311,7 @@ void processParameters(string filename) {
 
   // Set WHWorld elastic modulus parameters c1-c7
   for (int i = 0; i < 7; ++i) {
-    if (getline(lineStream, value, '\n')) {
+    if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
      WHWorld::ElasticMod[i] = value_as_float;
     #ifdef PRINT_PARAMETER_VALUES
@@ -324,7 +324,7 @@ void processParameters(string filename) {
 
   // Set WHWorld pore size parameters c8-c9
   for (int i = 0; i < 2; ++i) {
-      if (getline(lineStream, value, '\n')) {
+      if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
           WHWorld::PoreSize[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -338,7 +338,7 @@ void processParameters(string filename) {
 
   // Set WHWorld mass loss parameters c10-c13
   for (int i = 0; i < 4; ++i) {
-      if (getline(lineStream, value, '\n')) {
+      if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
           WHWorld::MassLoss[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
@@ -352,7 +352,7 @@ void processParameters(string filename) {
 
   // Set WHWorld swelling ratio parameters c14-c18
   for (int i = 0; i < 5; ++i) {
-      if (getline(lineStream, value, '\n')) {
+      if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
           WHWorld::SwellRatio[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
