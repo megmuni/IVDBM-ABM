@@ -41,7 +41,7 @@ void processParameters(string filename) {
   //  ifstream input_file("NoExists.txt", ios::in);
 
 
-    ifstream input_file(filename);
+    ifstream input_file(filename, ios::in);
 
     if (!input_file) {
         cerr << "Could not open input file for processing parameters" << endl;
