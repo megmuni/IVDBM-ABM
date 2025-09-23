@@ -1247,7 +1247,7 @@ float WHWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 
 #ifdef MODEL_SCAFFOLD
 	float WHWorld::ElasticMod[7] = {125, 58, 971, 1.037, 756, 0.516, 0.165}; 
-	float WHWorld::XLDensity[2] = {2.3, 10.1};
+	float WHWorld::XLDensity[2] = {2.3, 10.1}; //IN IVDBM-ABM (stem cell version) THESE ARE NOT USED ANYWHERE
 	float WHWorld::SwellRatio[5] = {72.478, 0.131, 22.034, 3.284, 35.752};	//float WHWorld::SwellRatio[5] = {0.4, 0.4, 3, 7.9, 1400};
 	float WHWorld::MassLoss[4] = {0.234, 7.785, 0.15, 1.36};	//float WHWorld::MassLoss[4] = {17.6, 0.9, 60, 5.3};
 	float WHWorld::PoreSize[2] = {1769.8, 258.5};	//float WHWorld::PoreSize[3] = {345.2, 309.9, 138.1};
@@ -1374,7 +1374,6 @@ WHWorld:: ~WHWorld(){
  	}
 
 	for (int ic = 0; ic < this->typesOfChem; ic++) if (chemAllocation[ic] != NULL) delete [] chemAllocation[ic];
-    
     if (chemAllocation != NULL) delete [] chemAllocation;
     if (worldPatch != NULL)	delete [] worldPatch;
     if (worldECM != NULL) delete [] worldECM;
