@@ -69,71 +69,221 @@ void processParameters(string filename) {
       lineStream.seekg(0, ios::beg); // Reset position
     */
 
+    // Set stem migration parameters m1-m2
+    for (int i = 0; i < 2; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Stem::CaAlgMigration[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Stem::CaAlgMigration[" << i << "] = " << Stem::CaAlgMigration[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to stem migration parameter #" << i << endl;
+        }
+    }
 
-  // Set cell cytokine synthesis parameters
-    for (int i = 0; i < 10; ++i) { 
-      if (getline(lineStream, value, '\t')) {
+    // Set stem proliferation parameters m3-m6
+    for (int i = 0; i < 4; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Stem::proliferation[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Stem::proliferation[" << i << "] = " << Stem::proliferation[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to stem proliferation parameter #" << i << endl;
+        }
+    }
+
+    // Set stem cytokine synthesis parameters m7-m9
+    for (int i = 0; i < 3; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Stem::cytokineSynthesis[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Stem::cytokineSynthesis[" << i << "] = " << Stem::cytokineSynthesis[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to stem cytokine synthesis parameter #" << i << endl;
+        }
+    }
+
+    // Set stem collagen synthesis parameters m10
+    if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
-        Cell::cytokineSynthesis[i] = value_as_float;
-        #ifdef PRINT_PARAMETER_VALUES
-          cout << "Cell::cytokineSynthesis[" << i << "] = " << Cell::cytokineSynthesis[i] << endl;
-        #endif
-      } else {
-        cerr << "Error in assigning value to cell cytokine synthesis parameter #"<< i << endl;
-      }
-    
-  }
-
-  // Set TNF damage threshold parameter:
-  if (getline(lineStream, value, '\t')) {
-    float value_as_float = atof(value.c_str());
-    WHWorld::thresholdTNFdamage = value_as_float;
-    #ifdef PRINT_PARAMETER_VALUES
-      cout << "WHWorld::thresholdTNFdamage" << " = " << WHWorld::thresholdTNFdamage << endl;
-    #endif
-  } else {
-    cerr << "Error in assigning value to TNF damage threshold parameter" << endl;
-  }
-
-
-  // Set cell activation parameters:
-  for (int i = 0; i < 5; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      Cell::activation[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "Cell::activation[" << i << "] = " << Cell::activation[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to cell activation parameter #"<< i << endl;
+        Stem::CollagenSynth[0] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+        cout << "Stem::CollagenSynth" << " = " << Stem::CollagenSynth[0] << endl;
+#endif
     }
-  }
-
-  // Set cell ECM synthesis parameters:
-  for (int i = 0; i < 17; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      Cell::ECMsynthesis[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "Cell::ECMsynthesis[" << i << "] = " << Cell::ECMsynthesis[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to cell ECM synthesis parameter #"<< i << endl;
+    else {
+        cerr << "Error in assigning value to stem collagen synthesis parameter" << endl;
     }
-  }
 
-  // Set cell proliferation parameters:
-  for (int i = 0; i < 6; ++i) {
+    // Set stem aggrecan synthesis parameters m11
     if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      Cell::proliferation[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "Cell::proliferation[" << i << "] = " << Cell::proliferation[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to cell proliferation parameter #"<< i << endl;
+        float value_as_float = atof(value.c_str());
+        Stem::AggrecanSynth[0] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+        cout << "Stem::AggrecanSynth" << " = " << Stem::AggrecanSynth[0] << endl;
+#endif
     }
-  }
+    else {
+        cerr << "Error in assigning value to stem aggrecan synthesis parameter" << endl;
+    }
+
+    // Set stem differentiation parameters m12-m16
+    for (int i = 0; i < 5; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Stem::differentiation[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Stem::differentiation[" << i << "] = " << Stem::differentiation[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to stem differentiation parameter #" << i << endl;
+        }
+    }
+
+    // Set pre-NP migration parameters p1-p2
+    for (int i = 0; i < 2; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Progen::CaAlgMigration[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Progen::CaAlgMigration[" << i << "] = " << Progen::CaAlgMigration[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to pre-np migration parameter #" << i << endl;
+        }
+    }
+
+    // Set pre-NP proliferation parameter p3
+    if (getline(lineStream, value, '\t')) {
+        float value_as_float = atof(value.c_str());
+        Progen::proliferation[0] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+        cout << "Progen::proliferation" << " = " << Progen::proliferation[0] << endl;
+#endif
+    }
+    else {
+        cerr << "Error in assigning value to pre-NP proliferation parameter" << endl;
+    }
+
+    // Set pre-NP cytokine synthesis parameters p4-p6
+    for (int i = 0; i < 3; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Progen::cytokineSynthesis[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Progen::cytokineSynthesis[" << i << "] = " << Progen::cytokineSynthesis[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to pre-np cytokine synthesis parameter #" << i << endl;
+        }
+    }
+
+    // Set pre-NP aggrecan synthesis parameter p7
+    if (getline(lineStream, value, '\t')) {
+        float value_as_float = atof(value.c_str());
+        Progen::AggrecanSynth[0] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+        cout << "Progen::AggrecanSynth" << " = " << Progen::AggrecanSynth[0] << endl;
+#endif
+    }
+    else {
+        cerr << "Error in assigning value to pre-NP aggrecan synthesis parameter" << endl;
+    }
+
+    // Set pre-NP differentiation parameters p8-p10
+    for (int i = 0; i < 3; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Progen::differentiation[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Progen::differentiation[" << i << "] = " << Progen::differentiation[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to pre-np differentiation parameter #" << i << endl;
+        }
+    }
+
+    // Set NP migration parameters k0-k1
+    for (int i = 0; i < 2; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            NP::CaAlgMigration[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "NP::CaAlgMigration[" << i << "] = " << NP::CaAlgMigration[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to NP migration parameter #" << i << endl;
+        }
+    }
+
+    // Set NP proliferation parameters k2-k7
+    for (int i = 0; i < 6; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Cell::proliferation[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Cell::proliferation[" << i << "] = " << Cell::proliferation[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to NP proliferation parameter #" << i << endl;
+        }
+    }
+
+    // Set NP/general cytokine synthesis parameters k8-k17
+    for (int i = 0; i < 10; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            Cell::cytokineSynthesis[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "Cell::cytokineSynthesis[" << i << "] = " << Cell::cytokineSynthesis[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to NP cytokine synthesis parameter #" << i << endl;
+        }
+    }
+
+    // Set NP collagen synthesis parameters k18-k20
+    for (int i = 0; i < 3; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            NP::CollagenSynth[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "NP::CollagenSynth[" << i << "] = " << NP::CollagenSynth[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to NP collagen synthesis parameter #" << i << endl;
+        }
+    }
+
+    // Set NP aggrecan synthesis parameters k21-k23
+    for (int i = 0; i < 3; ++i) {
+        if (getline(lineStream, value, '\t')) {
+            float value_as_float = atof(value.c_str());
+            NP::AggrecanSynth[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+            cout << "NP::AggrecanSynth[" << i << "] = " << NP::AggrecanSynth[i] << endl;
+#endif
+        }
+        else {
+            cerr << "Error in assigning value to NP aggrecan synthesis parameter #" << i << endl;
+        }
+    }
 
   /* // Set WHWorld cytokine decay parameters
     for (int i = 0; i < 8; ++i) {
@@ -159,7 +309,7 @@ void processParameters(string filename) {
    } 
   */
 
-  // Set WHWorld elastic modulus parameters
+  // Set WHWorld elastic modulus parameters c1-c7
   for (int i = 0; i < 7; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
@@ -172,6 +322,49 @@ void processParameters(string filename) {
     }
   }
 
+  // Set WHWorld pore size parameters c8-c9
+  for (int i = 0; i < 2; ++i) {
+      if (getline(lineStream, value, '\t')) {
+          float value_as_float = atof(value.c_str());
+          WHWorld::PoreSize[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+          cout << "WHWorld::PoreSize[" << i << "] = " << WHWorld::PoreSize[i] << endl;
+#endif
+      }
+      else {
+          cerr << "Error in assigning value to pore size parameter #" << i << endl;
+      }
+  }
+
+  // Set WHWorld mass loss parameters c10-c13
+  for (int i = 0; i < 4; ++i) {
+      if (getline(lineStream, value, '\t')) {
+          float value_as_float = atof(value.c_str());
+          WHWorld::MassLoss[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+          cout << "WHWorld::MassLoss[" << i << "] = " << WHWorld::MassLoss[i] << endl;
+#endif
+      }
+      else {
+          cerr << "Error in assigning value to mass loss parameter #" << i << endl;
+      }
+  }
+
+  // Set WHWorld swelling ratio parameters c14-c18
+  for (int i = 0; i < 5; ++i) {
+      if (getline(lineStream, value, '\t')) {
+          float value_as_float = atof(value.c_str());
+          WHWorld::SwellRatio[i] = value_as_float;
+#ifdef PRINT_PARAMETER_VALUES
+          cout << "WHWorld::SwellRatio[" << i << "] = " << WHWorld::SwellRatio[i] << endl;
+#endif
+      }
+      else {
+          cerr << "Error in assigning value to swelling ratio parameter #" << i << endl;
+      }
+  }
+
+/*
   // Set WHWorld XL density parameters
   for (int i = 0; i < 2; ++i) {
     if (getline(lineStream, value, '\t')) {
@@ -184,45 +377,7 @@ void processParameters(string filename) {
       cerr << "Error in assigning value to XL density parameter #"<< i << endl;
     }
   }
-
-  // Set WHWorld swelling ratio parameters
-  for (int i = 0; i < 5; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      WHWorld::SwellRatio[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "WHWorld::SwellRatio[" << i << "] = " << WHWorld::SwellRatio[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to swelling ratio parameter #"<< i << endl;
-    }
-  }
-
-  // Set WHWorld mass loss parameters
-  for (int i = 0; i < 4; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      WHWorld::MassLoss[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "WHWorld::MassLoss[" << i << "] = " << WHWorld::MassLoss[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to mass loss parameter #"<< i << endl;
-    }
-  }
-
-  // Set WHWorld pore size parameters
-  for (int i = 0; i < 2; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      WHWorld::PoreSize[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "WHWorld::PoreSize[" << i << "] = " << WHWorld::PoreSize[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to pore size parameter #"<< i << endl;
-    }
-  }
+*/
 
   /* // Set Agent migration parameters
     for (int i = 0; i < 2; ++i) {
@@ -238,32 +393,7 @@ void processParameters(string filename) {
     } 
   */
 
-  // Set NP collagen synthesis parameters (biomaterial)
-  for (int i = 0; i < 3; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      NP::CollagenSynth[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "NP::CollagenSynth[" << i << "] = " << NP::CollagenSynth[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to NP collagen synthesis parameter #"<< i << endl;
-    }
-  }
-
-  // Set NP aggrecan synthesis parameters (biomaterial)
-  for (int i = 0; i < 3; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      NP::AggrecanSynth[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "NP::AggrecanSynth[" << i << "] = " << NP::AggrecanSynth[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to NP aggrecan synthesis parameter #"<< i << endl;
-    }
-  }
-
+/*
   // Set Agent CaAlg proliferation parameters 
   for (int i = 0; i < 5; ++i) {
     if (getline(lineStream, value, '\t')) {
@@ -276,7 +406,9 @@ void processParameters(string filename) {
       cerr << "Error in assigning value to agent CaAlg proliferation parameter #"<< i << endl;
     }
   }
+*/
 
+/*
   // Set Agent CaAlg viability parameters 
   for (int i = 0; i < 3; ++i) {
     if (getline(lineStream, value, '\t')) {
@@ -289,6 +421,7 @@ void processParameters(string filename) {
       cerr << "Error in assigning value to agent CaAlg viability parameter #"<< i << endl;
     }
   }
+*/
 
   /* // Set Agent viability rate parameters 
     for (int i = 0; i < 1; ++i) {
