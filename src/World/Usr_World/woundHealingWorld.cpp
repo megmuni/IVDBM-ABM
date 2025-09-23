@@ -1241,7 +1241,7 @@ float WHWorld::patchpermm = 0;
 	//float WHWorld::Alg_Mn = 200; //143;
 #endif
 
-float WHWorld::thresholdTNFdamage = 10.0; //ng
+float WHWorld::thresholdTNFdamage = 10.0; //ng //unused in IVDBM-ABM
 float WHWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5}; // 0.2, 0.2,
 float WHWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 
