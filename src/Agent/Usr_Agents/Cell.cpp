@@ -474,6 +474,11 @@ void NP::NP_cellFunction() {
 		// Unactivated chondrocytes can die naturally:
 		this->life[write_t] = this->life[read_t] - 1;
 		if (this->life[read_t] <= 0) this->die();
+
+		// last thing to do: increase age + 1 tick 
+		if (this->life[read_t] >= 0) {
+			this->life[write_t] = this->life[read_t] + 1;
+		}
 	}
 }
 
@@ -594,7 +599,7 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
   	
 	// Initializes new Cell:
 	this->alive[read_t] = true;
-	this->life[read_t] = WHWorld::reportTick(0, 5 + rand()%7);  // Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
+	this->life[read_t] = 0; // 0 corresponds to ticks
 	this->activate[read_t] = false;
 	this->color[read_t]= ccell;
 	this->size[read_t] = 2;
@@ -641,9 +646,9 @@ void Stem::stem_cellFunction() {
 		
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
-			if (fmod((float)hours, Stem::proliferation[1]) == 0) {
+			if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
 #else 
-			if (fmod((float)hours, 24) == 0) {
+			if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -679,9 +684,9 @@ void Stem::stem_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-			if (fmod((float)hours, Stem::proliferation[1]) == 0) {
+			if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
 #else  
-			if (fmod((float)hours, 24) == 0) {
+			if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif  
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -720,7 +725,7 @@ void Stem::stem_cellFunction() {
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
+			if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours of cell's life
 				cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
@@ -824,6 +829,11 @@ void Stem::stem_cellFunction() {
 		if (this->life[read_t] <= 0) {
 			this->die();
 		}
+
+		// last thing to do: increase age + 1 tick 
+		if (this->life[read_t] >= 0) {
+			this->life[write_t] = this->life[read_t] + 1;
+		}
 }
 
 void Progen::progen_cellFunction() {
@@ -839,9 +849,9 @@ void Progen::progen_cellFunction() {
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
-		if (fmod((float)hours, Progen::proliferation[0]) == 0) {
+		if (fmod((float)this->life[read_t]/2, Progen::proliferation[0]) == 0) { // proliferation attempt every 24 hours of cell's life
 #else 
-		if (fmod((float)hours, 24) == 0) {
+		if (fmod((float)this->life[read_t]/2, 24) == 0) {
 #endif 
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -864,9 +874,9 @@ void Progen::progen_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-		if (fmod((float)hours, Progen::proliferation[0]) == 0) {
+		if (fmod((float)this->life[read_t] / 2, Progen::proliferation[0]) == 0) {
 #else  
-		if (fmod((float)hours, 24) == 0) {
+		if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif  
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -892,7 +902,7 @@ void Progen::progen_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (fmod((float)hours, 48 == 0)) { // differentiation attempted every 48 hours
+		if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours
 			cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
 		}
@@ -991,6 +1001,11 @@ void Progen::progen_cellFunction() {
 	this->life[write_t] = this->life[read_t] - 1;
 	if (this->life[read_t] <= 0) {
 		this->die();
+	}
+
+	// last thing to do: increase age + 1 tick 
+	if (this->life[read_t] >= 0) {
+		this->life[write_t] = this->life[read_t] + 1;
 	}
 #endif
 }
