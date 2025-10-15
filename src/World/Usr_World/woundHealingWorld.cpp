@@ -3297,10 +3297,11 @@ int WHWorld::userInput() {
 
 void WHWorld::outputWorld_csv() {
 	if (this->clock == 0) {
+		remove("output/Output_Biomarkers.csv");
 		//remove( "output/Output_Biomarkers_90Mw_34mM.csv");
 		//remove( "output/Output_Biomarkers_90Mw_22mM.csv");
 		//remove( "output/Output_Biomarkers_1500Mw_29mM.csv");
-        remove( "output/Output_Biomarkers_1500Mw_14mM.csv");
+        //remove( "output/Output_Biomarkers_1500Mw_14mM.csv");
 		//remove( "output/Output_Biomarkers_Experiment_200Mw_20mM.csv");
         
 		
@@ -3310,7 +3311,7 @@ void WHWorld::outputWorld_csv() {
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Activated Chondrocytes" << "," << "Total Chondrocytes" << ", Elastic Modulus (kPa) " << ", Swelling Ratio " << ", Mass Loss (%) " << ", Alginate_wv (%)" << ", Alginate_Mw (kDa)" << ", Ca_XL (M)"<< ", Viability Rate (%)" << endl; //output_file << "Tropocollagen" << "," << "Collagen" << "," << "FragentedCollagen" << "," << "Tropoaggrecan" << "," << "Aggrecan" << "," << "FragmentedAggrecan" << "," << "HA" << "," << "FragmentedHA" << "," << "Damage" endl;
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Elastic Modulus (kPa) " << ", Swelling Ratio " << ", Mass Loss (%) " << ", Alginate_wv (%)" << ", Alginate_Mw (kDa)" << ", Ca_XL (M)"<< ", Viability Rate (%)" << endl; //output_file << "Tropocollagen" << "," << "Collagen" << "," << "FragentedCollagen" << "," << "Tropoaggrecan" << "," << "Aggrecan" << "," << "FragmentedAggrecan" << "," << "HA" << "," << "FragmentedHA" << "," << "Damage" endl;
         output_file.close();
 	}
 
@@ -3324,6 +3325,7 @@ void WHWorld::outputWorld_csv() {
 	int orig_coll = 0; int frag_coll = 0; double new_coll = 0; 
 	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
 	int HA = 0; int fHA = 0;
+	int stemSize = 0; int progenSize = 0; int npSize = 0;
 
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
@@ -3331,31 +3333,22 @@ void WHWorld::outputWorld_csv() {
 		if (!cell) continue;
 		if (cell->isAlive() == false) continue;
 		if (cell->activate[read_t] == false) f++;
-		//if (cell->type[read_t] == stem) {
-		//	Stem::numOfStem++;
-		//}
-		//else if (cell->type[read_t] == progen) {
-		//	Progen::numOfProgen++;
-		//}
-		//else if (cell->type[read_t] == np) {
-		//	NP::numOfNP++;
-		//}
-		//if (typeid(cell) == typeid(Stem)) {
-		//	stemSize++;
-		//}
-		//else if (typeid(cell) == typeid(Progen)) {
-		//	progenSize++;
-		//}
-		//else if (typeid(cell) == typeid(NP)) {
-		//	npSize++;
-		//}
+		if (typeid(*cell) == typeid(Stem)) {
+			stemSize++;
+		}
+		else if (typeid(*cell) == typeid(Progen)) {
+			progenSize++;
+		}
+		else if (typeid(*cell) == typeid(NP)) {
+			npSize++;
+		}
 		else af++;
 	}
 
 	cout << " total cells: " << cells.actualSize() << endl;
-	cout << " stem cells: " << Stem::numOfStem << endl;
-	cout << " pre-np cells: " << Progen::numOfProgen << endl;
-	cout << " np cells: " << NP::numOfNP << endl;
+	cout << " stem cells: " << stemSize << endl;
+	cout << " pre-np cells: " << progenSize << endl;
+	cout << " np cells: " << npSize << endl;
 
 	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
@@ -3375,7 +3368,7 @@ void WHWorld::outputWorld_csv() {
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
 	//output_file << af << "," << f+af << ","; //cells
-	output_file << Stem::numOfStem << "," << Progen::numOfProgen << "," << NP::numOfNP << "," << cells.actualSize() <<","; // cell counts
+	output_file << cells.actualSize() << "," << Stem::numOfStem << "," << Progen::numOfProgen << "," << NP::numOfNP << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
 		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << endl;
