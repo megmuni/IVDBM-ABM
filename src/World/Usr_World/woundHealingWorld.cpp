@@ -3326,6 +3326,8 @@ void WHWorld::outputWorld_csv() {
 	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
 	int HA = 0; int fHA = 0;
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
+	int alive = 0; int dead = 0;
+	float cellViability = 0;
 
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
@@ -3358,6 +3360,20 @@ void WHWorld::outputWorld_csv() {
 		new_agg += this->worldECM[in].naggrecan[read_t];
 		frag_agg += this->worldECM[in].faggrecan[read_t];
 	}
+
+	//calculating viable cells
+	for (int i = 0; i < cellsSize; i++) {
+		Cell* cell = cells.getDataAt(i);
+		if (!cell) continue;
+		if (cell->isAlive() == true) {
+			alive++;
+		}
+		else if (cell->isAlive() == false) {
+			dead++;
+		}
+	}
+	cellViability = (static_cast<float>(alive) / dead) * 100;
+
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
 	output_file << (this->clock)/48 << ",";
@@ -3371,7 +3387,7 @@ void WHWorld::outputWorld_csv() {
 	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << endl;
+		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," <<this-> endl;
 	#else
 		output_file  << endl;
 	#endif
