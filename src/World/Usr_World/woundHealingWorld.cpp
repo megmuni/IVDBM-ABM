@@ -3387,7 +3387,7 @@ void WHWorld::outputWorld_csv() {
 	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," <<this-> endl;
+		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << endl;
 	#else
 		output_file  << endl;
 	#endif
