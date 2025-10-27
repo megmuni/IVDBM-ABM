@@ -3074,14 +3074,20 @@ void WHWorld::degradeCaAlg(int numOfPatches){
 #endif //MODEL_SCAFFOLD
 
 void WHWorld::debugInfo() {
+	int alive = 0; int dead = 0;
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
 		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;
-		if (cell->isAlive() == false) continue;
+		if (cell->isAlive() == false) {
+			dead++;
+		}
+		else if (cell->isAlive() == true) {
+			alive++;
+		}
 		//if (cell->activate[read_t] == false) f++;
-		if (typeid(*cell) == typeid(Stem)) {
+		else if (typeid(*cell) == typeid(Stem)) {
 			stemSize++;
 		}
 		else if (typeid(*cell) == typeid(Progen)) {
@@ -3096,6 +3102,8 @@ void WHWorld::debugInfo() {
 	int numCaAlg = 0;
 	numCaAlg = countPatchType(CaAlg);
 	cout << " total patches: " << numCaAlg << endl;
+	cout << " alive cells: " << alive << endl;
+	cout << " dead cells: " << dead << endl;
 	cout << " total cells: " << cells.actualSize() << endl;
 	cout << " stem cells: " << stemSize << endl;
 	cout << " pre-np cells: " << progenSize << endl;
