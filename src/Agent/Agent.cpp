@@ -258,13 +258,13 @@ bool Agent::rollDice(float percent) {
 			int z = this->getZ();
 
 			int neighborcount = 0;
-			for (int dx = -1; dx < 2; dx++) {
-				for (int dy = -1; dy < 2; dy++) {
-					for (int dz = -1; dz < 2; dz++) {
-						int neighborindex = (ix + dx) + (iy + dy) * nx + (iz + dz) * ny * nx;
-						if (ix + dx < 0 || ix + dx >= nx || iy + dy < 0 || iy + dy >= ny || iz + dz < 0 || iz + dz >= nz) continue;
-						if (dx == 0 && dy == 0 && dz == 0) continue;
-						if (Agent::agentPatchPtr[neighborindex].type[read_t] == CalAlg) neighborcount++;
+			for (int dX = -1; dX < 2; dX++) {
+				for (int dY = -1; dY < 2; dY++) {
+					for (int dZ = -1; dZ < 2; dZ++) {
+						int neighborindex = (ix + dX) + (iy + dY) * nx + (iz + dZ) * ny * nx;
+						if (ix + dX < 0 || ix + dX >= nx || iy + dY < 0 || iy + dY >= ny || iz + dZ < 0 || iz + dZ >= nz) continue;
+						if (dX == 0 && dY == 0 && dZ == 0) continue;
+						if (Agent::agentPatchPtr[neighborindex].type[read_t] == CaAlg) neighborcount++;
 					}
 				}
 			}
