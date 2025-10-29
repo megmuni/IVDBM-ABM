@@ -254,16 +254,16 @@ bool Agent::rollDice(float percent) {
 			int nz = Agent::nz;
 
 			// Location of agent in x,y,z dimensions of world.
-			int x = this->ix[read_index];
-			int y = this->iy[read_index];
-			int z = this->iz[read_index];
+			int x = this->getX;
+			int y = this->getY;
+			int z = this->getZ;
 
 			// Calculate total volume of surrounding patches to check for cytokine thresholds
 			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
 			int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
 			float patchesVolume = patchVolume * neighbors;
 
-			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume) {// pg/ml
+			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
 				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
 			}
 			else {
