@@ -1446,7 +1446,7 @@ void WHWorld::initializePatches() {
 		if (this->highMW_alg == 1 && this->lowMW_alg == 0) { // 'high' condition
 			this->Alg_Mn = 1500;
 		}
-		else if (this->highMW_alg == 0 && this->lowMW_alg == 1) {
+		else if (this->highMW_alg == 0 && this->lowMW_alg == 1) { // 'low' condition
 			this->Alg_Mn = 95;
 		}
 		else { // 'mix' condition: calculates a weighted avg molecular weight
@@ -3425,7 +3425,7 @@ void WHWorld::outputWorld_csv() {
 	output_file << this->WHWorldChem.totalTNF << ",";
 	output_file << this->WHWorldChem.totalIL1beta << ",";
 	output_file << this->WHWorldChem.totalTGF << ",";
-	output_file << fixed << std::setprecision(5) << new_coll/1000.0 << "," << new_agg/1000.0 << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
+	output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
 	//output_file << af << "," << f+af << ","; //cells
