@@ -407,7 +407,7 @@ class WHWorld: public World {
     static float Ca_Mw;	 // Molecular Weight 
     // Alginate:
     static float Alg_Mn; // Number Average Molecular Weight (g mol-1)
-    float totalVolumeML; //
+    static float totalVolumeML; //
     
 
     /* CALIBRATION Variables */
