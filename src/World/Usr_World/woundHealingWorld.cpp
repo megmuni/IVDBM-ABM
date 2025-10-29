@@ -1229,6 +1229,8 @@ float WHWorld::patchpermm = 0;
 	float G;        // Elastic Modulus (kPa)
 	float pXL;     // Crosslink Density (mmol/mL = M)
 	float Alg_Mn ;  // molecular weight of alginate (kDa)
+	int highMW_alg; // ratio component of high-MW alginate
+	int lowMW_alg; // ratio component of low-MW alginate
 	float Q;        // Swelling Ratio
 	float w = 0;    // Mass Loss (%)
 	float poreWidth = 200.00;    // (um)
@@ -1438,12 +1440,20 @@ void WHWorld::initializePatches() {
 		/* p_XL: Crosslink Density (mmol/mL = M) 
 		* 		 Linear dependence of Shear modulus on cross-link concentration for constant polymer concentration 
 		*/
+		this->pXL = this->pXL / 1000; // convert mM to M
+		//this->pXL = 0.014;
 
-		this->pXL = 0.014;
-		//this->pXL = 0.022;
-		//this->pXL = 0.029;
-		//this->pXL = 0.034;
-		//this->pXL = 0.02;
+		if (this->highMW_alg == 1 && this->lowMW_alg == 0) { // 'high' condition
+			this->Alg_Mn = 1500;
+		}
+		else if (this->highMW_alg == 0 && this->lowMW_alg == 1) {
+			this->Alg_Mn = 95;
+		}
+		else { // 'mix' condition: calculates a weighted avg molecular weight
+			float highMW_kDa = 1500;
+			float lowMW_kDa = 50;
+			this->Alg_Mn = (pow(this->highMW_alg * highMW_kDa, 2)+ pow(this->lowMW_alg * lowMW_kDa, 2)) / ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
+		}
 
 		cout << "		Final Alginate concentration (%w/v): " << this->Alg_wv<< endl; 
 		cout << "       Alginate Molecular Weight (kDa) = " << this->Alg_Mn << endl;
@@ -3215,22 +3225,46 @@ int WHWorld::userInput() {
 		}
 
         /* -------------------------- Ca-Alg PROPERTIES -------------------------- */
-		//cout << "Reading 1% (w/v) Alg volume (mL)" << endl;
-		infile >> garbage;
-		infile >> this->Alg_v;
-		cout << "Volume of Alg (mL) = " << this->Alg_v << endl;
+		/* NOTE FOR STEM CELL IVDBM-ABM: none of this is being used anywhere       */
+		/* currently. Commented out and replaced with the important params that go */
+		/* into the elasticity equation: alginate kDas and calcium concentration   */
+		/* in mM.                                                                  */
 
-		//cout << "Reading 1.67% (w/v) Ca volume (mL)" << endl;
-		infile >> garbage;
-		infile >> this->Ca_v;
-		cout << "Volume of Ca (mL) = " << this->Ca_v << endl;
+		////cout << "Reading 1% (w/v) Alg volume (mL)" << endl;
+		//infile >> garbage;
+		//infile >> this->Alg_v;
+		//cout << "Volume of Alg (mL) = " << this->Alg_v << endl;
 
-        float totalVolume = this->Alg_v + this->Ca_v; 
+		////cout << "Reading 1.67% (w/v) Ca volume (mL)" << endl;
+		//infile >> garbage;
+		//infile >> this->Ca_v;
+		//cout << "Volume of Ca (mL) = " << this->Ca_v << endl;
+		// 
+		//float totalVolume = this->Alg_v + this->Ca_v; 
 
-        this->Alg_wv = 2;
+        //this->Alg_wv = 2;
 		//this->Alg_wv = 1.95;
 
-		cout << "Total Volume from file (mL): " << totalVolume << endl;
+		//cout << "Total Volume from file (mL): " << totalVolume << endl;
+
+		infile >> garbage;
+		infile >> this->Alg_wv;
+		cout << "Concentration of Alg w/v (%) = " << this->Alg_wv << endl;
+
+		infile >> garbage;
+		infile >> this->highMW_alg;
+		cout << "Ratio component of high MW alginate (integer) = " << this->highMW_alg << endl;
+
+		infile >> garbage;
+		infile >> this->lowMW_alg;
+		cout << "Ratio component of low MW alginate (integer) = " << this->lowMW_alg << endl;
+
+		infile >> garbage;
+		infile >> this->pXL;
+		cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
+
+
+
 
         /* --------------------------- CYTOKINE PROPERTIES -------------------------- */
 		//cout << "Reading Cytokine Properties..." << endl;
