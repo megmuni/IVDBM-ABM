@@ -1237,6 +1237,7 @@ float WHWorld::patchpermm = 0;
 #ifdef MODEL_SCAFFOLD
 	float WHWorld::Ca_Mw = 3400;      // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
 	float WHWorld::Alg_Mn = 1500;     // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
+	float WHWorld::totalVolumeML;
 	//float WHWorld::Alg_Mn = 90;
 	//float WHWorld::Alg_Mn = 200; //143;
 #endif
@@ -1922,6 +1923,8 @@ void WHWorld::initializeCells() {
 	cout << "		Scaffold Volume: " << scaffoldVolume << " mm^3 (" << hydrogelVolume << " mL)" << endl; 	
 	cout << "		Cell Density: " << cellDensity << " cells/mm^3  (" << 1.0*pow(10,6) << " cells/mL)" << endl;
     cout << " 		Seeding " << initialScaffoldCells << " cells in scaffold " << endl; 
+
+	WHWorld::totalVolumeML = hydrogelVolume;
 
     // Sprout cell seeded hydrogel with mesenchymal stem cells at density 10^6 cells/mL
     sproutAgent(                    
