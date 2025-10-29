@@ -247,24 +247,24 @@ bool Agent::rollDice(float percent) {
 		switch (agentType) {
 		case stem: {
 
+			// Location of agent in x,y,z dimensions of world.
+			int x = this->ix[read_t];
+			int y = this->iy[read_t];
+			int z = this->iz[read_t];
+
 			// Number of patches in x,y,z dimensions of world
 			int nx = Agent::nx;
 			int ny = Agent::ny;
 			int nz = Agent::nz;
 
-			// Location of agent in x,y,z dimensions of world.
-			int x = this->getX();
-			int y = this->getY();
-			int z = this->getZ();
-
-			int neighborcount = 0;
-			for (int dX = -1; dX < 2; dX++) {
-				for (int dY = -1; dY < 2; dY++) {
-					for (int dZ = -1; dZ < 2; dZ++) {
-						int neighborindex = (ix + dX) + (iy + dY) * nx + (iz + dZ) * ny * nx;
-						if (ix + dX < 0 || ix + dX >= nx || iy + dY < 0 || iy + dY >= ny || iz + dZ < 0 || iz + dZ >= nz) continue;
-						if (dX == 0 && dY == 0 && dZ == 0) continue;
-						if (Agent::agentPatchPtr[neighborindex].type[read_t] == CaAlg) neighborcount++;
+			int neighborCount = 0;
+			// Count number of patches of neighbors inside world dimensions:
+			for (int dZ = -1; dZ <= 1; dZ++) {
+				for (int dY = -1; dY <= 1; dY++) {
+					for (int dX = -1; dX <= 1; dX++) {
+						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
 					}
 				}
 			}
@@ -272,7 +272,7 @@ bool Agent::rollDice(float percent) {
 			// Calculate total volume of surrounding patches to check for cytokine thresholds
 			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
 			//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-			float patchesVolume = patchVolume * neighborcount;
+			float patchesVolume = patchVolume * neighborCount;
 
 			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
 
