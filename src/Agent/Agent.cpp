@@ -246,7 +246,6 @@ bool Agent::rollDice(float percent) {
 
 		switch (agentType) {
 		case stem: {
-			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
 
 			// Number of patches in x,y,z dimensions of world
 			int nx = Agent::nx;
@@ -258,10 +257,24 @@ bool Agent::rollDice(float percent) {
 			int y = this->getY();
 			int z = this->getZ();
 
+			int neighborcount = 0;
+			for (int dx = -1; dx < 2; dx++) {
+				for (int dy = -1; dy < 2; dy++) {
+					for (int dz = -1; dz < 2; dz++) {
+						int neighborindex = (ix + dx) + (iy + dy) * nx + (iz + dz) * ny * nx;
+						if (ix + dx < 0 || ix + dx >= nx || iy + dy < 0 || iy + dy >= ny || iz + dz < 0 || iz + dz >= nz) continue;
+						if (dx == 0 && dy == 0 && dz == 0) continue;
+						if (Agent::agentPatchPtr[neighborindex].type[read_t] == CalAlg) neighborcount++;
+					}
+				}
+			}
+
 			// Calculate total volume of surrounding patches to check for cytokine thresholds
 			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-			int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-			float patchesVolume = patchVolume * neighbors;
+			//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
+			float patchesVolume = patchVolume * neighborcount;
+
+			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
 
 			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
 				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
