@@ -254,9 +254,9 @@ bool Agent::rollDice(float percent) {
 			int nz = Agent::nz;
 
 			// Location of agent in x,y,z dimensions of world.
-			int x = this->getX;
-			int y = this->getY;
-			int z = this->getZ;
+			int x = this->getX();
+			int y = this->getY();
+			int z = this->getZ();
 
 			// Calculate total volume of surrounding patches to check for cytokine thresholds
 			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
