@@ -407,6 +407,7 @@ class WHWorld: public World {
     static float Ca_Mw;	 // Molecular Weight 
     // Alginate:
     static float Alg_Mn; // Number Average Molecular Weight (g mol-1)
+    float totalVolumeML; //
     
 
     /* CALIBRATION Variables */
@@ -477,6 +478,7 @@ class WHWorld: public World {
 
     float Alg_v, Alg_wv;  // Volume (mL) and final concentration (% w/v) of Alg in Ca-Alg hydrogel
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
+    float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
 
  private:
 /****************************************************************
