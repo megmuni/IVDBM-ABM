@@ -400,6 +400,7 @@ class WHWorld: public World {
     static unsigned seed;    // Used to generate random numbers
     static bool highTNFdamage;    // Whether there is high TNF damage (which results in ECM fragmentation)
     static float patchpermm;      // The number of patches per millimeter in the world
+    static float liveCells;
     static float deadCells;
     static int initialCaAlg;      // The number of initial tissue patches
 
