@@ -1224,6 +1224,8 @@ double WHWorld::clock = 0;
 unsigned WHWorld::seed = 27000; //initial number of cells
 bool WHWorld::highTNFdamage = false;
 float WHWorld::patchpermm = 0;
+float WHWorld::liveCells = 0;
+float WHWorld::deadCells = 0;
 #ifdef MODEL_SCAFFOLD
 	int WHWorld::initialCaAlg = 0;
 	float G;        // Elastic Modulus (kPa)
@@ -2598,6 +2600,7 @@ void WHWorld::updatePatches() {
 void WHWorld::updateCells() {
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
+	int DeletedCell = 0;
 	#pragma omp parallel for
 		for (int i = 0; i < cellsSize; i++) {
 	#ifdef _OMP
@@ -2609,9 +2612,9 @@ void WHWorld::updateCells() {
 		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;  // cell was deleted
 		cell->updateAgent();
-		int DeletedCell = 0;
-
+		
 		if (cell->isAlive() == true) {
+			liveCells++;
 			// Update cell stage counts
 			/* Added by MM to check types of cell stages and add to respective counters: */
 			if (typeid(*cell) == typeid(Stem)) {
@@ -2647,6 +2650,9 @@ void WHWorld::updateCells() {
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
+	cout << " number of deleted cells " << DeletedCell << endl;
+	cout << " total number of dead cells " << deadCells + DeletedCell << endl;
+	cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
 
 	// Add new cells
 	#ifdef _OMP
@@ -3429,7 +3435,8 @@ void WHWorld::outputWorld_csv() {
 			dead++;
 		}
 	}
-	cellViability = (static_cast<float>(alive) / dead) * 100;
+	//cellViability = (static_cast<float>(alive) / dead) * 100;
+	cellViability = (static_cast<float>liveCells / (liveCells + deadCells)) * 100;
 
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
