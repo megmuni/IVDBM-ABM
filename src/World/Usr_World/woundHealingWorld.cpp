@@ -3436,7 +3436,7 @@ void WHWorld::outputWorld_csv() {
 		}
 	}
 	//cellViability = (static_cast<float>(alive) / dead) * 100;
-	cellViability = (static_cast<float>liveCells / (liveCells + deadCells)) * 100;
+	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
 
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
