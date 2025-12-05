@@ -2599,10 +2599,15 @@ void WHWorld::updatePatches() {
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
 void WHWorld::updateCells() {
-	prevCells = cells.actualSize();
+	if (WHWorld::clock == 0) {
+		prevCells = this->initialCells[0];
+	}
+	else if (WHWorld::clock > 0) {
+		prevCells = cells.actualSize();
+	}
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
-	int DeletedCell = 0;
+	//int DeletedCell = 0;
 	#pragma omp parallel for
 		for (int i = 0; i < cellsSize; i++) {
 	#ifdef _OMP
@@ -2648,7 +2653,7 @@ void WHWorld::updateCells() {
 			}
 			cells.deleteData(i, tid);
 			delete cell;
-			DeletedCell++;
+			//DeletedCell++;
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
