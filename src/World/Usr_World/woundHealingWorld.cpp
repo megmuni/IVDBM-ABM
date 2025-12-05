@@ -2650,8 +2650,9 @@ void WHWorld::updateCells() {
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
+	deadCells = deadCells + DeletedCell;
 	cout << " number of deleted cells " << DeletedCell << endl;
-	cout << " total number of dead cells " << deadCells + DeletedCell << endl;
+	cout << " total number of dead cells " << deadCells << endl;
 	cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
 
 	// Add new cells
@@ -3374,7 +3375,7 @@ void WHWorld::outputWorld_csv() {
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Elastic Modulus (kPa) " << ", Swelling Ratio " << ", Mass Loss (%) " << ", Alginate_wv (%)" << ", Alginate_Mw (kDa)" << ", Ca_XL (M)"<< ", Viability Rate (%)" << endl; //output_file << "Tropocollagen" << "," << "Collagen" << "," << "FragentedCollagen" << "," << "Tropoaggrecan" << "," << "Aggrecan" << "," << "FragmentedAggrecan" << "," << "HA" << "," << "FragmentedHA" << "," << "Damage" endl;
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)"<< ", Viability Rate(%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
         output_file.close();
 	}
 
@@ -3448,7 +3449,7 @@ void WHWorld::outputWorld_csv() {
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
 	//output_file << af << "," << f+af << ","; //cells
-	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << ","; // cell counts
+	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << deadCells ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
 		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << endl;
