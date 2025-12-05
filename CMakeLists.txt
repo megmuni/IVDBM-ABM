@@ -5,7 +5,7 @@ project (NYVONNA_CPU_ABM)
 #SET(CMAKE_CXX_COMPILER g++-7)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/cuda" ${CMAKE_MODULE_PATH})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 message("C_COMPILER = ${CMAKE_C_COMPILER}")
 message("CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/cuda" ${CMAKE_MODULE_PATH})
 # message("CUDA_64_BIT_DEVICE_CODE = ${CUDA_64_BIT_DEVICE_CODE}")
 
 message(" (2) cxx compiler = ${CMAKE_CXX_COMPILER}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 # find_package(CUDA)
 find_package(CUDA QUIET REQUIRED)
@@ -87,10 +87,11 @@ include_directories(/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples)
 include_directories(/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc)
 
 
+# Set CUDA NVCC flags to support compute capability 9.0 (for NVIDIA H100 on Nibi - Aug 2025)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_90,code=sm_90 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
+
 # Set CUDA NVCC flags to support compute capability 6.0 (for Tesla P100)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_60,code=sm_60 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
-
-
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_60,code=sm_60 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
 #set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61) 
 #set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_70,code=sm_70 -gencode arch=compute_72,code=sm_72) 
 #set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_70,code=sm_70 -gencode arch=compute_72,code=sm_72 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
