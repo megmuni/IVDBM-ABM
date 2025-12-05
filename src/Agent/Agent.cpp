@@ -503,6 +503,8 @@ float Agent::meanNeighborChem(int chemIndex) {
 			}
 		}
 	}
+	cout << "totalchemical = " << totalchemical << endl;
+	cout << "nuumberofpatches = " << numberofpatches << endl;
 	return totalchemical/numberofpatches;
 }
 
