@@ -336,7 +336,6 @@ bool Agent::rollDice(float percent) {
 			Agent::calculateECMSynthesisRate(agentType);
 
 		} else if (WHWorld::clock > 0) {
-			Agent::calculateECMSynthesisRate(agentType);
 			Agent::calculateProliferationRate();
 			Agent::calculateViabilityRate();
 		}
