@@ -1187,11 +1187,11 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 		dy = Agent::dY[target];
 		dz = Agent::dZ[target];
 
-		// Move to new patch and sprout ocollagen
+		// Move to new patch and sprout oaggrecan
 		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 		this->move(dx, dy, dz, read_index);
 
-		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
+		Agent::agentECMPtr[in].oaggrecan[write_t] = Agent::agentECMPtr[in].oaggrecan[read_t] + 1 + rand() % 2;
 #ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
 #endif
