@@ -792,11 +792,9 @@ void Stem::stem_cellFunction() {
 
 	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-
 	}
 	else {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-		break;
 	}
 	cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
 
