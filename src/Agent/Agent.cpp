@@ -333,9 +333,9 @@ bool Agent::rollDice(float percent) {
 		}
 		if (WHWorld::clock == 0){
 			Agent::calculateMigrationSpeed(agentType); 
-			Agent::calculateECMSynthesisRate(agentType);
 
 		} else if (WHWorld::clock > 0) {
+			Agent::calculateECMSynthesisRate(agentType);
 			Agent::calculateProliferationRate();
 			Agent::calculateViabilityRate();
 		}
