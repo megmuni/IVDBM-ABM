@@ -275,7 +275,7 @@ bool Agent::rollDice(float percent) {
 			float patchesVolume = patchVolume * neighborCount;
 
 			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
+			//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
 
 			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
 				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
@@ -285,7 +285,7 @@ bool Agent::rollDice(float percent) {
 				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
 				break;
 			}
-			cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
+			//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
 		}
 		case progen: {
 			Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
@@ -503,8 +503,8 @@ float Agent::meanNeighborChem(int chemIndex) {
 			}
 		}
 	}
-	cout << "totalchemical = " << totalchemical << endl;
-	cout << "nuumberofpatches = " << numberofpatches << endl;
+	//cout << "totalchemical = " << totalchemical << endl;
+	//cout << "nuumberofpatches = " << numberofpatches << endl;
 	return totalchemical/numberofpatches;
 }
 

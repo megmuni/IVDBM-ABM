@@ -731,7 +731,7 @@ void Stem::stem_cellFunction() {
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours of cell's life
-				cout << "attempting differentiation of stem cell" << endl;
+				//cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
 		}
@@ -788,7 +788,7 @@ void Stem::stem_cellFunction() {
 	float patchesVolume = patchVolume * neighborCount;
 
 	Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-	cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
+	//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
 
 	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
@@ -796,7 +796,7 @@ void Stem::stem_cellFunction() {
 	else {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
 	}
-	cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
+	//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
 
 	// Makes collagen and aggrecan every 12 hours.
 	#ifdef CALIBRATION
@@ -948,7 +948,7 @@ void Progen::progen_cellFunction() {
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 		if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours
-			cout << "attempting differentiation of pre-np cell" << endl;
+			//cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
 		}
 	}
