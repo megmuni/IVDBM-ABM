@@ -30,7 +30,7 @@ float Stem::collagenSynthRate = 1; // placeholder values which will be recalcula
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
-float Stem::cytokineSynthesis[3] = { 50, 0, -0.807 };
+float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
 //float Stem::ECMsynthesis[4] = {};
 float Stem::CollagenSynth[1] = { 10 };
 float Stem::AggrecanSynth[1] = { 100000 };
@@ -43,7 +43,7 @@ float Progen::apoptosisChance = 0.1;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
-float Progen::cytokineSynthesis[3] = { 50, 0, 0 };
+float Progen::cytokineSynthesis[3] = { 1, 2.58, 0 };
 float Progen::AggrecanSynth[1] = { 1 };
 float Progen::proliferation[1] = {24};
 float Progen::differentiation[3] = {0.7, 0.3, 48};
@@ -795,7 +795,7 @@ void Stem::stem_cellFunction() {
 		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
 		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8]* ((patchTNF)/(1 + Cell::cytokineSynthesis[9]*patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 	#else
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 50 + (2.25*patchTGF + 1.3*patchIL1beta + 5.11*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 5 + (2.25*patchTGF + 1.3*patchIL1beta + 5.11*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
 		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 	#endif
