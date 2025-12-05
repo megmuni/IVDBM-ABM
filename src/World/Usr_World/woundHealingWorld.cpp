@@ -1226,6 +1226,7 @@ bool WHWorld::highTNFdamage = false;
 float WHWorld::patchpermm = 0;
 float WHWorld::liveCells = 0;
 float WHWorld::deadCells = 0;
+float WHWorld::prevCells = 0;
 #ifdef MODEL_SCAFFOLD
 	int WHWorld::initialCaAlg = 0;
 	float G;        // Elastic Modulus (kPa)
@@ -2598,6 +2599,7 @@ void WHWorld::updatePatches() {
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
 void WHWorld::updateCells() {
+	prevCells = cells.actualSize();
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
 	int DeletedCell = 0;
@@ -2650,10 +2652,9 @@ void WHWorld::updateCells() {
 		}
 	}
 	Cell::numOfCells = cells.actualSize();
-	deadCells = deadCells + DeletedCell;
-	cout << " number of deleted cells " << DeletedCell << endl;
-	cout << " total number of dead cells " << deadCells << endl;
-	cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
+	//cout << " number of deleted cells " << DeletedCell << endl;
+	cout << " total number of dead cells " << prevCells - cells.actualSize() << endl;
+	//cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
 
 	// Add new cells
 	#ifdef _OMP
@@ -3437,6 +3438,8 @@ void WHWorld::outputWorld_csv() {
 		}
 	}
 	//cellViability = (static_cast<float>(alive) / dead) * 100;
+
+	deadCells = deadCells + (prevCells - cells.actualSize());
 	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
 
 	this->countPatchType(damage);

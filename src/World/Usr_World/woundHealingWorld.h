@@ -402,6 +402,7 @@ class WHWorld: public World {
     static float patchpermm;      // The number of patches per millimeter in the world
     static float liveCells;
     static float deadCells;
+    static float prevCells;
     static int initialCaAlg;      // The number of initial tissue patches
 
     //Crosslinked Ca-Alg Hydrogel Parameters
