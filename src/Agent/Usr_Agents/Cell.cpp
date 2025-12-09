@@ -327,7 +327,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif	
 					this->Agent::hatchnewcell(1, np);
-					//this->die();
+					this->die();
 					return;
 				}
 			}
@@ -366,7 +366,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif 
 					this->Agent::hatchnewcell(1, np);
-					//this->die();
+					this->die();
 					return;
 				}
 			}
@@ -693,7 +693,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif  
 					this->Agent::hatchnewcell(1, stem);
-					//this->die();
+					this->die();
 					return;
 				}
 			}
@@ -732,7 +732,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif
 					this->Agent::hatchnewcell(1, stem);
-					//this->die();
+					this->die();
 					return;
 				}
 			}
@@ -926,7 +926,7 @@ void Progen::progen_cellFunction() {
 				if (rollDice(progenProlif)) {
 #endif  
 					this->Agent::hatchnewcell(1, progen);
-					//this->die();
+					this->die();
 						return;
 				}
 			}
@@ -952,7 +952,7 @@ void Progen::progen_cellFunction() {
 			if (rollDice(progenProlif)) {
 #endif
 				this->Agent::hatchnewcell(1, progen);
-				//this->die();
+				this->die();
 				return;
 			}
 		}
