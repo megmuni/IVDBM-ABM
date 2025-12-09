@@ -711,7 +711,8 @@ void Stem::stem_cellFunction() {
 				}
 
 #ifdef CALIBRATION
-				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
+				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -904,7 +905,8 @@ void Progen::progen_cellFunction() {
 			//int countfHA = this->countNeighborECM(fha);
 
 #ifdef CALIBRATION
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+			float progenProlif = 50; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -1330,9 +1332,10 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	float meanIL1 = this->meanNeighborChem(IL1beta);
 
 	int in = this->index[read_t];
-	float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
+	//float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
+	float stemDiff = 50; //testing
 	if (rollDice(stemDiff)) {
-		if (rollDice(0.7)) { // asymmetric differentiation
+		if (rollDice(70)) { // asymmetric differentiation
 			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
@@ -1352,7 +1355,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
 	int in = this->index[read_t];
-	if (rollDice(0.7)) { // asymmetric differentiation
+	if (rollDice(70)) { // asymmetric differentiation
 		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
