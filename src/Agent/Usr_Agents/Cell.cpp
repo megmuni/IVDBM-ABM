@@ -327,7 +327,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif	
 					this->Agent::hatchnewcell(1, np);
-					this->die();
+					//this->die();
 					return;
 				}
 			}
@@ -366,7 +366,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif 
 					this->Agent::hatchnewcell(1, np);
-					this->die();
+					//this->die();
 					return;
 				}
 			}
@@ -473,6 +473,18 @@ void NP::NP_cellFunction() {
 				this->die();
 				return;
 			}
+		}
+#endif
+
+#ifdef CALIBRATION
+		if (rollDice(5)) {
+			this->die();
+			return;
+		}
+#else
+		if (rollDice(0.05)) { // from Netlogo model
+			this->die();
+			return;
 		}
 #endif
 
@@ -673,7 +685,8 @@ void Stem::stem_cellFunction() {
 				}
 
 #ifdef CALIBRATION
-				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -865,7 +878,7 @@ void Stem::stem_cellFunction() {
 			return;
 		}
 	#else
-		if (rollDice(0.05)) { // from Netlogo model
+		if (rollDice(1)) { // from Netlogo model
 			this->die();
 			return;
 		}
@@ -931,18 +944,19 @@ void Progen::progen_cellFunction() {
 			//int countfHA = this->countNeighborECM(fha);
 
 #ifdef CALIBRATION
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+			float progenProlif = 50; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-				if (rollDice(progenProlif)) {
+			if (rollDice(progenProlif)) {
 #endif
-					this->Agent::hatchnewcell(1, progen);
-					//this->die();
-						return;
-				}
+				this->Agent::hatchnewcell(1, progen);
+				//this->die();
+				return;
 			}
-			}
+		}
+		}
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
@@ -1367,7 +1381,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		//else {
 		//	cout << "Casting Successful" << endl;
 		//}
-		this->die();
+		this->die(); // 'kill' current cell
 		Agent::hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
 		Agent::hatchnewcell(number, agentType); // create new NP cell nearby
 	}
