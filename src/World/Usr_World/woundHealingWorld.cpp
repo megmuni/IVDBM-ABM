@@ -2600,10 +2600,10 @@ void WHWorld::updatePatches() {
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
 void WHWorld::updateCells() {
-	if (WHWorld::clock == 0) {
+	if (WHWorld::clock == 1) {
 		prevCells = this->initialCells[0];
 	}
-	else if (WHWorld::clock > 0) {
+	else if (WHWorld::clock > 1) {
 		prevCells = cells.actualSize();
 	}
 	cout << " previous tick's cells " << prevCells << endl;
