@@ -83,8 +83,8 @@ void processParameters(string filename) {
         }
     }
 
-    // Set stem proliferation parameters m3-m6
-    for (int i = 0; i < 4; ++i) {
+    // Set stem proliferation parameters m3-m7
+    for (int i = 0; i < 5; ++i) {
         if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::proliferation[i] = value_as_float;
@@ -97,7 +97,7 @@ void processParameters(string filename) {
         }
     }
 
-    // Set stem cytokine synthesis parameters m7-m9
+    // Set stem cytokine synthesis parameters m8-m10
     for (int i = 0; i < 3; ++i) {
         if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
@@ -111,7 +111,7 @@ void processParameters(string filename) {
         }
     }
 
-    // Set stem collagen synthesis parameters m10
+    // Set stem collagen synthesis parameters m11
     if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Stem::CollagenSynth[0] = value_as_float;
@@ -123,7 +123,7 @@ void processParameters(string filename) {
         cerr << "Error in assigning value to stem collagen synthesis parameter" << endl;
     }
 
-    // Set stem aggrecan synthesis parameters m11
+    // Set stem aggrecan synthesis parameters m12
     if (getline(lineStream, value, '\t')) {
         float value_as_float = atof(value.c_str());
         Stem::AggrecanSynth[0] = value_as_float;
@@ -135,7 +135,7 @@ void processParameters(string filename) {
         cerr << "Error in assigning value to stem aggrecan synthesis parameter" << endl;
     }
 
-    // Set stem differentiation parameters m12-m16
+    // Set stem differentiation parameters m13-m17
     for (int i = 0; i < 5; ++i) {
         if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
