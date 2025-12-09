@@ -34,7 +34,7 @@ float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
 //float Stem::ECMsynthesis[4] = {};
 float Stem::CollagenSynth[1] = { 10 };
 float Stem::AggrecanSynth[1] = { 100000 };
-float Stem::proliferation[4] = {10, 24, 0.8, 0.001};
+float Stem::proliferation[5] = {10, 24, 0.8, 0.001, 0.5};
 float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
