@@ -704,14 +704,14 @@ void Stem::stem_cellFunction() {
 #else  
 				if (meanTGF <= 10) {
 #endif  
-					TGFrelated = 1; // Low TGF (0.1-1nm) stimulate chond proliferation and attraction. 
+					TGFrelated = 1; // Low TGF (0.1-1nm) stimulate proliferation and attraction. 
 				}
 				else {
 					TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
 				}
 
 #ifdef CALIBRATION
-				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+				float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
