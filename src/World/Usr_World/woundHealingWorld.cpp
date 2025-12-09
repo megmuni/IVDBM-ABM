@@ -1952,6 +1952,7 @@ void WHWorld::initializeCells() {
         0,                      //  -- front
         nz                      //  -- rear
 	);
+	prevCells = this->initialCells[0];
 	//cout << "Finished initializing cells" << endl;
 }
 
@@ -2605,6 +2606,7 @@ void WHWorld::updateCells() {
 	else if (WHWorld::clock > 0) {
 		prevCells = cells.actualSize();
 	}
+	cout << " previous tick's cells " << prevCells << endl;
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
 	//int DeletedCell = 0;
@@ -2658,6 +2660,7 @@ void WHWorld::updateCells() {
 	}
 	Cell::numOfCells = cells.actualSize();
 	//cout << " number of deleted cells " << DeletedCell << endl;
+	cout << " number of cells now = " << cells.actualSize() << endl;
 	cout << " total number of dead cells " << prevCells - cells.actualSize() << endl;
 	//cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
 
