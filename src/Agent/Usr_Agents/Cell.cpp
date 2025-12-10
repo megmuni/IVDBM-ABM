@@ -463,18 +463,18 @@ void NP::NP_cellFunction() {
 		/* -------------------------------------------------------------------------- */
 
 		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
-//#ifdef MODEL_SCAFFOLD
-//#ifdef CALIBRATION
-//		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//#else
-//		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//#endif
-//			if (rollDice(100 - Agent::viabilityRate)) {
-//				this->die();
-//				return;
-//			}
-//		}
-//#endif
+#ifdef MODEL_SCAFFOLD
+#ifdef CALIBRATION
+		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#else
+		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+#endif
+			if (rollDice(100 - Agent::viabilityRate)) {
+				this->die();
+				return;
+			}
+		}
+#endif
 
 //#ifdef CALIBRATION
 //		if (rollDice(0.01)) {
@@ -688,7 +688,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 80; //testing
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -730,7 +730,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 80; //testing
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -878,17 +878,17 @@ void Stem::stem_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
-	//#ifdef CALIBRATION
-	//	if (rollDice(Stem::apoptosisChance)) {
-	//		this->die();
-	//		return;
-	//	}
-	//#else
-	//	if (rollDice(1)) { // from Netlogo model
-	//		this->die();
-	//		return;
-	//	}
-	//#endif
+	#ifdef CALIBRATION
+		if (rollDice(Stem::apoptosisChance)) {
+			this->die();
+			return;
+		}
+	#else
+		if (rollDice(1)) { // from Netlogo model
+			this->die();
+			return;
+		}
+	#endif
     	// Activated chondrocytes can die naturally:
 		//this->life[write_t] = this->life[read_t] - 1;
 		//if (this->life[read_t] <= 0) {
@@ -927,7 +927,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 80; //testing
+			float progenProlif = 40; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -956,7 +956,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 80; //testing
+			float progenProlif = 40; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -1063,17 +1063,17 @@ void Progen::progen_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
-//#ifdef CALIBRATION
-//	if (rollDice(Progen::apoptosisChance)) {
-//		this->die();
-//		return;
-//	}
-//#else
-//	if (rollDice(0.1)) { // from Netlogo model
-//		this->die();
-//		return;
-//	}
-//#endif
+#ifdef CALIBRATION
+	if (rollDice(Progen::apoptosisChance)) {
+		this->die();
+		return;
+	}
+#else
+	if (rollDice(0.1)) { // from Netlogo model
+		this->die();
+		return;
+	}
+#endif
 	// can die naturally:
 	//this->life[write_t] = this->life[read_t] - 1;
 	//if (this->life[read_t] <= 0) {
