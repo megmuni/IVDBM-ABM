@@ -750,7 +750,7 @@ void Stem::stem_cellFunction() {
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (fmod(((float)this->life[read_t] / 2, 48)) == 0) { // differentiation attempted every 48 hours of cell's life
+			if (fmod(((float)this->life[read_t] / 2), 48) == 0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
