@@ -193,7 +193,7 @@ Cell::Cell(int x, int y, int z) {
 		this->iy[read_t] = y;
 		this->iz[read_t] = z;
 		this->index[read_t] = x + y*nx + z*nx*ny;
-		this->alive[read_t] = false;
+		this->alive[read_t] = true;
 		this->life[read_t] = 0;
 		this->activate[read_t] = false;
 		this->color[read_t] = ccell;
@@ -1461,9 +1461,9 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			//if (dp2 == nullptr) {
 			//	cout << "Casting Failed" << endl;
 			//}
-			this->die(); // 'kill' current cell
 			this->hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
 			this->hatchnewcell(number, agentType); // create new progenitor cell nearby
+			this->die(); // 'kill' current cell
 		}
 	}
 }
@@ -1484,8 +1484,8 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		//else {
 		//	cout << "Casting Successful" << endl;
 		//}
-		this->die(); // 'kill' current cell
 		this->hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
 		this->hatchnewcell(number, agentType); // create new NP cell nearby
+		this->die(); // 'kill' current cell
 	}
 }
