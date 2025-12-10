@@ -120,7 +120,7 @@ Cell::Cell(Patch* patchPtr) {
 }
 
 Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
-
+	this->alive[write_t] = true;
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
 
@@ -129,7 +129,7 @@ Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 }
 
 Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
-
+	this->alive[write_t] = true;
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
 
@@ -138,7 +138,7 @@ Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 }
 
 NP::NP(Patch* patchPtr) : Cell(patchPtr) {
-
+	this->alive[write_t] = true;
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
 
@@ -241,21 +241,21 @@ void Cell::cellFunction() {
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			cout << "Calling stem cell functions" << endl;
+			//cout << "Calling stem cell functions" << endl;
 			tmp->Stem::stem_cellFunction();
 		} else if (typeid(*this) == typeid(Progen)) {
 			Progen* tmp = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			cout << "Calling pre-NP cell functions" << endl;
+			//cout << "Calling pre-NP cell functions" << endl;
 			tmp->Progen::progen_cellFunction();
 		} else if (typeid(*this) == typeid(NP)) {
 			NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
 			if (tmp == nullptr) {
 				cout << "Casting Failed" << endl;
 			}
-			cout << "Calling NP cell functions" << endl;
+			//cout << "Calling NP cell functions" << endl;
 			tmp->NP::NP_cellFunction();
 		}
 	}
