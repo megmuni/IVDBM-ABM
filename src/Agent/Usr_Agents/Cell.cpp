@@ -695,7 +695,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif  
 					this->hatchnewcell(1, stem);
-					cout << "growing new stem cell" << endl;
+					//cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
 				}
@@ -737,7 +737,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif
 					this->hatchnewcell(1, stem);
-					cout << "growing new stem cell" << endl;
+					//cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
 				}
@@ -934,7 +934,7 @@ void Progen::progen_cellFunction() {
 				if (rollDice(progenProlif)) {
 #endif  
 					this->hatchnewcell(1, progen);
-					cout << "growing new pre-np cell" << endl;
+					//cout << "growing new pre-np cell" << endl;
 					//this->die();
 					return;
 				}
@@ -963,7 +963,7 @@ void Progen::progen_cellFunction() {
 			if (rollDice(progenProlif)) {
 #endif
 				this->hatchnewcell(1, progen);
-				cout << "growing new pre-np cell" << endl;
+				//cout << "growing new pre-np cell" << endl;
 				//this->die();
 				return;
 			}
