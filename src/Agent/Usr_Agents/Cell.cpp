@@ -162,13 +162,13 @@ Cell::Cell(int x, int y, int z) {
 	this->index[write_t] = x + y*nx + z*nx*ny;
 	this->alive[write_t] = true;
 
-	#ifndef MODEL_SCAFFOLD
-		// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
-		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand()%12);
-		else this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
-	#else
-		this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
-	#endif
+	//#ifndef MODEL_SCAFFOLD
+	//	// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
+	//	if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand()%12);
+	//	else this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
+	//#else
+	//	this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
+	//#endif
 
 	this->activate[write_t] = false;
 	this->color[write_t] = ccell;
@@ -463,30 +463,30 @@ void NP::NP_cellFunction() {
 		/* -------------------------------------------------------------------------- */
 
 		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
-#ifdef MODEL_SCAFFOLD
-#ifdef CALIBRATION
-		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-#else
-		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-#endif
-			if (rollDice(100 - Agent::viabilityRate)) {
-				this->die();
-				return;
-			}
-		}
-#endif
+//#ifdef MODEL_SCAFFOLD
+//#ifdef CALIBRATION
+//		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//#else
+//		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//#endif
+//			if (rollDice(100 - Agent::viabilityRate)) {
+//				this->die();
+//				return;
+//			}
+//		}
+//#endif
 
-#ifdef CALIBRATION
-		if (rollDice(0.01)) {
-			this->die();
-			return;
-		}
-#else
-		if (rollDice(0.01)) { // from Netlogo model
-			this->die();
-			return;
-		}
-#endif
+//#ifdef CALIBRATION
+//		if (rollDice(0.01)) {
+//			this->die();
+//			return;
+//		}
+//#else
+//		if (rollDice(0.01)) { // from Netlogo model
+//			this->die();
+//			return;
+//		}
+//#endif
 
 		// Unactivated chondrocytes can die naturally:
 		//this->life[write_t] = this->life[read_t] - 1;
@@ -663,8 +663,10 @@ void Stem::stem_cellFunction() {
 		
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
+			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
 			if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
 #else 
+			//if ((this->life[read_t] / 2) % 24 == 0) {
 			if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif 
 				float meanTNF = this->meanNeighborChem(TNF);
@@ -686,7 +688,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 0.5; //testing
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -703,10 +705,12 @@ void Stem::stem_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
+			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
 			if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
-#else  
+#else 
+			//if ((this->life[read_t] / 2) % 24 == 0) {
 			if (fmod((float)this->life[read_t] / 2, 24) == 0) {
-#endif  
+#endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
 				float meanIL1 = this->meanNeighborChem(IL1beta);
@@ -726,7 +730,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 0.5; //testing
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -746,7 +750,7 @@ void Stem::stem_cellFunction() {
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours of cell's life
+			if (fmod((float)this->life[read_t] / 2, 48) == 0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
@@ -910,9 +914,11 @@ void Progen::progen_cellFunction() {
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
-		if (fmod((float)this->life[read_t]/2, Progen::proliferation[0]) == 0) { // proliferation attempt every 24 hours of cell's life
+		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
+		if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
 #else 
-		if (fmod((float)this->life[read_t]/2, 24) == 0) {
+		//if ((this->life[read_t] / 2) % 24 == 0) {
+		if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif 
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -921,7 +927,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 0.5; //testing
+			float progenProlif = 50; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -937,8 +943,10 @@ void Progen::progen_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-		if (fmod((float)this->life[read_t] / 2, Progen::proliferation[0]) == 0) {
-#else  
+		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
+		if (fmod((float)this->life[read_t] / 2, Stem::proliferation[1]) == 0) {
+#else 
+		//if ((this->life[read_t] / 2) % 24 == 0) {
 		if (fmod((float)this->life[read_t] / 2, 24) == 0) {
 #endif  
 			float meanTNF = this->meanNeighborChem(TNF);
@@ -948,7 +956,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 0.5; //testing
+			float progenProlif = 50; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -967,7 +975,7 @@ void Progen::progen_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (fmod((float)this->life[read_t] / 2, 48 == 0)) { // differentiation attempted every 48 hours
+		if (fmod((float)this->life[read_t] / 2, 48) == 0) { // differentiation attempted every 48 hours
 			//cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
 		}
