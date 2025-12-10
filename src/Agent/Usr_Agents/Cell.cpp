@@ -688,7 +688,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 50; //testing
+				float stemProlif = 80; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -730,7 +730,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 50; //testing
+				float stemProlif = 80; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -927,7 +927,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 50; //testing
+			float progenProlif = 80; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -956,7 +956,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 50; //testing
+			float progenProlif = 80; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
