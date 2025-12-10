@@ -175,6 +175,18 @@ class Cell: public Agent {
      */
     //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
 
+    /*
+    * Description:	Hatches a new cell on 'number' unoccupied neighbors.
+    *              Does not update numOfCells; this must be done elsewhere.
+    *
+    * Return: void
+    *
+    * Parameters: number    -- Number of new cells to hatch
+    *             agentType -- Type of agent/cell to hatch
+    *             here      -- Whether to hatch on neighboring patches (default 0) or current patch (1)
+    */
+    virtual void hatchnewcell(int number, int agentType, int here = 0);
+
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */

@@ -25,7 +25,7 @@ float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // th
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
-float Stem::apoptosisChance = 1;
+float Stem::apoptosisChance = 0.01;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
@@ -39,7 +39,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 1;
+float Progen::apoptosisChance = 0.01;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
@@ -326,7 +326,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
 				if (rollDice(25 + cellProlif / 2)) {
 #endif	
-					this->Agent::hatchnewcell(1, np);
+					this->hatchnewcell(1, np);
 					//this->die();
 					return;
 				}
@@ -365,7 +365,7 @@ void NP::NP_cellFunction() {
 				float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 				if (rollDice(25 + cellProlif / 2)) {
 #endif 
-					this->Agent::hatchnewcell(1, np);
+					this->hatchnewcell(1, np);
 					//this->die();
 					return;
 				}
@@ -477,20 +477,20 @@ void NP::NP_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-		if (rollDice(5)) {
+		if (rollDice(0.01)) {
 			this->die();
 			return;
 		}
 #else
-		if (rollDice(0.05)) { // from Netlogo model
+		if (rollDice(0.01)) { // from Netlogo model
 			this->die();
 			return;
 		}
 #endif
 
 		// Unactivated chondrocytes can die naturally:
-		this->life[write_t] = this->life[read_t] - 1;
-		if (this->life[read_t] <= 0) this->die();
+		//this->life[write_t] = this->life[read_t] - 1;
+		//if (this->life[read_t] <= 0) this->die();
 
 		// last thing to do: increase age + 1 tick 
 		if (this->life[read_t] >= 0) {
@@ -686,13 +686,14 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 50; //testing
+				float stemProlif = 0.5; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 				if (rollDice(stemProlif)) {
 #endif  
-					this->Agent::hatchnewcell(1, stem);
+					this->hatchnewcell(1, stem);
+					cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
 				}
@@ -725,13 +726,14 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 50; //testing
+				float stemProlif = 0.5; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 				if (rollDice(stemProlif)) {
 #endif
-					this->Agent::hatchnewcell(1, stem);
+					this->hatchnewcell(1, stem);
+					cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
 				}
@@ -872,22 +874,22 @@ void Stem::stem_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
-	#ifdef CALIBRATION
-		if (rollDice(Stem::apoptosisChance)) {
-			this->die();
-			return;
-		}
-	#else
-		if (rollDice(1)) { // from Netlogo model
-			this->die();
-			return;
-		}
-	#endif
+	//#ifdef CALIBRATION
+	//	if (rollDice(Stem::apoptosisChance)) {
+	//		this->die();
+	//		return;
+	//	}
+	//#else
+	//	if (rollDice(1)) { // from Netlogo model
+	//		this->die();
+	//		return;
+	//	}
+	//#endif
     	// Activated chondrocytes can die naturally:
-		this->life[write_t] = this->life[read_t] - 1;
-		if (this->life[read_t] <= 0) {
-			this->die();
-		}
+		//this->life[write_t] = this->life[read_t] - 1;
+		//if (this->life[read_t] <= 0) {
+		//	this->die();
+		//}
 
 		// last thing to do: increase age + 1 tick 
 		if (this->life[read_t] >= 0) {
@@ -919,15 +921,16 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 50; //testing
+			float progenProlif = 0.5; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
 #endif  
-					this->Agent::hatchnewcell(1, progen);
+					this->hatchnewcell(1, progen);
+					cout << "growing new pre-np cell" << endl;
 					//this->die();
-						return;
+					return;
 				}
 			}
 			} else {
@@ -945,13 +948,14 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 50; //testing
+			float progenProlif = 0.5; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 			if (rollDice(progenProlif)) {
 #endif
-				this->Agent::hatchnewcell(1, progen);
+				this->hatchnewcell(1, progen);
+				cout << "growing new pre-np cell" << endl;
 				//this->die();
 				return;
 			}
@@ -1029,7 +1033,7 @@ void Progen::progen_cellFunction() {
 	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
 	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
-	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (2.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (0.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
 	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
 	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
@@ -1051,22 +1055,22 @@ void Progen::progen_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
-#ifdef CALIBRATION
-	if (rollDice(Progen::apoptosisChance)) {
-		this->die();
-		return;
-	}
-#else
-	if (rollDice(0.1)) { // from Netlogo model
-		this->die();
-		return;
-	}
-#endif
+//#ifdef CALIBRATION
+//	if (rollDice(Progen::apoptosisChance)) {
+//		this->die();
+//		return;
+//	}
+//#else
+//	if (rollDice(0.1)) { // from Netlogo model
+//		this->die();
+//		return;
+//	}
+//#endif
 	// can die naturally:
-	this->life[write_t] = this->life[read_t] - 1;
-	if (this->life[read_t] <= 0) {
-		this->die();
-	}
+	//this->life[write_t] = this->life[read_t] - 1;
+	//if (this->life[read_t] <= 0) {
+	//	this->die();
+	//}
 
 	// last thing to do: increase age + 1 tick 
 	if (this->life[read_t] >= 0) {
@@ -1338,6 +1342,97 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 //			}
 //}
 
+void Cell::hatchnewcell(int number, int agentType, int here) {
+	int newcells = 0;
+	int lx = 0;
+	int ly = 0;
+	int lz = 0;
+	int in = 0;
+
+	// Location of cell in x,y,z dimensions of the world
+	int x = this->ix[read_t];
+	int y = this->iy[read_t];
+	int z = this->iz[read_t];
+
+	// Number of patches in x,y,z dimensions of world
+	int nx = Agent::nx;
+	int ny = Agent::ny;
+	int nz = Agent::nz;
+
+	// Shuffle neighboring patches and go through them in a random order:
+#ifdef MODEL_3D
+	random_shuffle(&Agent::neighbor[0], &Agent::neighbor[26]);
+	for (int i = 0; i < 27 && newcells < number; i++) {
+#else
+	random_shuffle(&Agent::neighbor[0], &Agent::neighbor[7]);
+	for (int i = 0; i < 8 && newcells < number; i++) {
+#endif
+		if (here == 0) { // Default option; hatching on number of neighboring patches
+			// Distance away from target neighboring patch in x,y,z dimensions
+			int dx = Agent::dX[neighbor[i]];
+			int dy = Agent::dY[neighbor[i]];
+			int dz = Agent::dZ[neighbor[i]];
+
+			// Patch row major index of target neighboring patch:
+			in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
+
+			// Hatching coordinates:
+			int lx = x + dx;
+			int ly = y + dy;
+			int lz = z + dz;
+
+			// Try a new target neighboring patch if this one is not inside the world dimensions, or is occupied.
+			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+			int targetType = agentPatchPtr[in].type[read_t];
+		}
+		else { // here == 1; option to hatch a new cell on current patch
+			in = this->getIndex();
+
+			// Hatching coordinates:
+			int lx = x;
+			int ly = y;
+			int lz = z;
+		}
+		// Create a new cell of agentType at the valid target neighboring patch:
+		Cell* newcell = nullptr;
+		switch (agentType) {
+		case stem:
+		{
+			newcell = new Stem(lx, ly, lz);
+		}
+		break;
+		case progen:
+		{
+			newcell = new Progen(lx, ly, lz);
+		}
+		break;
+		case np:
+		{
+			newcell = new NP(lx, ly, lz);
+		}
+		break;
+		}
+		newcells++;
+
+		// Update target neighboring patch as occupied:
+		Agent::agentPatchPtr[in].setOccupied();
+		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType;
+
+		/* If executing OMP version, add the pointer to this new cell to the thread-local list first.
+	* WHWorld::UpdateCells() will take care of putting it in the global list at the end
+	*/
+#ifdef _OMP
+		int tid = omp_get_thread_num();
+		Agent::agentWorldPtr->localNewCells[tid]->push_back(newcell);
+#else
+	// If executing serial version, add the pointer to this new cell to the global list right away
+		Agent::agentWorldPtr->cells.addData(newcell, DEFAULT_TID);
+#endif
+		newcell->wiggle();
+	}
+}
+
+
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
 
@@ -1350,7 +1445,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	float stemDiff = 50; //testing
 	if (rollDice(stemDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
-			Agent::hatchnewcell(number, agentType); // only create new progenitor cell nearby
+			this->hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
 			//Stem* temp = this;
@@ -1359,8 +1454,8 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			//	cout << "Casting Failed" << endl;
 			//}
 			this->die(); // 'kill' current cell
-			Agent::hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
-			Agent::hatchnewcell(number, agentType); // create new progenitor cell nearby
+			this->hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
+			this->hatchnewcell(number, agentType); // create new progenitor cell nearby
 		}
 	}
 }
@@ -1370,7 +1465,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 
 	int in = this->index[read_t];
 	if (rollDice(70)) { // asymmetric differentiation
-		Agent::hatchnewcell(number, agentType); // only create new NP cell nearby
+		this->hatchnewcell(number, agentType); // only create new NP cell nearby
 	}
 	else { // symmetric differentiation
 		//Progen* temp = this;
@@ -1382,7 +1477,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		//	cout << "Casting Successful" << endl;
 		//}
 		this->die(); // 'kill' current cell
-		Agent::hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
-		Agent::hatchnewcell(number, agentType); // create new NP cell nearby
+		this->hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
+		this->hatchnewcell(number, agentType); // create new NP cell nearby
 	}
 }
