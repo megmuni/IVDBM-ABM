@@ -430,11 +430,11 @@ void Agent::wiggle() {
 		// If the z-direction movement is invalid, pick a new neighbor
 		if (z + dz < 0 || z + dz >= nz) continue;
 
-		// If trying to move off the side boundaries, die:
+		// If trying to move off the side boundaries, die: //NOTE by MM: why? why not just count it as an invalid movement?
 		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny) {
-			this->life[write_t] = 0;
-			this->die();
-			return;
+			//this->life[write_t] = 0;
+			//this->die();
+			continue;
 		}
 
 		// If the target patch is occupied, pick a new neighbor
