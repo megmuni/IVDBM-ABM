@@ -2741,7 +2741,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 		if (in < 0 || in > (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny) continue;
 			switch (agentType) {
 				case stem: {
-					cout << "new stem added" << endl; //added for debugging
+					//cout << "new stem added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
 					Stem* newStem = new Stem(tempPatchPtr);
 					#ifdef _OMP
@@ -2767,7 +2767,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 					break;
       			}
 				case progen: {
-					cout << "new progen added" << endl; //added for debugging
+					//cout << "new progen added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
 					Progen* newProgen = new Progen(tempPatchPtr);
 					#ifdef _OMP
@@ -2792,7 +2792,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 					break;
 				}
 				case np: {
-					cout << "new np added" << endl; //added for debugging
+					//cout << "new np added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
 					NP* newNP = new NP(tempPatchPtr);
 					#ifdef _OMP
