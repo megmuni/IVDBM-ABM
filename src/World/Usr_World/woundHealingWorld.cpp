@@ -3451,8 +3451,8 @@ void WHWorld::outputWorld_csv() {
 
 	//deadCells = deadCells + deletedCells;
 	//deadCells = deadCells + (prevCells - cells.actualSize());
-	x = deadCells + (prevCells - cells.actualSize());
-	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+	x = prevCells - liveCells;
+	cellViability = (static_cast<float>(liveCells) / (liveCells + (deadCells + x)) * 100;
 
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
