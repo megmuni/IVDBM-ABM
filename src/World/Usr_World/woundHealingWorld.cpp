@@ -2601,10 +2601,10 @@ void WHWorld::updatePatches() {
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
 void WHWorld::updateCells() {
-	if (WHWorld::clock == 1) {
+	if (WHWorld::clock == 0) {
 		prevCells = this->initialCells[0];
 	}
-	else if (WHWorld::clock > 1) {
+	else if (WHWorld::clock > 0) {
 		prevCells = cells.actualSize();
 	}
 	cout << " previous tick's cells " << prevCells << endl;
@@ -3451,7 +3451,7 @@ void WHWorld::outputWorld_csv() {
 
 	//deadCells = deadCells + deletedCells;
 	//deadCells = deadCells + (prevCells - cells.actualSize());
-	x = deadCells + (prevCells - liveCells);
+	x = deadCells + (prevCells - cells.actualSize());
 	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
 
 	this->countPatchType(damage);
