@@ -40,7 +40,7 @@ enum color_t {
   cnp = 80,
 
   ccollagen = 139,
-  caggrecan = 14,  
+  caggrecan = 129,  
   
   cfcollagen = 0,
   cfaggrecan = 0,
