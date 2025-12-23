@@ -2624,6 +2624,10 @@ void WHWorld::updateCells() {
 		if (!cell) continue;  // cell was deleted
 		cell->updateAgent();
 		
+		if (cell->isRealDead() == true) {
+			dcells++;
+		}
+
 		if (cell->isAlive() == true) {
 			liveCells++;
 			// Update cell stage counts
@@ -2655,20 +2659,17 @@ void WHWorld::updateCells() {
 			else if (typeid(*cell) == typeid(NP)) {
 				NP::numOfNP--;
 			}
-			if (cell->isRealDead() == true) {
-				dcells++;
-			}
 			cells.deleteData(i, tid);
 			delete cell;
 			deletedCells++;
-			deadCells += dcells;
 		}
 	}
+	deadCells += dcells;
 	Cell::numOfCells = cells.actualSize();
-	cout << " number of dead cells " << dcells << endl;
+	cout << " number of dead cells in this tick " << dcells << endl;
 	//cout << " number of cells now = " << cells.actualSize() << endl;
 	cout << " total number of dead cells " << deadCells << endl;
-	//cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
+	cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + dcells)) * 100 << "%" << endl;
 
 	// Add new cells
 	#ifdef _OMP
@@ -3390,7 +3391,7 @@ void WHWorld::outputWorld_csv() {
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)"<< ", Viability Rate(%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)"<< ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
         output_file.close();
 	}
 
@@ -3407,6 +3408,7 @@ void WHWorld::outputWorld_csv() {
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
 	int alive = 0; int dead = 0;
 	float cellViability = 0;
+	float perDiff = 0; // percent of NP cells out of total cells at a given tick
 	int x = 0;
 
 	int cellsSize = cells.size();
@@ -3453,6 +3455,7 @@ void WHWorld::outputWorld_csv() {
 	//	}
 	//}
 	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+	perDiff = (static_cast<float>(npSize) / cells.actualSize()) * 100;
 
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
@@ -3467,7 +3470,7 @@ void WHWorld::outputWorld_csv() {
 	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << deadCells << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << endl;
+		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << endl;
 	#else
 		output_file  << endl;
 	#endif
