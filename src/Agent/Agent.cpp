@@ -56,6 +56,10 @@ bool Agent::isAlive() {
 	return this->alive[read_t];
 } 
 
+bool Agent::isRealDead() {
+	return this->realDeath[read_t];
+}
+
 void Agent::cellFunction() {}
 void Agent::copyAndInitialize(Agent* original, int dx, int dy, int dz) {}
 void die() {}
@@ -677,4 +681,5 @@ void Agent::updateAgent() {
 	this->color[read_t] = this->color[write_t];
 	this->size[read_t]  = this->size[write_t];
 	this->type[read_t]  = this->type[write_t];
+	this->realDeath[read_t] = this->realDeath[write_t];
 }

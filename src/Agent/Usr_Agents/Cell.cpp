@@ -470,6 +470,7 @@ void NP::NP_cellFunction() {
 		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #endif
 			if (rollDice(100 - Agent::viabilityRate)) {
+				this->realDeath[write_t] = true;
 				this->die();
 				return;
 			}
@@ -880,6 +881,7 @@ void Stem::stem_cellFunction() {
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
 	#ifdef CALIBRATION
 		if (rollDice(Stem::apoptosisChance)) {
+			this->realDeath[write_t] = true;
 			this->die();
 			return;
 		}
@@ -1065,6 +1067,7 @@ void Progen::progen_cellFunction() {
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
 #ifdef CALIBRATION
 	if (rollDice(Progen::apoptosisChance)) {
+		this->realDeath[write_t] = true;
 		this->die();
 		return;
 	}

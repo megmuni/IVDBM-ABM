@@ -62,6 +62,15 @@ class Agent {
     bool isAlive();
 
     /*
+     * Description:	Determines whether an agent is actually naturally dead (this->realDeath) for counting purposes.
+     * Added by MM, 2025.
+     * 
+     * Return: True if the agent is alive, false otherwise.
+     * Parameters: void
+     */
+    bool isRealDead();
+
+    /*
      * Description:	Determines the location of the agent in the x, y, z dimensions of the world.
      *
      * Return: x-coordinate of agent
@@ -280,6 +289,7 @@ class Agent {
     int ix[2],iy[2],iz[2];  // Agent position in x,y,z dimensions at the beginning and end of each tick
     int index[2];           // Patch row major index for agent at the beginning and end of each tick
     bool alive[2];          // Life status of agent at the beginning and end of each tick
+    bool realDeath[2];      // Tracking of true cell death (not false death for replacement/differentiation of cell)
 };
 
 #endif	/* AGENT_H */
