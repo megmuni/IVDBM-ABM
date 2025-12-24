@@ -2666,12 +2666,18 @@ void WHWorld::updateCells() {
 		//}
 
 		//deadCells += dcells;
-		deadCells += prevCells - cells.actualSize();
+		if (prevCells - cells.actualSize() >= 0) {
+			deadCells += prevCells - cells.actualSize();
+		}
+		else if (prevCells - cells.actualSize() < 0) {
+			deadCells += 0;
+		}
+		//deadCells += prevCells - cells.actualSize();
 		Cell::numOfCells = cells.actualSize();
 		cout << " number of dead cells in this tick " << prevCells - cells.actualSize() << endl;
 		cout << " number of cells now = " << cells.actualSize() << endl;
 		cout << " total number of dead cells " << deadCells << endl;
-		cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + (prevCells - cells.actualSize()))) * 100 << "%" << endl;
+		cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + deadCells)) * 100 << "%" << endl;
 
 	// Add new cells
 	#ifdef _OMP
