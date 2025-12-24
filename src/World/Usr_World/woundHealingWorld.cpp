@@ -2601,12 +2601,6 @@ void WHWorld::updatePatches() {
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
 void WHWorld::updateCells() {
-	if (WHWorld::clock == 0) {
-		prevCells = this->initialCells[0];
-	}
-	else if (WHWorld::clock > 0) {
-		prevCells = cells.actualSize();
-	}
 	cout << " previous tick's cells " << prevCells << endl;
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
@@ -2664,12 +2658,20 @@ void WHWorld::updateCells() {
 			deletedCells++;
 		}
 	}
-	deadCells += dcells;
-	Cell::numOfCells = cells.actualSize();
-	cout << " number of dead cells in this tick " << dcells << endl;
-	//cout << " number of cells now = " << cells.actualSize() << endl;
-	cout << " total number of dead cells " << deadCells << endl;
-	cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + dcells)) * 100 << "%" << endl;
+		if (WHWorld::clock == 0) {
+			prevCells = this->initialCells[0];
+		}
+		else if (WHWorld::clock > 0) {
+			prevCells = liveCells;
+		}
+
+		//deadCells += dcells;
+		deadCells += prevCells - cells.actualSize()
+		Cell::numOfCells = cells.actualSize();
+		cout << " number of dead cells in this tick " << prevCells - cells.actualSize() << endl;
+		//cout << " number of cells now = " << cells.actualSize() << endl;
+		cout << " total number of dead cells " << deadCells << endl;
+		cout << " cell viability " << std::setprecision(3) << (liveCells / (liveCells + (prevCells - cells.actualSize()))) * 100 << "%" << endl;
 
 	// Add new cells
 	#ifdef _OMP
@@ -3454,7 +3456,7 @@ void WHWorld::outputWorld_csv() {
 	//		dead++;
 	//	}
 	//}
-	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+	cellViability = (static_cast<float>(liveCells) / (liveCells + (prevCells - cells.actualSize()))) * 100;
 	perDiff = (static_cast<float>(npSize) / cells.actualSize()) * 100;
 
 	this->countPatchType(damage);
