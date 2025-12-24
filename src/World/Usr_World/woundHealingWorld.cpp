@@ -3481,7 +3481,7 @@ void WHWorld::outputWorld_csv() {
 	cout << " Collagen: " << new_coll << endl;
 	cout << " Aggrecan: " << new_agg << endl;
 
-	prevCells = cells.actualSize()
+	prevCells = cells.actualSize();
 
 }
 
