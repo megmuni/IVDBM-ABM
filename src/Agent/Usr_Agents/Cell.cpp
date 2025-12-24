@@ -347,7 +347,7 @@ void NP::NP_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-			if (fmod((float)hours, Cell::proliferation[0]) == 0) {
+			if (fmod((float)hours, Cell::proliferation[0]) == 0.0) {
 #else  
 			if (fmod(hours, 24) == 0) {
 #endif  
@@ -426,9 +426,9 @@ void NP::NP_cellFunction() {
 
 		// Makes collagen and aggrecan every 12 hours.
 #ifdef CALIBRATION
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
 #else 
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
 #endif
 
 #ifdef MODEL_SCAFFOLD
@@ -675,10 +675,10 @@ void Stem::stem_cellFunction() {
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
 			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
-			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0) {
+			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0) {
+			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -717,10 +717,10 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
-			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0) {
+			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0) {
+			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
 				float meanTNF = this->meanNeighborChem(TNF);
 				float meanTGF = this->meanNeighborChem(TGF);
@@ -761,7 +761,7 @@ void Stem::stem_cellFunction() {
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (fmod(((float)this->life[read_t] / 2), 48) == 0) { // differentiation attempted every 48 hours of cell's life
+			if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
 			}
@@ -927,10 +927,10 @@ void Progen::progen_cellFunction() {
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
 		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
-		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0) {
+		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0) {
+		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -956,10 +956,10 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
-		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0) {
+		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0) {
+		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif  
 			float meanTNF = this->meanNeighborChem(TNF);
 			float meanTGF = this->meanNeighborChem(TGF);
@@ -987,7 +987,7 @@ void Progen::progen_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (fmod(((float)this->life[read_t] / 2), 48) == 0) { // differentiation attempted every 48 hours
+		if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
 			//cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
 		}
@@ -1020,9 +1020,9 @@ void Progen::progen_cellFunction() {
 
 	// Makes  aggrecan every 12 hours.
 #ifdef CALIBRATION
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
 #else 
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
 #endif
 
 #ifdef MODEL_SCAFFOLD
