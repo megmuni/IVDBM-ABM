@@ -1953,7 +1953,7 @@ void WHWorld::initializeCells() {
         0,                      //  -- front
         nz                      //  -- rear
 	);
-	prevCells = this->initialCells[0];
+	//prevCells = this->initialCells[0];
 	//cout << "Finished initializing cells" << endl;
 }
 
@@ -2194,6 +2194,7 @@ void WHWorld::runCells() {
 		Cell* cell = cells.getDataAt(i);
 		if (!cell) continue;
 		cell->cellFunction();
+		prevCells++;
 	}
 }
 
@@ -2600,7 +2601,7 @@ void WHWorld::updatePatches() {
  * 2. Remove all dead cells
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
-void WHWorld::updateCells() {
+void WHWorld::updateCells() { 
 	cout << " previous tick's cells " << prevCells << endl;
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
@@ -2658,12 +2659,12 @@ void WHWorld::updateCells() {
 			deletedCells++;
 		}
 	}
-		if (WHWorld::clock == 0) {
-			prevCells = this->initialCells[0];
-		}
-		else if (WHWorld::clock > 0) {
-			prevCells = liveCells;
-		}
+		//if (WHWorld::clock == 0) {
+		//	prevCells = this->initialCells[0];
+		//}
+		//else if (WHWorld::clock > 0) {
+		//	prevCells = liveCells;
+		//}
 
 		//deadCells += dcells;
 		deadCells += prevCells - cells.actualSize();
