@@ -2666,7 +2666,7 @@ void WHWorld::updateCells() {
 		}
 
 		//deadCells += dcells;
-		deadCells += prevCells - cells.actualSize()
+		deadCells += prevCells - cells.actualSize();
 		Cell::numOfCells = cells.actualSize();
 		cout << " number of dead cells in this tick " << prevCells - cells.actualSize() << endl;
 		//cout << " number of cells now = " << cells.actualSize() << endl;
