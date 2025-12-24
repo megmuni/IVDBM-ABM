@@ -25,7 +25,7 @@ float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // th
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
-float Stem::apoptosisChance = 1;
+float Stem::apoptosisChance = 0.5;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
@@ -39,7 +39,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 1;
+float Progen::apoptosisChance = 0.5;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
@@ -93,6 +93,7 @@ Cell::Cell(Patch* patchPtr) {
 	this->iz[write_t] = patchPtr->indice[2];
 	this->index[write_t] = patchPtr->index;
 	this->alive[write_t] = true;
+	this->realDeath[write_t] = false;
 
 	this->activate[write_t] = false;
 	//this->color[write_t] = ccell;
@@ -121,6 +122,7 @@ Cell::Cell(Patch* patchPtr) {
 
 Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
+	this->realDeath[write_t] = false;
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
 
@@ -130,6 +132,7 @@ Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 
 Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
+	this->realDeath[write_t] = false;
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
 
@@ -139,6 +142,7 @@ Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 
 NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
+	this->realDeath[write_t] = false;
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
 
@@ -161,6 +165,7 @@ Cell::Cell(int x, int y, int z) {
 	this->iz[write_t] = z;
 	this->index[write_t] = x + y*nx + z*nx*ny;
 	this->alive[write_t] = true;
+	this->realDeath[write_t] = false;
 
 	//#ifndef MODEL_SCAFFOLD
 	//	// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
