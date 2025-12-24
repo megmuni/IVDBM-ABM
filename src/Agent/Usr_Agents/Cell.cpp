@@ -95,6 +95,7 @@ Cell::Cell(Patch* patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
 
+
 	this->activate[write_t] = false;
 	//this->color[write_t] = ccell;
 	this->size[write_t] = 2;
@@ -113,6 +114,7 @@ Cell::Cell(Patch* patchPtr) {
 		this->alive[read_t] = false;
 		this->life[read_t] = 0;
 	#endif
+	this->life[write_t] = 0;
 	
 	this->activate[read_t] = false;
 	//this->color[read_t] = ccell;
@@ -154,7 +156,8 @@ NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand() % 12);
 		else this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
 	#else
-		this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+		//this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+	this->life[write_t] = 0;
 	#endif
 }
 
@@ -174,6 +177,8 @@ Cell::Cell(int x, int y, int z) {
 	//#else
 	//	this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
 	//#endif
+
+	this->life[write_t] = 0;
 
 	this->activate[write_t] = false;
 	this->color[write_t] = ccell;
