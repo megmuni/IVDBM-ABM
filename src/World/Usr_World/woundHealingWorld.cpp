@@ -2759,6 +2759,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 				case stem: {
 					//cout << "new stem added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
+					//std::shared_ptr<Cell> cell = std::make_shared<Stem>(tempPatchPtr);
 					Stem* newStem = new Stem(tempPatchPtr);
 					#ifdef _OMP
 						int tid = omp_get_thread_num();
@@ -2785,6 +2786,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 				case progen: {
 					//cout << "new progen added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
+					//std::shared_ptr<Cell> cell = std::make_shared<Progen>(tempPatchPtr);
 					Progen* newProgen = new Progen(tempPatchPtr);
 					#ifdef _OMP
 						int tid = omp_get_thread_num();
@@ -2810,6 +2812,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 				case np: {
 					//cout << "new np added" << endl; //added for debugging
 					tempPatchPtr = &(this->worldPatch[in]);
+					//std::shared_ptr<Cell> cell = std::make_shared<NP>(tempPatchPtr);
 					NP* newNP = new NP(tempPatchPtr);
 					#ifdef _OMP
 						int tid = omp_get_thread_num();
@@ -3464,7 +3467,12 @@ void WHWorld::outputWorld_csv() {
 	//	}
 	//}
 	//cellViability = (static_cast<float>(liveCells) / (liveCells + (prevCells - cells.actualSize()))) * 100;
-	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+	if (this->clock == 0) {
+		cellViability = 100.0;
+	}
+	else {
+		cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+	}
 	perDiff = (static_cast<float>(npSize) / cells.actualSize()) * 100;
 
 	this->countPatchType(damage);
