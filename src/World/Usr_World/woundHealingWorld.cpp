@@ -2674,6 +2674,7 @@ void WHWorld::updateCells() {
 		}
 		//deadCells += prevCells - cells.actualSize();
 		Cell::numOfCells = cells.actualSize();
+		//cout << " number of dead cells in this tick " << prevCells - cells.actualSize() << endl;
 		cout << " number of dead cells in this tick " << prevCells - cells.actualSize() << endl;
 		cout << " number of cells now = " << cells.actualSize() << endl;
 		cout << " total number of dead cells " << deadCells << endl;
@@ -3462,7 +3463,8 @@ void WHWorld::outputWorld_csv() {
 	//		dead++;
 	//	}
 	//}
-	cellViability = (static_cast<float>(liveCells) / (liveCells + (prevCells - cells.actualSize()))) * 100;
+	//cellViability = (static_cast<float>(liveCells) / (liveCells + (prevCells - cells.actualSize()))) * 100;
+	cellViability = (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
 	perDiff = (static_cast<float>(npSize) / cells.actualSize()) * 100;
 
 	this->countPatchType(damage);
@@ -3475,7 +3477,7 @@ void WHWorld::outputWorld_csv() {
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 
 	//output_file << af << "," << f+af << ","; //cells
-	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << prevCells - cells.actualSize() << ","; // cell counts
+	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << deadCells << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
 		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << endl;

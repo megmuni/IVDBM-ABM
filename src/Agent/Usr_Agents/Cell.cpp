@@ -481,7 +481,7 @@ void NP::NP_cellFunction() {
 #endif
 			if (rollDice(100 - Agent::viabilityRate)) {
 				this->realDeath[write_t] = true;
-				this->die();
+				//this->die();
 				return;
 			}
 		}
@@ -741,7 +741,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 30; //testing
+				float stemProlif = 50; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -939,7 +939,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 20; //testing
+			float progenProlif = 50; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
