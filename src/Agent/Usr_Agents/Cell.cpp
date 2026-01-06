@@ -1474,6 +1474,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			//if (dp2 == nullptr) {
 			//	cout << "Casting Failed" << endl;
 			//}
+			Agent::agentPatchPtr[in].clearOccupied();
 			this->hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
 			this->hatchnewcell(number, agentType); // create new progenitor cell nearby
 			this->die(); // 'kill' current cell
@@ -1497,6 +1498,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 		//else {
 		//	cout << "Casting Successful" << endl;
 		//}
+		Agent::agentPatchPtr[in].clearOccupied();
 		this->hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
 		this->hatchnewcell(number, agentType); // create new NP cell nearby
 		this->die(); // 'kill' current cell
