@@ -51,7 +51,7 @@ Agent::Agent() {}
 Agent::~Agent() {}
 
 bool Agent::isAlive() {
-	if (this->life[write_t] <= 0) this->alive[write_t] = false;
+	if (this->life[write_t] < 0) this->alive[write_t] = false;
 	else this->alive[write_t] = true;
 	return this->alive[read_t];
 } 
