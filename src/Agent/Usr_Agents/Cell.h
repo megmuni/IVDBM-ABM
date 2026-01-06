@@ -23,6 +23,7 @@ class ECM;
 #include <vector>
 #include <cmath>
 #include <omp.h>
+//#include <memory>
 
 using namespace std;
 
@@ -410,7 +411,7 @@ class NP: public Cell {
        * Return: void
        * Parameters: void
        */                                                                                                
-    void NP_cellFunction(); 
+    void NP_cellFunction();
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
