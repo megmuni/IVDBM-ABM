@@ -699,7 +699,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 30; //testing
+				float stemProlif = 20; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -741,7 +741,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 30; //testing
+				float stemProlif = 20; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -939,7 +939,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 20; //testing
+			float progenProlif = 10; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -968,7 +968,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 20; //testing
+			float progenProlif = 10; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -1463,7 +1463,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 
 	int in = this->index[read_t];
 	//float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
-	float stemDiff = 30; //testing
+	float stemDiff = 10; //testing
 	if (rollDice(stemDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new progenitor cell nearby
@@ -1486,7 +1486,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
 	int in = this->index[read_t];
-	float progenDiff = 30; //testing
+	float progenDiff = 20; //testing
 	if (rollDice(progenDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new NP cell nearby
