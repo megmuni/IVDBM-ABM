@@ -90,7 +90,8 @@ bool Agent::isProliferative(int agentType) {
 		}
 		break;
 	}
-	return;
+	}
+	return false;
 }
 
 void Agent::cellFunction() {}
