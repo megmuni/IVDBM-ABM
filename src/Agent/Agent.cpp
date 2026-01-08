@@ -715,4 +715,5 @@ void Agent::updateAgent() {
 	this->size[read_t]  = this->size[write_t];
 	this->type[read_t]  = this->type[write_t];
 	this->realDeath[read_t] = this->realDeath[write_t];
+	this->doublings[read_t] = this->doublings[write_t];
 }
