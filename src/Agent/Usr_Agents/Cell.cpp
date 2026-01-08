@@ -94,6 +94,7 @@ Cell::Cell(Patch* patchPtr) {
 	this->index[write_t] = patchPtr->index;
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 
 
 	this->activate[write_t] = false;
@@ -125,6 +126,7 @@ Cell::Cell(Patch* patchPtr) {
 Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
 
@@ -135,6 +137,7 @@ Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
 
@@ -145,6 +148,7 @@ Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
 
@@ -169,6 +173,7 @@ Cell::Cell(int x, int y, int z) {
 	this->index[write_t] = x + y*nx + z*nx*ny;
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 
 	//#ifndef MODEL_SCAFFOLD
 	//	// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
@@ -198,6 +203,7 @@ Cell::Cell(int x, int y, int z) {
 		this->color[read_t] = ccell;
 		this->size[read_t] = 2;
 		this->type[read_t] = cell;
+		this->doublings[write_t] = 0;
 	#else
 		this->ix[read_t] = x;
 		this->iy[read_t] = y;
@@ -209,6 +215,7 @@ Cell::Cell(int x, int y, int z) {
 		this->color[read_t] = ccell;
 		this->size[read_t] = 2;
 		this->type[read_t] = cell;
+		this->doublings[write_t] = 0;
 	#endif
 	///* Added by MM to check types of cell stages and add to respective counters: */
 	//if (typeid(*this) == typeid(Stem)) {
