@@ -60,6 +60,40 @@ bool Agent::isRealDead() {
 	return this->realDeath[read_t];
 }
 
+bool Agent::isProliferative(int agentType) {
+	switch (agentType) {
+	case stem: {
+		if (this->doublings[read_t] <= 100) {
+			return true;
+		}
+		else (this->doublings[read_t] > 100) {
+			return false;
+		}
+		break;
+	}
+	case progen: {
+		if (this->doublings[read_t] <= 65) {
+			return true;
+		}
+		else (this->doublings[read_t] > 65) {
+			return false;
+		}
+		break;
+	}
+
+	case np: {
+		if (this->doublings[read_t] <= 27) {
+			return true;
+		}
+		else (this->doublings[read_t] > 27) {
+			return false;
+		}
+		break;
+	}
+	}
+	return false;
+}
+
 void Agent::cellFunction() {}
 void Agent::copyAndInitialize(Agent* original, int dx, int dy, int dz) {}
 void die() {}
@@ -682,4 +716,5 @@ void Agent::updateAgent() {
 	this->size[read_t]  = this->size[write_t];
 	this->type[read_t]  = this->type[write_t];
 	this->realDeath[read_t] = this->realDeath[write_t];
+	this->doublings[read_t] = this->doublings[write_t];
 }

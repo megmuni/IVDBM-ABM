@@ -94,6 +94,7 @@ Cell::Cell(Patch* patchPtr) {
 	this->index[write_t] = patchPtr->index;
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 
 
 	this->activate[write_t] = false;
@@ -125,6 +126,7 @@ Cell::Cell(Patch* patchPtr) {
 Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
 
@@ -135,6 +137,7 @@ Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
 
@@ -145,6 +148,7 @@ Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
 
@@ -169,6 +173,7 @@ Cell::Cell(int x, int y, int z) {
 	this->index[write_t] = x + y*nx + z*nx*ny;
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
+	this->doublings[write_t] = 0;
 
 	//#ifndef MODEL_SCAFFOLD
 	//	// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
@@ -198,6 +203,7 @@ Cell::Cell(int x, int y, int z) {
 		this->color[read_t] = ccell;
 		this->size[read_t] = 2;
 		this->type[read_t] = cell;
+		this->doublings[write_t] = 0;
 	#else
 		this->ix[read_t] = x;
 		this->iy[read_t] = y;
@@ -209,6 +215,7 @@ Cell::Cell(int x, int y, int z) {
 		this->color[read_t] = ccell;
 		this->size[read_t] = 2;
 		this->type[read_t] = cell;
+		this->doublings[write_t] = 0;
 	#endif
 	///* Added by MM to check types of cell stages and add to respective counters: */
 	//if (typeid(*this) == typeid(Stem)) {
@@ -304,7 +311,7 @@ void NP::NP_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
 		in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(np))) {
 
 #ifdef CALIBRATION
 			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
@@ -337,6 +344,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif	
 					this->hatchnewcell(1, np);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
 					//this->die();
 					return;
 				}
@@ -376,6 +384,7 @@ void NP::NP_cellFunction() {
 				if (rollDice(25 + cellProlif / 2)) {
 #endif 
 					this->hatchnewcell(1, np);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
 					//this->die();
 					return;
 				}
@@ -672,7 +681,7 @@ void Stem::stem_cellFunction() {
 		//	cout << "agent patch type is invalid!" << endl;
 		//}
 		
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
 #ifdef CALIBRATION
 			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
 			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
@@ -706,6 +715,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif  
 					this->hatchnewcell(1, stem);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
 					//cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
@@ -748,6 +758,7 @@ void Stem::stem_cellFunction() {
 				if (rollDice(stemProlif)) {
 #endif
 					this->hatchnewcell(1, stem);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
 					//cout << "growing new stem cell" << endl;
 					//this->die();
 					return;
@@ -760,7 +771,7 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
 			if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
 				Stem::differentiateStem(1, progen);
@@ -924,7 +935,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
-	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
 #ifdef CALIBRATION
 		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
 		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
@@ -946,6 +957,7 @@ void Progen::progen_cellFunction() {
 				if (rollDice(progenProlif)) {
 #endif  
 					this->hatchnewcell(1, progen);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
 					//cout << "growing new pre-np cell" << endl;
 					//this->die();
 					return;
@@ -975,6 +987,7 @@ void Progen::progen_cellFunction() {
 			if (rollDice(progenProlif)) {
 #endif
 				this->hatchnewcell(1, progen);
+				this->doublings[write_t] = this->doublings[read_t] + 1;
 				//cout << "growing new pre-np cell" << endl;
 				//this->die();
 				return;
@@ -986,7 +999,7 @@ void Progen::progen_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
-	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
 		if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
 			//cout << "attempting differentiation of pre-np cell" << endl;
 			Progen::differentiateProgen(1, np);
