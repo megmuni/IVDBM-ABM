@@ -683,8 +683,8 @@ void Stem::stem_cellFunction() {
 		
 		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
 #ifdef CALIBRATION
-			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
-			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 			//if ((this->life[read_t] / 2) % 24 == 0) {
 			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
@@ -726,8 +726,8 @@ void Stem::stem_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-			//if ((this->life[read_t] / 2) % Stem::proliferation[1] == 0) {
-			if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 			//if ((this->life[read_t] / 2) % 24 == 0) {
 			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
@@ -937,8 +937,8 @@ void Progen::progen_cellFunction() {
 	in = this->index[read_t];
 	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
 #ifdef CALIBRATION
-		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
-		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 		//if ((this->life[read_t] / 2) % 24 == 0) {
 		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
@@ -967,8 +967,8 @@ void Progen::progen_cellFunction() {
 #endif
 
 #ifdef CALIBRATION
-		//if ((this->life[read_t] / 2) % Progen::proliferation[0] == 0) {
-		if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
 		//if ((this->life[read_t] / 2) % 24 == 0) {
 		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
