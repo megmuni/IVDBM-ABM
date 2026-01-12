@@ -66,7 +66,7 @@ bool Agent::isProliferative(int agentType) {
 		if (this->doublings[read_t] <= 100) {
 			return true;
 		}
-		else (this->doublings[read_t] > 100) {
+		else if (this->doublings[read_t] > 100) {
 			return false;
 		}
 		break;
@@ -75,7 +75,7 @@ bool Agent::isProliferative(int agentType) {
 		if (this->doublings[read_t] <= 65) {
 			return true;
 		}
-		else (this->doublings[read_t] > 65) {
+		else if (this->doublings[read_t] > 65) {
 			return false;
 		}
 		break;
@@ -85,7 +85,7 @@ bool Agent::isProliferative(int agentType) {
 		if (this->doublings[read_t] <= 27) {
 			return true;
 		}
-		else (this->doublings[read_t] > 27) {
+		else if (this->doublings[read_t] > 27) {
 			return false;
 		}
 		break;
