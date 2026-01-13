@@ -2604,6 +2604,7 @@ void WHWorld::updateCells() {
 	cout << " previous tick's cells " << prevCells << endl;
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
+	liveCells = 0;
 	int dcells = 0;
 	deletedCells = 0;
 	#pragma omp parallel for
@@ -3404,7 +3405,7 @@ void WHWorld::outputWorld_csv() {
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)"<< ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
         output_file.close();
 	}
 
