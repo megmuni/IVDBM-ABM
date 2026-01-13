@@ -901,18 +901,20 @@ void Stem::stem_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
-	//#ifdef CALIBRATION
-	//	if (rollDice(Stem::apoptosisChance)) {
-	//		this->realDeath[write_t] = true;
-	//		this->die();
-	//		return;
-	//	}
-	//#else
-	//	if (rollDice(1)) { // from Netlogo model
-	//		this->die();
-	//		return;
-	//	}
-	//#endif
+	#ifdef CALIBRATION
+		if (rollDice(Stem::apoptosisChance)) {
+			if (rollDice(50)) { // further reduce apoptosis chance to 0.5%
+				this->realDeath[write_t] = true;
+				this->die();
+				return;
+			}
+		}
+	#else
+		if (rollDice(1)) { // from Netlogo model
+			this->die();
+			return;
+		}
+	#endif
     	// Activated chondrocytes can die naturally:
 		//this->life[write_t] = this->life[read_t] - 1;
 		//if (this->life[read_t] <= 0) {
@@ -1092,9 +1094,11 @@ void Progen::progen_cellFunction() {
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
 #ifdef CALIBRATION
 	if (rollDice(Progen::apoptosisChance)) {
-		this->realDeath[write_t] = true;
-		this->die();
-		return;
+		if (rollDice(50)) { // further reduce death chance to 0.5%
+			this->realDeath[write_t] = true;
+			this->die();
+			return;
+		}
 	}
 #else
 	if (rollDice(1)) { // from Netlogo model
