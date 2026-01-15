@@ -751,7 +751,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 30; //testing
+				float stemProlif = 20; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -903,7 +903,7 @@ void Stem::stem_cellFunction() {
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
 	#ifdef CALIBRATION
 		if (rollDice(Stem::apoptosisChance)) {
-			if (rollDice(50)) { // further reduce apoptosis chance to 0.5%
+			if (rollDice(10)) { // further reduce apoptosis chance to 0.5%
 				this->realDeath[write_t] = true;
 				this->die();
 				return;
@@ -983,7 +983,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 20; //testing
+			float progenProlif = 10; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -1094,7 +1094,7 @@ void Progen::progen_cellFunction() {
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
 #ifdef CALIBRATION
 	if (rollDice(Progen::apoptosisChance)) {
-		if (rollDice(50)) { // further reduce death chance to 0.5%
+		if (rollDice(10)) { // further reduce death chance to 0.5%
 			this->realDeath[write_t] = true;
 			this->die();
 			return;
@@ -1505,7 +1505,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
 	int in = this->index[read_t];
-	float progenDiff = 60; //testing
+	float progenDiff = 70; //testing
 	if (rollDice(progenDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new NP cell nearby
