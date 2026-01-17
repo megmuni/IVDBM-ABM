@@ -775,7 +775,8 @@ void Stem::stem_cellFunction() {
 			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
-				Stem::differentiateStem(1, progen);
+				this->Stem::differentiateStem(1, progen);
+				this->doublings[write_t] = this->doublings[read_t] + 1;
 			}
 		}
 	#endif
@@ -1006,7 +1007,8 @@ void Progen::progen_cellFunction() {
 		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
 			//cout << "attempting differentiation of pre-np cell" << endl;
-			Progen::differentiateProgen(1, np);
+			this->Progen::differentiateProgen(1, np);
+			this->doublings[write_t] = this->doublings[read_t] + 1;
 		}
 	}
 
