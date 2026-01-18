@@ -831,7 +831,8 @@ void Stem::stem_cellFunction() {
 	//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
 	float patchesVolume = patchVolume * neighborCount;
 
-	Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	//Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	Stem::collagenSynthRate = Stem::CollagenSynth[0];
 	//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
 
 	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
@@ -1035,7 +1036,8 @@ void Progen::progen_cellFunction() {
 	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
 	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	//Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
 
 	// Makes  aggrecan every 12 hours.
 #ifdef CALIBRATION
