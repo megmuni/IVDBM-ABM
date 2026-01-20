@@ -106,15 +106,15 @@ int main(int argc, char** argv) {
 		if (tick % 12 == 0) {
 #ifdef PARAVIEW_RENDERING
 			// Prepare output filenames and output current state of wound healing world:
-			//char simulation[50] = "output/Simulation/5daysimulation_";
+			char simulation[50] = "output/Simulation/Simulation_";
 			char ECMsim[50] = "output/Simulation/ECM_";
 			char chem0Sim[50] = "output/Simulation/chem0_";
 			char extension[10] = ".vtk";
 			char tempNumber[20] = "";
 
 			sprintf(tempNumber, "%d", tick); // %d makes the result be a signed decimal integer
-			//strcat(simulation, tempNumber);
-			//strcat(simulation, extension);
+			strcat(simulation, tempNumber);
+			strcat(simulation, extension);
 			strcat(ECMsim, tempNumber);
 			strcat(ECMsim, extension);
 
