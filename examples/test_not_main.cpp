@@ -103,17 +103,18 @@ int main(int argc, char** argv) {
 
 	for (int tick = 0; tick < numTicks; tick++) {
 		//myWorld.debugInfo(); // debug function
-		#ifdef PARAVIEW_RENDERING
+		if (tick % 12 == 0) {
+#ifdef PARAVIEW_RENDERING
 			// Prepare output filenames and output current state of wound healing world:
-			char simulation[50] = "output/Simulation/5daysimulation_";
+			//char simulation[50] = "output/Simulation/5daysimulation_";
 			char ECMsim[50] = "output/Simulation/ECM_";
 			char chem0Sim[50] = "output/Simulation/chem0_";
 			char extension[10] = ".vtk";
 			char tempNumber[20] = "";
-			
+
 			sprintf(tempNumber, "%d", tick); // %d makes the result be a signed decimal integer
-			strcat(simulation, tempNumber);
-			strcat(simulation, extension);
+			//strcat(simulation, tempNumber);
+			//strcat(simulation, extension);
 			strcat(ECMsim, tempNumber);
 			strcat(ECMsim, extension);
 
@@ -123,27 +124,28 @@ int main(int argc, char** argv) {
 			char pil1[50] = "output/Simulation/il1_";
 			char pcell[50] = "output/Simulation/pcellgrad_";
 
-			sprintf (tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
-			strcat(ptnf, tempNumber); 
-			strcat(ptgf, tempNumber); 
-			strcat(pil1, tempNumber); 
-			strcat(pcell, tempNumber); 
-			
-			strcat(ptnf, extension); 
-			strcat(ptgf, extension); 
-			strcat(pil1, extension); 
+			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
+			strcat(ptnf, tempNumber);
+			strcat(ptgf, tempNumber);
+			strcat(pil1, tempNumber);
+			strcat(pcell, tempNumber);
+
+			strcat(ptnf, extension);
+			strcat(ptgf, extension);
+			strcat(pil1, extension);
 			strcat(pcell, extension);
 
 			outputColor(&myWorld, simulation);
 
-			#ifdef PARAVIEW_ECM_CHEM
-				outputECM(&myWorld, ECMsim);
-				outputChem(&myWorld, ptnf, TNF); 
-				outputChem(&myWorld, ptgf, TGF); 
-				outputChem(&myWorld, pil1, IL1beta);
-				outputChem(&myWorld, pcell, pcellgrad); 
-			#endif
-		#endif
+#ifdef PARAVIEW_ECM_CHEM
+			outputECM(&myWorld, ECMsim);
+			outputChem(&myWorld, ptnf, TNF);
+			outputChem(&myWorld, ptgf, TGF);
+			outputChem(&myWorld, pil1, IL1beta);
+			outputChem(&myWorld, pcell, pcellgrad);
+#endif
+#endif
+		}
 
 		// Run the simulation for 1 tick (30 min):
 		clock_t t1 = clock();
