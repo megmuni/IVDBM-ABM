@@ -103,8 +103,8 @@ int main(int argc, char** argv) {
 
 	for (int tick = 0; tick < numTicks; tick++) {
 		//myWorld.debugInfo(); // debug function
-		if (tick % 12 == 0) {
 #ifdef PARAVIEW_RENDERING
+		if (tick % 12 == 0) {
 			// Prepare output filenames and output current state of wound healing world:
 			char simulation[50] = "output/Simulation/Simulation_";
 			char ECMsim[50] = "output/Simulation/ECM_";
@@ -144,8 +144,8 @@ int main(int argc, char** argv) {
 			outputChem(&myWorld, pil1, IL1beta);
 			outputChem(&myWorld, pcell, pcellgrad);
 #endif
-#endif
 		}
+#endif
 
 		// Run the simulation for 1 tick (30 min):
 		clock_t t1 = clock();
