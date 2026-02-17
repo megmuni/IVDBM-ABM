@@ -1842,24 +1842,28 @@ void printWindow(float* a, int h, int w, int r){
 		this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
 		this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
 		this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
+		this->WHWorldChem.po2 = this->chemAllocation[po2];
 		
 		this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
 		this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
 		this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
+		this->WHWorldChem.do2 = this->chemAllocation[do2];
 		this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
 
 		this->WHWorldChem.tTNF     = this->h_diffusion_results[pTNF];
 		this->WHWorldChem.tTGF     = this->h_diffusion_results[pTGF];
 		this->WHWorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
+		this->WHWorldChem.to2 = this->h_diffusion_results[to2];
 
 		// Initialize chemical concentrations:
 		this->WHWorldChem.totalTNF = 0;
 		this->WHWorldChem.totalTGF = 0;
 		this->WHWorldChem.totalIL1beta = 0;
+		this->WHWorldChem.totalo2 = 0;
 		
 		int countCaAlg = WHWorld::initialCaAlg;
 
-		if (this->baselineChem.size() == 3) {
+		if (this->baselineChem.size() == 4) {
 			for (int iz = 0; iz < this->nz; iz++) {
 			/* Try initializing chemicals with the threads that will access them later since the default allocation policy on Linux platforms is first-touch. 
 			This is a best-effort implementation, since we cannot guarantee size of data accessed per thread to be an integer multiple  of page size. */
@@ -1870,22 +1874,26 @@ void printWindow(float* a, int h, int w, int r){
 						this->WHWorldChem.dTNF[in] = 0;
 						this->WHWorldChem.dTGF[in] = 0;
 						this->WHWorldChem.dIL1beta[in] = 0;
+						this->WHWorldChem.do2[in] = 0;
 
 						// Baseline chemical concentrations are initialized in tissue:
 						if (this->worldPatch[in].type[read_t] == CaAlg) {
 							this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
 							this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
 							this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
+							this->WHWorldChem.po2[in] = this->baselineChem[o2] / countCaAlg;
 						} else {
 							this->WHWorldChem.pTNF[in] = 0;
 							this->WHWorldChem.pTGF[in] = 0;
 							this->WHWorldChem.pIL1beta[in] = 0;
+							this->WHWorldChem.po2[in] = 0;
 						}
 
 						// Initialize chemical gradient levels that agents are attracted by:
 						float patchIL1 = this->WHWorldChem.pIL1beta[in];
 						float patchTNF = this->WHWorldChem.pTNF[in];
 						float patchTGF = this->WHWorldChem.pTGF[in];
+						float patcho2 = this->WHWorldChem.po2[in];
 						float patchcollagen = this->worldECM[in].fcollagen[read_t];
 						//float grad = patchIL1 + patchTNF + patchTGF + patchFGF + patchcollagen;
 						this->WHWorldChem.pcellgrad[in] = patchTGF;
@@ -1896,6 +1904,7 @@ void printWindow(float* a, int h, int w, int r){
 							this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
 							this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
 							this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
+							this->WHWorldChem.totalo2 += this->WHWorldChem.po2[in];
 						}
 					}
 				}
