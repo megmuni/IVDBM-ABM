@@ -60,15 +60,19 @@ class WHChemical: public FieldVariable {
 
     /* The following variables keep track of a patch's cytokine level immediately after the GPU diffusion is performed */
     float *tTNF, *tTGF, *tIL1beta;
+    /* Keeps track of a patch's oxygen level immediately after the GPU diffusion is performed */
+    float *to2;
 
 #endif
 
-    // The following variables keep track of a patch's cytokine levels (pTNF, pTGF,...) and the change in a patch's cytokine levels throughout the current tick (dTNF, dTGF,...):
+    // The following variables keep track of a patch's cytokine levels (pTNF, pTGF,...) and oxygen & the change in these levels throughout the current tick (dTNF, dTGF,...):
     float* pTNF, *dTNF;
     float* pTGF, *dTGF;
     float* pIL1beta, *dIL1beta;
+    float* po2, *do2;
     float *pcellgrad;    // Keep track of the strength of the gradients that attract cells,
     float totalTNF, totalTGF, totalIL1beta;     // Keep track of the total cytokine levels in the world
+    float totalo2; // keep track of total oxygen in the world
 };
 
 #endif	/* WHChemical_H */
