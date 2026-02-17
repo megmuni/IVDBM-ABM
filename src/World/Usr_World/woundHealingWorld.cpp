@@ -3378,10 +3378,18 @@ int WHWorld::userInput() {
 				 	infile >> D;
 				 	this->D[IL1beta] = D;
 				 	cout << "	D_IL1beta: " << D << endl;
-				 } else if (!strcmp(tag, "HL_IL1beta:")) {
-				 	infile >> HL_s;
-				 	this->HalfLifes[IL1beta] = HL_s;
-				 	cout << "	HL_IL1beta: " << HL_s << endl;
+				} else if (!strcmp(tag, "HL_IL1beta:")) {
+					infile >> HL_s;
+					this->HalfLifes[IL1beta] = HL_s;
+					cout << "	HL_IL1beta: " << HL_s << endl;
+				} else if (!strcmp(tag, "D_O2:")) {
+					infile >> D;
+					this->D[o2] = D;
+					cout << "	D_O2: " << D << endl;
+				} else if (!strcmp(tag, "HL_O2:")) {
+					infile >> HL_s;
+					this->HalfLifes[o2] = HL_s;
+					cout << "	HL_O2: " << HL_s << endl;
 				} else  cout << "	invalid tag: " << tag << endl;
 			}
 		} while (0);
