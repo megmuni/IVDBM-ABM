@@ -419,7 +419,7 @@ class WHWorld: public World {
     static float sproutingFrequency[6];   // The number of hours between agent sprouting sessions
     static float sproutingAmount[14];     // Constants related to the number of agents to sprout
     static float cytokineDecay[6];        // The decay rates of the cytokines
-    static float halfLifes_static[6];     // The half lifes of the cytokines in minutes
+    static float halfLifes_static[3];     // The half lifes of the cytokines in minutes
 
     /* Calibration Variables */
     static float ElasticMod[7];   // Elastic Modulus of Ca-Alg Hydrogel

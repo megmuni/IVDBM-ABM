@@ -1249,8 +1249,8 @@ float WHWorld::prevCells = 0;
 #endif
 
 float WHWorld::thresholdTNFdamage = 10.0; //ng //unused in IVDBM-ABM
-float WHWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5}; // 0.2, 0.2,
-float WHWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
+float WHWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5}; // 0.2, 0.2, // unused in IVDBM-ABM
+float WHWorld::halfLifes_static[3] = {2.5, 150, 30}; // 13, 13,
 
 #ifdef MODEL_SCAFFOLD
 	float WHWorld::ElasticMod[7] = {125, 58, 971, 1.037, 756, 0.516, 0.165}; 
