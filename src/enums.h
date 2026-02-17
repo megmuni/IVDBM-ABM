@@ -56,19 +56,23 @@ enum color_t {
 
 // Types of chemicals:
 enum chemical_t {
-  // p: patch, d: delta (change during the tick)
+// p: patch, d: delta (change during the tick)
   TNF = 0,
   TGF = 1,
   IL1beta = 2,
+  o2 = 3,
 
   pTNF = 0,
   pTGF = 1,
   pIL1beta = 2,
+  po2 = 3,
 
-  dTNF = 3,
-  dTGF = 4,
-  dIL1beta = 5,
-  pcellgrad = 6,
+
+  dTNF = 4,
+  dTGF = 5,
+  dIL1beta = 6,
+  do2 = 7,
+  pcellgrad = 8
 };
 
 // Types of patches:
