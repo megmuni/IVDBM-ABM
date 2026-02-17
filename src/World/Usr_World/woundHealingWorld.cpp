@@ -1536,15 +1536,20 @@ void WHWorld::initializeChemCPU() {
 	this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
 	this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
 	this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
+	this->WHWorldChem.po2 = this->chemAllocation[po2];
+
 	this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
 	this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
 	this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
+	this->WHWorldChem.do2 = this->chemAllocation[do2];
+
 	this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
 
 	// Initialize chemical concentrations:
 	this->WHWorldChem.totalTNF = 0;
 	this->WHWorldChem.totalTGF = 0;
 	this->WHWorldChem.totalIL1beta = 0;
+	this->WHWorldChem.totalo2 = 0;
 		
 	int countCaAlg = this->countPatchType(CaAlg);
 	if (this->baselineChem.size() == 4) {
@@ -1558,22 +1563,26 @@ void WHWorld::initializeChemCPU() {
 					this->WHWorldChem.dTNF[in] = 0;
 					this->WHWorldChem.dTGF[in] = 0;
 					this->WHWorldChem.dIL1beta[in] = 0;
+					this->WHWorldChem.do2[in] = 0;
 
 					// Baseline chemical concentrations are initialized in tissue 
 					if (this->worldPatch[in].type[read_t] == CaAlg) {
 						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
 						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
 						this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
+						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countCaAlg;
 					} else {
 						this->WHWorldChem.pTNF[in] = 0;
 						this->WHWorldChem.pTGF[in] = 0;
 						this->WHWorldChem.pIL1beta[in] = 0;
+						this->WHWorldChem.po2[in] = 0;
 					}
 						
 					// Initialize chemical gradient levels that agents are attracted by 
 					float patchIL1 = this->WHWorldChem.pIL1beta[in];
 					float patchTNF = this->WHWorldChem.pTNF[in];
 					float patchTGF = this->WHWorldChem.pTGF[in];
+					float patcho2 = this->WHWorldChem.po2[in];
 					float patchcollagen = this->worldECM[in].fcollagen[read_t];
 					//float grad = patchTNF + patchTGF + patchcollagen + patchIL1;
 					this->WHWorldChem.pcellgrad[in] = patchTGF;  
@@ -1583,11 +1592,12 @@ void WHWorld::initializeChemCPU() {
 						this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
 						this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
 						this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
+						this->WHWorldChem.totalo2 += this->WHWorldChem.po2[in];
 					}
 				}
 			}
 		}
-		cout << "		Initial cytokine concentrations: totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << endl;
+		cout << "		Initial concentrations: totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << ", totalo2 = " << this->WHWorldChem.totalo2 << endl;
 	} else if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__, __LINE__)) exit(1);
 	//cout << "Finished initializing chem" << endl;
 }
