@@ -25,7 +25,7 @@ float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // th
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
-float Stem::OCR = 104.65; // fmol/h/cell
+float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
 float Stem::apoptosisChance = 0.1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
@@ -40,7 +40,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::OCR = 30.46; // fmol/h/cell
+float Progen::OCR = 30.46 / 2; // fmol/h/cell divided by 2 for /tick
 float Progen::apoptosisChance = 0.1;
 float Progen::aggrecanSynthRate = 1;
 
@@ -52,7 +52,7 @@ float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick
-float NP::OCR = 15.31; // fmol/h/cell
+float NP::OCR = 15.31 / 2; // fmol/h/cell divided by 2 for /tick
 float NP::collagenSynthRate = 1;
 float NP::aggrecanSynthRate = 1.5;
 
