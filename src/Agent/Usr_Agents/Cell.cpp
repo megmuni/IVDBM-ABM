@@ -483,6 +483,17 @@ void NP::NP_cellFunction() {
 			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
 		}
+
+		// Location of agent in x,y,z dimensions of world.
+		int x = this->ix[read_t];
+		int y = this->iy[read_t];
+		int z = this->iz[read_t];
+
+		// Number of patches in x,y,z dimensions of world
+		int nx = Agent::nx;
+		int ny = Agent::ny;
+		int nz = Agent::nz;
+
 		// Finally, subtract 'consumed' O2 from current and neighbor patches
 		float oxDecrease = NP::OCR / 27; // divide OCR across 27 patches (current + neighbors)
 		(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
@@ -1121,6 +1132,17 @@ void Progen::progen_cellFunction() {
 		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
 		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
+
+		// Location of agent in x,y,z dimensions of world.
+		int x = this->ix[read_t];
+		int y = this->iy[read_t];
+		int z = this->iz[read_t];
+
+		// Number of patches in x,y,z dimensions of world
+		int nx = Agent::nx;
+		int ny = Agent::ny;
+		int nz = Agent::nz;
+
 		// Finally, subtract 'consumed' O2 from current and neighbor patches:
 		float oxDecrease = Progen::OCR / 27; // divide OCR across 27 patches (current + neighbors)
 		(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
