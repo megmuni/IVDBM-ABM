@@ -2618,7 +2618,7 @@ void WHWorld::updateO2() {
 	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
 	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
 	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
-	float incrO2 = 0.01 * molO2; // oxygen increment for each patch
+	float incrO2 = 0.01 * (molO2/countBoundary); // oxygen increment for each patch
 
 	// Z faces
 	for (int zi : {0, nz - 1}) {
