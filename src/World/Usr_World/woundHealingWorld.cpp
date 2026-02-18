@@ -1332,16 +1332,16 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
     /* Define initial attributes of patches, damage, ECM, chem and cells based on user defined values (in config file) and traits of native tissue */
 	this->initializePatches();
 	this->initializeECM();
+#ifdef MODEL_SCAFFOLD
+	this->initializeCaAlg();
+	/* Create a temp Cell object to be able to call the Agent function cellCaAlgBehavior, as Agent is an abstract class */
+	Cell tmpAgent;
+	Cell* tmpThis = &tmpAgent;
+	tmpThis->Agent::cellCaAlgBehavior();
+	//Agent::cellCaAlgBehavior(); 
+#endif
 	this->initializeChem();
 	this->initializeCells();
-	#ifdef MODEL_SCAFFOLD
-		this->initializeCaAlg();
-		/* Create a temp Cell object to be able to call the Agent function cellCaAlgBehavior, as Agent is an abstract class */
-		Cell tmpAgent;
-		Cell* tmpThis = &tmpAgent;
-		tmpThis->Agent::cellCaAlgBehavior();
-		//Agent::cellCaAlgBehavior(); 
-	#endif
 	this->initializeDamage();
 
 	/* Calling update functions to synchronize read and write portion of the attributes */
@@ -1649,6 +1649,9 @@ void printWindow(float* a, int h, int w, int r){
 		#endif
 
 		for (int ic = 0; ic < numChem; ic++) {
+			if (ic == 3) { // calculate D_o2 based on elastic modulus 
+				D[ic] = -40.08 * log(this->E) + 362.73;
+			}
 			lambda[ic] = (D[ic]*dt)/dx2;
 			// Overwrite halflifes from config file. Use instead values from sensitivity analysis input file (Sample.txt)
 			HalfLifes[ic] = halfLifes_static[ic] * 60;		// minutes * 60
@@ -3064,7 +3067,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		#else
 			this->Q = (0.4*Alg_ww + 0.4)*log(tmin) + (3*Alg_ww + 7.9); 
 		#endif
-		this->Q=0;
+		//this->Q=0;
 		//cout << " this->Q =" << (this->SwellRatio[0]<<"*"<<Alg_ww<< " + "<< this->SwellRatio[1])<<"*log("<<tmin<<") + ("<<this->SwellRatio[2]<<"*"<<Alg_ww<< " + "<<this->SwellRatio[3]<<")" << endl; 
 		//cout << " Swelling Ratio: " << this->Q << endl; 
 	}
