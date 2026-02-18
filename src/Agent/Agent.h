@@ -51,7 +51,7 @@ class Agent {
     virtual ~Agent();
 
     enum agenttype_t {stem, progen, np};            // Enumic type to keep track of the type of agent
-    enum chemtype_t {TNF, TGF, IL1beta};            // Enumic type to keep track of the type of chemical. 
+    enum chemtype_t {TNF, TGF, IL1beta, o2};            // Enumic type to keep track of the type of chemical. 
 
     /*
      * Description:	Determines whether an agent is alive or not and updates the agent's properties for the end of the current tick.
