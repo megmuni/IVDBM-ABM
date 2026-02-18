@@ -3427,6 +3427,7 @@ int WHWorld::userInput() {
 		//cout << "Reading Cytokine Properties..." << endl;
 		float D;
 		int HL_s;
+		float O2;
 		char tag[200];
 		do {
 			if (numChem < 1) {
@@ -3479,14 +3480,13 @@ int WHWorld::userInput() {
 					infile >> HL_s;
 					this->HalfLifes[o2] = HL_s;
 					cout << "	HL_O2: " << HL_s << endl;
+				} else if (!strcmp(tag, "O2_conc:")) {
+					infile >> O2;
+					this->initialO2 = O2;
+					cout << "Concentration of O2 (%) = " << this->initialO2 << endl;
 				} else  cout << "	invalid tag: " << tag << endl;
 			}
 		} while (0);
-
-		infile >> garbage;
-		infile >> this->initialO2;
-		cout << "Concentration of O2 (%) = " << this->initialO2 << endl;
-
 
 		infile.close();
         cout << "-------------------------------------------" << endl; 
