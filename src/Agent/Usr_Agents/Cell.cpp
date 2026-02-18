@@ -288,203 +288,220 @@ void NP::NP_cellFunction() {
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
 	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+	//Measure mean & patch oxygen 
+	float meanO2 = this->meanNeighborChem(o2);
+	float patchO2 = this->agentWorldPtr->WHWorldChem.po2[in];
+	if ((meanO2 + patchO2) > NP::OCR) { // cell behaviours only work if there is enough oxygen in the vicinity
 
-	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
-	if (totaldamage == 0) {
+		/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
+		if (totaldamage == 0) {
 
 #ifdef MODEL_SCAFFOLD
-		// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
-		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
-
-		}
-		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
-			this->wiggle();
-		}
-#else
-		this->wiggle();
-#endif
-
-	}
-	else {
-
-		/* -------------------------------------------------------------------------- */
-		/*                                PROLIFERATION                               */
-		/* -------------------------------------------------------------------------- */
-#ifdef MODEL_SCAFFOLD
-	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
-		in = this->index[read_t];
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(np))) {
-
-#ifdef CALIBRATION
-			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
-#else 
-			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) { //check every hour
-#endif
-
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				int countfHA = 0;
-				int TGFrelated = 0;
-
-#ifdef CALIBRATION
-				if (meanTGF <= Cell::proliferation[1]) {
-#else 
-				if (meanTGF <= 10) {
-#endif
-					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1; // High TGF (1-10 ng) inhibits proliferation.
-				}
-
-#ifdef CALIBRATION
-				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
-				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
-#else
-				float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
-				if (rollDice(25 + cellProlif / 2)) {
-#endif	
-					this->hatchnewcell(1, np);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//this->die();
-					return;
-				}
+			// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
+			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
 			}
-			// Unactivated chondrocytes proliferate every 24 hours.
+			else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
+				this->wiggle();
+			}
+#else
+			this->wiggle();
+#endif
+
 		}
 		else {
+
+			/* -------------------------------------------------------------------------- */
+			/*                                PROLIFERATION                               */
+			/* -------------------------------------------------------------------------- */
+#ifdef MODEL_SCAFFOLD
+	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
+			in = this->index[read_t];
+			if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(np))) {
+
+#ifdef CALIBRATION
+				if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
+#else 
+				if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) { //check every hour
 #endif
 
-#ifdef CALIBRATION
-			if (fmod((float)hours, Cell::proliferation[0]) == 0.0) {
-#else  
-			if (fmod(hours, 24) == 0) {
-#endif  
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
+					float meanTNF = this->meanNeighborChem(TNF);
+					float meanTGF = this->meanNeighborChem(TGF);
+					float meanIL1 = this->meanNeighborChem(IL1beta);
+					int countfHA = 0;
+					int TGFrelated = 0;
 
 #ifdef CALIBRATION
-				if (meanTGF <= Cell::proliferation[1]) {
+					if (meanTGF <= Cell::proliferation[1]) {
+#else 
+					if (meanTGF <= 10) {
+#endif
+						TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction. 
+					}
+					else {
+						TGFrelated = -1; // High TGF (1-10 ng) inhibits proliferation.
+					}
+
+#ifdef CALIBRATION
+					float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
+					if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
 #else
-				if (meanTGF <= 10) {
+					float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
+					if (rollDice(25 + cellProlif / 2)) {
+#endif	
+						this->hatchnewcell(1, np);
+						this->doublings[write_t] = this->doublings[read_t] + 1;
+						//this->die();
+						return;
+					}
+				}
+				// Unactivated chondrocytes proliferate every 24 hours.
+			}
+			else {
 #endif
-					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
+
+#ifdef CALIBRATION
+				if (fmod((float)hours, Cell::proliferation[0]) == 0.0) {
+#else  
+				if (fmod(hours, 24) == 0) {
+#endif  
+					float meanTNF = this->meanNeighborChem(TNF);
+					float meanTGF = this->meanNeighborChem(TGF);
+					float meanIL1 = this->meanNeighborChem(IL1beta);
+					int countfHA = this->countNeighborECM(fha);
+					int TGFrelated = 0;
+
+#ifdef CALIBRATION
+					if (meanTGF <= Cell::proliferation[1]) {
+#else
+					if (meanTGF <= 10) {
+#endif
+						TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
+					}
+					else {
+						TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
+					}
+
+#ifdef CALIBRATION
+					float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
+					if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
+#else  
+					float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+					if (rollDice(25 + cellProlif / 2)) {
+#endif 
+						this->hatchnewcell(1, np);
+						this->doublings[write_t] = this->doublings[read_t] + 1;
+						//this->die();
+						return;
+					}
+				}
+#ifdef MODEL_SCAFFOLD
+			}
+#endif
+
+			/* -------------------------------------------------------------------------- */
+			/*                                  MOVEMENT                                  */
+			/* -------------------------------------------------------------------------- */
+			this->cellSniff();
+
+			/* -------------------------------------------------------------------------- */
+			/*                                 ACTIVATION                                 */
+			/* -------------------------------------------------------------------------- */
+			//// An unactivated chondrocyte can be activated if it is in the damage zone:
+			//if (Agent::agentPatchPtr[in].inDamzone == true) {
+			//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
+			//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
+			//	
+			//#ifndef CALIBRATION
+			//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
+			//#else  
+			//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
+			//#endif
+			//		this->chondActivation();
+			//	}
+			//	}
+			//}
+
+			/* -------------------------------------------------------------------------- */
+			/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+			/* -------------------------------------------------------------------------- */
+			// Calculates chemical gradients and patch chemical concentrations:
+			//	int in = this->index[read_t];
+			float meanTNF = this->meanNeighborChem(pTNF);
+			float meanTGF = this->meanNeighborChem(pTGF);
+			float meanIL1 = this->meanNeighborChem(pIL1beta);
+			int countnHA = 0;
+			int countfHA = 0;
+			float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+			float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+			float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+			NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
+			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
+
+			// Makes collagen and aggrecan every 12 hours.
+#ifdef CALIBRATION
+			if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
+#else 
+			if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
+#endif
+
+#ifdef MODEL_SCAFFOLD
+				// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+				int in = this->index[read_t];
+				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+					for (int i = 0; i < NP::collagenSynthRate; i++) {
+						this->makeOCollagen(meanTGF, meanIL1);
+					}
+
+					for (int i = 0; i < NP::aggrecanSynthRate; i++) {
+						this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+					}
+
 				}
 				else {
-					TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
-				}
-
-#ifdef CALIBRATION
-				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
-				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
-#else  
-				float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(25 + cellProlif / 2)) {
-#endif 
-					this->hatchnewcell(1, np);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//this->die();
-					return;
-				}
-			}
-#ifdef MODEL_SCAFFOLD
-		}
-#endif
-
-		/* -------------------------------------------------------------------------- */
-		/*                                  MOVEMENT                                  */
-		/* -------------------------------------------------------------------------- */
-		this->cellSniff();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                 ACTIVATION                                 */
-		/* -------------------------------------------------------------------------- */
-		//// An unactivated chondrocyte can be activated if it is in the damage zone:
-		//if (Agent::agentPatchPtr[in].inDamzone == true) {
-		//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
-		//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
-		//	
-		//#ifndef CALIBRATION
-		//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
-		//#else  
-		//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
-		//#endif
-		//		this->chondActivation();
-		//	}
-		//	}
-		//}
-
-		/* -------------------------------------------------------------------------- */
-		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-		/* -------------------------------------------------------------------------- */
-		// Calculates chemical gradients and patch chemical concentrations:
-		//	int in = this->index[read_t];
-		float meanTNF = this->meanNeighborChem(pTNF);
-		float meanTGF = this->meanNeighborChem(pTGF);
-		float meanIL1 = this->meanNeighborChem(pIL1beta);
-		int countnHA = 0;
-		int countfHA = 0;
-		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
-
-		NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
-		NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
-
-		// Makes collagen and aggrecan every 12 hours.
-#ifdef CALIBRATION
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
-#else 
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
-#endif
-
-#ifdef MODEL_SCAFFOLD
-			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-			int in = this->index[read_t];
-			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-				for (int i = 0; i < NP::collagenSynthRate; i++) {
 					this->makeOCollagen(meanTGF, meanIL1);
-				}
-
-				for (int i = 0; i < NP::aggrecanSynthRate; i++) {
 					this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 				}
 
-			}
-			else {
+#else
 				this->makeOCollagen(meanTGF, meanIL1);
 				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
 			}
 
+			// Change in chemicals due to cells:
+#ifdef CALIBRATION
+			(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF)+Cell::cytokineSynthesis[2] * (patchIL1beta)+Cell::cytokineSynthesis[3] * (patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
+			(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+			//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
+			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
-			this->makeOCollagen(meanTGF, meanIL1);
-			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+			(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+			(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
 		}
+		// Finally, subtract 'consumed' O2 from current and neighbor patches
+		float oxDecrease = NP::OCR / 27; // divide OCR across 27 patches (current + neighbors)
+		(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+		// Count number of patches of neighbors inside world dimensions:
+		for (int dZ = -1; dZ <= 1; dZ++) {
+			for (int dY = -1; dY <= 1; dY++) {
+				for (int dX = -1; dX <= 1; dX++) {
+					if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+					int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+					if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+				}
+			}
+		}
+	}
+	/* -------------------------------------------------------------------------- */
+	/*                                    DEATH                                   */
+	/* -------------------------------------------------------------------------- */
 
-		// Change in chemicals due to cells:
-#ifdef CALIBRATION
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
-#else
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
-#endif
-
-		/* -------------------------------------------------------------------------- */
-		/*                                    DEATH                                   */
-		/* -------------------------------------------------------------------------- */
-
-		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
+	// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
 //#ifdef MODEL_SCAFFOLD
 //#ifdef CALIBRATION
 //		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0.0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
@@ -500,25 +517,24 @@ void NP::NP_cellFunction() {
 //#endif
 
 #ifdef CALIBRATION
-		if (rollDice(1)) {
-			this->die();
-			return;
-		}
+	if (rollDice(1)) {
+		this->die();
+		return;
+	}
 #else
-		if (rollDice(0.01)) { // from Netlogo model
-			this->die();
-			return;
-		}
+	if (rollDice(0.01)) { // from Netlogo model
+		this->die();
+		return;
+	}
 #endif
 
-		// Unactivated chondrocytes can die naturally:
-		//this->life[write_t] = this->life[read_t] - 1;
-		//if (this->life[read_t] <= 0) this->die();
+	// Unactivated chondrocytes can die naturally:
+	//this->life[write_t] = this->life[read_t] - 1;
+	//if (this->life[read_t] <= 0) this->die();
 
-		// last thing to do: increase age + 1 tick 
-		if (this->life[read_t] >= 0) {
-			this->life[write_t] = this->life[read_t] + 1;
-		}
+	// last thing to do: increase age + 1 tick 
+	if (this->life[read_t] >= 0) {
+		this->life[write_t] = this->life[read_t] + 1;
 	}
 }
 
@@ -669,213 +685,244 @@ void Stem::stem_cellFunction() {
   	
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
-		//}
-		
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
+		//Measure mean & patch oxygen 
+		float meanO2 = this->meanNeighborChem(o2);
+		float patchO2 = this->agentWorldPtr->WHWorldChem.po2[in];
+		if ((meanO2 + patchO2) > Stem::OCR) { // cell behaviours only work if there is enough oxygen in the vicinity
+
+			// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
+			/* -------------------------------------------------------------------------- */
+			/*                                PROLIFERATION                               */
+			/* -------------------------------------------------------------------------- */
+			//cout << "[in] is " << in << endl; //debugging
+			//cout << "[read_t] is " << read_t << endl; //debugging
+			//if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			//	cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+			//}
+			//else {
+			//	//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+			//	cout << "agent patch type is invalid!" << endl;
+			//}
+
+			if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
 #ifdef CALIBRATION
-			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+				if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+					//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
-			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
+				//if ((this->life[read_t] / 2) % 24 == 0) {
+				if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				//int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
+					float meanTNF = this->meanNeighborChem(TNF);
+					float meanTGF = this->meanNeighborChem(TGF);
+					float meanIL1 = this->meanNeighborChem(IL1beta);
+					//int countfHA = this->countNeighborECM(fha);
+					int TGFrelated = 0;
 #ifdef CALIBRATION
-				if (meanTGF <= Stem::proliferation[0]) {
+					if (meanTGF <= Stem::proliferation[0]) {
 #else  
-				if (meanTGF <= 10) {
+					if (meanTGF <= 10) {
 #endif 
 
-					TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
-				}
+						TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
+					}
+					else {
+						TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
+					}
 
 #ifdef CALIBRATION
-				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 10; //testing
-				if (rollDice(stemProlif)) {
+					//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+					float stemProlif = 10; //testing
+					if (rollDice(stemProlif)) {
 #else  
-				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(stemProlif)) {
+					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+					if (rollDice(stemProlif)) {
 #endif  
-					this->hatchnewcell(1, stem);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//cout << "growing new stem cell" << endl;
-					//this->die();
-					return;
+						this->hatchnewcell(1, stem);
+						this->doublings[write_t] = this->doublings[read_t] + 1;
+						//cout << "growing new stem cell" << endl;
+						//this->die();
+						return;
+					}
 				}
 			}
-		}
-		else {
+			else {
 #endif
 
 #ifdef CALIBRATION
-			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+				if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+					//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
-			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
+				//if ((this->life[read_t] / 2) % 24 == 0) {
+				if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				//int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
+					float meanTNF = this->meanNeighborChem(TNF);
+					float meanTGF = this->meanNeighborChem(TGF);
+					float meanIL1 = this->meanNeighborChem(IL1beta);
+					//int countfHA = this->countNeighborECM(fha);
+					int TGFrelated = 0;
 
 #ifdef CALIBRATION
-				if (meanTGF <= Stem::proliferation[0]) {
+					if (meanTGF <= Stem::proliferation[0]) {
 #else  
-				if (meanTGF <= 10) {
+					if (meanTGF <= 10) {
 #endif  
-					TGFrelated = 1; // Low TGF (0.1-1nm) stimulate proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
-				}
+						TGFrelated = 1; // Low TGF (0.1-1nm) stimulate proliferation and attraction. 
+					}
+					else {
+						TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
+					}
 
 #ifdef CALIBRATION
-				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 10; //testing
-				if (rollDice(stemProlif)) {
+					//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
+					float stemProlif = 10; //testing
+					if (rollDice(stemProlif)) {
 #else
-				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(stemProlif)) {
+					float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+					if (rollDice(stemProlif)) {
 #endif
-					this->hatchnewcell(1, stem);
+						this->hatchnewcell(1, stem);
+						this->doublings[write_t] = this->doublings[read_t] + 1;
+						//cout << "growing new stem cell" << endl;
+						//this->die();
+						return;
+					}
+				}
+			}
+
+			/* -------------------------------------------------------------------------- */
+			/*                              Differentiation                               */
+			/* -------------------------------------------------------------------------- */
+#ifdef MODEL_SCAFFOLD
+			in = this->index[read_t];
+			if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
+				if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
+					//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
+						//cout << "attempting differentiation of stem cell" << endl;
+					this->Stem::differentiateStem(1, progen);
 					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//cout << "growing new stem cell" << endl;
-					//this->die();
-					return;
 				}
 			}
-		}
+#endif
 
-	/* -------------------------------------------------------------------------- */
-	/*                              Differentiation                               */
-	/* -------------------------------------------------------------------------- */
-	#ifdef MODEL_SCAFFOLD
-		in = this->index[read_t];
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
-			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
-				//cout << "attempting differentiation of stem cell" << endl;
-				this->Stem::differentiateStem(1, progen);
-				this->doublings[write_t] = this->doublings[read_t] + 1;
+			/* -------------------------------------------------------------------------- */
+			/*                                  MOVEMENT                                  */
+			/* -------------------------------------------------------------------------- */
+
+			// Activated chondrocytes only move along their preferred gradient if there is damage.	
+			//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+
+			if (totaldamage != 0) this->cellSniff();
+
+			/* -------------------------------------------------------------------------- */
+			/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+			/* -------------------------------------------------------------------------- */
+			// Calculates chemical gradients and patch chemical concentrations:
+			//	int in = this->index[read_t];
+			float meanTNF = this->meanNeighborChem(pTNF);
+			float meanTGF = this->meanNeighborChem(pTGF);
+			float meanIL1 = this->meanNeighborChem(pIL1beta);
+			int countnHA = 0;
+			int countfHA = 0;
+			float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+			float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+			float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+			// Location of agent in x,y,z dimensions of world.
+			int x = this->ix[read_t];
+			int y = this->iy[read_t];
+			int z = this->iz[read_t];
+
+			// Number of patches in x,y,z dimensions of world
+			int nx = Agent::nx;
+			int ny = Agent::ny;
+			int nz = Agent::nz;
+
+			int neighborCount = 0;
+			// Count number of patches of neighbors inside world dimensions:
+			for (int dZ = -1; dZ <= 1; dZ++) {
+				for (int dY = -1; dY <= 1; dY++) {
+					for (int dX = -1; dX <= 1; dX++) {
+						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
+					}
+				}
 			}
-		}
-	#endif
 
-	/* -------------------------------------------------------------------------- */
-	/*                                  MOVEMENT                                  */
-	/* -------------------------------------------------------------------------- */
-   
-	// Activated chondrocytes only move along their preferred gradient if there is damage.	
-	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+			// Calculate total volume of surrounding patches to check for cytokine thresholds
+			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
+			//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
+			float patchesVolume = patchVolume * neighborCount;
 
-	if (totaldamage != 0) this->cellSniff();
+			//Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+			Stem::collagenSynthRate = Stem::CollagenSynth[0];
+			//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
 
-	/* -------------------------------------------------------------------------- */
-	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-	/* -------------------------------------------------------------------------- */
-	// Calculates chemical gradients and patch chemical concentrations:
-	//	int in = this->index[read_t];
-	float meanTNF = this->meanNeighborChem(pTNF);
-	float meanTGF = this->meanNeighborChem(pTGF);
-	float meanIL1 = this->meanNeighborChem(pIL1beta);
-	int countnHA = 0;
-	int countfHA = 0;
-	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
-
-	// Location of agent in x,y,z dimensions of world.
-	int x = this->ix[read_t];
-	int y = this->iy[read_t];
-	int z = this->iz[read_t];
-
-	// Number of patches in x,y,z dimensions of world
-	int nx = Agent::nx;
-	int ny = Agent::ny;
-	int nz = Agent::nz;
-
-	int neighborCount = 0;
-	// Count number of patches of neighbors inside world dimensions:
-	for (int dZ = -1; dZ <= 1; dZ++) {
-		for (int dY = -1; dY <= 1; dY++) {
-			for (int dX = -1; dX <= 1; dX++) {
-				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
+			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
 			}
-		}
-	}
+			else {
+				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+			}
+			//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
 
-	// Calculate total volume of surrounding patches to check for cytokine thresholds
-	float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-	//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-	float patchesVolume = patchVolume * neighborCount;
+			// Makes collagen and aggrecan every 12 hours.
+#ifdef CALIBRATION
+			if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
+#else 
+			if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
+#endif
 
-	//Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-	Stem::collagenSynthRate = Stem::CollagenSynth[0];
-	//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
+#ifdef MODEL_SCAFFOLD
+				// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+				int in = this->index[read_t];
+				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+					for (int i = 0; i < Stem::collagenSynthRate; i++) {
+						this->makeOCollagen(meanTGF, meanIL1);
+					}
 
-	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
-		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-	}
-	else {
-		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-	}
-	//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
+					for (int i = 0; i < Stem::aggrecanSynthRate; i++) {
+						this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+					}
 
-	// Makes collagen and aggrecan every 12 hours.
-	#ifdef CALIBRATION
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
-	#else 
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
-	#endif
-
-		#ifdef MODEL_SCAFFOLD
-			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-			int in = this->index[read_t];
-			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int i = 0; i < Stem::collagenSynthRate; i++){
-					this->makeOCollagen(meanTGF, meanIL1); 
+				}
+				else {
+					this->makeOCollagen(meanTGF, meanIL1);
+					this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 				}
 
-				for (int i = 0; i < Stem::aggrecanSynthRate; i++){
-					this->makeOAggrecan(meanTNF, meanTGF, meanIL1); 
-				}
-
-			} else {
-				this->makeOCollagen(meanTGF, meanIL1); 
-				this->makeOAggrecan(meanTNF, meanTGF, meanIL1); 
-			} 
-
-		#else
-				this->makeOCollagen(meanTGF, meanIL1); 
+#else
+				this->makeOCollagen(meanTGF, meanIL1);
 				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-		#endif
+#endif
+			}
+
+			// Change in chemicals due to cells:
+#ifdef CALIBRATION
+			(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Stem::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF)+Cell::cytokineSynthesis[2] * (patchIL1beta)+Cell::cytokineSynthesis[3] * (patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
+			(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Stem::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+			//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
+			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+#else
+			(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 5 + (2.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+			(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+#endif
+			// Finally, subtract 'consumed' O2 from current and neighbor patches
+			float oxDecrease = Stem::OCR / 27; // divide OCR across 27 patches (current + neighbors)
+			(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+			// Count number of patches of neighbors inside world dimensions:
+			for (int dZ = -1; dZ <= 1; dZ++) {
+				for (int dY = -1; dY <= 1; dY++) {
+					for (int dX = -1; dX <= 1; dX++) {
+						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+					}
+				}
+			}
 		}
-
-	// Change in chemicals due to cells:
-	#ifdef CALIBRATION
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Stem::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Stem::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5]*((patchIL1beta)/(1 + Cell::cytokineSynthesis[6]*patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Stem::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8]* ((patchTNF)/(1 + Cell::cytokineSynthesis[9]*patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
-	#else
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 5 + (2.25*patchTGF + 1.3*patchIL1beta + 5.11*patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
-	#endif
-
 	/* -------------------------------------------------------------------------- */
 	/*                                DEACTIVATION                                */
 	/* -------------------------------------------------------------------------- */
@@ -924,31 +971,36 @@ void Progen::progen_cellFunction() {
 	double hours = Agent::agentWorldPtr->reportHour();
 	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
-	/* -------------------------------------------------------------------------- */
-	/*                                PROLIFERATION                               */
-	/* -------------------------------------------------------------------------- */
+	//Measure mean & patch oxygen 
+	float meanO2 = this->meanNeighborChem(o2);
+	float patchO2 = this->agentWorldPtr->WHWorldChem.po2[in];
+	if ((meanO2 + patchO2) > Progen::OCR) { // cell behaviours only work if there is enough oxygen in the vicinity
+
+		/* -------------------------------------------------------------------------- */
+		/*                                PROLIFERATION                               */
+		/* -------------------------------------------------------------------------- */
 
 #ifdef MODEL_SCAFFOLD
-	in = this->index[read_t];
-	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
+		in = this->index[read_t];
+		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
 #ifdef CALIBRATION
-		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+				//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
-		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
+			//if ((this->life[read_t] / 2) % 24 == 0) {
+			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif 
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			//int countfHA = this->countNeighborECM(fha);
+				float meanTNF = this->meanNeighborChem(TNF);
+				float meanTGF = this->meanNeighborChem(TGF);
+				float meanIL1 = this->meanNeighborChem(IL1beta);
+				//int countfHA = this->countNeighborECM(fha);
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 10; //testing
-			if (rollDice(progenProlif)) {
+				float progenProlif = 10; //testing
+				if (rollDice(progenProlif)) {
 #else  
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+				float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
 				if (rollDice(progenProlif)) {
 #endif  
 					this->hatchnewcell(1, progen);
@@ -958,117 +1010,131 @@ void Progen::progen_cellFunction() {
 					return;
 				}
 			}
-			} else {
+		}
+		else {
 #endif
 
 #ifdef CALIBRATION
-		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+				//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
 #else 
-		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
+			//if ((this->life[read_t] / 2) % 24 == 0) {
+			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
 #endif  
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			//int countfHA = this->countNeighborECM(fha);
+				float meanTNF = this->meanNeighborChem(TNF);
+				float meanTGF = this->meanNeighborChem(TGF);
+				float meanIL1 = this->meanNeighborChem(IL1beta);
+				//int countfHA = this->countNeighborECM(fha);
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 10; //testing
-			if (rollDice(progenProlif)) {
+				float progenProlif = 10; //testing
+				if (rollDice(progenProlif)) {
 #else
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			if (rollDice(progenProlif)) {
+				float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
+				if (rollDice(progenProlif)) {
 #endif
-				this->hatchnewcell(1, progen);
-				this->doublings[write_t] = this->doublings[read_t] + 1;
-				//cout << "growing new pre-np cell" << endl;
-				//this->die();
-				return;
+					this->hatchnewcell(1, progen);
+					this->doublings[write_t] = this->doublings[read_t] + 1;
+					//cout << "growing new pre-np cell" << endl;
+					//this->die();
+					return;
+				}
 			}
 		}
-		}
-	/* -------------------------------------------------------------------------- */
-	/*                              Differentiation                               */
-	/* -------------------------------------------------------------------------- */
+		/* -------------------------------------------------------------------------- */
+		/*                              Differentiation                               */
+		/* -------------------------------------------------------------------------- */
 #ifdef MODEL_SCAFFOLD
-	in = this->index[read_t];
-	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
-		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
-			//cout << "attempting differentiation of pre-np cell" << endl;
-			this->Progen::differentiateProgen(1, np);
-			this->doublings[write_t] = this->doublings[read_t] + 1;
+		in = this->index[read_t];
+		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
+			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
+				//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
+					//cout << "attempting differentiation of pre-np cell" << endl;
+				this->Progen::differentiateProgen(1, np);
+				this->doublings[write_t] = this->doublings[read_t] + 1;
+			}
 		}
-	}
 
-	/* -------------------------------------------------------------------------- */
-	/*                                  MOVEMENT                                  */
-	/* -------------------------------------------------------------------------- */
+		/* -------------------------------------------------------------------------- */
+		/*                                  MOVEMENT                                  */
+		/* -------------------------------------------------------------------------- */
 
-	// Activated chondrocytes only move along their preferred gradient if there is damage.	
-	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+		// Activated chondrocytes only move along their preferred gradient if there is damage.	
+		//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
-	if (totaldamage != 0) this->cellSniff();
+		if (totaldamage != 0) this->cellSniff();
 
-	/* -------------------------------------------------------------------------- */
-	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-	/* -------------------------------------------------------------------------- */
-	// Calculates chemical gradients and patch chemical concentrations:
-	//	int in = this->index[read_t];
-	float meanTNF = this->meanNeighborChem(pTNF);
-	float meanTGF = this->meanNeighborChem(pTGF);
-	float meanIL1 = this->meanNeighborChem(pIL1beta);
-	int countnHA = 0;
-	int countfHA = 0;
-	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+		/* -------------------------------------------------------------------------- */
+		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+		/* -------------------------------------------------------------------------- */
+		// Calculates chemical gradients and patch chemical concentrations:
+		//	int in = this->index[read_t];
+		float meanTNF = this->meanNeighborChem(pTNF);
+		float meanTGF = this->meanNeighborChem(pTGF);
+		float meanIL1 = this->meanNeighborChem(pIL1beta);
+		int countnHA = 0;
+		int countfHA = 0;
+		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-	//Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
+		//Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+		Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
 
-	// Makes  aggrecan every 12 hours.
+		// Makes  aggrecan every 12 hours.
 #ifdef CALIBRATION
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
 #else 
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
+		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
 #endif
 
 #ifdef MODEL_SCAFFOLD
-		// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-		int in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			for (int i = 0; i < Progen::aggrecanSynthRate; i++) {
+			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+			int in = this->index[read_t];
+			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				for (int i = 0; i < Progen::aggrecanSynthRate; i++) {
+					this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+				}
+
+			}
+			else {
+				this->makeOCollagen(meanTGF, meanIL1);
 				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 			}
 
-		}
-		else {
+#else
 			this->makeOCollagen(meanTGF, meanIL1);
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
 		}
 
-#else
-		this->makeOCollagen(meanTGF, meanIL1);
-		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-#endif
-	}
-
-	// Change in chemicals due to cells:
+		// Change in chemicals due to cells:
 #ifdef CALIBRATION
-	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Progen::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-	//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
-	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Progen::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
-	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Progen::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF)+Cell::cytokineSynthesis[2] * (patchIL1beta)+Cell::cytokineSynthesis[3] * (patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+		//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Progen::cytokineSynthesis[1] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Progen::cytokineSynthesis[2] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
 #else
-	(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (0.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-	(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-	(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 1 + (0.25 * patchTGF + 1.3 * patchIL1beta + 5.11 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 2.58 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
-
+		// Finally, subtract 'consumed' O2 from current and neighbor patches:
+		float oxDecrease = Progen::OCR / 27; // divide OCR across 27 patches (current + neighbors)
+		(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+		// Count number of patches of neighbors inside world dimensions:
+		for (int dZ = -1; dZ <= 1; dZ++) {
+			for (int dY = -1; dY <= 1; dY++) {
+				for (int dX = -1; dX <= 1; dX++) {
+					if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+					int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+					if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+				}
+			}
+		}
+	}
 	/* -------------------------------------------------------------------------- */
 	/*                                DEACTIVATION                                */
 	/* -------------------------------------------------------------------------- */
