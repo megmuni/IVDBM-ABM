@@ -1228,7 +1228,7 @@ float WHWorld::liveCells = 0;
 float WHWorld::deadCells = 0;
 float WHWorld::deletedCells = 0;
 float WHWorld::prevCells = 0;
-float initialO2;
+float WHWorld::initialO2;
 #ifdef MODEL_SCAFFOLD
 	int WHWorld::initialCaAlg = 0;
 	float G;        // Elastic Modulus (kPa)
