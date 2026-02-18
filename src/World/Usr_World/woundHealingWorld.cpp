@@ -2603,7 +2603,7 @@ void WHWorld::updateChem() {
 		this->WHWorldChem.totalTGF += sumTGF;
 		this->WHWorldChem.totalIL1beta += sumIL1;
 		this->WHWorldChem.totalo2 += sumO2;
-		cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
+		cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << ", Total O2: " << sumO2 << endl;
 
 		this->updateO2(); // Replenish O2
 
@@ -3526,7 +3526,7 @@ void WHWorld::outputWorld_csv() {
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << ", Total O2 (fmol)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
         output_file.close();
 	}
 
@@ -3611,10 +3611,11 @@ void WHWorld::outputWorld_csv() {
 	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << liveCells << "," << deadCells << ","; // cell counts
 
 	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << endl;
+	output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << "," << this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << ",";
 	#else
 		output_file  << endl;
 	#endif
+	output_file << this->WHWorldChem.totalo2 << endl;
 	output_file.close();
 
 	cout << " Collagen: " << new_coll << endl;
