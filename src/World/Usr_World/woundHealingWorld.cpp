@@ -1577,7 +1577,7 @@ void WHWorld::initializeChemCPU() {
 					this->WHWorldChem.dIL1beta[in] = 0;
 					this->WHWorldChem.do2[in] = 0;
 
-					// Baseline chemical concentrations are initialized in tissue 
+					// Baseline chemical concentrations are initialized in world 
 					if (this->worldPatch[in].type[read_t] == CaAlg) {
 						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
 						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
