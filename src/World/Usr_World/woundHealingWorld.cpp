@@ -1639,315 +1639,315 @@ void printWindow(float* a, int h, int w, int r){
 }
 
 #ifdef GPU_DIFFUSE
-	void WHWorld::initializeChemGPU() {
-		/********************************************
-		* Kernel Computation	                    *
-		********************************************/
-		int numChem = baselineChem.size();
-		// Prepare dimensions
-		int nSec = 1800;//90;//180;//600;
-		// TODO: calculate dt w.r.t. max D (for now assume max D = 20.0)
-		float dt = 2.5;
-		float dx = 15.0;	// um
-		//float D = 20.0;
-		float dx2 = dx * dx;
-		//float lambda = (D*dt)/dx2;
-		float *lambda = (float *) malloc(numChem * sizeof(float));
-		float *gamma = (float *) malloc(numChem * sizeof(float));
+void WHWorld::initializeChemGPU() {
+	/********************************************
+	* Kernel Computation	                    *
+	********************************************/
+	int numChem = baselineChem.size();
+	// Prepare dimensions
+	int nSec = 1800;//90;//180;//600;
+	// TODO: calculate dt w.r.t. max D (for now assume max D = 20.0)
+	float dt = 2.5;
+	float dx = 10.0;	// um
+	//float D = 20.0;
+	float dx2 = dx * dx;
+	//float lambda = (D*dt)/dx2;
+	float *lambda = (float *) malloc(numChem * sizeof(float));
+	float *gamma = (float *) malloc(numChem * sizeof(float));
 
+	#ifdef PRINT_KERNEL
+		cerr << "Allocated " << numChem << " elements for lambda (" << lambda << ")  and gamma (" << gamma << ")" << endl;
+		cerr << "D: " << D << "		halflife: " << HalfLifes << endl;
+	#endif
+
+	for (int ic = 0; ic < numChem; ic++) {
+		if (ic == 3) { // calculate D_o2 based on elastic modulus 
+			D[ic] = -40.08 * log(this->E) + 362.73;
+		}
+		lambda[ic] = (D[ic]*dt)/dx2;
+		// Overwrite halflifes from config file. Use instead values from sensitivity analysis input file (Sample.txt)
+		HalfLifes[ic] = halfLifes_static[ic] * 60;		// minutes * 60
+		gamma[ic] = 1 - pow(2, -(1/HalfLifes[ic]));
+	}
+
+	#ifdef PRINT_KERNEL
+		cerr << "Done--" << endl;
+	#endif
+
+	int kernelRadius	= nSec/dt;
+	const int outKernelH		= (kernelRadius-1) * 2 + 1;
+	const int outKernelW		= outKernelH;
+	const int    kfftH = snapTransformSize(outKernelH + KCoeffsH - 1);
+	const int    kfftW = snapTransformSize(outKernelW + KCoeffsW - 1);
+
+	// Changed 2 : Added
+	//	const int windowH = pow(2, ceil(log(outKernelH/2)/log(2)));
+	//	const int windowW = pow(2, ceil(log(outKernelW/2)/log(2)));
+	const int windowH = (kernelRadius/2) * 2 + 1; //outKernelH/2;
+	const int windowW = (kernelRadius/2) * 2 + 1; //outKernelW/2;
+
+	// Kernel convolution context
+	c_ctx kernel_cctx;
+
+	// Set dimensions
+	kernel_cctx.DH		= outKernelH;
+	kernel_cctx.DW		= outKernelW;
+	kernel_cctx.KH		= KCoeffsH;
+	kernel_cctx.KW		= KCoeffsW;
+	kernel_cctx.KX		= 1;//0;
+	kernel_cctx.KY		= 1;//0;
+	kernel_cctx.FFTH	= kfftH;
+	kernel_cctx.FFTW	= kfftW;
+	// Changed 2
+	kernel_cctx.windowH = windowH;
+	kernel_cctx.windowW = windowW;
+	//float gamma		= 0.00019252;//0.00;		// half life = 60 minutes
+
+	float
+	*h_Kernel,						// In place of h_ResultGPU
+	**d_Kernel,						// In place of d_UnpaddedResult -> final kernel
+	**h_dKernel;
+
+	// Changed 2
+	float
+	*h_Window,
+	**d_Window,
+	**h_dWindow;
+
+	//	// Changed
+	//	fComplex
+	////	*d_KernelSpectrum;
+	// 	*d_KernelSpectrum0;
+
+	// Changed 2
+	h_Window = (float *)malloc(windowH * windowW    * sizeof(float));
+	// Allocate memory for kernel computation
+	h_Kernel	= (float *)malloc(outKernelH    * outKernelW * sizeof(float));
+	// Allocate array of 'numChem' pointers for device kernels
+	checkCudaErrors(cudaMalloc((void **)&d_Kernel, numChem * sizeof(float*)));
+	h_dKernel = (float **) malloc (numChem * sizeof(float*));
+	checkCudaErrors(cudaMemcpy(h_dKernel,d_Kernel,numChem * sizeof(float*),cudaMemcpyDeviceToHost));
+	// Changed 2 : Added
+	// Allocate array of 'numChem' pointers for device kernel center windows
+	checkCudaErrors(cudaMalloc((void **)&d_Window, numChem * sizeof(float*)));
+	h_dWindow = (float **) malloc (numChem * sizeof(float*));
+	checkCudaErrors(cudaMemcpy(h_dWindow,d_Window,numChem * sizeof(float*),cudaMemcpyDeviceToHost));
+
+	// Allocate 'numChem' arrays for device kernels
+	for (int ic = 0; ic < numChem; ic++) {
 		#ifdef PRINT_KERNEL
-			cerr << "Allocated " << numChem << " elements for lambda (" << lambda << ")  and gamma (" << gamma << ")" << endl;
-			cerr << "D: " << D << "		halflife: " << HalfLifes << endl;
+			cout << "Allocating kernel arrays" << endl;
 		#endif
-
-		for (int ic = 0; ic < numChem; ic++) {
-			if (ic == 3) { // calculate D_o2 based on elastic modulus 
-				D[ic] = -40.08 * log(this->E) + 362.73;
-			}
-			lambda[ic] = (D[ic]*dt)/dx2;
-			// Overwrite halflifes from config file. Use instead values from sensitivity analysis input file (Sample.txt)
-			HalfLifes[ic] = halfLifes_static[ic] * 60;		// minutes * 60
-			gamma[ic] = 1 - pow(2, -(1/HalfLifes[ic]));
-		}
-
+		checkCudaErrors(cudaMalloc((void **)&h_dKernel[ic], outKernelH * outKernelW * sizeof(float)));
+		checkCudaErrors(cudaMalloc((void **)&h_dWindow[ic], windowH * windowW * sizeof(float)));
 		#ifdef PRINT_KERNEL
-			cerr << "Done--" << endl;
+			cout << "Computing kernel arrays " << ic << endl;
 		#endif
+		// KERNEL COMPUTATION
+		if (!computeKernel(h_Kernel,h_dKernel[ic],h_Window,h_dWindow[ic],kernelRadius,lambda[ic],gamma[ic],dt,kernel_cctx)){} // TODO: Error Handling
+	}
+	#ifdef PRINT_KERNEL
+	cout << "Done---" << endl;
+	#endif
 
-		int kernelRadius	= nSec/dt;
-		const int outKernelH		= (kernelRadius-1) * 2 + 1;
-		const int outKernelW		= outKernelH;
-		const int    kfftH = snapTransformSize(outKernelH + KCoeffsH - 1);
-		const int    kfftW = snapTransformSize(outKernelW + KCoeffsW - 1);
+	printWindow(h_Kernel, outKernelH, outKernelW, 4);
+	printWindow(h_Window, windowH, windowW, 4);
 
-		// Changed 2 : Added
-		//	const int windowH = pow(2, ceil(log(outKernelH/2)/log(2)));
-		//	const int windowW = pow(2, ceil(log(outKernelW/2)/log(2)));
-		const int windowH = (kernelRadius/2) * 2 + 1; //outKernelH/2;
-		const int windowW = (kernelRadius/2) * 2 + 1; //outKernelW/2;
+	// Free pointers
+	if (h_Kernel) free(h_Kernel);	h_Kernel = NULL;
+	if (h_Window) free(h_Window);	h_Window = NULL;
 
-		// Kernel convolution context
-		c_ctx kernel_cctx;
+	/********************************************
+	* Kernel Spectrum Computation	            *
+	********************************************/
+	const int    chemH = this->ny;// - 1;
+	const int    chemW = this->nx;// - 1;
 
-		// Set dimensions
-		kernel_cctx.DH		= outKernelH;
-		kernel_cctx.DW		= outKernelW;
-		kernel_cctx.KH		= KCoeffsH;
-		kernel_cctx.KW		= KCoeffsW;
-		kernel_cctx.KX		= 1;//0;
-		kernel_cctx.KY		= 1;//0;
-		kernel_cctx.FFTH	= kfftH;
-		kernel_cctx.FFTW	= kfftW;
-		// Changed 2
-		kernel_cctx.windowH = windowH;
-		kernel_cctx.windowW = windowW;
-		//float gamma		= 0.00019252;//0.00;		// half life = 60 minutes
+	// Changed 2
+	//	const int    cfftH = snapTransformSize(chemH + kernel_cctx.FFTH - 1);
+	//	const int    cfftW = snapTransformSize(chemW + kernel_cctx.FFTW - 1);
+	const int    cfftH = snapTransformSize(chemH + kernel_cctx.windowH - 1);
+	const int    cfftW = snapTransformSize(chemW + kernel_cctx.windowW - 1);
+	//printf("Chem world: %d x %d\n", chemH, chemW);
+	//fComplex** h_dKernel_spectrum;
 
-		float
-		*h_Kernel,						// In place of h_ResultGPU
-		**d_Kernel,						// In place of d_UnpaddedResult -> final kernel
-		**h_dKernel;
+	// Allocate memory on GPU for diffusion kernel spectrums for convolution
+	checkCudaErrors(cudaMalloc((void **)&d_kernel_spectrum,numChem * sizeof(fComplex *)));
+	h_dKernel_spectrum = (fComplex **) malloc(numChem * sizeof(fComplex*));
+	checkCudaErrors(cudaMemcpy(this->h_dKernel_spectrum,d_kernel_spectrum,numChem * sizeof(fComplex*),cudaMemcpyDeviceToHost));
 
-		// Changed 2
-		float
-		*h_Window,
-		**d_Window,
-		**h_dWindow;
-
-		//	// Changed
-		//	fComplex
-		////	*d_KernelSpectrum;
-		// 	*d_KernelSpectrum0;
-
-		// Changed 2
-		h_Window = (float *)malloc(windowH * windowW    * sizeof(float));
-		// Allocate memory for kernel computation
-		h_Kernel	= (float *)malloc(outKernelH    * outKernelW * sizeof(float));
-		// Allocate array of 'numChem' pointers for device kernels
-		checkCudaErrors(cudaMalloc((void **)&d_Kernel, numChem * sizeof(float*)));
-		h_dKernel = (float **) malloc (numChem * sizeof(float*));
-		checkCudaErrors(cudaMemcpy(h_dKernel,d_Kernel,numChem * sizeof(float*),cudaMemcpyDeviceToHost));
-		// Changed 2 : Added
-		// Allocate array of 'numChem' pointers for device kernel center windows
-		checkCudaErrors(cudaMalloc((void **)&d_Window, numChem * sizeof(float*)));
-		h_dWindow = (float **) malloc (numChem * sizeof(float*));
-		checkCudaErrors(cudaMemcpy(h_dWindow,d_Window,numChem * sizeof(float*),cudaMemcpyDeviceToHost));
-
-		// Allocate 'numChem' arrays for device kernels
-		for (int ic = 0; ic < numChem; ic++) {
-			#ifdef PRINT_KERNEL
-				cout << "Allocating kernel arrays" << endl;
-			#endif
-			checkCudaErrors(cudaMalloc((void **)&h_dKernel[ic], outKernelH * outKernelW * sizeof(float)));
-			checkCudaErrors(cudaMalloc((void **)&h_dWindow[ic], windowH * windowW * sizeof(float)));
-			#ifdef PRINT_KERNEL
-				cout << "Computing kernel arrays " << ic << endl;
-			#endif
-			// KERNEL COMPUTATION
-			if (!computeKernel(h_Kernel,h_dKernel[ic],h_Window,h_dWindow[ic],kernelRadius,lambda[ic],gamma[ic],dt,kernel_cctx)){} // TODO: Error Handling
-		}
+	for (int ic = 0; ic < numChem; ic++) {
 		#ifdef PRINT_KERNEL
-		cout << "Done---" << endl;
+			cout << "Allocation: " << ic << endl;
 		#endif
+		checkCudaErrors(cudaMalloc(
+			(void **)&(this->h_dKernel_spectrum[ic]),
+			// Changed
+			//cfftH * (cfftW / 2 + 1) * sizeof(fComplex))
+			cfftH * (cfftW / 2) * sizeof(fComplex))
+		);
+	}
+	#ifdef PRINT_KERNEL
+		cout << "Done" << endl;
+	#endif
 
-		printWindow(h_Kernel, outKernelH, outKernelW, 4);
-		printWindow(h_Window, windowH, windowW, 4);
+	// Allocate and set dimensions in chemical convolution context
+	this->chem_cctx         = (c_ctx*) malloc(sizeof(c_ctx));
+	this->chem_cctx->DH	= chemH;
+	this->chem_cctx->DW	= chemW;
 
-		// Free pointers
-		if (h_Kernel) free(h_Kernel);	h_Kernel = NULL;
-		if (h_Window) free(h_Window);	h_Window = NULL;
+	// Changed 2
+	this->chem_cctx->KH	= kernel_cctx.windowH;
+	this->chem_cctx->KW	= kernel_cctx.windowW;
+	this->chem_cctx->KX	= kernel_cctx.windowW / 2;
+	this->chem_cctx->KY	= kernel_cctx.windowH / 2;
+	//	this->chem_cctx->KH	= kernel_cctx.DH;//kernel_cctx.FFTH;
+	//	this->chem_cctx->KW	= kernel_cctx.DW;//kernel_cctx.FFTW;
+	//	this->chem_cctx->KX	= kernelRadius-1;//128;//1;
+	//	this->chem_cctx->KY	= kernelRadius-1;//128;//1;
 
-		/********************************************
-		* Kernel Spectrum Computation	            *
-		********************************************/
-		const int    chemH = this->ny;// - 1;
-		const int    chemW = this->nx;// - 1;
+	this->chem_cctx->FFTH	= cfftH;
+	this->chem_cctx->FFTW	= cfftW;
+	this->chem_cctx->windowH = -1;
+	this->chem_cctx->windowW = -1;
 
-		// Changed 2
-		//	const int    cfftH = snapTransformSize(chemH + kernel_cctx.FFTH - 1);
-		//	const int    cfftW = snapTransformSize(chemW + kernel_cctx.FFTW - 1);
-		const int    cfftH = snapTransformSize(chemH + kernel_cctx.windowH - 1);
-		const int    cfftW = snapTransformSize(chemW + kernel_cctx.windowW - 1);
-		//printf("Chem world: %d x %d\n", chemH, chemW);
-		//fComplex** h_dKernel_spectrum;
+	StopWatchInterface *hTimer = NULL;
+	sdkCreateTimer(&hTimer);
+	sdkResetTimer(&hTimer);
+	sdkStartTimer(&hTimer);
 
-		// Allocate memory on GPU for diffusion kernel spectrums for convolution
-		checkCudaErrors(cudaMalloc((void **)&d_kernel_spectrum,numChem * sizeof(fComplex *)));
-		h_dKernel_spectrum = (fComplex **) malloc(numChem * sizeof(fComplex*));
-		checkCudaErrors(cudaMemcpy(this->h_dKernel_spectrum,d_kernel_spectrum,numChem * sizeof(fComplex*),cudaMemcpyDeviceToHost));
+	// COMPUTE KERNEL SPECTRUM
+	for (int ic = 0; ic < numChem; ic++) {
+		computeKernelSpectrum(
+			this->h_dKernel_spectrum[ic],
+			// Changed 2
+			//h_dKernel[ic],
+			h_dWindow[ic],
+			kernel_cctx,
+			*(this->chem_cctx)
+		);
+		// d_Kernel not used anymore, only need kernel spectrum
+		checkCudaErrors(cudaFree(h_dKernel[ic]));
+	}
 
-		for (int ic = 0; ic < numChem; ic++) {
-			#ifdef PRINT_KERNEL
-				cout << "Allocation: " << ic << endl;
-			#endif
-			checkCudaErrors(cudaMalloc(
-				(void **)&(this->h_dKernel_spectrum[ic]),
-				// Changed
-				//cfftH * (cfftW / 2 + 1) * sizeof(fComplex))
-				cfftH * (cfftW / 2) * sizeof(fComplex))
-			);
-		}
-		#ifdef PRINT_KERNEL
-			cout << "Done" << endl;
-		#endif
+	sdkStopTimer(&hTimer);
+	double kernelSpectrumComputationTime = sdkGetTimerValue(&hTimer);
+	//printf("\tTotal kernel computation: %f MPix/s (%f ms)\n",(double)chemH * (double)chemW * 1e-6 / (kernelSpectrumComputationTime * 0.001),kernelSpectrumComputationTime);
 
-		// Allocate and set dimensions in chemical convolution context
-		this->chem_cctx         = (c_ctx*) malloc(sizeof(c_ctx));
-		this->chem_cctx->DH	= chemH;
-		this->chem_cctx->DW	= chemW;
+	/********************************************
+	* GPU Diffusion Preparation	            *
+	********************************************/
+	/* Allocate two-dimensional matrix (chemAllocation[chemtype][patch index]) to store quantities of each chemical at each patch */
+	int base_chem_types       = this->baselineChem.size();
+	this->typesOfChem         = base_chem_types*2 + 3;
+	this->chemAllocation      = new float*[this->typesOfChem];
 
-		// Changed 2
-		this->chem_cctx->KH	= kernel_cctx.windowH;
-		this->chem_cctx->KW	= kernel_cctx.windowW;
-		this->chem_cctx->KX	= kernel_cctx.windowW / 2;
-		this->chem_cctx->KY	= kernel_cctx.windowH / 2;
-		//	this->chem_cctx->KH	= kernel_cctx.DH;//kernel_cctx.FFTH;
-		//	this->chem_cctx->KW	= kernel_cctx.DW;//kernel_cctx.FFTW;
-		//	this->chem_cctx->KX	= kernelRadius-1;//128;//1;
-		//	this->chem_cctx->KY	= kernelRadius-1;//128;//1;
+	// Allocate buffer to store diffusion results from GPU
+	this->h_diffusion_results = new float*[base_chem_types];
 
-		this->chem_cctx->FFTH	= cfftH;
-		this->chem_cctx->FFTW	= cfftW;
-		this->chem_cctx->windowH = -1;
-		this->chem_cctx->windowW = -1;
+	//cout << "number of chem allocated is "<< this->typesOfChem << endl;
+	//cout << "number of chem allocated for GPU diffusion is " << base_chem_types << endl;
+	for (int ic = 0; ic < this->typesOfChem; ic++) {
+		if (util::ABMerror(!(this->chemAllocation[ic]  = new float[nx*ny*nz] ),"InitializeChem mem alloc error!",__FILE__,__LINE__))exit(1);
+		if (ic < base_chem_types)
+			if (util::ABMerror(!(this->h_diffusion_results[ic] = new float[nx*ny*nz] ),"InitializeChem mem alloc error!",__FILE__,__LINE__))exit(1);
+	}
 
-		StopWatchInterface *hTimer = NULL;
-		sdkCreateTimer(&hTimer);
-		sdkResetTimer(&hTimer);
-		sdkStartTimer(&hTimer);
-
-		// COMPUTE KERNEL SPECTRUM
-		for (int ic = 0; ic < numChem; ic++) {
-			computeKernelSpectrum(
-				this->h_dKernel_spectrum[ic],
-				// Changed 2
-				//h_dKernel[ic],
-				h_dWindow[ic],
-				kernel_cctx,
-				*(this->chem_cctx)
-			);
-			// d_Kernel not used anymore, only need kernel spectrum
-			checkCudaErrors(cudaFree(h_dKernel[ic]));
-		}
-
-		sdkStopTimer(&hTimer);
-		double kernelSpectrumComputationTime = sdkGetTimerValue(&hTimer);
-		//printf("\tTotal kernel computation: %f MPix/s (%f ms)\n",(double)chemH * (double)chemW * 1e-6 / (kernelSpectrumComputationTime * 0.001),kernelSpectrumComputationTime);
-
-		/********************************************
-		* GPU Diffusion Preparation	            *
-		********************************************/
-		/* Allocate two-dimensional matrix (chemAllocation[chemtype][patch index]) to store quantities of each chemical at each patch */
-		int base_chem_types       = this->baselineChem.size();
-		this->typesOfChem         = base_chem_types*2 + 3;
-		this->chemAllocation      = new float*[this->typesOfChem];
-
-		// Allocate buffer to store diffusion results from GPU
-		this->h_diffusion_results = new float*[base_chem_types];
-
-		//cout << "number of chem allocated is "<< this->typesOfChem << endl;
-		//cout << "number of chem allocated for GPU diffusion is " << base_chem_types << endl;
-		for (int ic = 0; ic < this->typesOfChem; ic++) {
-			if (util::ABMerror(!(this->chemAllocation[ic]  = new float[nx*ny*nz] ),"InitializeChem mem alloc error!",__FILE__,__LINE__))exit(1);
-			if (ic < base_chem_types)
-				if (util::ABMerror(!(this->h_diffusion_results[ic] = new float[nx*ny*nz] ),"InitializeChem mem alloc error!",__FILE__,__LINE__))exit(1);
-		}
-
-		/* Link World attribute chemAllocation with WHWorldChem (WHWorldChem is linked to WHChemical) */
-		this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
-		this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
-		this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
-		this->WHWorldChem.po2 = this->chemAllocation[po2];
+	/* Link World attribute chemAllocation with WHWorldChem (WHWorldChem is linked to WHChemical) */
+	this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
+	this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
+	this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
+	this->WHWorldChem.po2 = this->chemAllocation[po2];
 		
-		this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
-		this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
-		this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
-		this->WHWorldChem.do2 = this->chemAllocation[do2];
-		this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
+	this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
+	this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
+	this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
+	this->WHWorldChem.do2 = this->chemAllocation[do2];
+	this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
 
-		this->WHWorldChem.tTNF     = this->h_diffusion_results[pTNF];
-		this->WHWorldChem.tTGF     = this->h_diffusion_results[pTGF];
-		this->WHWorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
-		this->WHWorldChem.to2 = this->h_diffusion_results[po2];
+	this->WHWorldChem.tTNF     = this->h_diffusion_results[pTNF];
+	this->WHWorldChem.tTGF     = this->h_diffusion_results[pTGF];
+	this->WHWorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
+	this->WHWorldChem.to2 = this->h_diffusion_results[po2];
 
-		// Initialize chemical concentrations:
-		this->WHWorldChem.totalTNF = 0;
-		this->WHWorldChem.totalTGF = 0;
-		this->WHWorldChem.totalIL1beta = 0;
-		this->WHWorldChem.totalo2 = 0;
+	// Initialize chemical concentrations:
+	this->WHWorldChem.totalTNF = 0;
+	this->WHWorldChem.totalTGF = 0;
+	this->WHWorldChem.totalIL1beta = 0;
+	this->WHWorldChem.totalo2 = 0;
 
-		int countCaAlg = WHWorld::initialCaAlg;
-		int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
-		float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
-		float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+	int countCaAlg = WHWorld::initialCaAlg;
+	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
+	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
 
-		this->baselineChem[o2] = molO2;
+	this->baselineChem[o2] = molO2;
 
-		if (this->baselineChem.size() == 4) {
-			for (int iz = 0; iz < this->nz; iz++) {
-			/* Try initializing chemicals with the threads that will access them later since the default allocation policy on Linux platforms is first-touch. 
-			This is a best-effort implementation, since we cannot guarantee size of data accessed per thread to be an integer multiple  of page size. */
-			#pragma omp parallel for
-				for (int iy = 0; iy < this->ny; iy++) {
-					for (int ix = 0; ix < this->nx; ix++) {
-						int in = ix + iy*nx + iz*nx*ny;
-						this->WHWorldChem.dTNF[in] = 0;
-						this->WHWorldChem.dTGF[in] = 0;
-						this->WHWorldChem.dIL1beta[in] = 0;
-						this->WHWorldChem.do2[in] = 0;
+	if (this->baselineChem.size() == 4) {
+		for (int iz = 0; iz < this->nz; iz++) {
+		/* Try initializing chemicals with the threads that will access them later since the default allocation policy on Linux platforms is first-touch. 
+		This is a best-effort implementation, since we cannot guarantee size of data accessed per thread to be an integer multiple  of page size. */
+		#pragma omp parallel for
+			for (int iy = 0; iy < this->ny; iy++) {
+				for (int ix = 0; ix < this->nx; ix++) {
+					int in = ix + iy*nx + iz*nx*ny;
+					this->WHWorldChem.dTNF[in] = 0;
+					this->WHWorldChem.dTGF[in] = 0;
+					this->WHWorldChem.dIL1beta[in] = 0;
+					this->WHWorldChem.do2[in] = 0;
 
-						// Baseline chemical concentrations are initialized in tissue:
-						if (this->worldPatch[in].type[read_t] == CaAlg) {
-							this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
-							this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
-							this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
-							this->WHWorldChem.po2[in] = this->baselineChem[o2] /countBoundary;
-						} else {
-							this->WHWorldChem.pTNF[in] = 0;
-							this->WHWorldChem.pTGF[in] = 0;
-							this->WHWorldChem.pIL1beta[in] = 0;
-							this->WHWorldChem.po2[in] = 0;
-						}
+					// Baseline chemical concentrations are initialized in tissue:
+					if (this->worldPatch[in].type[read_t] == CaAlg) {
+						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
+						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
+						this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
+						this->WHWorldChem.po2[in] = this->baselineChem[o2] /countBoundary;
+					} else {
+						this->WHWorldChem.pTNF[in] = 0;
+						this->WHWorldChem.pTGF[in] = 0;
+						this->WHWorldChem.pIL1beta[in] = 0;
+						this->WHWorldChem.po2[in] = 0;
+					}
 
-						// Initialize chemical gradient levels that agents are attracted by:
-						float patchIL1 = this->WHWorldChem.pIL1beta[in];
-						float patchTNF = this->WHWorldChem.pTNF[in];
-						float patchTGF = this->WHWorldChem.pTGF[in];
-						float patcho2 = this->WHWorldChem.po2[in];
-						float patchcollagen = this->worldECM[in].fcollagen[read_t];
-						//float grad = patchIL1 + patchTNF + patchTGF + patchFGF + patchcollagen;
-						this->WHWorldChem.pcellgrad[in] = patchTGF;
+					// Initialize chemical gradient levels that agents are attracted by:
+					float patchIL1 = this->WHWorldChem.pIL1beta[in];
+					float patchTNF = this->WHWorldChem.pTNF[in];
+					float patchTGF = this->WHWorldChem.pTGF[in];
+					float patcho2 = this->WHWorldChem.po2[in];
+					float patchcollagen = this->worldECM[in].fcollagen[read_t];
+					//float grad = patchIL1 + patchTNF + patchTGF + patchFGF + patchcollagen;
+					this->WHWorldChem.pcellgrad[in] = patchTGF;
 
-						#pragma omp critical
-						{
-							//Initialize total chemical concentration:
-							this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
-							this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
-							this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
-							this->WHWorldChem.totalo2 += this->WHWorldChem.po2[in];
-						}
+					#pragma omp critical
+					{
+						//Initialize total chemical concentration:
+						this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
+						this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
+						this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
+						this->WHWorldChem.totalo2 += this->WHWorldChem.po2[in];
 					}
 				}
 			}
-			//cout << "		Results from inside initialization:      totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << endl;
+		}
+		//cout << "		Results from inside initialization:      totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << endl;
 
-		} else if (util::ABMerror(1,"Error initializing chemicals!!",__FILE__,__LINE__))exit(1);
-		//cout << "Finished initializing chem" << endl;
+	} else if (util::ABMerror(1,"Error initializing chemicals!!",__FILE__,__LINE__))exit(1);
+	//cout << "Finished initializing chem" << endl;
 
-		checkCudaErrors(cudaFree(d_Kernel));
-		checkCudaErrors(cudaFree(d_Window));
-		checkCudaErrors(cudaFree(d_kernel_spectrum));
-		for (int ic = 0; ic < numChem; ic++) checkCudaErrors(cudaFree(h_dWindow[ic]));
+	checkCudaErrors(cudaFree(d_Kernel));
+	checkCudaErrors(cudaFree(d_Window));
+	checkCudaErrors(cudaFree(d_kernel_spectrum));
+	for (int ic = 0; ic < numChem; ic++) checkCudaErrors(cudaFree(h_dWindow[ic]));
 
-		sdkDeleteTimer(&hTimer);
-		free(lambda);
-		free(gamma);
-		free(h_Window);
-		free(h_Kernel);
-		free(h_dKernel);
-		free(h_dWindow);
+	sdkDeleteTimer(&hTimer);
+	free(lambda);
+	free(gamma);
+	free(h_Window);
+	free(h_Kernel);
+	free(h_dKernel);
+	free(h_dWindow);
 
-	}
+}
 #endif // GPU_DIFFUSE
 
 void WHWorld::initializeCells() {
