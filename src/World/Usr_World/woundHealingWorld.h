@@ -405,6 +405,7 @@ class WHWorld: public World {
     static float deletedCells;
     static float prevCells;
     static int initialCaAlg;      // The number of initial tissue patches
+    static float initialO2; // initial O2 concentration of the environment
 
     //Crosslinked Ca-Alg Hydrogel Parameters
     // Ca Crosslinker:
@@ -599,6 +600,15 @@ class WHWorld: public World {
      * Parameters: void
      */
     void updateChem();
+
+    /*
+     * Description:	(Stage 4a)	Replenish O2 at the boundary
+     * 
+     * Return: void
+     *
+     * Parameters: void
+     */
+    void updateO2();
 
     /*
      * Description:	Update chemicals to reflect next tick's states.

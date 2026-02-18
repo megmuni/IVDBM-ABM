@@ -1228,6 +1228,7 @@ float WHWorld::liveCells = 0;
 float WHWorld::deadCells = 0;
 float WHWorld::deletedCells = 0;
 float WHWorld::prevCells = 0;
+float initialO2;
 #ifdef MODEL_SCAFFOLD
 	int WHWorld::initialCaAlg = 0;
 	float G;        // Elastic Modulus (kPa)
@@ -1509,6 +1510,11 @@ void WHWorld::initializePatches() {
 		if (w < 0 ) w = 0;  // no negative mass loss
 		//cout << " 	this->w ="<< WHWorld::MassLoss[0]<< " +"<< WHWorld::MassLoss[1]<<"*"<<(pXL)<<" +"<< WHWorld::MassLoss[2]<<"*"<<(reportDay())<<" - "<< WHWorld::MassLoss[3]<<"*"<<(pXL)<<"*"<<(reportDay()) << endl; 
 		cout << " Mass Loss (%): " << this->w << endl; 
+
+		/* Calculate initial/boundary O2 condition in units of fmol/L from % concentration in input */
+		float MO2 = (this->initialO2 * 0.001204) / (32.00 * 100); // molarity (M, mol/L) = (% concentration * density) / (molar mass * 100)
+		float fMO2 = MO2 * pow(10, 15); // fmol/L
+		this->initialO2 = fMO2;
 
 	cout << "Finished calculating initial Ca-Alg properties" << endl;
 	}
@@ -3419,6 +3425,11 @@ int WHWorld::userInput() {
 				} else  cout << "	invalid tag: " << tag << endl;
 			}
 		} while (0);
+
+		infile >> garbage;
+		infile >> this->initialO2;
+		cout << "Concentration of O2 (%) = " << this->initialO2 << endl;
+
 
 		infile.close();
         cout << "-------------------------------------------" << endl; 
