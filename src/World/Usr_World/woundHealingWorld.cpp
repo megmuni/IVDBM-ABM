@@ -1856,7 +1856,7 @@ void printWindow(float* a, int h, int w, int r){
 		this->WHWorldChem.tTNF     = this->h_diffusion_results[pTNF];
 		this->WHWorldChem.tTGF     = this->h_diffusion_results[pTGF];
 		this->WHWorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
-		this->WHWorldChem.to2 = this->h_diffusion_results[to2];
+		this->WHWorldChem.to2 = this->h_diffusion_results[po2];
 
 		// Initialize chemical concentrations:
 		this->WHWorldChem.totalTNF = 0;
@@ -2256,7 +2256,7 @@ void WHWorld::requestECMfragments() {
 }
 
 /* Each patch diffuses 50% of its chemical equally to its 8 neighboring patches. (Each neighbor receives 1/8 of 50% of the patch's original amount of chemical neighboring patch. */
-void WHWorld::NetlogoDiffuse() {
+void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 	cerr << " NetLogoDiffuse " << endl;
 	for(int ichem = TNF; ichem <= IL1beta; ichem++) {
 		for (int iz = 0; iz < nz; iz++) {
@@ -2321,7 +2321,7 @@ void WHWorld::NetlogoDiffuse() {
 
 // Discretization of PDE Diffusion Equation using central difference approximation
 // Note: diffuseChem() will very likely get replaced by a new correct version, thus this doesn't need comments just yet
-void WHWorld::diffuseChem(int ichem, float dt, float coeff){
+void WHWorld::diffuseChem(int ichem, float dt, float coeff){ // NOT UPDATED FOR O2
 	// Calculate change in concentration over dt at each patch
 	float* tempPtr = new float[nx*ny*nz]; 
 	#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
@@ -2432,8 +2432,9 @@ void WHWorld::updateTotalChem(){
 	this->WHWorldChem.totalTNF = 0;
 	this->WHWorldChem.totalTGF = 0;
 	this->WHWorldChem.totalIL1beta = 0;
+	this->WHWorldChem.totalo2 = 0;
 
-	float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
+	float sumTNF = 0, sumTGF = 0, sumIL1 = 0, sumO2 = 0;
 	for (int zi = 0; zi < nz; zi++) {
 		for (int yi = 0; yi < ny; yi++) {
 			for (int xi = 0; xi < nx; xi++) {
@@ -2441,26 +2442,31 @@ void WHWorld::updateTotalChem(){
 				this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in];
 				this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in];
 				this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in];
+				this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.po2[in];
 
 				this->WHWorldChem.dTNF[in] = 0;
 				this->WHWorldChem.dTGF[in] = 0;
 				this->WHWorldChem.dIL1beta[in] = 0;
+				this->WHWorldChem.do2[in] = 0;
 
 				// Update gradient
 				float patchIL1beta = this->WHWorldChem.pIL1beta[in];
 				float patchTNF = this->WHWorldChem.pTNF[in];
 				float patchTGF = this->WHWorldChem.pTGF[in];
+				float patchO2 = this->WHWorldChem.po2[in];
 				this->WHWorldChem.pcellgrad[in] = patchTGF;
 
 				sumTNF += this->WHWorldChem.pTNF[in];
 				sumTGF += this->WHWorldChem.pTGF[in];
 				sumIL1 += this->WHWorldChem.pIL1beta[in];
+				sumO2 += this->WHWorldChem.po2[in];
 			}
 		}
 	}
     this->WHWorldChem.totalTNF += sumTNF;
 	this->WHWorldChem.totalTGF += sumTGF;
 	this->WHWorldChem.totalIL1beta += sumIL1;
+	this->WHWorldChem.totalo2 += sumO2;
 }
 
 // Always called in non-GPU_DIFFUSE. Called only at beginning otherwise
@@ -2469,10 +2475,11 @@ void WHWorld::updateChemCPU() {
 	this->WHWorldChem.totalTNF = 0;
 	this->WHWorldChem.totalTGF = 0;
 	this->WHWorldChem.totalIL1beta = 0;
+	this->WHWorldChem.totalo2 = 0;
 
-    float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
+	float sumTNF = 0, sumTGF = 0, sumIL1 = 0, sumO2 = 0;
 	for (int zi = 0; zi < nz; zi++) {
-		#pragma omp parallel for reduction(+:sumTNF, sumTGF, sumIL1) 
+		#pragma omp parallel for reduction(+:sumTNF, sumTGF, sumIL1, sumO2) 
 			for (int yi = 0; yi < ny; yi++) {
 		#pragma omp simd
 				for (int xi = 0; xi < nx; xi++) {
@@ -2483,32 +2490,38 @@ void WHWorld::updateChemCPU() {
 						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in];//*0.02; //					//this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + (this->WHWorldChem.pTNF[in])*(WHWorld::cytokineDecay[0]);
 						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in];//*0.02; //					//this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + (this->WHWorldChem.pTGF[in])*(WHWorld::cytokineDecay[1]);
 						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in];//*0.02; //					//this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + (this->WHWorldChem.pIL1beta[in])*(WHWorld::cytokineDecay[4]);
+						this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.po2[in];
 					#else
 						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in]*0.02;
 						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in]*0.02;
 						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in]*0.02;
+						this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.po2[in];
 					#endif
 					
 					this->WHWorldChem.dTNF[in] = 0;
 					this->WHWorldChem.dTGF[in] = 0;
 					this->WHWorldChem.dIL1beta[in] = 0;
+					this->WHWorldChem.do2[in] = 0;
 
 					// Update gradient
 					float patchIL1beta = this->WHWorldChem.pIL1beta[in];
 					float patchTNF = this->WHWorldChem.pTNF[in];
 					float patchTGF = this->WHWorldChem.pTGF[in];
+					float patchO2 = this->WHWorldChem.po2[in];
 					this->WHWorldChem.pcellgrad[in] = patchTGF;
 
 					// Update total chemical values
 					sumTNF += this->WHWorldChem.pTNF[in];
 					sumTGF += this->WHWorldChem.pTGF[in];
 					sumIL1 += this->WHWorldChem.pIL1beta[in];
+					sumO2 += this->WHWorldChem.po2[in];
 				}
 			}
 	}
     this->WHWorldChem.totalTNF += sumTNF;
 	this->WHWorldChem.totalTGF += sumTGF;
 	this->WHWorldChem.totalIL1beta += sumIL1;
+	this->WHWorldChem.totalo2 += sumO2;
 }
 
 void WHWorld::updateChem() {
@@ -2517,10 +2530,11 @@ void WHWorld::updateChem() {
 		this->WHWorldChem.totalTNF = 0;
 		this->WHWorldChem.totalTGF = 0;
 		this->WHWorldChem.totalIL1beta = 0;
+		this->WHWorldChem.totalo2 = 0;
 
-		float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
+		float sumTNF = 0, sumTGF = 0, sumIL1 = 0, sumO2 = 0;
 		for (int zi = 0; zi < nz; zi++) {
-			#pragma omp parallel for reduction(+:sumTNF, sumTGF, sumIL1)
+			#pragma omp parallel for reduction(+:sumTNF, sumTGF, sumIL1, sumO2)
 				for (int yi = 0; yi < ny; yi++) {
 			#pragma omp simd
 					for (int xi = 0; xi < nx; xi++) {
@@ -2530,6 +2544,7 @@ void WHWorld::updateChem() {
 						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.tTNF[in];// *0.02;
 						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.tTGF[in];// *0.02;
 						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.tIL1beta[in];// *0.02;
+						this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.po2[in];
 
 						if (this->WHWorldChem.pTNF[in] < 0) {
 							this->WHWorldChem.pTNF[in] = 0;
@@ -2543,26 +2558,34 @@ void WHWorld::updateChem() {
 							this->WHWorldChem.pIL1beta[in] = 0;
 						}
 
+						if (this->WHWorldChem.po2[in] < 0) {
+							this->WHWorldChem.po2[in] = 0;
+						}
+
 						this->WHWorldChem.dTNF[in] = 0;
 						this->WHWorldChem.dTGF[in] = 0;
 						this->WHWorldChem.dIL1beta[in] = 0;
+						this->WHWorldChem.do2[in] = 0;
 
 						// Update gradient
 						float patchIL1beta = this->WHWorldChem.pIL1beta[in];
 						float patchTNF = this->WHWorldChem.pTNF[in];
 						float patchTGF = this->WHWorldChem.pTGF[in];
+						float patchO2 = this->WHWorldChem.po2[in];
 						this->WHWorldChem.pcellgrad[in] = patchTGF;
 
 						// Update total chemical values
 						sumTNF += this->WHWorldChem.pTNF[in];
 						sumTGF += this->WHWorldChem.pTGF[in];
 						sumIL1 += this->WHWorldChem.pIL1beta[in];
+						sumO2 += this->WHWorldChem.po2[in];
 					}
 				}
 		}
 			this->WHWorldChem.totalTNF += sumTNF;
 			this->WHWorldChem.totalTGF += sumTGF;
 			this->WHWorldChem.totalIL1beta += sumIL1;
+			this->WHWorldChem.totalo2 += sumO2;
 			cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
 	#else
 		// Always calling updateChemCPU() for non-GPU_DIFFUSE chem updates
