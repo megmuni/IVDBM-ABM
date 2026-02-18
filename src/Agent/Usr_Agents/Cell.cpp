@@ -1564,9 +1564,9 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 
 	int in = this->index[read_t];
 	//float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
-	float stemDiff = 20; //testing
+	float stemDiff = 10; //testing
 	if (rollDice(stemDiff)) {
-		if (rollDice(70)) { // asymmetric differentiation
+		if (rollDice(60)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new progenitor cell nearby
 		}
 		else { // symmetric differentiation
@@ -1587,9 +1587,9 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
 	int in = this->index[read_t];
-	float progenDiff = 30; //testing
+	float progenDiff = 20; //testing
 	if (rollDice(progenDiff)) {
-		if (rollDice(70)) { // asymmetric differentiation
+		if (rollDice(60)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new NP cell nearby
 		}
 		else { // symmetric differentiation
