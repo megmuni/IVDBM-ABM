@@ -1333,6 +1333,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
     /* Define initial attributes of patches, damage, ECM, chem and cells based on user defined values (in config file) and traits of native tissue */
 	this->initializePatches();
 	this->initializeECM();
+	this->initializeChem();
 #ifdef MODEL_SCAFFOLD
 	this->initializeCaAlg();
 	/* Create a temp Cell object to be able to call the Agent function cellCaAlgBehavior, as Agent is an abstract class */
@@ -1341,7 +1342,6 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	tmpThis->Agent::cellCaAlgBehavior();
 	//Agent::cellCaAlgBehavior(); 
 #endif
-	this->initializeChem();
 	this->initializeCells();
 	this->initializeDamage();
 
@@ -1659,6 +1659,43 @@ void WHWorld::initializeChemGPU() {
 		cerr << "Allocated " << numChem << " elements for lambda (" << lambda << ")  and gamma (" << gamma << ")" << endl;
 		cerr << "D: " << D << "		halflife: " << HalfLifes << endl;
 	#endif
+
+	/* NOTE: Had to copy this from initializeCaAlg to ensure that this->E is calculated / defined properly for diffusion coefficient calculations. */
+	/* ----- Calculate initial bulk mechanical properties of Ca-Alg Scaffold ---- */
+	/* p_XL: Crosslink Density (mmol/mL = M)
+	 * 		 Linear dependence of Shear modulus on cross-link concentration for constant polymer concentration
+	 */
+	this->pXL = this->pXL / 1000; // convert mM to M
+	//this->pXL = 0.014;
+
+	if (this->highMW_alg == 1 && this->lowMW_alg == 0) { // 'high' condition
+		this->Alg_Mn = 1500;
+	}
+	else if (this->highMW_alg == 0 && this->lowMW_alg == 1) { // 'low' condition
+		this->Alg_Mn = 95;
+	}
+	else { // 'mix' condition: calculates a weighted avg molecular weight
+		float highMW_kDa = 1500;
+		float lowMW_kDa = 50;
+		this->Alg_Mn = (pow(this->highMW_alg * highMW_kDa, 2) + pow(this->lowMW_alg * lowMW_kDa, 2)) / ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
+	}
+
+	cout << "		Final Alginate concentration (%w/v): " << this->Alg_wv << endl;
+	cout << "       Alginate Molecular Weight (kDa) = " << this->Alg_Mn << endl;
+	cout << "       Calcium Crosslinking Density (mmol/mL = M) = " << this->pXL << endl;
+
+	/* Calculate Initial Elastic Modulus E (kPa)
+	*  E = a (( b*TotalProtein(w/v) + c)* Alg(w/w) + d*TP(w/v)) + e*(f*Alg(w/v) + g)*XL(w/w)
+	*
+	*       Follows rule of mixtures where stiffness of mixture is weight average of components.
+	*       Linear dependence of modulus on cross-link concentration for constant polymer concentration
+	*/
+#ifdef CALIBRATION
+	this->E = -WHWorld::ElasticMod[0] + WHWorld::ElasticMod[1] * (Alg_wv)-WHWorld::ElasticMod[2] * (pXL)+WHWorld::ElasticMod[3] * (Alg_Mn)+WHWorld::ElasticMod[4] * (Alg_wv) * (pXL)-WHWorld::ElasticMod[5] * (Alg_wv) * (Alg_Mn)-WHWorld::ElasticMod[6] * (pXL) * (Alg_Mn);
+#else 
+	this->E = -125 + 58 * (Alg_wv)-971 * (pXL)+1.037 * (Alg_Mn)+756 * (Alg_wv * pXL) - 0.516 * (Alg_wv * Alg_Mn) - 0.165 * (pXL * Alg_Mn);
+#endif
+	cout << "       Elastic Modulus (kPa) = " << this->E << endl;
 
 	for (int ic = 0; ic < numChem; ic++) {
 		if (ic == 3) { // calculate D_o2 based on elastic modulus 
