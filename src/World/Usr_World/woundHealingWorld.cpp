@@ -1556,8 +1556,14 @@ void WHWorld::initializeChemCPU() {
 	this->WHWorldChem.totalTGF = 0;
 	this->WHWorldChem.totalIL1beta = 0;
 	this->WHWorldChem.totalo2 = 0;
-		
+
 	int countCaAlg = this->countPatchType(CaAlg);
+	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
+	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+
+	this->baselineChem[o2] = molO2;
+
 	if (this->baselineChem.size() == 4) {
 		for (int iz = 0; iz < this->nz; iz++) {
 			/* Try initializing chemicals with the threads that will access them later since the default allocation policy on Linux platforms is first-touch.
@@ -1576,7 +1582,7 @@ void WHWorld::initializeChemCPU() {
 						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
 						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
 						this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
-						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countCaAlg;
+						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countBoundary;
 					} else {
 						this->WHWorldChem.pTNF[in] = 0;
 						this->WHWorldChem.pTGF[in] = 0;
