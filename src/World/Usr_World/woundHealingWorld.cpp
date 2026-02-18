@@ -2599,15 +2599,61 @@ void WHWorld::updateChem() {
 					}
 				}
 		}
-			this->WHWorldChem.totalTNF += sumTNF;
-			this->WHWorldChem.totalTGF += sumTGF;
-			this->WHWorldChem.totalIL1beta += sumIL1;
-			this->WHWorldChem.totalo2 += sumO2;
-			cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
+		this->WHWorldChem.totalTNF += sumTNF;
+		this->WHWorldChem.totalTGF += sumTGF;
+		this->WHWorldChem.totalIL1beta += sumIL1;
+		this->WHWorldChem.totalo2 += sumO2;
+		cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
+
+		this->updateO2(); // Replenish O2
+
 	#else
 		// Always calling updateChemCPU() for non-GPU_DIFFUSE chem updates
 		updateChemCPU();
 	#endif
+}
+
+void WHWorld::updateO2() {
+	// Accesses only the boundary patches to replenish O2 from the environment
+	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
+	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+	float incrO2 = 0.01 * molO2; // oxygen increment for each patch
+
+	// Z faces
+	for (int zi : {0, nz - 1}) {
+#pragma omp parallel for
+		for (int yi = 0; yi < ny; yi++) {
+#pragma omp simd
+			for (int xi = 0; xi < nx; xi++) {
+				int in = xi + yi * nx + zi * nx * ny;
+				this->WHWorldChem.po2[in] += incrO2;
+			}
+		}
+	}
+
+	// Y faces (excluding Z edges)
+	for (int yi : {0, ny - 1}) {
+#pragma omp parallel for
+		for (int zi = 1; zi < nz - 1; zi++) {
+#pragma omp simd
+			for (int xi = 0; xi < nx; xi++) {
+				int in = xi + yi * nx + zi * nx * ny;
+				this->WHWorldChem.po2[in] += incrO2;
+			}
+		}
+	}
+
+	// X faces (excluding Z and Y edges)
+	for (int xi : {0, nx - 1}) {
+#pragma omp parallel for
+		for (int zi = 1; zi < nz - 1; zi++) {
+			for (int yi = 1; yi < ny - 1; yi++) {
+				int in = xi + yi * nx + zi * nx * ny;
+				this->WHWorldChem.po2[in] += incrO2;
+			}
+		}
+	}
 }
 
 void WHWorld::executeAllECMUpdates() {
