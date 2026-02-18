@@ -603,6 +603,7 @@ class WHWorld: public World {
 
     /*
      * Description:	(Stage 4a)	Replenish O2 at the boundary
+     *          This is called at the end of updateChem().
      * 
      * Return: void
      *
