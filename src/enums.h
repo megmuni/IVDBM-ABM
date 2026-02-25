@@ -51,7 +51,8 @@ enum color_t {
   cdamage = 0,
   cunidentifiable = 0, 
 
-  cCaAlg = 119 
+  cCaAlg = 119, 
+  co2 = 195
 };
 
 // Types of chemicals:
