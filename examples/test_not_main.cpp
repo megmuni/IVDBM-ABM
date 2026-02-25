@@ -122,17 +122,20 @@ int main(int argc, char** argv) {
 			char ptnf[50] = "output/Simulation/tnf_";
 			char ptgf[50] = "output/Simulation/tgf_";
 			char pil1[50] = "output/Simulation/il1_";
+			char po2[50] = "output/Simulation/o2_";
 			char pcell[50] = "output/Simulation/pcellgrad_";
 
 			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
 			strcat(ptnf, tempNumber);
 			strcat(ptgf, tempNumber);
 			strcat(pil1, tempNumber);
+			strcat(po2, tempNumber);
 			strcat(pcell, tempNumber);
 
 			strcat(ptnf, extension);
 			strcat(ptgf, extension);
 			strcat(pil1, extension);
+			strcat(po2, extension);
 			strcat(pcell, extension);
 
 			outputColor(&myWorld, simulation);
@@ -142,6 +145,7 @@ int main(int argc, char** argv) {
 			outputChem(&myWorld, ptnf, TNF);
 			outputChem(&myWorld, ptgf, TGF);
 			outputChem(&myWorld, pil1, IL1beta);
+			outputChem(&myWorld, po2, o2);
 			outputChem(&myWorld, pcell, pcellgrad);
 #endif
 		}
@@ -252,7 +256,7 @@ int outputColor(WHWorld* myWorld, char* fileName) {
 			for (int ix = 0; ix < myWorld->nx; ix++) {
 
 				if (ix == (myWorld->nx - 1) && iy == (myWorld->ny - 1)) {
-					outfile << "139";  // Visualization color legend upper bound
+					outfile << "195";  // Visualization color legend upper bound
 
 				} else if (ix == (myWorld->nx - 2) && iy == (myWorld->ny - 1)) {
 					outfile << "0 ";  // Visualization color legend lower bound
