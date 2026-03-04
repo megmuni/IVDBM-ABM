@@ -1104,18 +1104,18 @@ using namespace std;
 	//			kernelX
 	//	);
 
-	//	padDataClampToBorder(
-	//			d_PaddedData,
-	//			d_Data,
-	//			fftH,
-	//			fftW,
-	//			dataH,
-	//			dataW,
-	//			kernelH,
-	//			kernelW,
-	//			kernelY,
-	//			kernelX
-	//	);
+		padDataClampToBorder(
+				d_PaddedData,
+				d_Data,
+				fftH,
+				fftW,
+				dataH,
+				dataW,
+				kernelH,
+				kernelW,
+				kernelY,
+				kernelX
+		);
 
 	#ifdef PRINT_KERNEL
 		fprintf(stderr,"...performing convolution\n");
