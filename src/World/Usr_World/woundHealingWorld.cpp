@@ -2695,6 +2695,13 @@ void WHWorld::updateO2() {
 			}
 		}
 	}
+
+	// Calculate values along the o2 line
+	for (int xi = 0; xi <= nx / 2; xi++) {
+		int in = xi + lineY * nx + lineZ * nx * ny;
+		o2Line[xi] = this->WHWorldChem.po2[in];
+	}
+
 }
 
 void WHWorld::executeAllECMUpdates() {
