@@ -2396,6 +2396,11 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 #ifdef GPU_DIFFUSE
 	void WHWorld::diffuseChemGPU(){
 		cerr << "Diffuse Chem (GPU)" << endl;
+		// debugging: check dimentions:
+		std::cout << "nx=" << nx << " ny=" << ny << " nz=" << nz << std::endl;
+		std::cout << "chem_cctx DH=" << chem_cctx->DH << " DW=" << chem_cctx->DW << std::endl;
+		std::cout << "DH*DW=" << chem_cctx->DH * chem_cctx->DW << " nx*ny*nz=" << nx * ny * nz << std::endl;
+
 		// Loop over all types of chemical and perform convolution-based diffusion on GPU
 		const int num_basechem_types = this->baselineChem.size();
 		for (int ic = 0; ic < num_basechem_types; ic++) {
@@ -2407,6 +2412,10 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 				*(this->chem_cctx),
 				WHWorld::clock)) {} // TODO: Error handling
 		}
+		// debugging
+		std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
+		std::cout << "After diffusion - to2[x=1]: " << this->WHWorldChem.to2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
+		std::cout << "After diffusion - to2[x=5]: " << this->WHWorldChem.to2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
 	}
 #endif	// GPU_DIFFUSE
 
@@ -2680,6 +2689,11 @@ void WHWorld::updateChem() {
 		cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << ", Total O2: " << sumO2 << endl;
 
 		this->updateO2(); // Replenish O2
+
+		// debugging
+		std::cout << "After updateChem - po2[x=0]: " << this->WHWorldChem.po2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
+		std::cout << "After updateChem - po2[x=1]: " << this->WHWorldChem.po2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
+		std::cout << "After updateChem - po2[x=5]: " << this->WHWorldChem.po2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
 
 	#else
 		// Always calling updateChemCPU() for non-GPU_DIFFUSE chem updates
