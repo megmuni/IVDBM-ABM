@@ -920,19 +920,19 @@ void Stem::stem_cellFunction() {
 			(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0 + (2.42 * patchIL1beta) / (1 + 4.22 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
 			(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 0 + (5.43 * patchTNF) / (1 + 3.26 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
 #endif
-			// Finally, subtract 'consumed' O2 from current and neighbor patches
-			float oxDecrease = Stem::OCR / 27; // divide OCR across 27 patches (current + neighbors)
-			(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
-			// Count number of patches of neighbors inside world dimensions:
-			for (int dZ = -1; dZ <= 1; dZ++) {
-				for (int dY = -1; dY <= 1; dY++) {
-					for (int dX = -1; dX <= 1; dX++) {
-						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
-					}
-				}
-			}
+			//// Finally, subtract 'consumed' O2 from current and neighbor patches
+			//float oxDecrease = Stem::OCR / 27; // divide OCR across 27 patches (current + neighbors)
+			//(this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+			//// Count number of patches of neighbors inside world dimensions:
+			//for (int dZ = -1; dZ <= 1; dZ++) {
+			//	for (int dY = -1; dY <= 1; dY++) {
+			//		for (int dX = -1; dX <= 1; dX++) {
+			//			if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+			//			int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+			//			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->agentWorldPtr->WHWorldChem.do2[in]) -= oxDecrease;
+			//		}
+			//	}
+			//}
 		//}
 	/* -------------------------------------------------------------------------- */
 	/*                                DEACTIVATION                                */
