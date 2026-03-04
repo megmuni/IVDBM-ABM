@@ -1423,11 +1423,15 @@ void WHWorld::assignPatches(int type, int xmin, int xmax, int ymin, int ymax, in
 }
 
 void WHWorld::initializePatches() {
-  #ifdef MODEL_3D
-        assignPatches(CaAlg, 0, nx, 0, ny, 0, nz); 
-  #else
-        assignPatches(CaAlg, 0, nx, 0, ny, 0, 0); 
-  #endif
+#ifdef MODEL_3D
+    assignPatches(CaAlg, 0, nx, 0, ny, 0, nz); 
+#else
+    assignPatches(CaAlg, 0, nx, 0, ny, 0, 0); 
+#endif
+	
+	o2Line.resize(nx / 2 + 1, 0.0f);
+	int lineY = ny / 2;
+	int lineZ = nz / 2;
 
 	// Assign values to initial:
 	WHWorld::initialCaAlg = this->countPatchType(CaAlg);
