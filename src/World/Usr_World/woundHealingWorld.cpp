@@ -2416,6 +2416,11 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 		std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
 		std::cout << "After diffusion - to2[x=1]: " << this->WHWorldChem.to2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
 		std::cout << "After diffusion - to2[x=5]: " << this->WHWorldChem.to2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
+
+		// Debug: check if diffusion worked for z=0 slice
+		std::cout << "After diffusion z=0 - to2[x=0, y=50, z=0]: " << this->WHWorldChem.to2[0 + lineY * nx + 0 * nx * ny] << std::endl;
+		std::cout << "After diffusion z=0 - to2[x=1, y=50, z=0]: " << this->WHWorldChem.to2[1 + lineY * nx + 0 * nx * ny] << std::endl;
+		std::cout << "After diffusion z=0 - to2[x=5, y=50, z=0]: " << this->WHWorldChem.to2[5 + lineY * nx + 0 * nx * ny] << std::endl;
 	}
 #endif	// GPU_DIFFUSE
 
