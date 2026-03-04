@@ -1595,7 +1595,12 @@ void WHWorld::initializeChemCPU() {
 	this->WHWorldChem.totalIL1beta = 0;
 	this->WHWorldChem.totalo2 = 0;
 
-	int countCaAlg = this->countPatchType(CaAlg);
+	int countCaAlg = WHWorld::initialCaAlg;
+
+	double scaffoldVolume = (nx * ny * nz) * pow(this->patchlength, 3);   //mm^3 
+	double hydrogelVolume = scaffoldVolume * pow(10, -3); //mL
+	WHWorld::totalVolumeML = hydrogelVolume;
+
 	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
 	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
 	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
@@ -1956,6 +1961,11 @@ void WHWorld::initializeChemGPU() {
 	this->WHWorldChem.totalo2 = 0;
 
 	int countCaAlg = WHWorld::initialCaAlg;
+
+	double scaffoldVolume = (nx * ny * nz) * pow(this->patchlength, 3);   //mm^3 
+	double hydrogelVolume = scaffoldVolume * pow(10, -3); //mL
+	WHWorld::totalVolumeML = hydrogelVolume;
+
 	int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // calculate all patches - interior patches
 	float volumeBoundary = (WHWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
 	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
