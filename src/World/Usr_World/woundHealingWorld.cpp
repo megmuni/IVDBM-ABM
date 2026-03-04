@@ -1430,8 +1430,8 @@ void WHWorld::initializePatches() {
 #endif
 	
 	o2Line.resize(nx / 2 + 1, 0.0f);
-	int lineY = ny / 2;
-	int lineZ = nz / 2;
+	lineY = ny / 2;
+	lineZ = nz / 2;
 
 	// Assign values to initial:
 	WHWorld::initialCaAlg = this->countPatchType(CaAlg);
@@ -1936,6 +1936,7 @@ void WHWorld::initializeChemGPU() {
 					this->WHWorldChem.dTGF[in] = 0;
 					this->WHWorldChem.dIL1beta[in] = 0;
 					this->WHWorldChem.do2[in] = 0;
+					this->WHWorldChem.to2[in] = 0;
 
 					// Baseline chemical concentrations are initialized in tissue:
 					if (this->worldPatch[in].type[read_t] == CaAlg) {
@@ -1954,6 +1955,11 @@ void WHWorld::initializeChemGPU() {
 						iz == 0 || iz == nz - 1);
 					if (isBoundary)
 						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countBoundary;
+
+					for (int xi = 0; xi <= 5; xi++) {
+						int in = xi + lineY * nx + lineZ * nx * ny;
+						std::cout << "po2[" << xi << "] = " << this->WHWorldChem.po2[in] << std::endl;
+					}
 
 					// Initialize chemical gradient levels that agents are attracted by:
 					float patchIL1 = this->WHWorldChem.pIL1beta[in];
