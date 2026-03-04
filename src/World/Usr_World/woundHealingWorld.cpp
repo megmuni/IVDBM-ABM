@@ -2457,6 +2457,12 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 				ic)) {} // TODO: Error handling
 		}
 		// debugging
+		std::cout << std::scientific << std::setprecision(6);
+		std::cout << "to2[x=0,y=0,z=0]: " << this->WHWorldChem.to2[0] << std::endl;
+		std::cout << "to2[x=1,y=0,z=0]: " << this->WHWorldChem.to2[1] << std::endl;
+		std::cout << "to2[x=5,y=0,z=0]: " << this->WHWorldChem.to2[5] << std::endl;
+
+		// debugging
 		//std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
 		//std::cout << "After diffusion - to2[x=1]: " << this->WHWorldChem.to2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
 		//std::cout << "After diffusion - to2[x=5]: " << this->WHWorldChem.to2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
