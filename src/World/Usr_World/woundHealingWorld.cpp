@@ -1004,7 +1004,8 @@ using namespace std;
 	//		fComplex	*d_KernelSpectrum,
 			fComplex	*d_KernelSpectrum0,
 			c_ctx		 cctx,
-			int		 	 iter)
+			int		 	 iter,
+			int			 chemIndex)
 	{
 		float t = 0.0;
 
@@ -1079,8 +1080,11 @@ using namespace std;
 		// Debug: verify d_Data received non-zero values
 		float h_check[5];
 		checkCudaErrors(cudaMemcpy(h_check, d_Data, 5 * sizeof(float), cudaMemcpyDeviceToHost));
-		std::cout << "d_Data[0-4]: " << h_check[0] << " " << h_check[1] << " "
-			<< h_check[2] << " " << h_check[3] << " " << h_check[4] << std::endl;
+		std::cout << "ic=" << chemIndex << " d_Data[0-4]: "
+			<< std::scientific << std::setprecision(6)
+			<< h_check[0] << " " << h_check[1] << " "
+			<< h_check[2] << " " << h_check[3] << " "
+			<< h_check[4] << std::endl;
 
 		sdkStopTimer(&hTimer);
 		double dataTransferTime = sdkGetTimerValue(&hTimer);
@@ -2419,7 +2423,8 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 				this->chemAllocation[ic],		 // input:  p<chem>
 				this->h_dKernel_spectrum[ic],
 				*(this->chem_cctx),
-				WHWorld::clock)) {} // TODO: Error handling
+				WHWorld::clock,
+				ic)) {} // TODO: Error handling
 		}
 		// debugging
 		std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
