@@ -1075,6 +1075,13 @@ using namespace std;
 		sdkStartTimer(&hTimer);
 		checkCudaErrors(cudaMemcpy(d_Data,   h_ChemIn,   dataH   * dataW *   sizeof(float), cudaMemcpyHostToDevice));
 		checkCudaErrors(cudaMemset(d_PaddedData,   0, fftH * fftW * sizeof(float)));
+
+		// Debug: verify d_Data received non-zero values
+		float h_check[5];
+		checkCudaErrors(cudaMemcpy(h_check, d_Data, 5 * sizeof(float), cudaMemcpyDeviceToHost));
+		std::cout << "d_Data[0-4]: " << h_check[0] << " " << h_check[1] << " "
+			<< h_check[2] << " " << h_check[3] << " " << h_check[4] << std::endl;
+
 		sdkStopTimer(&hTimer);
 		double dataTransferTime = sdkGetTimerValue(&hTimer);
 
@@ -1116,6 +1123,7 @@ using namespace std;
 				kernelY,
 				kernelX
 		);
+		std::cout << "Padding complete" << std::endl;
 
 	#ifdef PRINT_KERNEL
 		fprintf(stderr,"...performing convolution\n");
