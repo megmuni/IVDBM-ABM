@@ -3576,7 +3576,7 @@ void WHWorld::outputWorld_csv() {
 		
 		//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 		ofstream output_file("output/Output_Biomarkers.csv", ios::app);
-		ofstream o2_file("output/o2_line.csv", ios:app);
+		ofstream o2_file("output/o2_line.csv", ios::app);
 		//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
@@ -3591,7 +3591,7 @@ void WHWorld::outputWorld_csv() {
 
     //ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 	ofstream output_file("output/Output_Biomarkers.csv", ios::app);
-	ofstream o2_file("output/o2_line.csv", ios:app);
+	ofstream o2_file("output/o2_line.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);
