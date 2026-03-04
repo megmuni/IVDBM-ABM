@@ -3561,6 +3561,7 @@ int WHWorld::userInput() {
 void WHWorld::outputWorld_csv() {
 	if (this->clock == 0) {
 		remove("output/Output_Biomarkers.csv");
+		remove("output/o2_line.csv");
 		//remove( "output/Output_Biomarkers_90Mw_34mM.csv");
 		//remove( "output/Output_Biomarkers_90Mw_22mM.csv");
 		//remove( "output/Output_Biomarkers_1500Mw_29mM.csv");
@@ -3569,17 +3570,23 @@ void WHWorld::outputWorld_csv() {
         
 		
 		//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
-		ofstream output_file("output/Output_Biomarkers.csv", ios::app);	
+		ofstream output_file("output/Output_Biomarkers.csv", ios::app);
+		ofstream o2_file("output/o2_line.csv", ios:app);
 		//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
 		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << ", Total O2 (fmol)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
         output_file.close();
+		// Header: patch x-indices
+		for (int xi = 0; xi <= nx / 2; xi++)
+			o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+		o2_file.close();
 	}
 
     //ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 	ofstream output_file("output/Output_Biomarkers.csv", ios::app);
+	ofstream o2_file("output/o2_line.csv", ios:app);
 	//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);
@@ -3670,6 +3677,10 @@ void WHWorld::outputWorld_csv() {
 	cout << " Aggrecan: " << new_agg << endl;
 
 	prevCells = cells.actualSize();
+
+	// Record o2 along the line - one row per tick
+	for (int xi = 0; xi <= nx / 2; xi++)
+		o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
 
 }
 
