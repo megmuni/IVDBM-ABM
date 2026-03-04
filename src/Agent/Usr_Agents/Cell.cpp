@@ -699,7 +699,7 @@ void Stem::stem_cellFunction() {
 		//Measure mean & patch oxygen 
 		float meanO2 = this->meanNeighborChem(o2);
 		float patchO2 = this->agentWorldPtr->WHWorldChem.po2[in];
-		if ((meanO2 + patchO2) > Stem::OCR) { // cell behaviours only work if there is enough oxygen in the vicinity
+		//if ((meanO2 + patchO2) > Stem::OCR) { // cell behaviours only work if there is enough oxygen in the vicinity
 
 			// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
 			/* -------------------------------------------------------------------------- */
@@ -933,7 +933,7 @@ void Stem::stem_cellFunction() {
 					}
 				}
 			}
-		}
+		//}
 	/* -------------------------------------------------------------------------- */
 	/*                                DEACTIVATION                                */
 	/* -------------------------------------------------------------------------- */
