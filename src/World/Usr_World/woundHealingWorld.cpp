@@ -1942,13 +1942,18 @@ void WHWorld::initializeChemGPU() {
 						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
 						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
 						this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
-						this->WHWorldChem.po2[in] = this->baselineChem[o2] /countBoundary;
 					} else {
 						this->WHWorldChem.pTNF[in] = 0;
 						this->WHWorldChem.pTGF[in] = 0;
 						this->WHWorldChem.pIL1beta[in] = 0;
-						this->WHWorldChem.po2[in] = 0;
 					}
+
+					// O2 set separately for boundary patches:
+					bool isBoundary = (ix == 0 || ix == nx - 1 ||
+						iy == 0 || iy == ny - 1 ||
+						iz == 0 || iz == nz - 1);
+					if (isBoundary)
+						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countBoundary;
 
 					// Initialize chemical gradient levels that agents are attracted by:
 					float patchIL1 = this->WHWorldChem.pIL1beta[in];
