@@ -1560,6 +1560,10 @@ void WHWorld::initializeChem(){
 	#else
 		this->initializeChemCPU();
 	#endif
+		std::cout << "initializeChem complete - po2[x=0,y=0,z=0]: "
+			<< this->chemAllocation[po2][0] << std::endl;
+		std::cout << "initializeChem complete - po2[x=0,y=50,z=50]: "
+			<< this->chemAllocation[po2][0 + 50 * nx + 50 * nx * ny] << std::endl;
 }
 
 void WHWorld::initializeChemCPU() {
@@ -1957,6 +1961,16 @@ void WHWorld::initializeChemGPU() {
 	float molO2 = this->initialO2 * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
 
 	this->baselineChem[o2] = molO2;
+
+	// Add trace prints here, after baselineChem[o2] is set but before patches are assigned
+	std::cout << std::scientific << std::setprecision(6);
+	std::cout << "initialO2: " << this->initialO2 << std::endl;
+	std::cout << "totalVolumeML: " << WHWorld::totalVolumeML << std::endl;
+	std::cout << "countBoundary: " << countBoundary << std::endl;
+	std::cout << "volumeBoundary: " << volumeBoundary << std::endl;
+	std::cout << "molO2: " << molO2 << std::endl;
+	std::cout << "baselineChem[o2]: " << this->baselineChem[o2] << std::endl;
+	std::cout << "value per patch: " << this->baselineChem[o2] / countBoundary << std::endl;
 
 	if (this->baselineChem.size() == 4) {
 		for (int iz = 0; iz < this->nz; iz++) {
@@ -2409,10 +2423,16 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 #ifdef GPU_DIFFUSE
 	void WHWorld::diffuseChemGPU(){
 		cerr << "Diffuse Chem (GPU)" << endl;
-		// debugging: check dimentions:
-		std::cout << "nx=" << nx << " ny=" << ny << " nz=" << nz << std::endl;
-		std::cout << "chem_cctx DH=" << chem_cctx->DH << " DW=" << chem_cctx->DW << std::endl;
-		std::cout << "DH*DW=" << chem_cctx->DH * chem_cctx->DW << " nx*ny*nz=" << nx * ny * nz << std::endl;
+		// debugging: check dimensions:
+		//std::cout << "nx=" << nx << " ny=" << ny << " nz=" << nz << std::endl;
+		//std::cout << "chem_cctx DH=" << chem_cctx->DH << " DW=" << chem_cctx->DW << std::endl;
+		//std::cout << "DH*DW=" << chem_cctx->DH * chem_cctx->DW << " nx*ny*nz=" << nx * ny * nz << std::endl;
+
+		// Debug: check host-side values directly, no GPU involved
+		std::cout << std::scientific << std::setprecision(6);
+		std::cout << "HOST po2[x=0,y=0,z=0]: " << this->chemAllocation[po2][0] << std::endl;
+		std::cout << "HOST po2[x=0,y=50,z=0]: " << this->chemAllocation[po2][0 + 50 * nx] << std::endl;
+		std::cout << "HOST pTGF[x=0,y=0,z=0]: " << this->chemAllocation[pTGF][0] << std::endl;
 
 		// Loop over all types of chemical and perform convolution-based diffusion on GPU
 		const int num_basechem_types = this->baselineChem.size();
@@ -2427,14 +2447,14 @@ void WHWorld::NetlogoDiffuse() { // NOT UPDATED FOR O2
 				ic)) {} // TODO: Error handling
 		}
 		// debugging
-		std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
-		std::cout << "After diffusion - to2[x=1]: " << this->WHWorldChem.to2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
-		std::cout << "After diffusion - to2[x=5]: " << this->WHWorldChem.to2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
+		//std::cout << "After diffusion - to2[x=0]: " << this->WHWorldChem.to2[0 + lineY * nx + lineZ * nx * ny] << std::endl;
+		//std::cout << "After diffusion - to2[x=1]: " << this->WHWorldChem.to2[1 + lineY * nx + lineZ * nx * ny] << std::endl;
+		//std::cout << "After diffusion - to2[x=5]: " << this->WHWorldChem.to2[5 + lineY * nx + lineZ * nx * ny] << std::endl;
 
 		// Debug: check if diffusion worked for z=0 slice
-		std::cout << "After diffusion z=0 - to2[x=0, y=50, z=0]: " << this->WHWorldChem.to2[0 + lineY * nx + 0 * nx * ny] << std::endl;
-		std::cout << "After diffusion z=0 - to2[x=1, y=50, z=0]: " << this->WHWorldChem.to2[1 + lineY * nx + 0 * nx * ny] << std::endl;
-		std::cout << "After diffusion z=0 - to2[x=5, y=50, z=0]: " << this->WHWorldChem.to2[5 + lineY * nx + 0 * nx * ny] << std::endl;
+		//std::cout << "After diffusion z=0 - to2[x=0, y=50, z=0]: " << this->WHWorldChem.to2[0 + lineY * nx + 0 * nx * ny] << std::endl;
+		//std::cout << "After diffusion z=0 - to2[x=1, y=50, z=0]: " << this->WHWorldChem.to2[1 + lineY * nx + 0 * nx * ny] << std::endl;
+		//std::cout << "After diffusion z=0 - to2[x=5, y=50, z=0]: " << this->WHWorldChem.to2[5 + lineY * nx + 0 * nx * ny] << std::endl;
 	}
 #endif	// GPU_DIFFUSE
 
