@@ -1159,7 +1159,8 @@ using namespace std;
 	#ifdef PRINT_KERNEL
 		fprintf(stderr,"...removing results padding\n");
 	#endif
-	/*	unpadResult(
+		/*
+	    unpadResult(
 				d_UnpaddedResult,
 				d_PaddedData,
 				dataH,
@@ -1167,7 +1168,7 @@ using namespace std;
 				fftH,
 				fftW
 		);
-	*/
+		*/
 		sdkStopTimer(&hTimer);
 		double unpadTime = sdkGetTimerValue(&hTimer);
 
@@ -1177,7 +1178,18 @@ using namespace std;
 		sdkResetTimer(&hTimer);
 		sdkStartTimer(&hTimer);
 		// h_ChemOut = d_UnpaddedResult
-		checkCudaErrors(cudaMemcpy(h_ChemOut, d_UnpaddedResult, dataH * dataW * sizeof(float), cudaMemcpyDeviceToHost));
+		// TESTING with a new GPU result extraction method. the below line was the original.
+		// checkCudaErrors(cudaMemcpy(h_ChemOut, d_UnpaddedResult, dataH * dataW * sizeof(float), cudaMemcpyDeviceToHost));
+		float* h_Padded = (float*)malloc(fftH * fftW * sizeof(float));
+		checkCudaErrors(cudaMemcpy(h_Padded, d_PaddedData,
+			fftH* fftW * sizeof(float),
+			cudaMemcpyDeviceToHost));
+		for (int y = 0; y < dataH; y++)
+			memcpy(h_ChemOut + y * dataW,
+				h_Padded + y * fftW,
+				dataW * sizeof(float));
+		free(h_Padded);
+
 		sdkStopTimer(&hTimer);
 		double readbackTime = sdkGetTimerValue(&hTimer);
 
@@ -1441,45 +1453,50 @@ void WHWorld::initializePatches() {
 #ifdef MODEL_SCAFFOLD
 	void WHWorld::initializeCaAlg(){
 		cout << "Begin Calculating Ca-Alg Properties..." << endl; 
-			
-		/* ---------------------- Parameters of Ca-Alg Scaffold --------------------- */
-		float Alg_ww = this->Alg_wv/(this->Alg_wv); 
 
-		/* ----- Calculate initial bulk mechanical properties of Ca-Alg Scaffold ---- */
-		/* p_XL: Crosslink Density (mmol/mL = M) 
-		* 		 Linear dependence of Shear modulus on cross-link concentration for constant polymer concentration 
-		*/
-		this->pXL = this->pXL / 1000; // convert mM to M
-		//this->pXL = 0.014;
+		/* NOTE : elastic modulus calculation is commented out here for now as it was copied over to initialize Chem. */
+		/* It should only run once - either here or there. */
+		/* Everything not in initialize chem remains here (pore width onwards). */
 
-		if (this->highMW_alg == 1 && this->lowMW_alg == 0) { // 'high' condition
-			this->Alg_Mn = 1500;
-		}
-		else if (this->highMW_alg == 0 && this->lowMW_alg == 1) { // 'low' condition
-			this->Alg_Mn = 95;
-		}
-		else { // 'mix' condition: calculates a weighted avg molecular weight
-			float highMW_kDa = 1500;
-			float lowMW_kDa = 50;
-			this->Alg_Mn = (pow(this->highMW_alg * highMW_kDa, 2)+ pow(this->lowMW_alg * lowMW_kDa, 2)) / ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
-		}
+		//	
+		///* ---------------------- Parameters of Ca-Alg Scaffold --------------------- */
+		//float Alg_ww = this->Alg_wv/(this->Alg_wv); 
 
-		cout << "		Final Alginate concentration (%w/v): " << this->Alg_wv<< endl; 
-		cout << "       Alginate Molecular Weight (kDa) = " << this->Alg_Mn << endl;
-		cout << "       Calcium Crosslinking Density (mmol/mL = M) = " << this->pXL << endl;
+		///* ----- Calculate initial bulk mechanical properties of Ca-Alg Scaffold ---- */
+		///* p_XL: Crosslink Density (mmol/mL = M) 
+		//* 		 Linear dependence of Shear modulus on cross-link concentration for constant polymer concentration 
+		//*/
+		//this->pXL = this->pXL / 1000; // convert mM to M
+		////this->pXL = 0.014;
 
-		/* Calculate Initial Elastic Modulus E (kPa)
-		*  E = a (( b*TotalProtein(w/v) + c)* Alg(w/w) + d*TP(w/v)) + e*(f*Alg(w/v) + g)*XL(w/w)
-		*
-		*       Follows rule of mixtures where stiffness of mixture is weight average of components.
-		*       Linear dependence of modulus on cross-link concentration for constant polymer concentration 
-		*/			
-		#ifdef CALIBRATION
-			this->E = -WHWorld::ElasticMod[0] + WHWorld::ElasticMod[1]*(Alg_wv) - WHWorld::ElasticMod[2]*(pXL) + WHWorld::ElasticMod[3]*(Alg_Mn) + WHWorld::ElasticMod[4]*(Alg_wv)*(pXL) - WHWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - WHWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
-		#else 
-			this->E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
-		#endif
-		cout << "       Elastic Modulus (kPa) = " << this->E << endl; 
+		//if (this->highMW_alg == 1 && this->lowMW_alg == 0) { // 'high' condition
+		//	this->Alg_Mn = 1500;
+		//}
+		//else if (this->highMW_alg == 0 && this->lowMW_alg == 1) { // 'low' condition
+		//	this->Alg_Mn = 95;
+		//}
+		//else { // 'mix' condition: calculates a weighted avg molecular weight
+		//	float highMW_kDa = 1500;
+		//	float lowMW_kDa = 50;
+		//	this->Alg_Mn = (pow(this->highMW_alg * highMW_kDa, 2)+ pow(this->lowMW_alg * lowMW_kDa, 2)) / ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
+		//}
+
+		//cout << "		Final Alginate concentration (%w/v): " << this->Alg_wv<< endl; 
+		//cout << "       Alginate Molecular Weight (kDa) = " << this->Alg_Mn << endl;
+		//cout << "       Calcium Crosslinking Density (mmol/mL = M) = " << this->pXL << endl;
+
+		///* Calculate Initial Elastic Modulus E (kPa)
+		//*  E = a (( b*TotalProtein(w/v) + c)* Alg(w/w) + d*TP(w/v)) + e*(f*Alg(w/v) + g)*XL(w/w)
+		//*
+		//*       Follows rule of mixtures where stiffness of mixture is weight average of components.
+		//*       Linear dependence of modulus on cross-link concentration for constant polymer concentration 
+		//*/			
+		//#ifdef CALIBRATION
+		//	this->E = -WHWorld::ElasticMod[0] + WHWorld::ElasticMod[1]*(Alg_wv) - WHWorld::ElasticMod[2]*(pXL) + WHWorld::ElasticMod[3]*(Alg_Mn) + WHWorld::ElasticMod[4]*(Alg_wv)*(pXL) - WHWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - WHWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
+		//#else 
+		//	this->E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
+		//#endif
+		//cout << "       Elastic Modulus (kPa) = " << this->E << endl; 
 		
 		/* Pore Size (um): poreWidth = -a * Alg_ww^2 + b * Alg_ww + c */
 		#ifdef CALIBRATION
@@ -3483,8 +3500,6 @@ int WHWorld::userInput() {
 		infile >> garbage;
 		infile >> this->pXL;
 		cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
-
-
 
 
         /* --------------------------- CYTOKINE PROPERTIES -------------------------- */
