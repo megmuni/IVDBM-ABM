@@ -2224,8 +2224,8 @@ int WHWorld::go() {
 	#else	// PROFILE_MAJOR_STEPS
 
 		// For testing purposes:
-		this->updateTotalChem();
-		cout << "  TNF: " << this->WHWorldChem.totalTNF << ", TGF: " << this->WHWorldChem.totalTGF << ", IL1beta: " << this->WHWorldChem.totalIL1beta << endl;
+		//this->updateTotalChem();
+		//cout << "  TNF: " << this->WHWorldChem.totalTNF << ", TGF: " << this->WHWorldChem.totalTGF << ", IL1beta: " << this->WHWorldChem.totalIL1beta << endl;
 		
 		/* --------------------------- CHEMICAL DIFFUSION --------------------------- */
 		this->diffuseCytokines();
@@ -3752,8 +3752,8 @@ void WHWorld::outputWorld_csv() {
 
 	// Record o2 along the line - one row per tick
 	for (int xi = 0; xi <= nx / 2; xi++) {
-		o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
-		tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
+		o2_file << fixed << std::setprecision(6) << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
+		tgf_file << fixed << std::setprecision(6) << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
 	}
 
 }
