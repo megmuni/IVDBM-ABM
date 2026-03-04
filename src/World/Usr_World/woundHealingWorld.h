@@ -486,6 +486,7 @@ class WHWorld: public World {
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
 
     vector<float> o2Line; // Vector to store o2 values along an x-face line from boundary to center of ABM grid
+    vector<float> tgfLine; // Vector to store TGF values along an x-face line from boundary to center of ABM grid
     int lineY;
     int lineZ;
 
