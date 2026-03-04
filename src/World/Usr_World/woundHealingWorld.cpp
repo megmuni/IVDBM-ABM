@@ -1709,6 +1709,10 @@ void WHWorld::initializeChemGPU() {
 		// Overwrite halflifes from config file. Use instead values from sensitivity analysis input file (Sample.txt)
 		HalfLifes[ic] = halfLifes_static[ic] * 60;		// minutes * 60
 		gamma[ic] = 1 - pow(2, -(1/HalfLifes[ic]));
+
+		std::cout << "ic=" << ic << " D=" << D[ic]
+			<< " lambda=" << lambda[ic]
+			<< " gamma=" << gamma[ic] << std::endl;
 	}
 
 	#ifdef PRINT_KERNEL
@@ -1956,10 +1960,11 @@ void WHWorld::initializeChemGPU() {
 					if (isBoundary)
 						this->WHWorldChem.po2[in] = this->baselineChem[o2] / countBoundary;
 
-					for (int xi = 0; xi <= 5; xi++) {
-						int in = xi + lineY * nx + lineZ * nx * ny;
-						std::cout << "po2[" << xi << "] = " << this->WHWorldChem.po2[in] << std::endl;
-					}
+					// for debugging
+					//for (int xi = 0; xi <= 5; xi++) {
+					//	int in = xi + lineY * nx + lineZ * nx * ny;
+					//	std::cout << "po2[" << xi << "] = " << this->WHWorldChem.po2[in] << std::endl;
+					//}
 
 					// Initialize chemical gradient levels that agents are attracted by:
 					float patchIL1 = this->WHWorldChem.pIL1beta[in];
