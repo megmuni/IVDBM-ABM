@@ -2613,7 +2613,7 @@ void WHWorld::updateChem() {
 						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.tTNF[in];// *0.02;
 						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.tTGF[in];// *0.02;
 						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.tIL1beta[in];// *0.02;
-						this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.po2[in];
+						this->WHWorldChem.po2[in] = this->WHWorldChem.do2[in] + this->WHWorldChem.to2[in];
 
 						if (this->WHWorldChem.pTNF[in] < 0) {
 							this->WHWorldChem.pTNF[in] = 0;
