@@ -3045,7 +3045,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		#else
 			this->Q = (0.4*Alg_ww + 0.4)*log(tmin) + (3*Alg_ww + 7.9); 
 		#endif
-		this->Q=0;
+		//this->Q=0;
 		//cout << " this->Q =" << (this->SwellRatio[0]<<"*"<<Alg_ww<< " + "<< this->SwellRatio[1])<<"*log("<<tmin<<") + ("<<this->SwellRatio[2]<<"*"<<Alg_ww<< " + "<<this->SwellRatio[3]<<")" << endl; 
 		//cout << " Swelling Ratio: " << this->Q << endl; 
 	}
