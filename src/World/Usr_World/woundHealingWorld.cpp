@@ -1626,7 +1626,7 @@ void printWindow(float* a, int h, int w, int r){
 		int nSec = 1800;//90;//180;//600;
 		// TODO: calculate dt w.r.t. max D (for now assume max D = 20.0)
 		float dt = 2.5;
-		float dx = 15.0;	// um
+		float dx = 10.0;	// um
 		//float D = 20.0;
 		float dx2 = dx * dx;
 		//float lambda = (D*dt)/dx2;
