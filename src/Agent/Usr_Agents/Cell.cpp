@@ -130,6 +130,7 @@ Stem::Stem(Patch* patchPtr) : Cell(patchPtr) {
 	this->color[write_t] = cstem;
 	this->type[write_t] = stem;
 
+	this->doublings[read_t] = 0;
 	this->color[read_t] = cstem;
 	this->type[read_t] = stem;
 }
@@ -141,6 +142,7 @@ Progen::Progen(Patch* patchPtr) : Cell(patchPtr) {
 	this->color[write_t] = cprogen;
 	this->type[write_t] = progen;
 
+	this->doublings[read_t] = 0;
 	this->color[read_t] = cprogen;
 	this->type[read_t] = progen;
 }
@@ -152,6 +154,7 @@ NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 	this->color[write_t] = cnp;
 	this->type[write_t] = np;
 
+	this->doublings[read_t] = 0;
 	this->color[read_t] = cnp;
 	this->type[read_t] = np;
 
@@ -708,7 +711,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 10; //testing
+				float stemProlif = 5; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -751,7 +754,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 10; //testing
+				float stemProlif = 5; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -955,7 +958,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 10; //testing
+			float progenProlif = 5; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -985,7 +988,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 10; //testing
+			float progenProlif = 5; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
