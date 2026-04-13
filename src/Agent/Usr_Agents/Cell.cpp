@@ -711,7 +711,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 5; //testing
+				float stemProlif = 1; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -754,7 +754,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 5; //testing
+				float stemProlif = 1; //testing
 				if (rollDice(stemProlif)) {
 #else
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -958,7 +958,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 5; //testing
+			float progenProlif = 1; //testing
 			if (rollDice(progenProlif)) {
 #else  
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -988,7 +988,7 @@ void Progen::progen_cellFunction() {
 
 #ifdef CALIBRATION
 			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 5; //testing
+			float progenProlif = 1; //testing
 			if (rollDice(progenProlif)) {
 #else
 			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
@@ -1489,7 +1489,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 
 	int in = this->index[read_t];
 	//float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
-	float stemDiff = 20; //testing
+	float stemDiff = 5; //testing
 	if (rollDice(stemDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new progenitor cell nearby
@@ -1501,6 +1501,8 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 			//	cout << "Casting Failed" << endl;
 			//}
 			Agent::agentPatchPtr[in].clearOccupied();
+			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
+
 			this->hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
 			this->hatchnewcell(number, agentType); // create new progenitor cell nearby
 			this->die(); // 'kill' current cell
@@ -1512,7 +1514,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
 	int in = this->index[read_t];
-	float progenDiff = 30; //testing
+	float progenDiff = 10; //testing
 	if (rollDice(progenDiff)) {
 		if (rollDice(70)) { // asymmetric differentiation
 			this->hatchnewcell(number, agentType); // only create new NP cell nearby
@@ -1527,6 +1529,8 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 			//	cout << "Casting Successful" << endl;
 			//}
 			Agent::agentPatchPtr[in].clearOccupied();
+			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
+
 			this->hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
 			this->hatchnewcell(number, agentType); // create new NP cell nearby
 			this->die(); // 'kill' current cell
