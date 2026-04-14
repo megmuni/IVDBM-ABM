@@ -1495,7 +1495,7 @@ void WHWorld::initializePatches() {
 		*       Important in retaining water, facilitating diffusion.
 		*/
 		#ifdef CALIBRATION
-			this->Q = WHWorld::SwellRatio[0] - WHWorld::SwellRatio[1]*(this->reportDay()) - WHWorld::SwellRatio[2]*(Alg_wv)	- WHWorld::SwellRatio[3]*(this->reportDay())*(pXL) + WHWorld::SwellRatio[4]*(Alg_wv)*(pXL);
+			this->Q = WHWorld::SwellRatio[0] - WHWorld::SwellRatio[1]*(this->reportDay()) - WHWorld::SwellRatio[2]*(this->Alg_wv)	- WHWorld::SwellRatio[3]*(this->reportDay())*(this->pXL) + WHWorld::SwellRatio[4]*(this->Alg_wv)*(this->pXL);
 		#else
 			this->Q = 72.478 - 0.131*(this->reportDay()) - 22.034*(Alg_wv) - 3.284*(this->reportDay())*(pXL) + 35.752*(Alg_wv)*(pXL);
 		#endif 
@@ -3054,7 +3054,8 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		*       Rapid swelling in initial 10 min, with slight increase until ~24h
 		*/
 		#ifdef CALIBRATION
-			this->Q = (this->SwellRatio[0]*Alg_ww + this->SwellRatio[1])*log(tmin) + (this->SwellRatio[2]*Alg_ww + this->SwellRatio[3]); 
+			//this->Q = (this->SwellRatio[0]*Alg_ww + this->SwellRatio[1])*log(tmin) + (this->SwellRatio[2]*Alg_ww + this->SwellRatio[3]); old 
+		WHWorld::SwellRatio[0] - WHWorld::SwellRatio[1] * (this->reportDay()) - WHWorld::SwellRatio[2] * (this->Alg_wv) - WHWorld::SwellRatio[3] * (this->reportDay()) * (this->pXL) + WHWorld::SwellRatio[4] * (this->Alg_wv) * (this->pXL);
 		#else
 			this->Q = (0.4*Alg_ww + 0.4)*log(tmin) + (3*Alg_ww + 7.9); 
 		#endif
