@@ -482,6 +482,9 @@ class WHWorld: public World {
 
     vector<float> tgfLine; // Vector to store TGF values along an x-face line from boundary to center of ABM grid
 
+    int lineY;
+    int lineZ;
+
     float Alg_v, Alg_wv;  // Volume (mL) and final concentration (% w/v) of Alg in Ca-Alg hydrogel
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
