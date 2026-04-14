@@ -1104,18 +1104,18 @@ using namespace std;
 	//			kernelX
 	//	);
 
-	//	padDataClampToBorder(
-	//			d_PaddedData,
-	//			d_Data,
-	//			fftH,
-	//			fftW,
-	//			dataH,
-	//			dataW,
-	//			kernelH,
-	//			kernelW,
-	//			kernelY,
-	//			kernelX
-	//	);
+		padDataClampToBorder(
+				d_PaddedData,
+				d_Data,
+				fftH,
+				fftW,
+				dataH,
+				dataW,
+				kernelH,
+				kernelW,
+				kernelY,
+				kernelX
+		);
 
 	#ifdef PRINT_KERNEL
 		fprintf(stderr,"...performing convolution\n");
@@ -1159,7 +1159,8 @@ using namespace std;
 	#ifdef PRINT_KERNEL
 		fprintf(stderr,"...removing results padding\n");
 	#endif
-	/*	unpadResult(
+
+		unpadResult(
 				d_UnpaddedResult,
 				d_PaddedData,
 				dataH,
@@ -1167,7 +1168,7 @@ using namespace std;
 				fftH,
 				fftW
 		);
-	*/
+
 		sdkStopTimer(&hTimer);
 		double unpadTime = sdkGetTimerValue(&hTimer);
 
@@ -3521,6 +3522,8 @@ void WHWorld::outputWorld_csv() {
 
 	cout << " Collagen: " << new_coll << endl;
 	cout << " Aggrecan: " << new_agg << endl;
+
+	tgf_file << fixed << std::setprecision(10);
 
 	// Record chem along the line - one row per tick
 	for (int xi = 0; xi <= nx / 2; xi++) {
