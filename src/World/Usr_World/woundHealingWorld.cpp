@@ -1428,6 +1428,10 @@ void WHWorld::initializePatches() {
         assignPatches(CaAlg, 0, nx, 0, ny, 0, 0); 
   #endif
 
+		tgfLine.resize(nx / 2 + 1, 0.0f);
+		lineY = ny / 2;
+		lineZ = nz / 2;
+
 	// Assign values to initial:
 	WHWorld::initialCaAlg = this->countPatchType(CaAlg);
 	//cout << "Finished building Ca-Alg Hydrogel" << endl;
@@ -2542,6 +2546,13 @@ void WHWorld::updateChem() {
 			this->WHWorldChem.totalTGF += sumTGF;
 			this->WHWorldChem.totalIL1beta += sumIL1;
 			cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
+
+			// Calculate values along the tgf line
+			for (int xi = 0; xi <= nx / 2; xi++) {
+				int in = xi + lineY * nx + lineZ * nx * ny;
+				tgfLine[xi] = this->WHWorldChem.pTGF[in];
+			}
+
 	#else
 		// Always calling updateChemCPU() for non-GPU_DIFFUSE chem updates
 		updateChemCPU();
@@ -3393,32 +3404,43 @@ int WHWorld::userInput() {
 void WHWorld::outputWorld_csv() {
 	if (this->clock == 0) {
 		remove("output/Output_Biomarkers.csv");
+		remove("output/tgf_line.csv");
 		//remove( "output/Output_Biomarkers_90Mw_34mM.csv");
 		//remove( "output/Output_Biomarkers_90Mw_22mM.csv");
 		//remove( "output/Output_Biomarkers_1500Mw_29mM.csv");
-        //remove( "output/Output_Biomarkers_1500Mw_14mM.csv");
+		//remove( "output/Output_Biomarkers_1500Mw_14mM.csv");
 		//remove( "output/Output_Biomarkers_Experiment_200Mw_20mM.csv");
-        
-		
+
+
 		//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
-		ofstream output_file("output/Output_Biomarkers.csv", ios::app);	
+		ofstream output_file("output/Output_Biomarkers.csv", ios::app);
+		ofstream tgf_file("output/tgf_line.csv", ios::app);
 		//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
 		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
-		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" <<  "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
-        output_file.close();
+		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" << "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
+		output_file.close();
+
+		// Header: patch x-indices
+		for (int xi = 0; xi <= nx / 2; xi++) {
+			//o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+			tgf_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+		}
+		//o2_file.close();
+		tgf_file.close();
 	}
 
-    //ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
+	//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 	ofstream output_file("output/Output_Biomarkers.csv", ios::app);
+	ofstream tgf_file("output/tgf_line.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);
 	//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);
 
 	int f = 0; int af = 0;
-	int orig_coll = 0; int frag_coll = 0; double new_coll = 0; 
-	int orig_agg = 0; int frag_agg = 0; double new_agg = 0; 
+	int orig_coll = 0; int frag_coll = 0; double new_coll = 0;
+	int orig_agg = 0; int frag_agg = 0; double new_agg = 0;
 	int HA = 0; int fHA = 0;
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
 	int alive = 0; int dead = 0;
@@ -3449,7 +3471,7 @@ void WHWorld::outputWorld_csv() {
 	cout << " pre-np cells: " << progenSize << endl;
 	cout << " np cells: " << npSize << endl;
 
-	for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
+	for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
 		orig_coll += this->worldECM[in].ocollagen[read_t];
 		new_coll += this->worldECM[in].ncollagen[read_t];
 		frag_coll += this->worldECM[in].fcollagen[read_t];
@@ -3480,7 +3502,7 @@ void WHWorld::outputWorld_csv() {
 
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
-	output_file << (this->clock)/48 << ",";
+	output_file << (this->clock) / 48 << ",";
 	output_file << this->WHWorldChem.totalTNF << ",";
 	output_file << this->WHWorldChem.totalIL1beta << ",";
 	output_file << this->WHWorldChem.totalTGF << ",";
@@ -3490,15 +3512,23 @@ void WHWorld::outputWorld_csv() {
 	//output_file << af << "," << f+af << ","; //cells
 	output_file << cells.actualSize() << "," << stemSize << "," << progenSize << "," << npSize << "," << liveCells << "," << deadCells << ","; // cell counts
 
-	#ifdef MODEL_SCAFFOLD
-		output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << ","<< this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << endl;
-	#else
-		output_file  << endl;
-	#endif
+#ifdef MODEL_SCAFFOLD
+	output_file << this->E << " , " << this->Q << ", " << this->w << "," << this->Alg_wv << "," << this->Alg_Mn << "," << this->pXL << "," << cellViability << "," << perDiff << endl;
+#else
+	output_file << endl;
+#endif
 	output_file.close();
 
 	cout << " Collagen: " << new_coll << endl;
 	cout << " Aggrecan: " << new_agg << endl;
+
+	// Record chem along the line - one row per tick
+	for (int xi = 0; xi <= nx / 2; xi++) {
+		//o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
+		tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
+	}
+	
+	tgf_file.close();
 
 	prevCells = cells.actualSize();
 

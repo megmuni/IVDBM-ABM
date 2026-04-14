@@ -480,6 +480,8 @@ class WHWorld: public World {
     float *D;          // Array of diffusion coefficients, gets allocated in userInput()
     int *HalfLifes;    // Arsray of cytokine half-life (seconds), gets allocated in userInput()
 
+    vector<float> tgfLine; // Vector to store TGF values along an x-face line from boundary to center of ABM grid
+
     float Alg_v, Alg_wv;  // Volume (mL) and final concentration (% w/v) of Alg in Ca-Alg hydrogel
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
