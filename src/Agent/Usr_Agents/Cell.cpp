@@ -908,7 +908,7 @@ void Stem::stem_cellFunction() {
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
 	#ifdef CALIBRATION
 		if (rollDice(Stem::apoptosisChance)) {
-			if (rollDice(10)) { // further reduce apoptosis chance to 0.5%
+			if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
 				this->realDeath[write_t] = true;
 				this->die();
 				return;
