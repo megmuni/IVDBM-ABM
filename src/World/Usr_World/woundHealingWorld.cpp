@@ -2107,8 +2107,8 @@ int WHWorld::go() {
 	#else	// PROFILE_MAJOR_STEPS
 
 		// For testing purposes:
-		this->updateTotalChem();
-		cout << "  TNF: " << this->WHWorldChem.totalTNF << ", TGF: " << this->WHWorldChem.totalTGF << ", IL1beta: " << this->WHWorldChem.totalIL1beta << endl;
+		//this->updateTotalChem();
+		//cout << "  TNF: " << this->WHWorldChem.totalTNF << ", TGF: " << this->WHWorldChem.totalTGF << ", IL1beta: " << this->WHWorldChem.totalIL1beta << endl;
 		
 		/* --------------------------- CHEMICAL DIFFUSION --------------------------- */
 		this->diffuseCytokines();
