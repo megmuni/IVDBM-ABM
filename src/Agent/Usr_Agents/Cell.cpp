@@ -672,7 +672,6 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
   	
 	// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
-	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
 		//cout << "[in] is " << in << endl; //debugging
 		//cout << "[read_t] is " << read_t << endl; //debugging
@@ -711,7 +710,7 @@ void Stem::stem_cellFunction() {
 
 #ifdef CALIBRATION
 				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 1; //testing
+				float stemProlif = 5; //testing
 				if (rollDice(stemProlif)) {
 #else  
 				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -726,47 +725,7 @@ void Stem::stem_cellFunction() {
 			}
 		}
 		else {
-#endif
-
-#ifdef CALIBRATION
-			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
-#else 
-			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
-#endif 
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				//int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
-
-#ifdef CALIBRATION
-				if (meanTGF <= Stem::proliferation[0]) {
-#else  
-				if (meanTGF <= 10) {
-#endif  
-					TGFrelated = 1; // Low TGF (0.1-1nm) stimulate proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1;  // High TGF (1-10nm) inhibits proliferation. 
-				}
-
-#ifdef CALIBRATION
-				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF + Stem::proliferation[4] * Agent::agentWorldPtr->E);
-				float stemProlif = 1; //testing
-				if (rollDice(stemProlif)) {
-#else
-				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(stemProlif)) {
-#endif
-					this->hatchnewcell(1, stem);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//cout << "growing new stem cell" << endl;
-					//this->die();
-					return;
-				}
-			}
+			cout << "prolif failed " << this->index[read_t] << endl;
 		}
 
 	/* -------------------------------------------------------------------------- */
@@ -941,7 +900,6 @@ void Progen::progen_cellFunction() {
 	/*                                PROLIFERATION                               */
 	/* -------------------------------------------------------------------------- */
 
-#ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
 	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
 #ifdef CALIBRATION
@@ -969,39 +927,11 @@ void Progen::progen_cellFunction() {
 					//cout << "growing new pre-np cell" << endl;
 					//this->die();
 					return;
-				}
-			}
-			} else {
-#endif
-
-#ifdef CALIBRATION
-		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
-#else 
-		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
-#endif  
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			//int countfHA = this->countNeighborECM(fha);
-
-#ifdef CALIBRATION
-			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 1; //testing
-			if (rollDice(progenProlif)) {
-#else
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			if (rollDice(progenProlif)) {
-#endif
-				this->hatchnewcell(1, progen);
-				this->doublings[write_t] = this->doublings[read_t] + 1;
-				//cout << "growing new pre-np cell" << endl;
-				//this->die();
-				return;
 			}
 		}
-		}
+	} else {
+		cout << "prolif failed " << this->index[read_t] << endl;
+	}
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
