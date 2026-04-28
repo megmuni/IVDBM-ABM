@@ -140,7 +140,13 @@ class Cell: public Agent {
      *             dz        -- Difference in z-coordinate of the cell's location relative to original's location.
      *                          NOTE: dz = 0 because it is only 2D for now.
      */
-    void copyAndInitialize(Agent* original, int dx, int dy, int dz = 0);  
+    void copyAndInitialize(Agent* original, int dx, int dy, int dz = 0);
+
+    /*
+     * Description: template method for cell proliferation
+     * 
+     */
+    void proliferate() final;
 
     /*
      * Description:	Sprouts original collagen on one of the activated cell's damaged neighbor patches.
@@ -187,6 +193,17 @@ class Cell: public Agent {
     *             here      -- Whether to hatch on neighboring patches (default 0) or current patch (1)
     */
     virtual void hatchnewcell(int number, int agentType, int here = 0);
+
+  protected:
+      /*
+      * Description:	Determines whether an agent is still proliferative (i.e. has it reached the max number of doublings).
+      * Added by MM, 2025.
+      * 
+      * Return: True if the agent is proliferative, false otherwise.
+      * Parameters: agentType
+      */
+      virtual bool isProliferative();
+      virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */

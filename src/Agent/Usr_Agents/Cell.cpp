@@ -662,6 +662,11 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 	}
 }
 
+void Cell::proliferate() {
+	if (!isProliferative()) return;
+}
+
+
 void Stem::stem_cellFunction() {
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
@@ -1319,6 +1324,12 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 //			}
 //}
 
+bool Cell::isProliferative() {
+	return this->doublings[read_t] < get_max_doublings();
+}
+
+int Cell::get_max_doublings() { return 50; } //base default
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
@@ -1409,6 +1420,11 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 	}
 }
 
+int Stem::get_max_doublings() { return 100; }
+
+int Progen::get_max_doublings() { return 65; }
+
+int NP::get_max_doublings() { return 27; }
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
