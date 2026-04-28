@@ -614,7 +614,7 @@ void Stem::stem_cellFunction() {
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
 	#ifdef MODEL_SCAFFOLD
-		int in = this->index[read_t];
+		in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
@@ -632,7 +632,7 @@ void Stem::stem_cellFunction() {
 	// Activated chondrocytes only move along their preferred gradient if there is damage.	
 	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
-	if (totaldamage != 0) this->cellSniff();
+	this->cellSniff();
 
 	/* -------------------------------------------------------------------------- */
 	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
@@ -799,7 +799,7 @@ void Progen::progen_cellFunction() {
 	// Activated chondrocytes only move along their preferred gradient if there is damage.	
 	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
-	if (totaldamage != 0) this->cellSniff();
+	this->cellSniff();
 
 	/* -------------------------------------------------------------------------- */
 	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
