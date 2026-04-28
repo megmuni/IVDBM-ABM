@@ -314,7 +314,7 @@ void NP::NP_cellFunction() {
 #ifdef MODEL_SCAFFOLD
 	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
 		in = this->index[read_t];
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(np))) {
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 
 #ifdef CALIBRATION
 			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
@@ -688,7 +688,7 @@ void Stem::stem_cellFunction() {
 		//	cout << "agent patch type is invalid!" << endl;
 		//}
 		
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
 			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
 			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
@@ -738,7 +738,7 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	#ifdef MODEL_SCAFFOLD
 		in = this->index[read_t];
-		if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(stem))) {
+		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
 				//cout << "attempting differentiation of stem cell" << endl;
@@ -906,7 +906,7 @@ void Progen::progen_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 
 	in = this->index[read_t];
-	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 #ifdef CALIBRATION
 		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
 		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
@@ -942,7 +942,7 @@ void Progen::progen_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 #ifdef MODEL_SCAFFOLD
 	in = this->index[read_t];
-	if ((Agent::agentPatchPtr[in].type[read_t] == CaAlg) && (this->isProliferative(progen))) {
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
 			//cout << "attempting differentiation of pre-np cell" << endl;
