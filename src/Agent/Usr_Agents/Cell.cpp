@@ -1342,8 +1342,8 @@ bool Cell::isProliferative() {
 
 int Cell::get_max_doublings() { return 50; } //base default
 
-bool Cell::get_prolif_prob(float meanTGF,
-	float meanIL1b,
+float Cell::get_prolif_prob(float meanTGF,
+	float meanIL1,
 	float meanTNF) { return 10; } //base default
 
 void Cell::hatchnewcell(int number, int agentType, int here) {
@@ -1439,7 +1439,7 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 int Stem::get_max_doublings() { return 100; }
 
 float Stem::get_prolif_prob(float meanTGF,
-	float meanIL1b,
+	float meanIL1,
 	float meanTNF) {
 
 	int TGFrelated = 0;
@@ -1498,7 +1498,7 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 int Progen::get_max_doublings() { return 65; }
 
 float Progen::get_prolif_prob(float meanTGF,
-	float meanIL1b,
+	float meanIL1,
 	float meanTNF) {
 
 #ifdef CALIBRATION
@@ -1542,7 +1542,7 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 int NP::get_max_doublings() { return 27; }
 
 float NP::get_prolif_prob(float meanTGF,
-	float meanIL1b,
+	float meanIL1,
 	float meanTNF) {
 
 	int TGFrelated = 0;
