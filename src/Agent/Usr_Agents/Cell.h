@@ -215,7 +215,7 @@ class Cell: public Agent {
       * Parameters: agentType
       */
       virtual bool isProliferative();
-      virtual bool cytokineCheck(float mean_TGF,
+      virtual float get_prolif_prob(float mean_TGF,
           float mean_IL1b,
           float mean_TNF,
           int& TGFrelated);
@@ -306,7 +306,7 @@ class Stem: public Cell {
 
 protected:
     int get_max_doublings() override;
-    bool cytokineCheck(float mean_TGF,
+    float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
         float mean_TNF,
         int& TGFrelated) override;
@@ -392,7 +392,7 @@ class Progen: public Cell {
 
 protected:
     int get_max_doublings() override;
-    bool cytokineCheck(float mean_TGF,
+    float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
         float mean_TNF,
         int& TGFrelated) override;
@@ -466,7 +466,7 @@ class NP: public Cell {
 
 protected:
     int get_max_doublings() override;
-    bool cytokineCheck(float mean_TGF,
+    float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
         float mean_TNF,
         int& TGFrelated) override;
