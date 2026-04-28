@@ -146,7 +146,7 @@ class Cell: public Agent {
      * Description: template method for cell proliferation
      * 
      */
-    void proliferate() final;
+    virtual void proliferate() final;
 
     /*
      * Description:	Sprouts original collagen on one of the activated cell's damaged neighbor patches.
@@ -194,6 +194,18 @@ class Cell: public Agent {
     */
     virtual void hatchnewcell(int number, int agentType, int here = 0);
 
+
+    /* -------------------------------------------------------------------------- */
+    /*                              STATIC VARIABLES                              */
+    /* -------------------------------------------------------------------------- */
+    static int numOfCells;  // Keeps track of the quantitiy of living cells.
+
+    /* -------------------------- Calibration variables ------------------------- */
+    static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
+    static float activation[5];           // Parameters involved in cell activation and deactivation
+    static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
+    static float proliferation[6];        // Parameters invloved in cell proliferation
+
   protected:
       /*
       * Description:	Determines whether an agent is still proliferative (i.e. has it reached the max number of doublings).
@@ -204,17 +216,6 @@ class Cell: public Agent {
       */
       virtual bool isProliferative();
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
-
-  /* -------------------------------------------------------------------------- */
-  /*                              STATIC VARIABLES                              */
-  /* -------------------------------------------------------------------------- */
-  static int numOfCells;  // Keeps track of the quantitiy of living cells.
-
-  /* -------------------------- Calibration variables ------------------------- */
-  static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
-  static float activation[5];           // Parameters involved in cell activation and deactivation
-  static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
-  static float proliferation[6];        // Parameters invloved in cell proliferation
 };
 
 /*
