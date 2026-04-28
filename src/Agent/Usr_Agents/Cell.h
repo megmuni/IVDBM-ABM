@@ -217,7 +217,7 @@ class Cell: public Agent {
       virtual bool isProliferative();
       virtual bool cytokineCheck(float mean_TGF,
           float mean_IL1b,
-          float mean_IL6,
+          float mean_TNF,
           int& TGFrelated);
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 };
@@ -308,7 +308,7 @@ protected:
     int get_max_doublings() override;
     bool cytokineCheck(float mean_TGF,
         float mean_IL1b,
-        float mean_IL6,
+        float mean_TNF,
         int& TGFrelated) override;
 };
 
@@ -394,7 +394,7 @@ protected:
     int get_max_doublings() override;
     bool cytokineCheck(float mean_TGF,
         float mean_IL1b,
-        float mean_IL6,
+        float mean_TNF,
         int& TGFrelated) override;
 
 };
@@ -468,7 +468,7 @@ protected:
     int get_max_doublings() override;
     bool cytokineCheck(float mean_TGF,
         float mean_IL1b,
-        float mean_IL6,
+        float mean_TNF,
         int& TGFrelated) override;
 };
 
