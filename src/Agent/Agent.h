@@ -71,15 +71,6 @@ class Agent {
     bool isRealDead();
 
     /*
-     * Description:	Determines whether an agent is still proliferative (i.e. has it reached the max number of doublings).
-     * Added by MM, 2025.
-     *
-     * Return: True if the agent is proliferative, false otherwise.
-     * Parameters: agentType
-     */
-    bool isProliferative(int agentType);
-
-    /*
      * Description:	Determines the location of the agent in the x, y, z dimensions of the world.
      *
      * Return: x-coordinate of agent
