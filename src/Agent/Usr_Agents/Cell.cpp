@@ -308,93 +308,7 @@ void NP::NP_cellFunction() {
 	}
 	else {
 
-		/* -------------------------------------------------------------------------- */
-		/*                                PROLIFERATION                               */
-		/* -------------------------------------------------------------------------- */
-#ifdef MODEL_SCAFFOLD
-	// Cells in CaAlg hydrogel proliferate at a proliferation rate given time and hydrogel composition (% Alg) 
-		in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-
-#ifdef CALIBRATION
-			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) {   //check every hour 
-#else 
-			if ((fmod((float)Agent::agentWorldPtr->clock, 2) == 0) && rollDice(Agent::proliferationRate)) { //check every hour
-#endif
-
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				int countfHA = 0;
-				int TGFrelated = 0;
-
-#ifdef CALIBRATION
-				if (meanTGF <= Cell::proliferation[1]) {
-#else 
-				if (meanTGF <= 10) {
-#endif
-					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1; // High TGF (1-10 ng) inhibits proliferation.
-				}
-
-#ifdef CALIBRATION
-				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
-				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
-#else
-				float cellProlif = 1 * log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF) + 0;
-				if (rollDice(25 + cellProlif / 2)) {
-#endif	
-					this->hatchnewcell(1, np);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//this->die();
-					return;
-				}
-			}
-			// Unactivated chondrocytes proliferate every 24 hours.
-		}
-		else {
-#endif
-
-#ifdef CALIBRATION
-			if (fmod((float)hours, Cell::proliferation[0]) == 0.0) {
-#else  
-			if (fmod(hours, 24) == 0) {
-#endif  
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
-
-#ifdef CALIBRATION
-				if (meanTGF <= Cell::proliferation[1]) {
-#else
-				if (meanTGF <= 10) {
-#endif
-					TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
-				}
-				else {
-					TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
-				}
-
-#ifdef CALIBRATION
-				float cellProlif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
-				if (rollDice(Cell::proliferation[4] + cellProlif / Cell::proliferation[5])) {
-#else  
-				float cellProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(25 + cellProlif / 2)) {
-#endif 
-					this->hatchnewcell(1, np);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//this->die();
-					return;
-				}
-			}
-#ifdef MODEL_SCAFFOLD
-		}
-#endif
+		this->proliferate();
 
 		/* -------------------------------------------------------------------------- */
 		/*                                  MOVEMENT                                  */
@@ -684,77 +598,23 @@ void Cell::proliferate() {
 
 void Stem::stem_cellFunction() {
 	int in = this->index[read_t];
-	double hours = Agent::agentWorldPtr->reportHour();
-	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-
-	/* -------------------------------------------------------------------------- */
-	/*                                PROLIFERATION                               */
-	/* -------------------------------------------------------------------------- */
   	
 	// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
-		in = this->index[read_t];
-		//cout << "[in] is " << in << endl; //debugging
-		//cout << "[read_t] is " << read_t << endl; //debugging
-		//if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		//	cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
-		//}
-		//else {
-		//	//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
-		//	cout << "agent patch type is invalid!" << endl;
-		//}
+	//if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+	//	cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+	//}
+	//else {
+	//	//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
+	//	cout << "agent patch type is invalid!" << endl;
+	//}
 		
-		this->proliferate();
-
-//		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//#ifdef CALIBRATION
-//			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-//			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
-//#else 
-//			//if ((this->life[read_t] / 2) % 24 == 0) {
-//			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
-//#endif 
-//				float meanTNF = this->meanNeighborChem(TNF);
-//				float meanTGF = this->meanNeighborChem(TGF);
-//				float meanIL1 = this->meanNeighborChem(IL1beta);
-//				//int countfHA = this->countNeighborECM(fha);
-//				int TGFrelated = 0;
-//#ifdef CALIBRATION
-//				if (meanTGF <= Stem::proliferation[0]) {
-//#else  
-//				if (meanTGF <= 10) {
-//#endif 
-//
-//					TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
-//				}
-//				else {
-//					TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
-//				}
-//
-//#ifdef CALIBRATION
-//				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-//				float stemProlif = 5; //testing
-//				if (rollDice(stemProlif)) {
-//#else  
-//				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-//				if (rollDice(stemProlif)) {
-//#endif  
-//					this->hatchnewcell(1, stem);
-//					this->doublings[write_t] = this->doublings[read_t] + 1;
-//					//cout << "growing new stem cell" << endl;
-//					//this->die();
-//					return;
-//				}
-//			}
-//		}
-//		else {
-//			cout << "prolif failed " << this->index[read_t] << endl;
-//		}
+	this->proliferate();
 
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
 	#ifdef MODEL_SCAFFOLD
-		in = this->index[read_t];
+		int in = this->index[read_t];
 		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
 			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
@@ -915,45 +775,9 @@ void Stem::stem_cellFunction() {
 
 void Progen::progen_cellFunction() {
 	int in = this->index[read_t];
-	double hours = Agent::agentWorldPtr->reportHour();
-	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
-	/* -------------------------------------------------------------------------- */
-	/*                                PROLIFERATION                               */
-	/* -------------------------------------------------------------------------- */
+	this->proliferate();
 
-	in = this->index[read_t];
-	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-#ifdef CALIBRATION
-		if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
-#else 
-		//if ((this->life[read_t] / 2) % 24 == 0) {
-		if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
-#endif 
-			float meanTNF = this->meanNeighborChem(TNF);
-			float meanTGF = this->meanNeighborChem(TGF);
-			float meanIL1 = this->meanNeighborChem(IL1beta);
-			//int countfHA = this->countNeighborECM(fha);
-
-#ifdef CALIBRATION
-			//float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-			float progenProlif = 5; //testing
-			if (rollDice(progenProlif)) {
-#else  
-			float progenProlif = log10(1 + meanTNF - meanIL1 + meanTGF);
-				if (rollDice(progenProlif)) {
-#endif  
-					this->hatchnewcell(1, progen);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//cout << "growing new pre-np cell" << endl;
-					//this->die();
-					return;
-			}
-		}
-	} else {
-		cout << "prolif failed " << this->index[read_t] << endl;
-	}
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
