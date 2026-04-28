@@ -299,6 +299,9 @@ class Stem: public Cell {
   static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   static float proliferation[5]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[5]; // Parameters involved in stem cell differentiation
+
+protected:
+    int get_max_doublings() override;
 };
 
 /*
@@ -379,6 +382,9 @@ class Progen: public Cell {
   static float proliferation[1]; // Parameters involved in pre-NP cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[3]; // Parameters involved in pre-NP cell differentiation
 
+protected:
+    int get_max_doublings() override;
+
 };
 
 /*
@@ -445,6 +451,9 @@ class NP: public Cell {
   static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
   static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
   static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
+
+protected:
+    int get_max_doublings() override;
 };
 
 #endif
