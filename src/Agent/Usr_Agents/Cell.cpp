@@ -675,7 +675,11 @@ void Cell::proliferate() {
 
 	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF);
 
-	// UNDER CONSTRUCTION
+	if (rollDice(prob)) {
+		this->hatchnewcell(1, this->type[read_t]);
+		this->doublings[write_t] = this->doublings[read_t] + 1;
+		return;
+	}
 }
 
 
