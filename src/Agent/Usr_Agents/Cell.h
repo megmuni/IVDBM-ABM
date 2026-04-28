@@ -217,8 +217,7 @@ class Cell: public Agent {
       virtual bool isProliferative();
       virtual float get_prolif_prob(float mean_TGF,
           float mean_IL1b,
-          float mean_TNF,
-          int& TGFrelated);
+          float mean_TNF);
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 };
 
@@ -308,8 +307,7 @@ protected:
     int get_max_doublings() override;
     float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
-        float mean_TNF,
-        int& TGFrelated) override;
+        float mean_TNF) override;
 };
 
 /*
@@ -394,8 +392,7 @@ protected:
     int get_max_doublings() override;
     float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
-        float mean_TNF,
-        int& TGFrelated) override;
+        float mean_TNF) override;
 
 };
 
@@ -468,8 +465,7 @@ protected:
     int get_max_doublings() override;
     float get_prolif_prob(float mean_TGF,
         float mean_IL1b,
-        float mean_TNF,
-        int& TGFrelated) override;
+        float mean_TNF) override;
 };
 
 #endif
