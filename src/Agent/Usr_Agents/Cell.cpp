@@ -682,7 +682,6 @@ void Cell::proliferate() {
 	}
 }
 
-
 void Stem::stem_cellFunction() {
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
@@ -704,50 +703,52 @@ void Stem::stem_cellFunction() {
 		//	cout << "agent patch type is invalid!" << endl;
 		//}
 		
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-#ifdef CALIBRATION
-			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
-#else 
-			//if ((this->life[read_t] / 2) % 24 == 0) {
-			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
-#endif 
-				float meanTNF = this->meanNeighborChem(TNF);
-				float meanTGF = this->meanNeighborChem(TGF);
-				float meanIL1 = this->meanNeighborChem(IL1beta);
-				//int countfHA = this->countNeighborECM(fha);
-				int TGFrelated = 0;
-#ifdef CALIBRATION
-				if (meanTGF <= Stem::proliferation[0]) {
-#else  
-				if (meanTGF <= 10) {
-#endif 
+		this->proliferate();
 
-					TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
-				}
-				else {
-					TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
-				}
-
-#ifdef CALIBRATION
-				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-				float stemProlif = 5; //testing
-				if (rollDice(stemProlif)) {
-#else  
-				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
-				if (rollDice(stemProlif)) {
-#endif  
-					this->hatchnewcell(1, stem);
-					this->doublings[write_t] = this->doublings[read_t] + 1;
-					//cout << "growing new stem cell" << endl;
-					//this->die();
-					return;
-				}
-			}
-		}
-		else {
-			cout << "prolif failed " << this->index[read_t] << endl;
-		}
+//		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//#ifdef CALIBRATION
+//			if (this->life[read_t] > 0 && this->life[read_t] % 24 == 0) {
+//			//if (fmod(((float)this->life[read_t] / 2), Stem::proliferation[1]) == 0.0) {
+//#else 
+//			//if ((this->life[read_t] / 2) % 24 == 0) {
+//			if (fmod(((float)this->life[read_t] / 2), 24) == 0.0) {
+//#endif 
+//				float meanTNF = this->meanNeighborChem(TNF);
+//				float meanTGF = this->meanNeighborChem(TGF);
+//				float meanIL1 = this->meanNeighborChem(IL1beta);
+//				//int countfHA = this->countNeighborECM(fha);
+//				int TGFrelated = 0;
+//#ifdef CALIBRATION
+//				if (meanTGF <= Stem::proliferation[0]) {
+//#else  
+//				if (meanTGF <= 10) {
+//#endif 
+//
+//					TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
+//				}
+//				else {
+//					TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
+//				}
+//
+//#ifdef CALIBRATION
+//				//float stemProlif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+//				float stemProlif = 5; //testing
+//				if (rollDice(stemProlif)) {
+//#else  
+//				float stemProlif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+//				if (rollDice(stemProlif)) {
+//#endif  
+//					this->hatchnewcell(1, stem);
+//					this->doublings[write_t] = this->doublings[read_t] + 1;
+//					//cout << "growing new stem cell" << endl;
+//					//this->die();
+//					return;
+//				}
+//			}
+//		}
+//		else {
+//			cout << "prolif failed " << this->index[read_t] << endl;
+//		}
 
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
