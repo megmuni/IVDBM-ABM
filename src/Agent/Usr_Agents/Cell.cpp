@@ -663,7 +663,19 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 }
 
 void Cell::proliferate() {
+	int in = this->index[read_t];
+	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return;
+	if (!(this->life[read_t] > 0 && this->life[read_t] % 24 == 0)) return;
 	if (!isProliferative()) return;
+
+	// calculating local cytokines
+	float meanTNF = this->meanNeighborChem(TNF);
+	float meanTGF = this->meanNeighborChem(TGF);
+	float meanIL1 = this->meanNeighborChem(IL1beta);
+
+	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF);
+
+	// UNDER CONSTRUCTION
 }
 
 
@@ -1330,6 +1342,10 @@ bool Cell::isProliferative() {
 
 int Cell::get_max_doublings() { return 50; } //base default
 
+bool Cell::get_prolif_prob(float meanTGF,
+	float meanIL1b,
+	float meanTNF) { return 10; } //base default
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
@@ -1422,9 +1438,32 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 
 int Stem::get_max_doublings() { return 100; }
 
-int Progen::get_max_doublings() { return 65; }
+float Stem::get_prolif_prob(float meanTGF,
+	float meanIL1b,
+	float meanTNF) {
 
-int NP::get_max_doublings() { return 27; }
+	int TGFrelated = 0;
+
+#ifdef CALIBRATION
+	if (meanTGF <= Stem::proliferation[0]) {
+#else  
+	if (meanTGF <= 10) {
+#endif
+		TGFrelated = 1;  // Low TGF (0.1-1ng) stimulate proliferation and attraction. 
+	}
+	else {
+		TGFrelated = -1; // High TGF (1-10ng) inhibits proliferation. 
+	}
+
+#ifdef CALIBRATION
+	//float prolif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+	float prolif = 10; //testing
+#else  
+	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+#endif  
+	
+	return prolif;
+}
 
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
@@ -1456,6 +1495,22 @@ void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	}
 }
 
+int Progen::get_max_doublings() { return 65; }
+
+float Progen::get_prolif_prob(float meanTGF,
+	float meanIL1b,
+	float meanTNF) {
+
+#ifdef CALIBRATION
+	//float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
+	float prolif = 10; //testing
+#else  
+	float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
+#endif 
+
+	return prolif;
+}
+
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
 	// np progenitor cells differentiate to the next stage, np cells
 
@@ -1482,4 +1537,32 @@ void Progen::differentiateProgen(int number = 1, int agentType = np) {
 			this->die(); // 'kill' current cell
 		}
 	}
+}
+
+int NP::get_max_doublings() { return 27; }
+
+float NP::get_prolif_prob(float meanTGF,
+	float meanIL1b,
+	float meanTNF) {
+
+	int TGFrelated = 0;
+
+#ifdef CALIBRATION
+	if (meanTGF <= Cell::proliferation[1]) {
+#else
+	if (meanTGF <= 10) {
+#endif
+		TGFrelated = 1;  // Low TGF (0.1-1 ng) stimulate chond proliferation and attraction.
+	}
+	else {
+		TGFrelated = -1;  // High TGF (1-10 ng) inhibits proliferation.
+	}
+
+#ifdef CALIBRATION
+	float prolif = Cell::proliferation[2] * (log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF)) + Cell::proliferation[3];
+#else  
+	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
+#endif 
+
+	return prolif;
 }
