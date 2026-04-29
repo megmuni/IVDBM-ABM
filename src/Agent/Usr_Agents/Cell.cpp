@@ -518,30 +518,6 @@ void Cell::die() {
 	this->life[write_t] = 0;
 }
 
-//void Chondrocyte::chondActivation() {
-//	int in = this->index[read_t];
-//	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick and the cell will not naturally die
-//	if (this->activate[read_t] == false && this->life[read_t] > 1) {
-//		this->type[write_t] = achondrocyte;
-//		this->activate[write_t] = true;
-//		this->color[write_t] = cachondrocyte;
-//		Agent::agentPatchPtr[target].setOccupied();
-//		Agent::agentPatchPtr[target].occupiedby[write_t] = achondrocyte;
-//	}
-//}
-
-//void Cell::cellDeactivation() {
-//	int in = this->index[read_t];
-//	int target = this->index[write_t]; // This assumes that after this function is called, no more move() would be called in the same tick 
-//	if (this->activate[read_t] == true&& this->life[read_t] > 1) {
-//		this->type[write_t] = stem;
-//		this->activate[write_t] = false;
-//		this->color[write_t] = cstem;
-//		Agent::agentPatchPtr[in].setOccupied();
-//		Agent::agentPatchPtr[in].occupiedby[write_t] = stem;
-//	}
-//}
-
 void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 	int in = this->index[read_t];
 
