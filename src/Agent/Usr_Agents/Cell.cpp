@@ -1203,9 +1203,7 @@ float Cell::get_prolif_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) { return 10; } //base default
 
-virtual int get_daughter_type() = 0;
-
-int Cell::get_diff_prob(float meanTGF,
+float Cell::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) { return 5; } // base default
 
