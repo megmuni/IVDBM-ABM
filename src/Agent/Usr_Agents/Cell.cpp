@@ -1295,36 +1295,6 @@ float Stem::get_diff_prob(float meanTGF,
 	return 5;
 }
 
-void Stem::differentiateStem(int number = 1, int agentType = progen) {
-	// stem cells differentiate to the next stage, progenitor
-
-	float meanTNF = this->meanNeighborChem(TNF);
-	float meanTGF = this->meanNeighborChem(TGF);
-	float meanIL1 = this->meanNeighborChem(IL1beta);
-
-	int in = this->index[read_t];
-	//float stemDiff = 0.5 + (Stem::differentiation[3] * meanTGF);
-	float stemDiff = 5; //testing
-	if (rollDice(stemDiff)) {
-		if (rollDice(70)) { // asymmetric differentiation
-			this->hatchnewcell(number, agentType); // only create new progenitor cell nearby
-		}
-		else { // symmetric differentiation
-			//Stem* temp = this;
-			//Progen* dp2 = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
-			//if (dp2 == nullptr) {
-			//	cout << "Casting Failed" << endl;
-			//}
-			Agent::agentPatchPtr[in].clearOccupied();
-			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
-
-			this->hatchnewcell(number, agentType, 1); // 'change' stem cell here to progenitor cell
-			this->hatchnewcell(number, agentType); // create new progenitor cell nearby
-			this->die(); // 'kill' current cell
-		}
-	}
-}
-
 int Progen::get_max_doublings() { return 65; }
 
 float Progen::get_prolif_prob(float meanTGF,
@@ -1348,34 +1318,6 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanTNF) {
 
 	return 5;
-}
-
-void Progen::differentiateProgen(int number = 1, int agentType = np) {
-	// np progenitor cells differentiate to the next stage, np cells
-
-	int in = this->index[read_t];
-	float progenDiff = 10; //testing
-	if (rollDice(progenDiff)) {
-		if (rollDice(70)) { // asymmetric differentiation
-			this->hatchnewcell(number, agentType); // only create new NP cell nearby
-		}
-		else { // symmetric differentiation
-			//Progen* temp = this;
-			//NP* dp2 = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
-			//if (dp2 == nullptr) {
-			//	cout << "Casting Failed" << endl;
-			//}
-			//else {
-			//	cout << "Casting Successful" << endl;
-			//}
-			Agent::agentPatchPtr[in].clearOccupied();
-			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
-
-			this->hatchnewcell(number, agentType, 1); // 'change' progenitor cell here to NP cell
-			this->hatchnewcell(number, agentType); // create new NP cell nearby
-			this->die(); // 'kill' current cell
-		}
-	}
 }
 
 int NP::get_max_doublings() { return 27; }
