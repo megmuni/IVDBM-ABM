@@ -578,8 +578,28 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 
 void Cell::proliferate() {
 	int in = this->index[read_t];
-	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return;
-	if (!(this->life[read_t] > 0 && this->life[read_t] % 24 == 0)) return;
+	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
+	if (!(this->life[read_t] > 0 && this->life[read_t] % 24 == 0)) return; // check for 24-hour mark (of the cell's life) to try division
+	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
+
+	// calculating local cytokines
+	float meanTNF = this->meanNeighborChem(TNF);
+	float meanTGF = this->meanNeighborChem(TGF);
+	float meanIL1 = this->meanNeighborChem(IL1beta);
+
+	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF); // get the proliferation probability for the cell type
+
+	if (rollDice(prob)) {
+		this->hatchnewcell(1, this->type[read_t]);
+		this->doublings[write_t] = this->doublings[read_t] + 1;
+		return;
+	}
+}
+
+void Cell::differentiate() {
+	int in = this->index[read_t];
+	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
+	if (!(this->life[read_t] > 0 && this->life[read_t] % 48 == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
 	if (!isProliferative()) return;
 
 	// calculating local cytokines
@@ -587,12 +607,21 @@ void Cell::proliferate() {
 	float meanTGF = this->meanNeighborChem(TGF);
 	float meanIL1 = this->meanNeighborChem(IL1beta);
 
-	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF);
+	float prob = get_diff_prob(meanTGF, meanIL1, meanTNF);
+	int daughterType = get_daughter_type();
 
 	if (rollDice(prob)) {
-		this->hatchnewcell(1, this->type[read_t]);
-		this->doublings[write_t] = this->doublings[read_t] + 1;
-		return;
+		if (rollDice(70)) { // check for asymmetric differentiation; more likely
+			this->hatchnewcell(1, daughterType);
+		}
+		else { // check for symmetric differentiation; less likely
+			Agent::agentPatchPtr[in].clearOccupied();
+			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
+
+			this->hatchnewcell(1, daughterType, 1); // 'change' cell here to next cell stage
+			this->hatchnewcell(1, daughterType); // create new cell in next stage nearby
+			this->die(); // 'kill' current cell
+		}
 	}
 }
 
@@ -1174,6 +1203,12 @@ float Cell::get_prolif_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) { return 10; } //base default
 
+virtual int get_daughter_type() = 0;
+
+int Cell::get_diff_prob(float meanTGF,
+	float meanIL1,
+	float meanTNF) { return 5; } // base default
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
@@ -1293,6 +1328,16 @@ float Stem::get_prolif_prob(float meanTGF,
 	return prolif;
 }
 
+int Stem::get_daughter_type() { return progen; }
+
+float Stem::get_diff_prob(float meanTGF,
+	float meanIL1,
+	float meanTNF) {
+
+	//return 0.5 + (Stem::differentiation[3] * meanTGF);
+	return 5;
+}
+
 void Stem::differentiateStem(int number = 1, int agentType = progen) {
 	// stem cells differentiate to the next stage, progenitor
 
@@ -1337,6 +1382,15 @@ float Progen::get_prolif_prob(float meanTGF,
 #endif 
 
 	return prolif;
+}
+
+int Progen::get_daughter_type() { return np; }
+
+float Progen::get_diff_prob(float meanTGF,
+	float meanIL1,
+	float meanTNF) {
+
+	return 10;
 }
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
