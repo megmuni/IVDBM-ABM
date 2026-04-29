@@ -198,7 +198,7 @@ class Cell: public Agent {
      * Description: template method for cytokine synthesis by cells
      *
      */
-    //virtual void cytokine_synthesis() final;
+    virtual void cytokine_synthesis() final;
 
     /*
     * Description:	Hatches a new cell on 'number' unoccupied neighbors.
@@ -251,7 +251,7 @@ class Cell: public Agent {
       virtual void create_ecm(float meanTGF, float meanIL1, float meanTNF);
 
       // Cytokine-related hook functions
-      // virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF);
+      virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF);
 };
 
 /*
@@ -352,6 +352,9 @@ protected:
     void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
     void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
 
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
 };
 
 /*
@@ -447,6 +450,9 @@ protected:
     // ECM synthesis-related hook functions
     void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
     void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 };
 
 /*
@@ -523,6 +529,9 @@ protected:
     // ECM synthesis-related hook functions
     void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
     void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 };
 
 #endif
