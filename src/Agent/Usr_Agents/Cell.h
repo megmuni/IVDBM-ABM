@@ -493,12 +493,6 @@ protected:
     float get_prolif_prob(float meanTGF,
         float meanIL1,
         float meanTNF) override;
-
-    // Differentiation-related hook functions
-    int get_daughter_type() override;
-    float get_diff_prob(float meanTGF,
-        float meanIL1,
-        float meanTNF) override;
 };
 
 #endif
