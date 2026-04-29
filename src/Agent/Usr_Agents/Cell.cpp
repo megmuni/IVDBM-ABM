@@ -336,50 +336,8 @@ void NP::NP_cellFunction() {
 		/* -------------------------------------------------------------------------- */
 		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
 		/* -------------------------------------------------------------------------- */
-		// Calculates chemical gradients and patch chemical concentrations:
-		//	int in = this->index[read_t];
-		float meanTNF = this->meanNeighborChem(pTNF);
-		float meanTGF = this->meanNeighborChem(pTGF);
-		float meanIL1 = this->meanNeighborChem(pIL1beta);
-		int countnHA = 0;
-		int countfHA = 0;
-		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-		NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
-		NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
-
-		// Makes collagen and aggrecan every 12 hours.
-#ifdef CALIBRATION
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
-#else 
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
-#endif
-
-#ifdef MODEL_SCAFFOLD
-			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-			int in = this->index[read_t];
-			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-				for (int i = 0; i < NP::collagenSynthRate; i++) {
-					this->makeOCollagen(meanTGF, meanIL1);
-				}
-
-				for (int i = 0; i < NP::aggrecanSynthRate; i++) {
-					this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-				}
-
-			}
-			else {
-				this->makeOCollagen(meanTGF, meanIL1);
-				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-			}
-
-#else
-			this->makeOCollagen(meanTGF, meanIL1);
-			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-#endif
-		}
+		this->ecm_synthesis();
 
 		// Change in chemicals due to cells:
 #ifdef CALIBRATION
@@ -678,85 +636,8 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
 	/* -------------------------------------------------------------------------- */
-	// Calculates chemical gradients and patch chemical concentrations:
-	//	int in = this->index[read_t];
-	float meanTNF = this->meanNeighborChem(pTNF);
-	float meanTGF = this->meanNeighborChem(pTGF);
-	float meanIL1 = this->meanNeighborChem(pIL1beta);
-	int countnHA = 0;
-	int countfHA = 0;
-	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-	// Location of agent in x,y,z dimensions of world.
-	int x = this->ix[read_t];
-	int y = this->iy[read_t];
-	int z = this->iz[read_t];
-
-	// Number of patches in x,y,z dimensions of world
-	int nx = Agent::nx;
-	int ny = Agent::ny;
-	int nz = Agent::nz;
-
-	int neighborCount = 0;
-	// Count number of patches of neighbors inside world dimensions:
-	for (int dZ = -1; dZ <= 1; dZ++) {
-		for (int dY = -1; dY <= 1; dY++) {
-			for (int dX = -1; dX <= 1; dX++) {
-				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
-			}
-		}
-	}
-
-	// Calculate total volume of surrounding patches to check for cytokine thresholds
-	float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-	//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-	float patchesVolume = patchVolume * neighborCount;
-
-	//Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-	Stem::collagenSynthRate = Stem::CollagenSynth[0];
-	//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
-
-	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
-		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-	}
-	else {
-		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-	}
-	//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
-
-	// Makes collagen and aggrecan every 12 hours.
-	#ifdef CALIBRATION
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) {
-	#else 
-		if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0) { //12
-	#endif
-
-		#ifdef MODEL_SCAFFOLD
-			// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-			int in = this->index[read_t];
-			if (Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int i = 0; i < Stem::collagenSynthRate; i++){
-					this->makeOCollagen(meanTGF, meanIL1); 
-				}
-
-				for (int i = 0; i < Stem::aggrecanSynthRate; i++){
-					this->makeOAggrecan(meanTNF, meanTGF, meanIL1); 
-				}
-
-			} else {
-				this->makeOCollagen(meanTGF, meanIL1); 
-				this->makeOAggrecan(meanTNF, meanTGF, meanIL1); 
-			} 
-
-		#else
-				this->makeOCollagen(meanTGF, meanIL1); 
-				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-		#endif
-		}
+	this->ecm_synthesis();
 
 	// Change in chemicals due to cells:
 	#ifdef CALIBRATION
@@ -835,46 +716,8 @@ void Progen::progen_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
 	/* -------------------------------------------------------------------------- */
-	// Calculates chemical gradients and patch chemical concentrations:
-	//	int in = this->index[read_t];
-	float meanTNF = this->meanNeighborChem(pTNF);
-	float meanTGF = this->meanNeighborChem(pTGF);
-	float meanIL1 = this->meanNeighborChem(pIL1beta);
-	int countnHA = 0;
-	int countfHA = 0;
-	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
-	//Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
-
-	// Makes  aggrecan every 12 hours.
-#ifdef CALIBRATION
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) {
-#else 
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 1) == 0.0) { //12
-#endif
-
-#ifdef MODEL_SCAFFOLD
-		// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
-		int in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			for (int i = 0; i < Progen::aggrecanSynthRate; i++) {
-				this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-			}
-
-		}
-		else {
-			this->makeOCollagen(meanTGF, meanIL1);
-			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-		}
-
-#else
-		this->makeOCollagen(meanTGF, meanIL1);
-		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-#endif
-	}
+	this->ecm_synthesis();
 
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
