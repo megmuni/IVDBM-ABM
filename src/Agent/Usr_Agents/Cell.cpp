@@ -609,6 +609,7 @@ void Cell::differentiate() {
 
 	float prob = get_diff_prob(meanTGF, meanIL1, meanTNF);
 	int daughterType = get_daughter_type();
+	if (daughterType == -1) return; // base Cell has no daughter type; skip 
 
 	if (rollDice(prob)) {
 		if (rollDice(70)) { // check for asymmetric differentiation; more likely
@@ -1202,6 +1203,8 @@ int Cell::get_max_doublings() { return 50; } //base default
 float Cell::get_prolif_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) { return 10; } //base default
+
+int Cell::get_daughter_type() { return -1; } // sentinel 'no type'
 
 float Cell::get_diff_prob(float meanTGF,
 	float meanIL1,

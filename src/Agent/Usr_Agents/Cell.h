@@ -229,7 +229,7 @@ class Cell: public Agent {
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 
       // Differentiation-related hook functions
-      virtual int get_daughter_type() = 0;
+      virtual int get_daughter_type();
       virtual float get_diff_prob(float meanTGF,
           float meanIL1,
           float meanTNF);
