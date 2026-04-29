@@ -1391,7 +1391,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 10;
+	return 5;
 }
 
 void Progen::differentiateProgen(int number = 1, int agentType = np) {
