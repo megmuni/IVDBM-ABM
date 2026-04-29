@@ -339,6 +339,10 @@ void NP::NP_cellFunction() {
 
 		this->ecm_synthesis();
 
+		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
 		// Change in chemicals due to cells:
 #ifdef CALIBRATION
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
@@ -639,6 +643,10 @@ void Stem::stem_cellFunction() {
 
 	this->ecm_synthesis();
 
+	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
 	// Change in chemicals due to cells:
 	#ifdef CALIBRATION
 		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Stem::cytokineSynthesis[0] + Cell::cytokineSynthesis[1]*(patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
@@ -718,6 +726,10 @@ void Progen::progen_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 
 	this->ecm_synthesis();
+
+	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
 
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
