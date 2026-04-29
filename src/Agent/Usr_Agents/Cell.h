@@ -149,6 +149,12 @@ class Cell: public Agent {
     virtual void proliferate() final;
 
     /*
+     * Description: template method for cell differentiation
+     *
+     */
+    virtual void differentiate() final;
+
+    /*
      * Description:	Sprouts original collagen on one of the activated cell's damaged neighbor patches.
      *
      * Return: void
@@ -207,6 +213,8 @@ class Cell: public Agent {
     static float proliferation[6];        // Parameters invloved in cell proliferation
 
   protected:
+
+      // Proliferation-related hook functions
       /*
       * Description:	Determines whether an agent is still proliferative (i.e. has it reached the max number of doublings).
       * Added by MM, 2025.
@@ -219,6 +227,12 @@ class Cell: public Agent {
           float meanIL1,
           float meanTNF);
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
+
+      // Differentiation-related hook functions
+      virtual int get_daughter_type();
+      virtual float get_diff_prob(float meanTGF,
+          float meanIL1,
+          float meanTNF);
 };
 
 /*
@@ -308,6 +322,13 @@ protected:
     float get_prolif_prob(float meanTGF,
         float meanIL1,
         float meanTNF) override;
+
+    // Differentiation-related hook functions
+    int get_daughter_type() override;
+    float get_diff_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
 };
 
 /*
@@ -394,6 +415,12 @@ protected:
         float meanIL1,
         float meanTNF) override;
 
+    // Differentiation-related hook functions
+    int get_daughter_type() override;
+    float get_diff_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
 };
 
 /*
@@ -464,6 +491,12 @@ class NP: public Cell {
 protected:
     int get_max_doublings() override;
     float get_prolif_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // Differentiation-related hook functions
+    int get_daughter_type() override;
+    float get_diff_prob(float meanTGF,
         float meanIL1,
         float meanTNF) override;
 };
