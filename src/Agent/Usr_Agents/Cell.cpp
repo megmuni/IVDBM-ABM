@@ -1052,7 +1052,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 //			}
 //}
 
-void Cell::create_cytokines(float patchTGF, float patchIL1, float patchTNF) {}
+void Cell::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {}
 
 bool Cell::isProliferative() {
 	return this->doublings[read_t] < get_max_doublings();
@@ -1248,7 +1248,7 @@ void Stem::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 #endif
 }
 
-void Stem::create_cytokines(float patchTGF, float patchIL1, float patchTNF) {
+void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 	int in = this->index[read_t];
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
@@ -1320,7 +1320,7 @@ void Progen::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 #endif
 }
 
-void Progen::create_cytokines(float patchTGF, float patchIL1, float patchTNF) {
+void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 	int in = this->index[read_t];
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
@@ -1396,7 +1396,7 @@ void NP::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 	}
 }
 
-void NP::create_cytokines(float patchTGF, float patchIL1, float patchTNF) {
+void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 	int in = this->index[read_t];
 	// Change in chemicals due to cells:
 #ifdef CALIBRATION
