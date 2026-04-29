@@ -112,14 +112,6 @@ class Agent {
      * Parameters: void             
      */
     static void calculateViabilityRate();
-
-    /*
-     * Description:	Calculates the amount of collagen, aggrecan and HA produced by cells on Ca-Alg Gel
-     *
-     * Return: void
-     * Parameters: void            
-     */
-    void calculateECMSynthesisRate(int agentType);
     
     /*
      * Description:	Calls subroutines calculating parameters characterizing cell behavior in Ca-Alg
