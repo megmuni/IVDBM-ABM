@@ -603,6 +603,51 @@ void Cell::differentiate() {
 	}
 }
 
+void Cell::ecm_synthesis() {
+	int in = this->index[read_t];
+
+	// Calculates chemical gradients and patch chemical concentrations:
+	float meanTNF = this->meanNeighborChem(pTNF);
+	float meanTGF = this->meanNeighborChem(pTGF);
+	float meanIL1 = this->meanNeighborChem(pIL1beta);
+	float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+	float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+	float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+	// Location of agent in x,y,z dimensions of world.
+	int x = this->ix[read_t];
+	int y = this->iy[read_t];
+	int z = this->iz[read_t];
+
+	// Number of patches in x,y,z dimensions of world
+	int nx = Agent::nx;
+	int ny = Agent::ny;
+	int nz = Agent::nz;
+
+	int neighborCount = 0;
+	// Count number of patches of neighbors inside world dimensions:
+	for (int dZ = -1; dZ <= 1; dZ++) {
+		for (int dY = -1; dY <= 1; dY++) {
+			for (int dX = -1; dX <= 1; dX++) {
+				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
+			}
+		}
+	}
+
+	// Calculate total volume of surrounding patches to check for cytokine thresholds
+	float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
+	//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
+	float patchesVolume = patchVolume * neighborCount;
+
+	calculate_ecm_synth_rates(meanTGF, meanIL1, meanTNF, patchesVolume);
+
+	if (fmod(((Agent::agentWorldPtr)->reportHour()), 12) == 0) {
+		create_ecm(meanTGF, meanIL1, meanTNF);
+	}
+}
+
 void Stem::stem_cellFunction() {
 	int in = this->index[read_t];
   	
@@ -887,6 +932,10 @@ void Progen::progen_cellFunction() {
 	}
 }
 
+void Cell::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {}
+
+void Cell::create_ecm(float meanTGF, float meanIL1, float meanTNF) {}
+
 void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	int read_index;
 
@@ -1150,6 +1199,8 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 //			}
 //}
 
+//void Cell::create_cytokines(float patchTGF, float patchIL1, float patchTNF) {}
+
 bool Cell::isProliferative() {
 	return this->doublings[read_t] < get_max_doublings();
 }
@@ -1256,6 +1307,10 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 	}
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                    STEM                                    */
+/* -------------------------------------------------------------------------- */
+
 int Stem::get_max_doublings() { return 100; }
 
 float Stem::get_prolif_prob(float meanTGF,
@@ -1295,6 +1350,54 @@ float Stem::get_diff_prob(float meanTGF,
 	return 5;
 }
 
+void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
+#ifdef CALIBRATION
+	Stem::collagenSynthRate = Stem::CollagenSynth[0]
+		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+
+	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {
+		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+	}
+	else {
+		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+	}
+#else
+	Stem::collagenSynthRate = 10
+		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+
+	if (meanTGF < 100000) {
+		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+	}
+	else {
+		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+	}
+#endif
+}
+
+void Stem::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
+	int in = this->index[read_t];
+
+#ifdef MODEL_SCAFFOLD
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		// loops based on synth rates calculated in calculate_ecm_synth_rates()
+		for (int i = 0; i < Stem::collagenSynthRate; i++)
+			this->makeOCollagen(meanTGF, meanIL1);
+		for (int i = 0; i < Stem::aggrecanSynthRate; i++)
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	}
+	else {
+		this->makeOCollagen(meanTGF, meanIL1);
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	}
+#else
+	this->makeOCollagen(meanTGF, meanIL1);
+	this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                PROGENITOR                                  */
+/* -------------------------------------------------------------------------- */
 int Progen::get_max_doublings() { return 65; }
 
 float Progen::get_prolif_prob(float meanTGF,
@@ -1320,6 +1423,37 @@ float Progen::get_diff_prob(float meanTGF,
 	return 5;
 }
 
+void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
+#ifdef CALIBRATION
+	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0]
+		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+#else
+	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
+#endif
+}
+
+void Progen::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
+	int in = this->index[read_t];
+
+#ifdef MODEL_SCAFFOLD
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		// progen on scaffold only loops aggrecan, never collagen
+		for (int i = 0; i < Progen::aggrecanSynthRate; i++)
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	}
+	else {
+		this->makeOCollagen(meanTGF, meanIL1);
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	}
+#else
+	this->makeOCollagen(meanTGF, meanIL1);
+	this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                     NP                                     */
+/* -------------------------------------------------------------------------- */
 int NP::get_max_doublings() { return 27; }
 
 float NP::get_prolif_prob(float meanTGF,
@@ -1346,4 +1480,33 @@ float NP::get_prolif_prob(float meanTGF,
 #endif 
 
 	return prolif;
+}
+
+void NP::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
+#ifdef CALIBRATION
+	NP::collagenSynthRate = NP::CollagenSynth[0]
+		* (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
+	NP::aggrecanSynthRate = NP::AggrecanSynth[0]
+		* (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
+#else
+	NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);
+	NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);
+#endif
+}
+
+void NP::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
+	// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+	int in = this->index[read_t];
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		for (int i = 0; i < NP::collagenSynthRate; i++) {
+			this->makeOCollagen(meanTGF, meanIL1);
+		}
+		for (int i = 0; i < NP::aggrecanSynthRate; i++) {
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+		}
+	}
+	else {
+		this->makeOCollagen(meanTGF, meanIL1);
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	}
 }

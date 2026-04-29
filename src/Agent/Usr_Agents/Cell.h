@@ -155,6 +155,12 @@ class Cell: public Agent {
     virtual void differentiate() final;
 
     /*
+     * Description: template method for ECM synthesis by cells
+     *
+     */
+    virtual void ecm_synthesis() final;
+
+    /*
      * Description:	Sprouts original collagen on one of the activated cell's damaged neighbor patches.
      *
      * Return: void
@@ -187,6 +193,12 @@ class Cell: public Agent {
      * 				     meanIL1  -- Average IL1 concentration of the activated chondrocyte's neighbors
      */
     //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
+
+    /*
+     * Description: template method for cytokine synthesis by cells
+     *
+     */
+    //virtual void cytokine_synthesis() final;
 
     /*
     * Description:	Hatches a new cell on 'number' unoccupied neighbors.
@@ -233,6 +245,13 @@ class Cell: public Agent {
       virtual float get_diff_prob(float meanTGF,
           float meanIL1,
           float meanTNF);
+
+      // ECM synthesis-related hook functions
+      virtual void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume);
+      virtual void create_ecm(float meanTGF, float meanIL1, float meanTNF);
+
+      // Cytokine-related hook functions
+      // virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF);
 };
 
 /*
@@ -329,6 +348,10 @@ protected:
         float meanIL1,
         float meanTNF) override;
 
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
 };
 
 /*
@@ -421,6 +444,9 @@ protected:
         float meanIL1,
         float meanTNF) override;
 
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
 };
 
 /*
@@ -493,6 +519,10 @@ protected:
     float get_prolif_prob(float meanTGF,
         float meanIL1,
         float meanTNF) override;
+
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
 };
 
 #endif
