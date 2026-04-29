@@ -620,6 +620,7 @@ void Cell::differentiate() {
 			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
 
 			this->hatchnewcell(1, daughterType, 1); // 'change' cell here to next cell stage
+			this->doublings[write_t] = this->doublings[read_t] + 1;
 			this->hatchnewcell(1, daughterType); // create new cell in next stage nearby
 			this->die(); // 'kill' current cell
 		}
@@ -637,22 +638,12 @@ void Stem::stem_cellFunction() {
 	//	//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
 	//	cout << "agent patch type is invalid!" << endl;
 	//}
-		
+	
+	//cout << "attempting proliferation of stem cell" << endl;
 	this->proliferate();
 
-	/* -------------------------------------------------------------------------- */
-	/*                              Differentiation                               */
-	/* -------------------------------------------------------------------------- */
-
-	in = this->index[read_t];
-	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
-			//cout << "attempting differentiation of stem cell" << endl;
-			this->Stem::differentiateStem(1, progen);
-			this->doublings[write_t] = this->doublings[read_t] + 1;
-		}
-	}
+	//cout << "attempting differentiation of stem cell" << endl;
+	this->differentiate();
 
 	/* -------------------------------------------------------------------------- */
 	/*                                  MOVEMENT                                  */
@@ -805,21 +796,11 @@ void Stem::stem_cellFunction() {
 void Progen::progen_cellFunction() {
 	int in = this->index[read_t];
 
+	//cout << "attempting proliferation of pre-np cell" << endl;
 	this->proliferate();
 
-	/* -------------------------------------------------------------------------- */
-	/*                              Differentiation                               */
-	/* -------------------------------------------------------------------------- */
-#ifdef MODEL_SCAFFOLD
-	in = this->index[read_t];
-	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
-		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours
-			//cout << "attempting differentiation of pre-np cell" << endl;
-			this->Progen::differentiateProgen(1, np);
-			this->doublings[write_t] = this->doublings[read_t] + 1;
-		}
-	}
+	//cout << "attempting differentiation of pre-np cell" << endl;
+	this->differentiate();
 
 	/* -------------------------------------------------------------------------- */
 	/*                                  MOVEMENT                                  */
@@ -928,7 +909,6 @@ void Progen::progen_cellFunction() {
 	if (this->life[read_t] >= 0) {
 		this->life[write_t] = this->life[read_t] + 1;
 	}
-#endif
 }
 
 void Cell::makeOCollagen(float meanTGF, float meanIL1) {
