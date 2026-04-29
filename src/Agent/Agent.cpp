@@ -230,97 +230,97 @@ bool Agent::rollDice(float percent) {
 		return; 
 	}
 
-	/* --------------------------- ECM SYNTHESIS RATE --------------------------- */
-	void Agent::calculateECMSynthesisRate(int agentType){
-		/* Cellular Activity and ECM synthesis dependent on Elastic Modulus (E) and pore size (poreWidth)
-		 * 		  Collagen per cell = a*(b*E + c) + d*(-e*poreWidth + f)
-		 * 		  Aggrecan per cell = g*(h*E + i) + j*(-k*poreWidth + l)
-		 * 		  sGAG per cell = m*(n*E + o) + p*(-q*poreWidth + r)
-		 *        
-		 *        sGAG (HA) production increased with Elastic modulus 
-		 *        Aggrecan production decreased with Elastic modulus 
-		 *        Collagen production depends on pore size and not Elastic modulus 
-		 */
-		
-		float meanTNF = this->meanNeighborChem(TNF);
-		float meanTGF = this->meanNeighborChem(TGF);
-		float meanIL1 = this->meanNeighborChem(IL1beta);
+	///* --------------------------- ECM SYNTHESIS RATE --------------------------- */
+	//void Agent::calculateECMSynthesisRate(int agentType){
+	//	/* Cellular Activity and ECM synthesis dependent on Elastic Modulus (E) and pore size (poreWidth)
+	//	 * 		  Collagen per cell = a*(b*E + c) + d*(-e*poreWidth + f)
+	//	 * 		  Aggrecan per cell = g*(h*E + i) + j*(-k*poreWidth + l)
+	//	 * 		  sGAG per cell = m*(n*E + o) + p*(-q*poreWidth + r)
+	//	 *        
+	//	 *        sGAG (HA) production increased with Elastic modulus 
+	//	 *        Aggrecan production decreased with Elastic modulus 
+	//	 *        Collagen production depends on pore size and not Elastic modulus 
+	//	 */
+	//	
+	//	float meanTNF = this->meanNeighborChem(TNF);
+	//	float meanTGF = this->meanNeighborChem(TGF);
+	//	float meanIL1 = this->meanNeighborChem(IL1beta);
 
-		#ifdef CALIBRATION
+	//	#ifdef CALIBRATION
 
-		switch (agentType) {
-		case stem: {
+	//	switch (agentType) {
+	//	case stem: {
 
-			// Location of agent in x,y,z dimensions of world.
-			int x = this->ix[read_t];
-			int y = this->iy[read_t];
-			int z = this->iz[read_t];
+	//		// Location of agent in x,y,z dimensions of world.
+	//		int x = this->ix[read_t];
+	//		int y = this->iy[read_t];
+	//		int z = this->iz[read_t];
 
-			// Number of patches in x,y,z dimensions of world
-			int nx = Agent::nx;
-			int ny = Agent::ny;
-			int nz = Agent::nz;
+	//		// Number of patches in x,y,z dimensions of world
+	//		int nx = Agent::nx;
+	//		int ny = Agent::ny;
+	//		int nz = Agent::nz;
 
-			int neighborCount = 0;
-			// Count number of patches of neighbors inside world dimensions:
-			for (int dZ = -1; dZ <= 1; dZ++) {
-				for (int dY = -1; dY <= 1; dY++) {
-					for (int dX = -1; dX <= 1; dX++) {
-						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
-					}
-				}
-			}
+	//		int neighborCount = 0;
+	//		// Count number of patches of neighbors inside world dimensions:
+	//		for (int dZ = -1; dZ <= 1; dZ++) {
+	//			for (int dY = -1; dY <= 1; dY++) {
+	//				for (int dX = -1; dX <= 1; dX++) {
+	//					if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+	//					int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+	//					if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
+	//				}
+	//			}
+	//		}
 
-			// Calculate total volume of surrounding patches to check for cytokine thresholds
-			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-			//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-			float patchesVolume = patchVolume * neighborCount;
+	//		// Calculate total volume of surrounding patches to check for cytokine thresholds
+	//		float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
+	//		//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
+	//		float patchesVolume = patchVolume * neighborCount;
 
-			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
+	//		Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	//		//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
 
-			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+	//		if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
+	//			Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
 
-			}
-			else {
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-				break;
-			}
-			//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
-		}
-		case progen: {
-			Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			break;
-		}
-		case np: {
-			NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
-			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
-		}
-		}
-		#else
-		switch (agentType) {
-		case stem: {
-			Stem::collagenSynthRate = 10 + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			if (meanTGF < 100000) {// pg/ml
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-			}
-			else {
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-				break;
-			}
-		} case np: {
-			NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
-			NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
-		}
-		}
-		#endif
-		cout << "        Collagen Synthesis Rate = " << NP::collagenSynthRate << endl; 
-		cout << "        Agggrecan Synthesis Rate = " << NP::aggrecanSynthRate << endl; 
-		return; 
-	}
+	//		}
+	//		else {
+	//			Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+	//			break;
+	//		}
+	//		//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
+	//	}
+	//	case progen: {
+	//		Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	//		break;
+	//	}
+	//	case np: {
+	//		NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
+	//		NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
+	//	}
+	//	}
+	//	#else
+	//	switch (agentType) {
+	//	case stem: {
+	//		Stem::collagenSynthRate = 10 + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	//		if (meanTGF < 100000) {// pg/ml
+	//			Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
+	//		}
+	//		else {
+	//			Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
+	//			break;
+	//		}
+	//	} case np: {
+	//		NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
+	//		NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
+	//	}
+	//	}
+	//	#endif
+	//	cout << "        Collagen Synthesis Rate = " << NP::collagenSynthRate << endl; 
+	//	cout << "        Agggrecan Synthesis Rate = " << NP::aggrecanSynthRate << endl; 
+	//	return; 
+	//}
 
 	void Agent::cellCaAlgBehavior() {
 		enum Agent::agenttype_t agentType;
@@ -337,7 +337,7 @@ bool Agent::rollDice(float percent) {
 		}
 		if (WHWorld::clock == 0){
 			Agent::calculateMigrationSpeed(agentType);
-			Agent::calculateECMSynthesisRate(agentType);
+			//Agent::calculateECMSynthesisRate(agentType);
 
 		} else if (WHWorld::clock > 0) {
 			Agent::calculateProliferationRate();
