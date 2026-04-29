@@ -661,19 +661,6 @@ void Stem::stem_cellFunction() {
 	#endif
 
 	/* -------------------------------------------------------------------------- */
-	/*                                DEACTIVATION                                */
-	/* -------------------------------------------------------------------------- */
-  	// Activated chondrocytes might be deactivated once the damage is cleared:
-	/*
-	totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-	
-	#ifndef CALIBRATION
-		if (totaldamage == 0 && rollDice(Chondrocyte::activation[4])) this->chondDeactivation();
-	#else  
-		if (totaldamage == 0 && rollDice(2.5)) this->chondDeactivation();
-	#endif  
-	*/
-	/* -------------------------------------------------------------------------- */
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
