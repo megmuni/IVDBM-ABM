@@ -613,17 +613,16 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	/*                              Differentiation                               */
 	/* -------------------------------------------------------------------------- */
-	#ifdef MODEL_SCAFFOLD
-		in = this->index[read_t];
-		if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
-			//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
-				//cout << "attempting differentiation of stem cell" << endl;
-				this->Stem::differentiateStem(1, progen);
-				this->doublings[write_t] = this->doublings[read_t] + 1;
-			}
+
+	in = this->index[read_t];
+	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (this->life[read_t] > 0 && this->life[read_t] % 48 == 0) {
+		//if (fmod(((float)this->life[read_t] / 2), 48) == 0.0) { // differentiation attempted every 48 hours of cell's life
+			//cout << "attempting differentiation of stem cell" << endl;
+			this->Stem::differentiateStem(1, progen);
+			this->doublings[write_t] = this->doublings[read_t] + 1;
 		}
-	#endif
+	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                  MOVEMENT                                  */
