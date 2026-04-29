@@ -283,121 +283,6 @@ void Cell::cellFunction() {
 	//else this->achond_cellFunction();
 }
 
-void NP::NP_cellFunction() {
-
-	int in = this->index[read_t];
-	double hours = Agent::agentWorldPtr->reportHour();
-	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-
-	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
-	if (totaldamage == 0) {
-
-#ifdef MODEL_SCAFFOLD
-		// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
-		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
-
-		}
-		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
-			this->wiggle();
-		}
-#else
-		this->wiggle();
-#endif
-
-	}
-	else {
-
-		this->proliferate();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                  MOVEMENT                                  */
-		/* -------------------------------------------------------------------------- */
-		this->cellSniff();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                 ACTIVATION                                 */
-		/* -------------------------------------------------------------------------- */
-		//// An unactivated chondrocyte can be activated if it is in the damage zone:
-		//if (Agent::agentPatchPtr[in].inDamzone == true) {
-		//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
-		//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
-		//	
-		//#ifndef CALIBRATION
-		//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
-		//#else  
-		//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
-		//#endif
-		//		this->chondActivation();
-		//	}
-		//	}
-		//}
-
-		/* -------------------------------------------------------------------------- */
-		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-		/* -------------------------------------------------------------------------- */
-
-		this->ecm_synthesis();
-
-		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
-		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
-		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
-
-		// Change in chemicals due to cells:
-#ifdef CALIBRATION
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF) + Cell::cytokineSynthesis[2]*(patchIL1beta) + Cell::cytokineSynthesis[3]*(patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
-		//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
-		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
-#else
-		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
-		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
-		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
-#endif
-
-		/* -------------------------------------------------------------------------- */
-		/*                                    DEATH                                   */
-		/* -------------------------------------------------------------------------- */
-
-		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
-//#ifdef MODEL_SCAFFOLD
-//#ifdef CALIBRATION
-//		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0.0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//#else
-//		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-//#endif
-//			if (rollDice(100 - Agent::viabilityRate)) {
-//				this->realDeath[write_t] = true;
-//				//this->die();
-//				return;
-//			}
-//		}
-//#endif
-
-#ifdef CALIBRATION
-		if (rollDice(1)) {
-			this->die();
-			return;
-		}
-#else
-		if (rollDice(0.01)) { // from Netlogo model
-			this->die();
-			return;
-		}
-#endif
-
-		// Unactivated chondrocytes can die naturally:
-		//this->life[write_t] = this->life[read_t] - 1;
-		//if (this->life[read_t] <= 0) this->die();
-
-		// last thing to do: increase age + 1 tick 
-		if (this->life[read_t] >= 0) {
-			this->life[write_t] = this->life[read_t] + 1;
-		}
-	}
-}
-
 void Cell::cellSniff() {
 	int in = this->index[read_t];
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
@@ -782,6 +667,121 @@ void Progen::progen_cellFunction() {
 	// last thing to do: increase age + 1 tick 
 	if (this->life[read_t] >= 0) {
 		this->life[write_t] = this->life[read_t] + 1;
+	}
+}
+
+void NP::NP_cellFunction() {
+
+	int in = this->index[read_t];
+	double hours = Agent::agentWorldPtr->reportHour();
+	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+
+	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
+	if (totaldamage == 0) {
+
+#ifdef MODEL_SCAFFOLD
+		// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
+		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
+
+		}
+		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
+			this->wiggle();
+		}
+#else
+		this->wiggle();
+#endif
+
+	}
+	else {
+
+		this->proliferate();
+
+		/* -------------------------------------------------------------------------- */
+		/*                                  MOVEMENT                                  */
+		/* -------------------------------------------------------------------------- */
+		this->cellSniff();
+
+		/* -------------------------------------------------------------------------- */
+		/*                                 ACTIVATION                                 */
+		/* -------------------------------------------------------------------------- */
+		//// An unactivated chondrocyte can be activated if it is in the damage zone:
+		//if (Agent::agentPatchPtr[in].inDamzone == true) {
+		//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
+		//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
+		//	
+		//#ifndef CALIBRATION
+		//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
+		//#else  
+		//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
+		//#endif
+		//		this->chondActivation();
+		//	}
+		//	}
+		//}
+
+		/* -------------------------------------------------------------------------- */
+		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+		/* -------------------------------------------------------------------------- */
+
+		this->ecm_synthesis();
+
+		float patchTNF = this->agentWorldPtr->WHWorldChem.pTNF[in];
+		float patchTGF = this->agentWorldPtr->WHWorldChem.pTGF[in];
+		float patchIL1beta = (this->agentWorldPtr->WHWorldChem.pIL1beta[in]);
+
+		// Change in chemicals due to cells:
+#ifdef CALIBRATION
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += Cell::cytokineSynthesis[0] + Cell::cytokineSynthesis[1] * (patchTGF)+Cell::cytokineSynthesis[2] * (patchIL1beta)+Cell::cytokineSynthesis[3] * (patchTNF);			//(this->agentWorldPtr->WHWorldChem.dTGF[in]) +=  Chondrocyte::cytokineSynthesis[0] + Chondrocyte::cytokineSynthesis[1]*(1 + Chondrocyte::cytokineSynthesis[2]*patchTNF);
+		//(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 0; //DEBUG : constant TGF
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Cell::cytokineSynthesis[4] + (Cell::cytokineSynthesis[5] * ((patchIL1beta) / (1 + Cell::cytokineSynthesis[6] * patchTGF)));	//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += Chondrocyte::cytokineSynthesis[3] + Chondrocyte::cytokineSynthesis[4]/(1 + patchTGF*Chondrocyte::cytokineSynthesis[5]);
+		//(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 0; //DEBUG : constant TNF
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Cell::cytokineSynthesis[7] + (Cell::cytokineSynthesis[8] * ((patchTNF) / (1 + Cell::cytokineSynthesis[9] * patchTGF))); //(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += Chondrocyte::cytokineSynthesis[6] + (Chondrocyte::cytokineSynthesis[7]*patchTNF)/(Chondrocyte::cytokineSynthesis[8] + Chondrocyte::cytokineSynthesis[9]*patchTGF);
+#else
+		(this->agentWorldPtr->WHWorldChem.dTGF[in]) += 10 + 0.05 * (patchTGF + 10 * patchTNF); 				//9.98 + 2.58*patchTGF + 5.11*patchTNF;				//2.11 + 3.7*patchTGF;
+		(this->agentWorldPtr->WHWorldChem.dTNF[in]) += 5 + (2.4 * patchIL1beta) / (1 + 4 * patchTGF);				//5.16 + (2.42*patchIL1beta)/(1 + 4.22*patchTGF);	//2.4*patchIL1beta + 4.8/(1 + 1.27*patchTGF);		
+		(this->agentWorldPtr->WHWorldChem.dIL1beta[in]) += 2 + (5 * patchTNF) / (1 + 3.2 * patchTGF);		//2.11 + (5.43*patchTNF)/(1 + 3.26*patchTGF);		//4;
+#endif
+
+		/* -------------------------------------------------------------------------- */
+		/*                                    DEATH                                   */
+		/* -------------------------------------------------------------------------- */
+
+		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
+//#ifdef MODEL_SCAFFOLD
+//#ifdef CALIBRATION
+//		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0.0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//#else
+//		if (fmod((float)Agent::agentWorldPtr->clock, 6) && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//#endif
+//			if (rollDice(100 - Agent::viabilityRate)) {
+//				this->realDeath[write_t] = true;
+//				//this->die();
+//				return;
+//			}
+//		}
+//#endif
+
+#ifdef CALIBRATION
+		if (rollDice(1)) {
+			this->die();
+			return;
+		}
+#else
+		if (rollDice(0.01)) { // from Netlogo model
+			this->die();
+			return;
+		}
+#endif
+
+		// Unactivated chondrocytes can die naturally:
+		//this->life[write_t] = this->life[read_t] - 1;
+		//if (this->life[read_t] <= 0) this->die();
+
+		// last thing to do: increase age + 1 tick 
+		if (this->life[read_t] >= 0) {
+			this->life[write_t] = this->life[read_t] + 1;
+		}
 	}
 }
 
