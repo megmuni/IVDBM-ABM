@@ -547,11 +547,11 @@ void Stem::stem_cellFunction() {
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
 	#ifdef CALIBRATION
 		if (rollDice(Stem::apoptosisChance)) {
-			if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
+			//if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
 				this->realDeath[write_t] = true;
 				this->die();
 				return;
-			}
+			//}
 		}
 	#else
 		if (rollDice(1)) { // from Netlogo model
@@ -616,11 +616,11 @@ void Progen::progen_cellFunction() {
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
 #ifdef CALIBRATION
 	if (rollDice(Progen::apoptosisChance)) {
-		if (rollDice(10)) { // further reduce death chance to 0.5%
+		//if (rollDice(100)) { // further reduce death chance to 0.5%
 			this->realDeath[write_t] = true;
 			this->die();
 			return;
-		}
+		//}
 	}
 #else
 	if (rollDice(1)) { // from Netlogo model
@@ -1155,7 +1155,7 @@ float Stem::get_diff_prob(float meanTGF,
 	float meanTNF) {
 
 	//return 0.5 + (Stem::differentiation[3] * meanTGF);
-	return 5;
+	return 0.05;
 }
 
 void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
@@ -1244,7 +1244,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 5;
+	return 0.05;
 }
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
