@@ -25,7 +25,7 @@ float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // th
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
-float Stem::apoptosisChance = 0.1;
+float Stem::apoptosisChance = 1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
@@ -39,7 +39,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 0.1;
+float Progen::apoptosisChance = 1;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
