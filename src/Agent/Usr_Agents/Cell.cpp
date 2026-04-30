@@ -1155,7 +1155,7 @@ float Stem::get_diff_prob(float meanTGF,
 	float meanTNF) {
 
 	//return 0.5 + (Stem::differentiation[3] * meanTGF);
-	return 0.05;
+	return 5;
 }
 
 void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
@@ -1244,7 +1244,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 0.05;
+	return 5;
 }
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
