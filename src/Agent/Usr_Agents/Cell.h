@@ -538,6 +538,7 @@ class NP: public Cell {
   /* -------------------------------------------------------------------------- */
   static int numOfNP; // Keeps track of the quantity of living NP cells
   static float migrationSpeed;    // Speed (patch/tick) NP cells move in world
+  static float apoptosisChance;
   static float divisionNum; // number of cell divisions the cell has undertaken
 
   static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
