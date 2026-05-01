@@ -255,7 +255,7 @@ class Cell: public Agent {
 
       // Movement-related hook functions
       virtual float get_migration_speed();
-      virtual bool can_tgf_excite();
+      virtual bool can_tgf_excite() { return false; }
 };
 
 /*
