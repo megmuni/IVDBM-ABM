@@ -280,8 +280,6 @@ void Cell::cellFunction() {
 			tmp->NP::NP_cellFunction();
 		}
 	}
-	//if (this->activate[read_t] == false) this->chond_cellFunction();
-	//else this->achond_cellFunction();
 }
 
 void Cell::cellSniff() {
@@ -500,15 +498,6 @@ void Cell::cytokine_synthesis() {
 
 void Stem::stem_cellFunction() {
 	int in = this->index[read_t];
-  	
-	// Stem cells in vitro (MODEL_SCAFFOLD) proliferate:
-	//if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-	//	cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
-	//}
-	//else {
-	//	//cout << "agent patch type is " << Agent::agentPatchPtr[in].type[read_t] << endl; //added for debug
-	//	cout << "agent patch type is invalid!" << endl;
-	//}
 	
 	//cout << "attempting proliferation of stem cell" << endl;
 	this->proliferate();
@@ -519,9 +508,6 @@ void Stem::stem_cellFunction() {
 	/* -------------------------------------------------------------------------- */
 	/*                                  MOVEMENT                                  */
 	/* -------------------------------------------------------------------------- */
-   
-	// Activated chondrocytes only move along their preferred gradient if there is damage.	
-	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
 
 	this->cellSniff();
 
