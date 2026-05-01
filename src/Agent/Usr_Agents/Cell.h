@@ -193,17 +193,6 @@ class Cell: public Agent {
     void makeOAggrecan(float meanTNF, float meanTGF, float meanIL1);
 
     /*
-     * Description:	Sprouts new hyaluronan on one of the activated chondrocyte's damaged neighbor patches.
-     *
-     * Return: void
-     *
-     * Parameters: meanTNF  -- Average TNF concentration of the activated chondrocyte's neighbors
-     * 				     meanTGF  -- Average TGF concentration of the activated chondrocyte's neighbors
-     * 				     meanIL1  -- Average IL1 concentration of the activated chondrocyte's neighbors
-     */
-    //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
-
-    /*
      * Description: template method for cytokine synthesis by cells
      *
      */
@@ -314,24 +303,6 @@ class Stem: public Cell {
      */
     ~Stem();
   
-    /*
-       * Description:	Performs biological function of a stem cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void stem_cellFunction(); 
-  
-    /*
-       * Description:	Differentiates the stem cell to the next stage (progenitor).
-       *              Does not update numOfStem; this must be done elsewhere.
-       *
-       * Return: void
-       *
-       * Parameters: void
-       */
-    void differentiateStem(int number, int agentType);
-  
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
@@ -420,24 +391,6 @@ class Progen: public Cell {
      * Parameters: void
      */
     ~Progen();
-
-    /*
-       * Description:	Performs biological function of an NP progenitor cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void progen_cellFunction(); 
-  
-    /*
-       * Description:	Differentiates the progenitor cell to the next stage (progenitor).
-       *              Does not update numOfProgen; this must be done elsewhere.
-       *
-       * Return: void
-       *
-       * Parameters: void
-       */
-    void differentiateProgen(int number, int agentType);
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
@@ -524,14 +477,6 @@ class NP: public Cell {
      * Parameters: void
      */
     ~NP();
-
-    /*
-       * Description:	Performs biological function of an NP cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void NP_cellFunction();
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
