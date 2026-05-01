@@ -508,104 +508,104 @@ void Cell::cytokine_synthesis() {
 	create_cytokines(patchTGF, patchIL1beta, patchTNF);
 }
 
-/*void Stem::stem_cellFunction()*/ {
-	int in = this->index[read_t];
-	
-	//cout << "attempting proliferation of stem cell" << endl;
-	this->proliferate();
+//void Stem::stem_cellFunction() {
+//	int in = this->index[read_t];
+//	
+//	cout << "attempting proliferation of stem cell" << endl;
+//	this->proliferate();
+//
+//	cout << "attempting differentiation of stem cell" << endl;
+//	this->differentiate();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                                  MOVEMENT                                  */
+//	/* -------------------------------------------------------------------------- */
+//
+//	this->cellSniff();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+//	/* -------------------------------------------------------------------------- */
+//
+//	this->ecm_synthesis();
+//
+//	this->cytokine_synthesis();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                                    DEATH                                   */
+//	/* -------------------------------------------------------------------------- */
+//	 Stem cells in Ca-Alg hydrogel have a low apoptosis rate
+//	this->apoptose();
+//	#ifdef CALIBRATION
+//		if (rollDice(Stem::apoptosisChance)) {
+//			//if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
+//				this->realDeath[write_t] = true;
+//				this->die();
+//				return;
+//			//}
+//		}
+//	#else
+//		if (rollDice(1)) { // from Netlogo model
+//			this->die();
+//			return;
+//		}
+//	#endif
+//    	// Activated chondrocytes can die naturally:
+//		//this->life[write_t] = this->life[read_t] - 1;
+//		//if (this->life[read_t] <= 0) {
+//		//	this->die();
+//		//}
+//
+//		 last thing to do: increase age + 1 tick 
+//		if (this->life[read_t] >= 0) {
+//			this->life[write_t] = this->life[read_t] + 1;
+//		}
+//}
 
-	//cout << "attempting differentiation of stem cell" << endl;
-	this->differentiate();
-
-	/* -------------------------------------------------------------------------- */
-	/*                                  MOVEMENT                                  */
-	/* -------------------------------------------------------------------------- */
-
-	this->cellSniff();
-
-	/* -------------------------------------------------------------------------- */
-	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-	/* -------------------------------------------------------------------------- */
-
-	this->ecm_synthesis();
-
-	this->cytokine_synthesis();
-
-	/* -------------------------------------------------------------------------- */
-	/*                                    DEATH                                   */
-	/* -------------------------------------------------------------------------- */
-	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
-	this->apoptose();
-	//#ifdef CALIBRATION
-	//	if (rollDice(Stem::apoptosisChance)) {
-	//		//if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
-	//			this->realDeath[write_t] = true;
-	//			this->die();
-	//			return;
-	//		//}
-	//	}
-	//#else
-	//	if (rollDice(1)) { // from Netlogo model
-	//		this->die();
-	//		return;
-	//	}
-	//#endif
- //   	// Activated chondrocytes can die naturally:
-	//	//this->life[write_t] = this->life[read_t] - 1;
-	//	//if (this->life[read_t] <= 0) {
-	//	//	this->die();
-	//	//}
-
-		// last thing to do: increase age + 1 tick 
-		if (this->life[read_t] >= 0) {
-			this->life[write_t] = this->life[read_t] + 1;
-		}
-}
-
-/*void Progen::progen_cellFunction()*/ {
-	int in = this->index[read_t];
-
-	//cout << "attempting proliferation of pre-np cell" << endl;
-	this->proliferate();
-
-	//cout << "attempting differentiation of pre-np cell" << endl;
-	this->differentiate();
-
-	/* -------------------------------------------------------------------------- */
-	/*                                  MOVEMENT                                  */
-	/* -------------------------------------------------------------------------- */
-
-	// Activated chondrocytes only move along their preferred gradient if there is damage.	
-	//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-
-	this->cellSniff();
-
-	/* -------------------------------------------------------------------------- */
-	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-	/* -------------------------------------------------------------------------- */
-
-	this->ecm_synthesis();
-
-	this->cytokine_synthesis();
-
-	/* -------------------------------------------------------------------------- */
-	/*                                DEACTIVATION                                */
-	/* -------------------------------------------------------------------------- */
-	// Activated chondrocytes might be deactivated once the damage is cleared:
-	/*
-	totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-
-	#ifndef CALIBRATION
-		if (totaldamage == 0 && rollDice(Chondrocyte::activation[4])) this->chondDeactivation();
-	#else
-		if (totaldamage == 0 && rollDice(2.5)) this->chondDeactivation();
-	#endif
-	*/
-	/* -------------------------------------------------------------------------- */
-	/*                                    DEATH                                   */
-	/* -------------------------------------------------------------------------- */
-	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
-	this->apoptose();
+//void Progen::progen_cellFunction() {
+//	int in = this->index[read_t];
+//
+//	cout << "attempting proliferation of pre-np cell" << endl;
+//	this->proliferate();
+//
+//	cout << "attempting differentiation of pre-np cell" << endl;
+//	this->differentiate();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                                  MOVEMENT                                  */
+//	/* -------------------------------------------------------------------------- */
+//
+//	 Activated chondrocytes only move along their preferred gradient if there is damage.	
+//		int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+//
+//	this->cellSniff();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+//	/* -------------------------------------------------------------------------- */
+//
+//	this->ecm_synthesis();
+//
+//	this->cytokine_synthesis();
+//
+//	/* -------------------------------------------------------------------------- */
+//	/*                                DEACTIVATION                                */
+//	/* -------------------------------------------------------------------------- */
+//	 Activated chondrocytes might be deactivated once the damage is cleared:
+//	/*
+//	totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+//
+//	#ifndef CALIBRATION
+//		if (totaldamage == 0 && rollDice(Chondrocyte::activation[4])) this->chondDeactivation();
+//	#else
+//		if (totaldamage == 0 && rollDice(2.5)) this->chondDeactivation();
+//	#endif
+//	*/
+//	/* -------------------------------------------------------------------------- */
+//	/*                                    DEATH                                   */
+//	/* -------------------------------------------------------------------------- */
+//	 Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
+//	this->apoptose();
 //#ifdef CALIBRATION
 //	if (rollDice(Progen::apoptosisChance)) {
 //		//if (rollDice(100)) { // further reduce death chance to 0.5%
@@ -620,82 +620,82 @@ void Cell::cytokine_synthesis() {
 //		return;
 //	}
 //#endif
-	// can die naturally:
-	//this->life[write_t] = this->life[read_t] - 1;
-	//if (this->life[read_t] <= 0) {
-	//	this->die();
-	//}
+//	 can die naturally:
+//	this->life[write_t] = this->life[read_t] - 1;
+//	if (this->life[read_t] <= 0) {
+//		this->die();
+//	}
+//
+//	 last thing to do: increase age + 1 tick 
+//	if (this->life[read_t] >= 0) {
+//		this->life[write_t] = this->life[read_t] + 1;
+//	}
+//}
 
-	// last thing to do: increase age + 1 tick 
-	if (this->life[read_t] >= 0) {
-		this->life[write_t] = this->life[read_t] + 1;
-	}
-}
-
-/*void NP::NP_cellFunction()*/ {
-
-	int in = this->index[read_t];
-	double hours = Agent::agentWorldPtr->reportHour();
-	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
-
-	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
-	if (totaldamage == 0) {
-
-#ifdef MODEL_SCAFFOLD
-		// If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
-		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
-
-		}
-		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
-			this->wiggle();
-		}
-#else
-		this->wiggle();
-#endif
-
-	}
-	else {
-
-		this->proliferate();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                  MOVEMENT                                  */
-		/* -------------------------------------------------------------------------- */
-		this->cellSniff();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                 ACTIVATION                                 */
-		/* -------------------------------------------------------------------------- */
-		//// An unactivated chondrocyte can be activated if it is in the damage zone:
-		//if (Agent::agentPatchPtr[in].inDamzone == true) {
-		//	// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
-		//	int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
-		//	
-		//#ifndef CALIBRATION
-		//	if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
-		//#else  
-		//	if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
-		//#endif
-		//		this->chondActivation();
-		//	}
-		//	}
-		//}
-
-		/* -------------------------------------------------------------------------- */
-		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
-		/* -------------------------------------------------------------------------- */
-
-		this->ecm_synthesis();
-
-		this->cytokine_synthesis();
-
-		/* -------------------------------------------------------------------------- */
-		/*                                    DEATH                                   */
-		/* -------------------------------------------------------------------------- */
-
-		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
-		this->apoptose();
+//void NP::NP_cellFunction() {
+//
+//	int in = this->index[read_t];
+//	double hours = Agent::agentWorldPtr->reportHour();
+//	int totaldamage = ((Agent::agentWorldPtr)->worldPatch)->numOfEachTypes[damage];
+//
+//	/* Unactivated chondrocytes only move along their preferred gradient and perform biological functions if there is damage. */
+//	if (totaldamage == 0) {
+//
+//#ifdef MODEL_SCAFFOLD
+//		 If cell is moving on Ca-Alg substrate chondrocyte move up to "migrationSpeed" patches per tick determined by substrate composition
+//		if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+//			for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
+//
+//		}
+//		else if (rollDice(0.25)) { // If cell is not actively migrating, consider chance of moving to next patch            
+//			this->wiggle();
+//		}
+//#else
+//		this->wiggle();
+//#endif
+//
+//	}
+//	else {
+//
+//		this->proliferate();
+//
+//		/* -------------------------------------------------------------------------- */
+//		/*                                  MOVEMENT                                  */
+//		/* -------------------------------------------------------------------------- */
+//		this->cellSniff();
+//
+//		/* -------------------------------------------------------------------------- */
+//		/*                                 ACTIVATION                                 */
+//		/* -------------------------------------------------------------------------- */
+//		// An unactivated chondrocyte can be activated if it is in the damage zone:
+//		if (Agent::agentPatchPtr[in].inDamzone == true) {
+//			// Low TGF promote and high TGF inhibit chances of chondrocyte activation:
+//			int patchTGF = agentWorldPtr->WHWorldChem.pTGF[in];
+//			
+//		#ifndef CALIBRATION
+//			if ((patchTGF > 10 && rollDice(Cell::activation[1])) || (patchTGF > Cell::activation[2]) || (rollDice(Cell::activation[3]))) { 
+//		#else  
+//			if ((patchTGF > 10 && rollDice(50.0)) || (patchTGF > 0) || (rollDice(25))) { 
+//		#endif
+//				this->chondActivation();
+//			}
+//			}
+//		}
+//
+//		/* -------------------------------------------------------------------------- */
+//		/*                      ECM PROTEIN & CHEMICAL SYNTHESIS                      */
+//		/* -------------------------------------------------------------------------- */
+//
+//		this->ecm_synthesis();
+//
+//		this->cytokine_synthesis();
+//
+//		/* -------------------------------------------------------------------------- */
+//		/*                                    DEATH                                   */
+//		/* -------------------------------------------------------------------------- */
+//
+//		 Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
+//		this->apoptose();
 //#ifdef MODEL_SCAFFOLD
 //#ifdef CALIBRATION
 //		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0.0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
@@ -709,7 +709,7 @@ void Cell::cytokine_synthesis() {
 //			}
 //		}
 //#endif
-
+//
 //#ifdef CALIBRATION
 //		if (rollDice(1)) {
 //			this->die();
@@ -721,17 +721,17 @@ void Cell::cytokine_synthesis() {
 //			return;
 //		}
 //#endif
-
-		// Unactivated chondrocytes can die naturally:
-		//this->life[write_t] = this->life[read_t] - 1;
-		//if (this->life[read_t] <= 0) this->die();
-
-		// last thing to do: increase age + 1 tick 
-		if (this->life[read_t] >= 0) {
-			this->life[write_t] = this->life[read_t] + 1;
-		}
-	}
-}
+//
+//		 Unactivated chondrocytes can die naturally:
+//		this->life[write_t] = this->life[read_t] - 1;
+//		if (this->life[read_t] <= 0) this->die();
+//
+//		 last thing to do: increase age + 1 tick 
+//		if (this->life[read_t] >= 0) {
+//			this->life[write_t] = this->life[read_t] + 1;
+//		}
+//	}
+//}
 
 void Cell::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {}
 
