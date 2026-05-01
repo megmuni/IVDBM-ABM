@@ -285,29 +285,18 @@ void Cell::cellFunction() {
 
 void Cell::cellSniff() {
 	int in = this->index[read_t];
+
+	// gets migration speed from correct hook function
+	float speed = get_migration_speed();
+
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
 		if (rollDice(80) && this->moveToHighestChem(pcellgrad) == true){
 			#ifdef MODEL_SCAFFOLD
-			if (typeid(*this) == typeid(Stem)) {
-				// If cell is moving on Ca-Alg substrate:
-				if (Stem::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-					// Move up to "migrationSpeed" patches per tick:
-					for (int dx = 0; dx < Stem::migrationSpeed; dx++) this->wiggle();
-				}
+			if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+				// Move up to "migrationSpeed" patches per tick:
+				for (int dx = 0; dx < speed; dx++) this->wiggle();
 			}
-			else if (typeid(*this) == typeid(Progen)) {
-				if (Progen::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-					// Move up to "migrationSpeed" patches per tick:
-					for (int dx = 0; dx < Progen::migrationSpeed; dx++) this->wiggle();
-				}
-			}
-			else if (typeid(*this) == typeid(NP)) {
-				if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-					// Move up to "migrationSpeed" patches per tick:
-					for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
-				}
-			}
-				// If cell is not actively migrating, consider chance of moving to next patch:
+		// If cell is not actively migrating, consider chance of moving to next patch:
 		} else if(rollDice(0.25)){		
 			this->wiggle(); 
 		}
@@ -316,44 +305,31 @@ void Cell::cellSniff() {
 		#endif
 
 	} else {
-		#ifdef MODEL_SCAFFOLD
-			// If cell is moving on Ca-Alg substrate:
-		if (typeid(*this) == typeid(Stem)) {
-			// If cell is moving on Ca-Alg substrate:
-			if (Stem::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-				// Move up to "migrationSpeed" patches per tick:
-				for (int dx = 0; dx < Stem::migrationSpeed; dx++) this->wiggle();
-			}
+		// not in damage zone
+#ifdef MODEL_SCAFFOLD
+		if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			for (int dx = 0; dx < speed; dx++) this->wiggle();
 		}
-		else if (typeid(*this) == typeid(Progen)) {
-			if (Progen::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-				// Move up to "migrationSpeed" patches per tick:
-				for (int dx = 0; dx < Progen::migrationSpeed; dx++) this->wiggle();
-			}
-		}
-		else if (typeid(*this) == typeid(NP)) {
-			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-				// Move up to "migrationSpeed" patches per tick:
-				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle();
-			}
-		}
-		else if (rollDice(0.25)) this->wiggle(); 							   // If cell is not actively migrating, consider chance of moving to next patch
-		#else
+		else if (rollDice(0.25)) {
 			this->wiggle();
-		#endif
+		}
+#else
+		this->wiggle();
+#endif
 	}
 
 	// TGF can excite NP cell and overcome gradient: //NOTE MM: double check this for MSCs
-	if ((typeid(*this) == typeid(NP) && this->meanNeighborChem(pTGF) > 0)) {
-		#ifdef MODEL_SCAFFOLD
-			// If cell is moving on Ca-Alg substrate:
-			if (NP::migrationSpeed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg){
-				for (int dx = 0; dx < NP::migrationSpeed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
-			}
-			else if (rollDice(0.25)) { this->wiggle(); } 						   // If cell is not actively migrating, consider chance of moving to next patch: 		
-		#else
-			this->wiggle();
-		#endif 
+	if (can_tgf_excite()) {
+#ifdef MODEL_SCAFFOLD
+		if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			for (int dx = 0; dx < speed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
+		}
+		else if (rollDice(0.25)) {
+			this->wiggle(); // If cell is not actively migrating, consider chance of moving to next patch: 	
+		}
+#else
+		this->wiggle();
+#endif
 	}
 }
 
