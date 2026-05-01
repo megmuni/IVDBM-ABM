@@ -1195,7 +1195,7 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 #endif
 }
 
-void Stem::get_migration_speed() {
+float Stem::get_migration_speed() {
 #ifdef CALIBRATION
 	float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
 
@@ -1290,7 +1290,7 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 #endif
 }
 
-void Progen::get_migration_speed() {
+float Progen::get_migration_speed() {
 #ifdef CALIBRATION
 	float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
 
@@ -1389,7 +1389,7 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 #endif
 }
 
-void NP::get_migration_speed() {
+float NP::get_migration_speed() {
 #ifdef CALIBRATION
 	float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min
 
