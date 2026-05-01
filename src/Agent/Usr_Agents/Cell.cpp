@@ -39,7 +39,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 1;
+float Progen::apoptosisChance = 5;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
@@ -50,6 +50,7 @@ float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick
+float NP::apoptosisChance = 5;
 float NP::collagenSynthRate = 1;
 float NP::aggrecanSynthRate = 1.5;
 
@@ -339,6 +340,21 @@ void Cell::die() {
 	Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
 	this->alive[write_t] = false;
 	this->life[write_t] = 0;
+}
+
+void Cell::apoptose() {
+#ifdef CALIBRATION
+	if (rollDice(get_apoptosis_chance())) {
+		this->realDeath[write_t] = true;
+		this->die();
+		return;
+	}
+#else
+	if (rollDice(1)) { // from Netlogo model
+		this->die();
+		return;
+	}
+#endif
 }
 
 void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
@@ -1003,6 +1019,8 @@ float Cell::get_diff_prob(float meanTGF,
 
 float Cell::get_migration_speed() { return 0; }
 
+float Cell::get_apoptosis_chance() { return 1; }
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
@@ -1223,6 +1241,10 @@ float Stem::get_migration_speed() {
 	return Stem::migrationSpeed;
 }
 
+float Stem::get_apoptosis_chance() {
+	return Stem::apoptosisChance;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                PROGENITOR                                  */
 /* -------------------------------------------------------------------------- */
@@ -1319,6 +1341,10 @@ float Progen::get_migration_speed() {
 		cout << "        Progenitor cell migration Speed (patch/tick) = " << Progen::migrationSpeed << endl;
 	}
 	return Progen::migrationSpeed;
+}
+
+float Progen::get_apoptosis_chance() {
+	return Progen::apoptosisChance;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1423,4 +1449,8 @@ float NP::get_migration_speed() {
 
 bool NP::can_tgf_excite() {
 	return this->meanNeighborChem(pTGF) > 0;
+}
+
+float NP::get_apoptosis_chance() {
+	return NP::apoptosisChance;
 }
