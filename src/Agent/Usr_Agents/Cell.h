@@ -96,12 +96,12 @@ class Cell: public Agent {
     /*void achond_cellFunction();                         
 
     /*
-     * Description:	Moves a cell along its preferred chemical gradient.
+     * Description:	Moves a cell along its preferred chemical gradient. Template method.
      *
      * Return: void
      * Parameters: void
      */
-    void cellSniff();
+    virtual void cellSniff() final;
 
     /*
      * Description:	Performs cell death. Updates the cell class members. 
@@ -252,6 +252,10 @@ class Cell: public Agent {
 
       // Cytokine-related hook functions
       virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF);
+
+      // Movement-related hook functions
+      virtual float get_migration_speed();
+      virtual bool can_tgf_excite();
 };
 
 /*
@@ -355,6 +359,10 @@ protected:
     // Cytokine-related hook functions
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 
+    // Movement-related hook functions
+    virtual float get_migration_speed() override;
+    //virtual bool can_tgf_excite() override;
+
 };
 
 /*
@@ -453,6 +461,10 @@ protected:
 
     // Cytokine-related hook functions
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
+    // Movement-related hook functions
+    virtual float get_migration_speed() override;
+    //virtual bool can_tgf_excite() override;
 };
 
 /*
@@ -532,6 +544,10 @@ protected:
 
     // Cytokine-related hook functions
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
+    // Movement-related hook functions
+    virtual float get_migration_speed() override;
+    virtual bool can_tgf_excite() override;
 };
 
 #endif
