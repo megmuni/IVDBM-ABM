@@ -1198,26 +1198,28 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 }
 
 float Stem::get_migration_speed() {
+	if (WHWorld::clock == 0) {
 #ifdef CALIBRATION
-	float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
+		float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
 
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-}
-	else {
-		Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
+		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
+		else {
+			Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
 #else
-	float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+		float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
 
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
-	else {
-		Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
+		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
+		else {
+			Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
 #endif
-	cout << "        Stem cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+		cout << "        Stem cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+	}
 	return Stem::migrationSpeed;
 }
 
@@ -1294,26 +1296,28 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 }
 
 float Progen::get_migration_speed() {
+	if (WHWorld::clock == 0) {
 #ifdef CALIBRATION
-	float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
+		float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
 
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
-	else {
-		Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
+		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
+		else {
+			Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
 #else
-	float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+		float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
 
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
-	else {
-		Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
+		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
+			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
+		else {
+			Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
+		}
 #endif
-	cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+		cout << "        Progenitor cell migration Speed (patch/tick) = " << Progen::migrationSpeed << endl;
+	}
 	return Progen::migrationSpeed;
 }
 
