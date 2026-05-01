@@ -89,13 +89,6 @@ class Agent {
     int getIndex();
 
 #ifdef MODEL_SCAFFOLD
-    /*
-     * Description:	Calculates the speed (patch/tick) cell moves in Ca-Alg hydrogel 
-     *
-     * Return: void
-     * Parameters: void             
-     */
-    static void calculateMigrationSpeed(int agentType);
 
     /*
      * Description:	Calculates the rate of duplication per hour in Ca-Alg hydrogel 
