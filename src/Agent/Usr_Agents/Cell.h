@@ -360,7 +360,7 @@ protected:
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 
     // Movement-related hook functions
-    virtual float get_migration_speed() override;
+    float get_migration_speed() override;
     //virtual bool can_tgf_excite() override;
 
 };
@@ -463,7 +463,7 @@ protected:
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 
     // Movement-related hook functions
-    virtual float get_migration_speed() override;
+    float get_migration_speed() override;
     //virtual bool can_tgf_excite() override;
 };
 
@@ -546,8 +546,8 @@ protected:
     void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
 
     // Movement-related hook functions
-    virtual float get_migration_speed() override;
-    virtual bool can_tgf_excite() override;
+    float get_migration_speed() override;
+    bool can_tgf_excite() override;
 };
 
 #endif
