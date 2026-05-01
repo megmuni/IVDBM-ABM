@@ -523,25 +523,26 @@ void Stem::stem_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Stem cells in Ca-Alg hydrogel have a low apoptosis rate
-	#ifdef CALIBRATION
-		if (rollDice(Stem::apoptosisChance)) {
-			//if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
-				this->realDeath[write_t] = true;
-				this->die();
-				return;
-			//}
-		}
-	#else
-		if (rollDice(1)) { // from Netlogo model
-			this->die();
-			return;
-		}
-	#endif
-    	// Activated chondrocytes can die naturally:
-		//this->life[write_t] = this->life[read_t] - 1;
-		//if (this->life[read_t] <= 0) {
-		//	this->die();
-		//}
+	this->apoptose();
+	//#ifdef CALIBRATION
+	//	if (rollDice(Stem::apoptosisChance)) {
+	//		//if (rollDice(1)) { // further reduce apoptosis chance to 0.5%
+	//			this->realDeath[write_t] = true;
+	//			this->die();
+	//			return;
+	//		//}
+	//	}
+	//#else
+	//	if (rollDice(1)) { // from Netlogo model
+	//		this->die();
+	//		return;
+	//	}
+	//#endif
+ //   	// Activated chondrocytes can die naturally:
+	//	//this->life[write_t] = this->life[read_t] - 1;
+	//	//if (this->life[read_t] <= 0) {
+	//	//	this->die();
+	//	//}
 
 		// last thing to do: increase age + 1 tick 
 		if (this->life[read_t] >= 0) {
@@ -592,20 +593,21 @@ void Progen::progen_cellFunction() {
 	/*                                    DEATH                                   */
 	/* -------------------------------------------------------------------------- */
 	// Progenitor cells in Ca-Alg hydrogel have a low apoptosis rate
-#ifdef CALIBRATION
-	if (rollDice(Progen::apoptosisChance)) {
-		//if (rollDice(100)) { // further reduce death chance to 0.5%
-			this->realDeath[write_t] = true;
-			this->die();
-			return;
-		//}
-	}
-#else
-	if (rollDice(1)) { // from Netlogo model
-		this->die();
-		return;
-	}
-#endif
+	this->apoptose();
+//#ifdef CALIBRATION
+//	if (rollDice(Progen::apoptosisChance)) {
+//		//if (rollDice(100)) { // further reduce death chance to 0.5%
+//			this->realDeath[write_t] = true;
+//			this->die();
+//			return;
+//		//}
+//	}
+//#else
+//	if (rollDice(1)) { // from Netlogo model
+//		this->die();
+//		return;
+//	}
+//#endif
 	// can die naturally:
 	//this->life[write_t] = this->life[read_t] - 1;
 	//if (this->life[read_t] <= 0) {
@@ -681,6 +683,7 @@ void NP::NP_cellFunction() {
 		/* -------------------------------------------------------------------------- */
 
 		// Cells in Ca-Alg hydrogel have at a viability/death rate determined by time:
+		this->apoptose();
 //#ifdef MODEL_SCAFFOLD
 //#ifdef CALIBRATION
 //		if (fmod((float)Agent::agentWorldPtr->clock, Agent::CaAlgViability[2]) == 0.0 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
@@ -695,17 +698,17 @@ void NP::NP_cellFunction() {
 //		}
 //#endif
 
-#ifdef CALIBRATION
-		if (rollDice(1)) {
-			this->die();
-			return;
-		}
-#else
-		if (rollDice(0.01)) { // from Netlogo model
-			this->die();
-			return;
-		}
-#endif
+//#ifdef CALIBRATION
+//		if (rollDice(1)) {
+//			this->die();
+//			return;
+//		}
+//#else
+//		if (rollDice(0.01)) { // from Netlogo model
+//			this->die();
+//			return;
+//		}
+//#endif
 
 		// Unactivated chondrocytes can die naturally:
 		//this->life[write_t] = this->life[read_t] - 1;
