@@ -805,7 +805,7 @@ float Stem::get_prolif_prob(float meanTGF,
 
 #ifdef CALIBRATION
 	//float prolif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-	float prolif = 30; //testing
+	float prolif = 50; //testing
 #else  
 	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 #endif  
@@ -925,7 +925,7 @@ float Progen::get_prolif_prob(float meanTGF,
 
 #ifdef CALIBRATION
 	//float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
-	float prolif = 30; //testing
+	float prolif = 50; //testing
 #else  
 	float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
 #endif 
