@@ -1001,6 +1001,8 @@ float Cell::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) { return 5; } // base default
 
+float Cell::get_migration_speed() { return 0; }
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
@@ -1216,6 +1218,7 @@ float Stem::get_migration_speed() {
 	}
 #endif
 	cout << "        Stem cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+	return Stem::migrationSpeed;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1311,6 +1314,7 @@ float Progen::get_migration_speed() {
 	}
 #endif
 	cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
+	return Progen::migrationSpeed;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1410,6 +1414,7 @@ float NP::get_migration_speed() {
 	}
 #endif
 	cout << "        NP cell migration Speed (patch/tick) = " << NP::migrationSpeed << endl;
+	return NP::migrationSpeed;
 }
 
 bool NP::can_tgf_excite() {
