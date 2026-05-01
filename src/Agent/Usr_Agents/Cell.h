@@ -110,7 +110,16 @@ class Cell: public Agent {
      * Return: void
      * Parameters: void
      */
-    void die();						
+    void die();					
+
+    /*
+     * Description:	Spefically carries out cell apoptosis based on apoptosis chances for cell types
+     * 
+     *
+     * Return: void
+     * Parameters: void
+     */
+    virtual void apoptose() final;
 
     /*
      * Description:	Activates an unactivated chondrocyte. Updates the chondrocyte class members.
@@ -256,6 +265,9 @@ class Cell: public Agent {
       // Movement-related hook functions
       virtual float get_migration_speed();
       virtual bool can_tgf_excite() { return false; }
+
+      // Death-related hook functions
+      virtual float get_apoptosis_chance();
 };
 
 /*
@@ -361,7 +373,9 @@ protected:
 
     // Movement-related hook functions
     float get_migration_speed() override;
-    //virtual bool can_tgf_excite() override;
+    
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
 
 };
 
@@ -464,7 +478,9 @@ protected:
 
     // Movement-related hook functions
     float get_migration_speed() override;
-    //virtual bool can_tgf_excite() override;
+
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
 };
 
 /*
@@ -548,6 +564,9 @@ protected:
     // Movement-related hook functions
     float get_migration_speed() override;
     bool can_tgf_excite() override;
+
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
 };
 
 #endif
