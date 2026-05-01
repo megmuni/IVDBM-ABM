@@ -1411,3 +1411,7 @@ void NP::get_migration_speed() {
 #endif
 	cout << "        NP cell migration Speed (patch/tick) = " << NP::migrationSpeed << endl;
 }
+
+bool NP::can_tgf_excite() {
+	return this->meanNeighborChem(pTGF) > 0;
+}
