@@ -254,31 +254,43 @@ void Cell::cellFunction() {
 	// Calls the individual cell stage functions
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true) {
-		//Cell temp;
-		Cell* temp = this;
-		if (typeid(*this) == typeid(Stem)) {
-			Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
-			//Stem tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
-			if (tmp == nullptr) {
-				cout << "Casting Failed" << endl;
-			}
-			//cout << "Calling stem cell functions" << endl;
-			tmp->Stem::stem_cellFunction();
-		} else if (typeid(*this) == typeid(Progen)) {
-			Progen* tmp = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
-			if (tmp == nullptr) {
-				cout << "Casting Failed" << endl;
-			}
-			//cout << "Calling pre-NP cell functions" << endl;
-			tmp->Progen::progen_cellFunction();
-		} else if (typeid(*this) == typeid(NP)) {
-			NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
-			if (tmp == nullptr) {
-				cout << "Casting Failed" << endl;
-			}
-			//cout << "Calling NP cell functions" << endl;
-			tmp->NP::NP_cellFunction();
+		this->proliferate();
+		this->differentiate();
+		this->cellSniff();
+		this->ecm_synthesis();
+		this->cytokine_synthesis();
+		this->apoptose();
+
+		// last thing to do: increase age + 1 tick 
+		if (this->life[read_t] >= 0) {
+			this->life[write_t] = this->life[read_t] + 1;
 		}
+
+		////Cell temp;
+		//Cell* temp = this;
+		//if (typeid(*this) == typeid(Stem)) {
+		//	Stem* tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+		//	//Stem tmp = dynamic_cast<Stem*>(temp); // dynamic cast to next derived class (cell type)
+		//	if (tmp == nullptr) {
+		//		cout << "Casting Failed" << endl;
+		//	}
+		//	//cout << "Calling stem cell functions" << endl;
+		//	tmp->Stem::stem_cellFunction();
+		//} else if (typeid(*this) == typeid(Progen)) {
+		//	Progen* tmp = dynamic_cast<Progen*>(temp); // dynamic cast to next derived class (cell type)
+		//	if (tmp == nullptr) {
+		//		cout << "Casting Failed" << endl;
+		//	}
+		//	//cout << "Calling pre-NP cell functions" << endl;
+		//	tmp->Progen::progen_cellFunction();
+		//} else if (typeid(*this) == typeid(NP)) {
+		//	NP* tmp = dynamic_cast<NP*>(temp); // dynamic cast to next derived class (cell type)
+		//	if (tmp == nullptr) {
+		//		cout << "Casting Failed" << endl;
+		//	}
+		//	//cout << "Calling NP cell functions" << endl;
+		//	tmp->NP::NP_cellFunction();
+		//}
 	}
 }
 
@@ -496,7 +508,7 @@ void Cell::cytokine_synthesis() {
 	create_cytokines(patchTGF, patchIL1beta, patchTNF);
 }
 
-void Stem::stem_cellFunction() {
+/*void Stem::stem_cellFunction()*/ {
 	int in = this->index[read_t];
 	
 	//cout << "attempting proliferation of stem cell" << endl;
@@ -550,7 +562,7 @@ void Stem::stem_cellFunction() {
 		}
 }
 
-void Progen::progen_cellFunction() {
+/*void Progen::progen_cellFunction()*/ {
 	int in = this->index[read_t];
 
 	//cout << "attempting proliferation of pre-np cell" << endl;
@@ -620,7 +632,7 @@ void Progen::progen_cellFunction() {
 	}
 }
 
-void NP::NP_cellFunction() {
+/*void NP::NP_cellFunction()*/ {
 
 	int in = this->index[read_t];
 	double hours = Agent::agentWorldPtr->reportHour();
