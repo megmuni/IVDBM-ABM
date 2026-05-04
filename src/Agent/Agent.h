@@ -91,14 +91,6 @@ class Agent {
 #ifdef MODEL_SCAFFOLD
 
     /*
-     * Description:	Calculates the rate of duplication per hour in Ca-Alg hydrogel 
-     *
-     * Return: void
-     * Parameters: void            
-     */
-    static void calculateProliferationRate();
-
-    /*
      * Description:	Calculates the proportion of dead cells 
      *
      * Return: void
@@ -257,7 +249,6 @@ class Agent {
 /* -------- Parameters related to chondrocyte behavior in Ca-Alg Gel -------- */
 #ifdef MODEL_SCAFFOLD
     static bool CaAlgFlag;          // Flag indicating if static parameters have been set             
-    static float proliferationRate; // Change in population (% of initial population) over 1 hour
     static float viabilityRate;     // Viability Rate (%) of cells 
     static float HASynthRate;       // Amount of HA synthesized in Ca-Alg(10^-4 ug)
 #endif
