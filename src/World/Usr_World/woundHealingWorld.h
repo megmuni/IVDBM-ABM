@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <new>
+#include <map>
 
 #ifdef GPU_DIFFUSE
 // Include CUDA runtime and CUFFT

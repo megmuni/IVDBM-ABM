@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <vector>
+#include <map>
 
 using namespace std;
 //extern class dev_Patch;

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <map>
 using namespace std;
 
 #include "World.h"

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <map>
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
