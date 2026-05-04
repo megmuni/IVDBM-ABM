@@ -18,6 +18,8 @@
 using namespace std;
 
 #include "World.h"
+
+double World::clock = 0;
  
 World::World() {
     this->nx = 0; 

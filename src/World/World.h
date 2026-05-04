@@ -96,6 +96,8 @@ class World {
      */
     virtual void outputWorld_csv() final;
 
+    static double clock;     // Keeps track of the current tick
+
 protected:
     // --- output function-related hooks ---
     virtual std::string get_output_filename() = 0;

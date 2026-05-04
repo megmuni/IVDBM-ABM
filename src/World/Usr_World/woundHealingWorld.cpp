@@ -1222,7 +1222,6 @@ using namespace std;
 /* ------------------------------------------------------------------------------------ */
 /*                            STATIC VARIABLES INITIALIZATIONS                          */
 /* ------------------------------------------------------------------------------------ */
-double WHWorld::clock = 0;
 unsigned WHWorld::seed = 27000; //initial number of cells
 bool WHWorld::highTNFdamage = false;
 float WHWorld::patchpermm = 0;
