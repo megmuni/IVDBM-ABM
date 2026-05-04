@@ -495,20 +495,24 @@ class WHWorld: public World {
      std::string get_output_filename()                                override;
      void        write_csv_header(std::ofstream& file)               override;
      void        write_data_row(std::ofstream& file,
-         std::map<std::string, int>& cell_counts,
-         std::map<std::string, double>& ecm_counts) override;
+         std::map<std::string, int>& agent_counts,
+         std::map<std::string, float>& env_counts) override;
 
      // --- auxiliary output hooks ---
      void write_auxiliary_header()                                    override;
      void write_auxiliary_outputs()                                   override;
 
-     // --- cell counting hooks ---
-     std::vector<std::string> get_cell_type_names()                   override;
-     void count_cell_types(std::map<std::string, int>& cell_counts)   override;
+     // --- agent counting hooks ---
+     std::vector<std::string> get_agent_type_names()                   override;
+     void count_agent_types(std::map<std::string, int>& agent_counts)   override;
 
-     // --- ecm counting hooks ---
-     std::vector<std::string> get_ecm_type_names()                    override;
-     void count_ecm(std::map<std::string, double>& ecm_counts)        override;
+     // --- agent population hooks ---
+     int  get_total_agent_count() override;
+     void update_prev_agents() override;
+
+     // --- environment element counting hooks (e.g. ecm) ---
+     std::vector<std::string> get_env_type_names()                    override;
+     void count_env(std::map<std::string, float>& env_counts)        override;
 
 
  private:
