@@ -1532,19 +1532,19 @@ void WHWorld::initializeChemCPU() {
 		if (util::ABMerror(!(this->chemAllocation[ic] = new float[nx*ny*nz] ), "InitializeChem mem alloc error!", __FILE__, __LINE__)) exit(1);
 	}
 
-	// Link World attribute chemAllocation with WHChemical class attribute WHWorldChem:
-	this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
-	this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
-	this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
-	this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
-	this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
-	this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
-	this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
+	// Link World attribute chemAllocation with Chemical class attribute WorldChem:
+	this->WorldChem.pTNF = this->chemAllocation[pTNF];
+	this->WorldChem.pTGF = this->chemAllocation[pTGF];
+	this->WorldChem.pIL1beta = this->chemAllocation[pIL1beta];
+	this->WorldChem.dTNF = this->chemAllocation[dTNF];
+	this->WorldChem.dTGF = this->chemAllocation[dTGF];
+	this->WorldChem.dIL1beta = this->chemAllocation[dIL1beta];
+	this->WorldChem.pcellgrad = this->chemAllocation[pcellgrad];
 
 	// Initialize chemical concentrations:
-	this->WHWorldChem.totalTNF = 0;
-	this->WHWorldChem.totalTGF = 0;
-	this->WHWorldChem.totalIL1beta = 0;
+	this->WorldChem.totalTNF = 0;
+	this->WorldChem.totalTGF = 0;
+	this->WorldChem.totalIL1beta = 0;
 		
 	int countCaAlg = this->countPatchType(CaAlg);
 	if (this->baselineChem.size() == 4) {
@@ -1555,39 +1555,39 @@ void WHWorld::initializeChemCPU() {
 			for (int iy = 0; iy < this->ny; iy++) {
 				for (int ix = 0; ix < this->nx; ix++) {
 					int in = ix + iy*nx + iz*nx*ny;
-					this->WHWorldChem.dTNF[in] = 0;
-					this->WHWorldChem.dTGF[in] = 0;
-					this->WHWorldChem.dIL1beta[in] = 0;
+					this->WorldChem.dTNF[in] = 0;
+					this->WorldChem.dTGF[in] = 0;
+					this->WorldChem.dIL1beta[in] = 0;
 
 					// Baseline chemical concentrations are initialized in tissue 
 					if (this->worldPatch[in].type[read_t] == CaAlg) {
-						this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
-						this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
-						this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
+						this->WorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
+						this->WorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
+						this->WorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
 					} else {
-						this->WHWorldChem.pTNF[in] = 0;
-						this->WHWorldChem.pTGF[in] = 0;
-						this->WHWorldChem.pIL1beta[in] = 0;
+						this->WorldChem.pTNF[in] = 0;
+						this->WorldChem.pTGF[in] = 0;
+						this->WorldChem.pIL1beta[in] = 0;
 					}
 						
 					// Initialize chemical gradient levels that agents are attracted by 
-					float patchIL1 = this->WHWorldChem.pIL1beta[in];
-					float patchTNF = this->WHWorldChem.pTNF[in];
-					float patchTGF = this->WHWorldChem.pTGF[in];
+					float patchIL1 = this->WorldChem.pIL1beta[in];
+					float patchTNF = this->WorldChem.pTNF[in];
+					float patchTGF = this->WorldChem.pTGF[in];
 					float patchcollagen = this->worldECM[in].fcollagen[read_t];
 					//float grad = patchTNF + patchTGF + patchcollagen + patchIL1;
-					this->WHWorldChem.pcellgrad[in] = patchTGF;  
+					this->WorldChem.pcellgrad[in] = patchTGF;  
 					#pragma omp critical
 					{
 						//Initialize total chemical concentration:
-						this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
-						this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
-						this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
+						this->WorldChem.totalTNF += this->WorldChem.pTNF[in];
+						this->WorldChem.totalTGF += this->WorldChem.pTGF[in];
+						this->WorldChem.totalIL1beta += this->WorldChem.pIL1beta[in];
 					}
 				}
 			}
 		}
-		cout << "		Initial cytokine concentrations: totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << endl;
+		cout << "		Initial cytokine concentrations: totalTNF = " << this->WorldChem.totalTNF << ", totalTGF = " << this->WorldChem.totalTGF << ", totalIL1beta = " << this->WorldChem.totalIL1beta << endl;
 	} else if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__, __LINE__)) exit(1);
 	//cout << "Finished initializing chem" << endl;
 }
@@ -1828,24 +1828,24 @@ void printWindow(float* a, int h, int w, int r){
 				if (util::ABMerror(!(this->h_diffusion_results[ic] = new float[nx*ny*nz] ),"InitializeChem mem alloc error!",__FILE__,__LINE__))exit(1);
 		}
 
-		/* Link World attribute chemAllocation with WHWorldChem (WHWorldChem is linked to WHChemical) */
-		this->WHWorldChem.pTNF = this->chemAllocation[pTNF];
-		this->WHWorldChem.pTGF = this->chemAllocation[pTGF];
-		this->WHWorldChem.pIL1beta = this->chemAllocation[pIL1beta];
+		/* Link World attribute chemAllocation with WorldChem (WorldChem is linked to Chemical) */
+		this->WorldChem.pTNF = this->chemAllocation[pTNF];
+		this->WorldChem.pTGF = this->chemAllocation[pTGF];
+		this->WorldChem.pIL1beta = this->chemAllocation[pIL1beta];
 		
-		this->WHWorldChem.dTNF = this->chemAllocation[dTNF];
-		this->WHWorldChem.dTGF = this->chemAllocation[dTGF];
-		this->WHWorldChem.dIL1beta = this->chemAllocation[dIL1beta];
-		this->WHWorldChem.pcellgrad = this->chemAllocation[pcellgrad];
+		this->WorldChem.dTNF = this->chemAllocation[dTNF];
+		this->WorldChem.dTGF = this->chemAllocation[dTGF];
+		this->WorldChem.dIL1beta = this->chemAllocation[dIL1beta];
+		this->WorldChem.pcellgrad = this->chemAllocation[pcellgrad];
 
-		this->WHWorldChem.tTNF     = this->h_diffusion_results[pTNF];
-		this->WHWorldChem.tTGF     = this->h_diffusion_results[pTGF];
-		this->WHWorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
+		this->WorldChem.tTNF     = this->h_diffusion_results[pTNF];
+		this->WorldChem.tTGF     = this->h_diffusion_results[pTGF];
+		this->WorldChem.tIL1beta = this->h_diffusion_results[pIL1beta];
 
 		// Initialize chemical concentrations:
-		this->WHWorldChem.totalTNF = 0;
-		this->WHWorldChem.totalTGF = 0;
-		this->WHWorldChem.totalIL1beta = 0;
+		this->WorldChem.totalTNF = 0;
+		this->WorldChem.totalTGF = 0;
+		this->WorldChem.totalIL1beta = 0;
 		
 		int countCaAlg = WHWorld::initialCaAlg;
 
@@ -1857,40 +1857,40 @@ void printWindow(float* a, int h, int w, int r){
 				for (int iy = 0; iy < this->ny; iy++) {
 					for (int ix = 0; ix < this->nx; ix++) {
 						int in = ix + iy*nx + iz*nx*ny;
-						this->WHWorldChem.dTNF[in] = 0;
-						this->WHWorldChem.dTGF[in] = 0;
-						this->WHWorldChem.dIL1beta[in] = 0;
+						this->WorldChem.dTNF[in] = 0;
+						this->WorldChem.dTGF[in] = 0;
+						this->WorldChem.dIL1beta[in] = 0;
 
 						// Baseline chemical concentrations are initialized in tissue:
 						if (this->worldPatch[in].type[read_t] == CaAlg) {
-							this->WHWorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
-							this->WHWorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
-							this->WHWorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
+							this->WorldChem.pTNF[in] = this->baselineChem[TNF]/countCaAlg;
+							this->WorldChem.pTGF[in] = this->baselineChem[TGF]/countCaAlg;
+							this->WorldChem.pIL1beta[in] = this->baselineChem[IL1beta]/countCaAlg;
 						} else {
-							this->WHWorldChem.pTNF[in] = 0;
-							this->WHWorldChem.pTGF[in] = 0;
-							this->WHWorldChem.pIL1beta[in] = 0;
+							this->WorldChem.pTNF[in] = 0;
+							this->WorldChem.pTGF[in] = 0;
+							this->WorldChem.pIL1beta[in] = 0;
 						}
 
 						// Initialize chemical gradient levels that agents are attracted by:
-						float patchIL1 = this->WHWorldChem.pIL1beta[in];
-						float patchTNF = this->WHWorldChem.pTNF[in];
-						float patchTGF = this->WHWorldChem.pTGF[in];
+						float patchIL1 = this->WorldChem.pIL1beta[in];
+						float patchTNF = this->WorldChem.pTNF[in];
+						float patchTGF = this->WorldChem.pTGF[in];
 						float patchcollagen = this->worldECM[in].fcollagen[read_t];
 						//float grad = patchIL1 + patchTNF + patchTGF + patchFGF + patchcollagen;
-						this->WHWorldChem.pcellgrad[in] = patchTGF;
+						this->WorldChem.pcellgrad[in] = patchTGF;
 
 						#pragma omp critical
 						{
 							//Initialize total chemical concentration:
-							this->WHWorldChem.totalTNF += this->WHWorldChem.pTNF[in];
-							this->WHWorldChem.totalTGF += this->WHWorldChem.pTGF[in];
-							this->WHWorldChem.totalIL1beta += this->WHWorldChem.pIL1beta[in];
+							this->WorldChem.totalTNF += this->WorldChem.pTNF[in];
+							this->WorldChem.totalTGF += this->WorldChem.pTGF[in];
+							this->WorldChem.totalIL1beta += this->WorldChem.pIL1beta[in];
 						}
 					}
 				}
 			}
-			//cout << "		Results from inside initialization:      totalTNF = " << this->WHWorldChem.totalTNF << ", totalTGF = " << this->WHWorldChem.totalTGF << ", totalIL1beta = " << this->WHWorldChem.totalIL1beta << endl;
+			//cout << "		Results from inside initialization:      totalTNF = " << this->WorldChem.totalTNF << ", totalTGF = " << this->WorldChem.totalTGF << ", totalIL1beta = " << this->WorldChem.totalIL1beta << endl;
 
 		} else if (util::ABMerror(1,"Error initializing chemicals!!",__FILE__,__LINE__))exit(1);
 		//cout << "Finished initializing chem" << endl;
@@ -2103,7 +2103,7 @@ int WHWorld::go() {
 
 		// For testing purposes:
 		//this->updateTotalChem();
-		//cout << "  TNF: " << this->WHWorldChem.totalTNF << ", TGF: " << this->WHWorldChem.totalTGF << ", IL1beta: " << this->WHWorldChem.totalIL1beta << endl;
+		//cout << "  TNF: " << this->WorldChem.totalTNF << ", TGF: " << this->WorldChem.totalTGF << ", IL1beta: " << this->WorldChem.totalIL1beta << endl;
 		
 		/* --------------------------- CHEMICAL DIFFUSION --------------------------- */
 		this->diffuseCytokines();
@@ -2214,9 +2214,9 @@ void WHWorld::requestECMfragments() {
 		WHWorld::highTNFdamage = false;
 		for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 			#ifndef CALIBRATION
-				if (this->WHWorldChem.pTNF[in] > 10) { 
+				if (this->WorldChem.pTNF[in] > 10) { 
 			#else
-				if (this->WHWorldChem.pTNF[in] > 10) {
+				if (this->WorldChem.pTNF[in] > 10) {
 			#endif
 					cout << " Degrade ECM " << endl;
 					this->worldECM[in].fragmentNCollagen();
@@ -2262,12 +2262,12 @@ void WHWorld::NetlogoDiffuse() {
 				int in = xi + yi*nx + zi*nx*ny;
 
 				// Update patch chemical concentration:
-				this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in];
-				this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in];
-				this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pTGF[in];
-				this->WHWorldChem.dTNF[in] = 0;
-				this->WHWorldChem.dTGF[in] = 0;
-				this->WHWorldChem.dIL1beta[in] = 0;
+				this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];
+				this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];
+				this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pTGF[in];
+				this->WorldChem.dTNF[in] = 0;
+				this->WorldChem.dTGF[in] = 0;
+				this->WorldChem.dIL1beta[in] = 0;
 			}
 		}
 	}
@@ -2400,46 +2400,46 @@ void WHWorld::diffuseChem(int ichem, float dt, float coeff){
 }
 
 void WHWorld::updateTotalChem(){
-	this->WHWorldChem.totalTNF = 0;
-	this->WHWorldChem.totalTGF = 0;
-	this->WHWorldChem.totalIL1beta = 0;
+	this->WorldChem.totalTNF = 0;
+	this->WorldChem.totalTGF = 0;
+	this->WorldChem.totalIL1beta = 0;
 
 	float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
 	for (int zi = 0; zi < nz; zi++) {
 		for (int yi = 0; yi < ny; yi++) {
 			for (int xi = 0; xi < nx; xi++) {
 				int in = xi + yi*nx + zi*nx*ny;
-				this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in];
-				this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in];
-				this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in];
+				this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];
+				this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];
+				this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in];
 
-				this->WHWorldChem.dTNF[in] = 0;
-				this->WHWorldChem.dTGF[in] = 0;
-				this->WHWorldChem.dIL1beta[in] = 0;
+				this->WorldChem.dTNF[in] = 0;
+				this->WorldChem.dTGF[in] = 0;
+				this->WorldChem.dIL1beta[in] = 0;
 
 				// Update gradient
-				float patchIL1beta = this->WHWorldChem.pIL1beta[in];
-				float patchTNF = this->WHWorldChem.pTNF[in];
-				float patchTGF = this->WHWorldChem.pTGF[in];
-				this->WHWorldChem.pcellgrad[in] = patchTGF;
+				float patchIL1beta = this->WorldChem.pIL1beta[in];
+				float patchTNF = this->WorldChem.pTNF[in];
+				float patchTGF = this->WorldChem.pTGF[in];
+				this->WorldChem.pcellgrad[in] = patchTGF;
 
-				sumTNF += this->WHWorldChem.pTNF[in];
-				sumTGF += this->WHWorldChem.pTGF[in];
-				sumIL1 += this->WHWorldChem.pIL1beta[in];
+				sumTNF += this->WorldChem.pTNF[in];
+				sumTGF += this->WorldChem.pTGF[in];
+				sumIL1 += this->WorldChem.pIL1beta[in];
 			}
 		}
 	}
-    this->WHWorldChem.totalTNF += sumTNF;
-	this->WHWorldChem.totalTGF += sumTGF;
-	this->WHWorldChem.totalIL1beta += sumIL1;
+    this->WorldChem.totalTNF += sumTNF;
+	this->WorldChem.totalTGF += sumTGF;
+	this->WorldChem.totalIL1beta += sumIL1;
 }
 
 // Always called in non-GPU_DIFFUSE. Called only at beginning otherwise
 void WHWorld::updateChemCPU() {
 	int totaldam = countPatchType(damage);
-	this->WHWorldChem.totalTNF = 0;
-	this->WHWorldChem.totalTGF = 0;
-	this->WHWorldChem.totalIL1beta = 0;
+	this->WorldChem.totalTNF = 0;
+	this->WorldChem.totalTGF = 0;
+	this->WorldChem.totalIL1beta = 0;
 
     float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
 	for (int zi = 0; zi < nz; zi++) {
@@ -2451,43 +2451,43 @@ void WHWorld::updateChemCPU() {
 					
 					// Update patch chemical concentration
 					#ifndef CALIBRATION
-						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in];//*0.02; //					//this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + (this->WHWorldChem.pTNF[in])*(WHWorld::cytokineDecay[0]);
-						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in];//*0.02; //					//this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + (this->WHWorldChem.pTGF[in])*(WHWorld::cytokineDecay[1]);
-						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in];//*0.02; //					//this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + (this->WHWorldChem.pIL1beta[in])*(WHWorld::cytokineDecay[4]);
+						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];//*0.02; //					//this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + (this->WorldChem.pTNF[in])*(WHWorld::cytokineDecay[0]);
+						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];//*0.02; //					//this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + (this->WorldChem.pTGF[in])*(WHWorld::cytokineDecay[1]);
+						this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in];//*0.02; //					//this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + (this->WorldChem.pIL1beta[in])*(WHWorld::cytokineDecay[4]);
 					#else
-						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.pTNF[in]*0.02;
-						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.pTGF[in]*0.02;
-						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.pIL1beta[in]*0.02;
+						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in]*0.02;
+						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in]*0.02;
+						this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in]*0.02;
 					#endif
 					
-					this->WHWorldChem.dTNF[in] = 0;
-					this->WHWorldChem.dTGF[in] = 0;
-					this->WHWorldChem.dIL1beta[in] = 0;
+					this->WorldChem.dTNF[in] = 0;
+					this->WorldChem.dTGF[in] = 0;
+					this->WorldChem.dIL1beta[in] = 0;
 
 					// Update gradient
-					float patchIL1beta = this->WHWorldChem.pIL1beta[in];
-					float patchTNF = this->WHWorldChem.pTNF[in];
-					float patchTGF = this->WHWorldChem.pTGF[in];
-					this->WHWorldChem.pcellgrad[in] = patchTGF;
+					float patchIL1beta = this->WorldChem.pIL1beta[in];
+					float patchTNF = this->WorldChem.pTNF[in];
+					float patchTGF = this->WorldChem.pTGF[in];
+					this->WorldChem.pcellgrad[in] = patchTGF;
 
 					// Update total chemical values
-					sumTNF += this->WHWorldChem.pTNF[in];
-					sumTGF += this->WHWorldChem.pTGF[in];
-					sumIL1 += this->WHWorldChem.pIL1beta[in];
+					sumTNF += this->WorldChem.pTNF[in];
+					sumTGF += this->WorldChem.pTGF[in];
+					sumIL1 += this->WorldChem.pIL1beta[in];
 				}
 			}
 	}
-    this->WHWorldChem.totalTNF += sumTNF;
-	this->WHWorldChem.totalTGF += sumTGF;
-	this->WHWorldChem.totalIL1beta += sumIL1;
+    this->WorldChem.totalTNF += sumTNF;
+	this->WorldChem.totalTGF += sumTGF;
+	this->WorldChem.totalIL1beta += sumIL1;
 }
 
 void WHWorld::updateChem() {
 	#ifdef GPU_DIFFUSE
 		int totaldam = countPatchType(damage);
-		this->WHWorldChem.totalTNF = 0;
-		this->WHWorldChem.totalTGF = 0;
-		this->WHWorldChem.totalIL1beta = 0;
+		this->WorldChem.totalTNF = 0;
+		this->WorldChem.totalTGF = 0;
+		this->WorldChem.totalIL1beta = 0;
 
 		float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
 		for (int zi = 0; zi < nz; zi++) {
@@ -2498,48 +2498,48 @@ void WHWorld::updateChem() {
 						int in = xi + yi*nx + zi*nx*ny;
 
 						// Update patch chemical concentration
-						this->WHWorldChem.pTNF[in] = this->WHWorldChem.dTNF[in] + this->WHWorldChem.tTNF[in];// *0.02;
-						this->WHWorldChem.pTGF[in] = this->WHWorldChem.dTGF[in] + this->WHWorldChem.tTGF[in];// *0.02;
-						this->WHWorldChem.pIL1beta[in] = this->WHWorldChem.dIL1beta[in] + this->WHWorldChem.tIL1beta[in];// *0.02;
+						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.tTNF[in];// *0.02;
+						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.tTGF[in];// *0.02;
+						this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.tIL1beta[in];// *0.02;
 
-						if (this->WHWorldChem.pTNF[in] < 0) {
-							this->WHWorldChem.pTNF[in] = 0;
+						if (this->WorldChem.pTNF[in] < 0) {
+							this->WorldChem.pTNF[in] = 0;
 						}
 
-						if (this->WHWorldChem.pTGF[in] < 0) {
-							this->WHWorldChem.pTGF[in] = 0;
+						if (this->WorldChem.pTGF[in] < 0) {
+							this->WorldChem.pTGF[in] = 0;
 						}
 
-						if (this->WHWorldChem.pIL1beta[in] < 0) {
-							this->WHWorldChem.pIL1beta[in] = 0;
+						if (this->WorldChem.pIL1beta[in] < 0) {
+							this->WorldChem.pIL1beta[in] = 0;
 						}
 
-						this->WHWorldChem.dTNF[in] = 0;
-						this->WHWorldChem.dTGF[in] = 0;
-						this->WHWorldChem.dIL1beta[in] = 0;
+						this->WorldChem.dTNF[in] = 0;
+						this->WorldChem.dTGF[in] = 0;
+						this->WorldChem.dIL1beta[in] = 0;
 
 						// Update gradient
-						float patchIL1beta = this->WHWorldChem.pIL1beta[in];
-						float patchTNF = this->WHWorldChem.pTNF[in];
-						float patchTGF = this->WHWorldChem.pTGF[in];
-						this->WHWorldChem.pcellgrad[in] = patchTGF;
+						float patchIL1beta = this->WorldChem.pIL1beta[in];
+						float patchTNF = this->WorldChem.pTNF[in];
+						float patchTGF = this->WorldChem.pTGF[in];
+						this->WorldChem.pcellgrad[in] = patchTGF;
 
 						// Update total chemical values
-						sumTNF += this->WHWorldChem.pTNF[in];
-						sumTGF += this->WHWorldChem.pTGF[in];
-						sumIL1 += this->WHWorldChem.pIL1beta[in];
+						sumTNF += this->WorldChem.pTNF[in];
+						sumTGF += this->WorldChem.pTGF[in];
+						sumIL1 += this->WorldChem.pIL1beta[in];
 					}
 				}
 		}
-			this->WHWorldChem.totalTNF += sumTNF;
-			this->WHWorldChem.totalTGF += sumTGF;
-			this->WHWorldChem.totalIL1beta += sumIL1;
+			this->WorldChem.totalTNF += sumTNF;
+			this->WorldChem.totalTGF += sumTGF;
+			this->WorldChem.totalIL1beta += sumIL1;
 			cout << "		Total TNF: " << sumTNF << ", Total TGF: " << sumTGF << ", Total IL1beta: " << sumIL1 << endl;
 
 			// Calculate values along the tgf line
 			for (int xi = 0; xi <= nx / 2; xi++) {
 				int in = xi + lineY * nx + lineZ * nx * ny;
-				tgfLine[xi] = this->WHWorldChem.pTGF[in];
+				tgfLine[xi] = this->WorldChem.pTGF[in];
 			}
 
 	#else
@@ -3493,9 +3493,9 @@ void WHWorld::outputWorld_csv() {
 	this->countPatchType(damage);
 	output_file << this->clock << ",";
 	output_file << (this->clock) / 48 << ",";
-	output_file << this->WHWorldChem.totalTNF << ",";
-	output_file << this->WHWorldChem.totalIL1beta << ",";
-	output_file << this->WHWorldChem.totalTGF << ",";
+	output_file << this->WorldChem.totalTNF << ",";
+	output_file << this->WorldChem.totalIL1beta << ",";
+	output_file << this->WorldChem.totalTGF << ",";
 	output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 	//output_file << fixed << std::setprecision(5) << new_coll << "," << new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll << "," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg << "," << frag_agg << "," << HA << "," << fHA << "," << Patch::numOfEachTypes[4] << "," ;
 

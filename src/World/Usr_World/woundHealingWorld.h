@@ -13,7 +13,7 @@
 #define	WHWORLD_H
 
 #include "../World.h"
-#include "../../FieldVariable/Usr_FieldVariables/WHChemical.h"
+#include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../../Agent/Usr_Agents/Cell.h"
 #include "../../ECM/ECM.h"
 #include "../../ArrayChain/ArrayChain.h"
@@ -107,7 +107,7 @@ class WHWorld: public World {
     void initializePatches();
 
     /*
-     * Description:	Helper function update WHWorldChem TotalChem variables for testing
+     * Description:	Helper function update WorldChem TotalChem variables for testing
      *
      * Return: void
      * Parameters: void
@@ -435,9 +435,9 @@ class WHWorld: public World {
     double patchlength;    // The length of each patch
   
     // Instance of type to manage chemicals in the world:
-    WHChemical WHWorldChem;
+    Chemical WorldChem;
     /* Used to allocate the chemicals as floats. It is an array of float*, where each float* points to array of concentrations of a given chemical at different patches. 
-     * chemAllocation[chemIndex][patchIndex] can be used as a multidimensional array to access a given chemical concentration using indexing. It is linked to WHWorldChem. */
+     * chemAllocation[chemIndex][patchIndex] can be used as a multidimensional array to access a given chemical concentration using indexing. It is linked to WorldChem. */
 
     float E;    // Elastic Modulus (Pa)
     float pXL;  // Crosslink Density (mmol/mL)
