@@ -235,7 +235,7 @@ class Cell: public Agent {
       virtual bool isProliferative();
       virtual float get_prolif_prob(float meanTGF,
           float meanIL1,
-          float meanTNF);
+          float meanTNF); // calculates probability of dividing based on local chemical
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 
       // Differentiation-related hook functions
@@ -245,18 +245,18 @@ class Cell: public Agent {
           float meanTNF);
 
       // ECM synthesis-related hook functions
-      virtual void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume);
-      virtual void create_ecm(float meanTGF, float meanIL1, float meanTNF);
+      virtual void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume); // calculates the ECM synthesis rates for each cell
+      virtual void create_ecm(float meanTGF, float meanIL1, float meanTNF); // actually creates/produces the ECM on the patch
 
       // Cytokine-related hook functions
-      virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF);
+      virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF); // actually creates/produces the cytokines on the patch
 
       // Movement-related hook functions
-      virtual float get_migration_speed();
-      virtual bool can_tgf_excite() { return false; }
+      virtual float get_migration_speed(); // calculates the migration speed for each cell type and passes it to the [celltype]::migrationSpeed variable
+      virtual bool can_tgf_excite() { return false; } // used only for NP cell to check if TGF can excite the cell into moving
 
       // Death-related hook functions
-      virtual float get_apoptosis_chance();
+      virtual float get_apoptosis_chance(); // calculates the chance of cell death 
 };
 
 /*
