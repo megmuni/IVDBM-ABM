@@ -209,5 +209,3 @@ vector<string> World::get_env_type_names() { return {}; }
 void World::count_env(map<string, float>& counts) { }
 
 int  World::get_total_agent_count() { return 0; }
-
-void World::update_prev_agents() { }
