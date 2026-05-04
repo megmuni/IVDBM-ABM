@@ -508,7 +508,6 @@ class WHWorld: public World {
 
      // --- agent population hooks ---
      int  get_total_agent_count() override;
-     void update_prev_agents() override;
 
      // --- environment element counting hooks (e.g. ecm) ---
      std::vector<std::string> get_env_type_names()                    override;
@@ -704,6 +703,6 @@ class WHWorld: public World {
     // viability and differentiation are internal calculations
     // used only in write_data_row — not exposed as hooks
     float calculate_viability();
-    float calculate_pct_differentiated(std::map<std::string, int>& cell_counts);
+    float calculate_pct_differentiated(std::map<std::string, int>& agent_counts);
 };
 #endif	/* WHWORLD_H */
