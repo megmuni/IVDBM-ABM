@@ -31,7 +31,7 @@
 #include "../src/Patch/Patch.h"
 #include "../src/ECM/ECM.h"
 #include "../src/enums.h"
-#include "../src/FieldVariable/Usr_FieldVariables/WHChemical.h"
+#include "../src/FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../src/Utilities/input_utils.h"
 #include "../src/Utilities/parameters.h"
 
