@@ -88,10 +88,6 @@ bool Agent::rollDice(float percent) {
 	else return 0;
 }
 
-//void Agent::cellCaAlgBehavior() {
-//	return; 
-//}
-
 bool Agent::move(int dX, int dY, int dZ, int read_index) {
   // Location of agent in x,y,z dimensions of world.
 	int x = this->ix[read_index];

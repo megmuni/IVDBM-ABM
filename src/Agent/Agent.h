@@ -88,18 +88,6 @@ class Agent {
      */
     int getIndex();
 
-#ifdef MODEL_SCAFFOLD
-    
-    /*
-     * Description:	Calls subroutines calculating parameters characterizing cell behavior in Ca-Alg
-     *
-     * Return: void
-     * Parameters: void            
-     */
-    void cellCaAlgBehavior();
-    
-#endif //MODEL_SCAFFOLD
-
     /*
      * Description:	Rolls a hypothetical dice with 'percent' chance of successful roll
      *
