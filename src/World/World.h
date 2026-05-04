@@ -119,7 +119,7 @@ protected:
 
     // --- environment element counting hooks (e.g. ecm) ---
     virtual std::vector<std::string> get_env_type_names();
-    virtual void count_env(std::map<std::string, double>& env_counts);
+    virtual void count_env(std::map<std::string, float>env_counts);
 };
 
 #endif	/* WORLD_H */
