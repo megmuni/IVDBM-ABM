@@ -36,7 +36,6 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 	int Agent::neighbor[8] = {9, 10, 11, 12, 14, 15, 16, 17}; // We do not include neighbor 13 (no movement to self (0,0,0))
 #endif
 
-float Agent::viabilityRate = 97; // %
 float Agent::HASynthRate = 0;
 bool  Agent::CaAlgFlag = false; 
 
@@ -89,38 +88,9 @@ bool Agent::rollDice(float percent) {
 	else return 0;
 }
 
-#ifdef MODEL_SCAFFOLD
-
-	/* ----------------------------- VIABILITY RATE ----------------------------- */
-	void Agent::calculateViabilityRate(){
-		/* Calculate viability Rate (%) given current time (day)
-		 * 		  Viability Rate (%) = a * ln(t_day) + b
-		 *
-		 *        Ca-Alg crosslinked cells are non-toxic and maintain cell viability and phenotype over time       
-		 *        Ratio of Live to dead cells remains relatively constant over time       
-		 */
-
-		#ifdef CALIBRATION
-			float viability = Agent::CaAlgViability[0]*log(WHWorld::reportDay()) + Agent::CaAlgViability[1];		
-		#else
-			float viability = 0.7321*log(WHWorld::reportDay()) + 97.452; 
-		#endif
-
-		if (viability < 0) viability = 0; 
-		else if (viability > 100) viability = 100; 
-		Agent::viabilityRate = viability; 
-
-		cout << " Viability Rate (%)= " << Agent::viabilityRate << endl; 
-		return; 
-	}
-
-void Agent::cellCaAlgBehavior() {
-	if (WHWorld::clock > 0) {
-		Agent::calculateViabilityRate();
-	}
-	return; 
-}
-#endif // MODEL_SCAFFOLD
+//void Agent::cellCaAlgBehavior() {
+//	return; 
+//}
 
 bool Agent::move(int dX, int dY, int dZ, int read_index) {
   // Location of agent in x,y,z dimensions of world.
