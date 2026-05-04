@@ -3395,19 +3395,9 @@ void WHWorld::outputWorld_csv() {
 	if (this->clock == 0) {
 		remove("output/Output_Biomarkers.csv");
 		remove("output/tgf_line.csv");
-		//remove( "output/Output_Biomarkers_90Mw_34mM.csv");
-		//remove( "output/Output_Biomarkers_90Mw_22mM.csv");
-		//remove( "output/Output_Biomarkers_1500Mw_29mM.csv");
-		//remove( "output/Output_Biomarkers_1500Mw_14mM.csv");
-		//remove( "output/Output_Biomarkers_Experiment_200Mw_20mM.csv");
 
-
-		//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 		ofstream output_file("output/Output_Biomarkers.csv", ios::app);
 		ofstream tgf_file("output/tgf_line.csv", ios::app);
-		//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);		
-		//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);		
-		//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);		
 
 		output_file << "clock (30 min)" << "," << "Day" << "," << "Total TNF (pg)" << "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," << "Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," << "Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ", Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" << ", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file << "Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", " << "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" << ", " << "HA" << ", " << "FragmentedHA" << ", " << "Damage" endl;
 		output_file.close();
@@ -3421,12 +3411,8 @@ void WHWorld::outputWorld_csv() {
 		tgf_file.close();
 	}
 
-	//ofstream output_file("output/Output_Biomarkers_Experiment_200Mw_20mM.csv", ios::app);
 	ofstream output_file("output/Output_Biomarkers.csv", ios::app);
 	ofstream tgf_file("output/tgf_line.csv", ios::app);
-	//ofstream output_file("output/Output_Biomarkers_1500Mw_29mM.csv", ios::app);
-	//ofstream output_file("output/Output_Biomarkers_90Mw_22mM.csv", ios::app);
-	//ofstream output_file("output/Output_Biomarkers_90Mw_34mM.csv", ios::app);
 
 	int f = 0; int af = 0;
 	int orig_coll = 0; int frag_coll = 0; double new_coll = 0;
