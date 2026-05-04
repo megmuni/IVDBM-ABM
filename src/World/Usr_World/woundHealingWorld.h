@@ -375,14 +375,14 @@ class WHWorld: public World {
  * OUTPUT SUBROUTINES & VISUALIZATION                           *
  ****************************************************************/
 
-    /*
-     * Description:	Outputs cell counts and cytokine levels from the current tick to the file "Output/Output_Biomarkers.csv".
-     *              Used for testing.
-     *
-     * Return: void
-     * Parameters: void
-     */
-    void outputWorld_csv();
+    ///*
+    // * Description:	Outputs cell counts and cytokine levels from the current tick to the file "Output/Output_Biomarkers.csv".
+    // *              Used for testing.
+    // *
+    // * Return: void
+    // * Parameters: void
+    // */
+    //void outputWorld_csv();
 
     /*
      * Description:	Outputs all patch assignments (patch type, agent type, ECM type) to files in output directory.
@@ -488,6 +488,28 @@ class WHWorld: public World {
     float Alg_v, Alg_wv;  // Volume (mL) and final concentration (% w/v) of Alg in Ca-Alg hydrogel
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
+
+
+ protected:
+     // --- output file hooks ---
+     std::string get_output_filename()                                override;
+     void        write_csv_header(std::ofstream& file)               override;
+     void        write_data_row(std::ofstream& file,
+         std::map<std::string, int>& cell_counts,
+         std::map<std::string, double>& ecm_counts) override;
+
+     // --- auxiliary output hooks ---
+     void write_auxiliary_header()                                    override;
+     void write_auxiliary_outputs()                                   override;
+
+     // --- cell counting hooks ---
+     std::vector<std::string> get_cell_type_names()                   override;
+     void count_cell_types(std::map<std::string, int>& cell_counts)   override;
+
+     // --- ecm counting hooks ---
+     std::vector<std::string> get_ecm_type_names()                    override;
+     void count_ecm(std::map<std::string, double>& ecm_counts)        override;
+
 
  private:
 /****************************************************************
@@ -673,5 +695,11 @@ class WHWorld: public World {
      * Parameters: void
      */
     void updateCellsInitial();
+
+    // --- output function hooks ---
+    // viability and differentiation are internal calculations
+    // used only in write_data_row — not exposed as hooks
+    float calculate_viability();
+    float calculate_pct_differentiated(std::map<std::string, int>& cell_counts);
 };
 #endif	/* WHWORLD_H */
