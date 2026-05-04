@@ -1,16 +1,17 @@
 /* 
- * WHChemical.h
+ * Chemical.h
  * 
- * File Contents: Contains declarations for WHChemical class
+ * File Contents: Contains declarations for Chemical class
  *
  * Author: Yvonna
  * Contributors: Caroline Shung
  *               Nuttiiya Seekhao
  *               Kimberley Trickey
+ *               Meghana Munipalle
  */
 
-#ifndef WHChemical_H
-#define	WHChemical_H
+#ifndef Chemical_H
+#define	Chemical_H
 
 #include "../FieldVariable.h"
 #include "../../common.h"
@@ -20,40 +21,40 @@ using namespace std;
 class World; 
 
 /* 
- * WHCHEMICAL CLASS DESCRIPTION:         WHChemical is a derived class of the parent class FieldVariable. 
+ * CHEMICAL CLASS DESCRIPTION:           Chemical is a derived class of the parent class FieldVariable. 
  *                                       It contains all data members related to chemical concentration and gradients. 
  *                                       Can be used to access chemical concentrations by name.
  */
-class WHChemical: public FieldVariable {
+class Chemical: public FieldVariable {
  public:
     /*
-     * Description:	Default WHChemical constructor
+     * Description:	Default Chemical constructor
      *
      * Return: void
      *
      * Parameters: void
      */
-    WHChemical();
+    Chemical();
 
     /*
-     * Description:	WHChemical constructor
+     * Description:	Chemical constructor
      *
      * Return: void
      *
-     * Parameters: nx  -- x-coordinate of the patch the WHChemical is on
-     *             ny  -- y-coordinate of the patch the WHChemical is on
-     *             nz  -- z-coordinate of the patch the WHChemical is on
+     * Parameters: nx  -- x-coordinate of the patch the Chemical is on
+     *             ny  -- y-coordinate of the patch the Chemical is on
+     *             nz  -- z-coordinate of the patch the Chemical is on
      */
-    WHChemical(int nx, int ny, int nz);
+    Chemical(int nx, int ny, int nz);
 
     /*
-     * Description: WHChemical destructor
+     * Description: Chemical destructor
      *
      * Return: void
      *
      * Parameters: void
      */
-    ~WHChemical();
+    ~Chemical();
 
 
 #ifdef GPU_DIFFUSE
@@ -71,4 +72,4 @@ class WHChemical: public FieldVariable {
     float totalTNF, totalTGF, totalIL1beta;     // Keep track of the total cytokine levels in the world
 };
 
-#endif	/* WHChemical_H */
+#endif	/* Chemical_H */
