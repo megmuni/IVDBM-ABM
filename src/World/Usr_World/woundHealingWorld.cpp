@@ -3510,7 +3510,129 @@ int WHWorld::userInput() {
 //
 //	prevCells = cells.actualSize();
 //}
+string WHWorld::get_output_filename() {
+	return "output/Output_Biomarkers.csv";
+}
 
+vector<string> WHWorld::get_agent_type_names() {
+	return { "Stem", "Progen", "NP" };
+}
+
+void WHWorld::count_agent_types(map<string, int>& agent_counts) {
+	int cellsSize = cells.size();
+	for (int i = 0; i < cellsSize; i++) {
+		Cell* cell = cells.getDataAt(i);
+		if (!cell || !cell->isAlive()) continue;
+		if (typeid(*cell) == typeid(Stem))   agent_counts["Stem"]++;
+		else if (typeid(*cell) == typeid(Progen))  agent_counts["Progen"]++;
+		else if (typeid(*cell) == typeid(NP))      agent_counts["NP"]++;
+	}
+}
+
+int WHWorld::get_total_agent_count() {
+	return cells.actualSize();
+}
+
+vector<string> WHWorld::get_env_type_names() {
+	return { "ncollagen", "naggrecan" };
+}
+
+void WHWorld::count_env(map<string, float>& env_counts) {
+	for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
+		env_counts["ncollagen"] += this->worldECM[in].ncollagen[read_t];
+		env_counts["naggrecan"] += this->worldECM[in].naggrecan[read_t];
+	}
+}
+
+void WHWorld::write_data_row(std::ofstream& file,
+	std::map<std::string, int>& agent_counts,
+	std::map<std::string, float>& env_counts) {
+
+	// biomaterial world-specific chemicals
+	file << this->WHWorldChem.totalTNF << ","
+		<< this->WHWorldChem.totalIL1beta << ","
+		<< this->WHWorldChem.totalTGF << ",";
+
+	// ecm types
+	file << fixed << setprecision(5)
+		<< env_counts["ncollagen"] << ","
+		<< env_counts["naggrecan"] << ",";
+
+	// agent counts
+	file << get_total_agent_count() << ","
+		<< agent_counts["Stem"] << ","
+		<< agent_counts["Progen"] << ","
+		<< agent_counts["NP"] << ","
+		<< liveCells << ","
+		<< deadCells << ",";
+
+	// viability and differentiation- specific to this biomaterial world
+	float viability = calculate_viability();
+	float perDiff = calculate_pct_differentiated(agent_counts);
+
+	// scaffold-specific columns
+#ifdef MODEL_SCAFFOLD
+	file << this->E << "," << this->Q << ","
+		<< this->w << "," << this->Alg_wv << ","
+		<< this->Alg_Mn << "," << this->pXL << ","
+		<< viability << "," << perDiff << endl;
+#else
+	file << viability << "," << perDiff << endl;
+#endif
+}
+
+// private helpers
+float WHWorld::calculate_viability() {
+	if (this->clock == 0) return 100.0f;
+	return (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
+}
+
+float WHWorld::calculate_pct_differentiated(map<string, int>& agent_counts) {
+	return (static_cast<float>(agent_counts["NP"]) / get_total_agent_count()) * 100;
+}
+
+void WHWorld::write_csv_header(ofstream& file) {
+	file << "clock (30 min)" << ","   // written by skeleton
+		<< "Day" << ","   // written by skeleton
+		<< "Total TNF (pg)" << ","   // everything below written by this hook
+		<< "Total IL1b (pg)" << ","
+		<< "Total TGF (pg)" << ","
+		<< "Collagen (ug)" << ","
+		<< "Aggrecan (ug)" << ","
+		<< "Total Cells" << ","
+		<< "Stem Cells" << ","
+		<< "Pre-NP Cells" << ","
+		<< "NP Cells" << ","
+		<< "Live Cells" << ","
+		<< "Dead Cells" << ","
+		<< "Elastic Modulus(kPa)" << ","
+		<< "Swelling Ratio" << ","
+		<< "Mass Loss(%)" << ","
+		<< "Alginate_wv(%)" << ","
+		<< "Alginate_Mw(kDa)" << ","
+		<< "Ca_XL(M)" << ","
+		<< "Viability Rate(%)" << ","
+		<< "Differentiation (%)" << endl;
+}
+
+// extra output - for IVDBM-ABM, 
+// a TGF line for measuring TGF for 
+// diffusion debugging purposes
+void WHWorld::write_auxiliary_header() {
+	remove("output/tgf_line.csv");
+	ofstream tgf_file("output/tgf_line.csv", ios::app);
+	for (int xi = 0; xi <= nx / 2; xi++)
+		tgf_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+	tgf_file.close();
+}
+
+void WHWorld::write_auxiliary_outputs() {
+	ofstream tgf_file("output/tgf_line.csv", ios::app);
+	tgf_file << fixed << setprecision(10);
+	for (int xi = 0; xi <= nx / 2; xi++)
+		tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
+	tgf_file.close();
+}
 
 
 void WHWorld::patchassign_csv() {
