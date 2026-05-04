@@ -194,7 +194,7 @@ void outputWorld_csv() {
     for (const auto& [name, count] : agent_counts)
         cout << " " << name << " agents: " << count << endl;
 
-    for (const auto& [name, amount] : ecm_counts)
+    for (const auto& [name, amount] : env_counts)
         cout << " " << name << ": " << amount << endl;
 
     // shared columns — clock and day always written first
@@ -202,7 +202,7 @@ void outputWorld_csv() {
         << this->clock / 48 << ",";
 
     // hook — remaining columns differ per world type
-    write_data_row(output_file, agent_counts, ecm_counts);
+    write_data_row(output_file, agent_counts, env_counts);
 
     output_file.close();
 
