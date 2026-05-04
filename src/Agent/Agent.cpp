@@ -37,7 +37,6 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 #endif
 
 float Agent::viabilityRate = 97; // %
-float Agent::proliferationRate = 27;
 float Agent::HASynthRate = 0;
 bool  Agent::CaAlgFlag = false; 
 
