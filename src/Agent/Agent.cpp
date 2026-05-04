@@ -92,39 +92,6 @@ bool Agent::rollDice(float percent) {
 
 #ifdef MODEL_SCAFFOLD
 
-	/* --------------------------- PROLIFERATION RATE --------------------------- */
-	/* NOTE: this function will not be used in IVDBM-ABM (stem cell version)      */
-	void Agent::calculateProliferationRate(){
-		/* Change in cell population (% of initial population) for gel with given %Alg(w/w) at time t (hours)
-		 * 		   Cell population = (-a*Alg(w/w) + b)*ln(t_hours) + (c * Alg(w/w) + d)
-		 *
-		 *         Finite cell lines undergo linear then logarithmic cell growth. 
-		 *         High Alg content and elastic moudlus hydrogels are favorable to cell attachment and proliferation  
-		 */
-					
-		// Calculate population as percent of initial population at current (tick = t) and previous call (tick =t-1)
-		float t = (WHWorld::reportHour());              // hours elapsed at tick t
-		float tMinusOne = (WHWorld::clock-1)*0.5;       // hours elapsed at tick t-1
-			
-		#ifdef CALIBRATION
-			float cellPopulation_t = 		 Agent::CaAlgProlif[0] - Agent::CaAlgProlif[1]*(Agent::agentWorldPtr->Alg_wv) - Agent::CaAlgProlif[2]*(Agent::agentWorldPtr->pXL) + Agent::CaAlgProlif[3]*(t)*(Agent::agentWorldPtr->Alg_wv) 		 + Agent::CaAlgProlif[4]*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-			float cellPopulation_tMinusOne = Agent::CaAlgProlif[0] - Agent::CaAlgProlif[1]*(Agent::agentWorldPtr->Alg_wv) - Agent::CaAlgProlif[2]*(Agent::agentWorldPtr->pXL) + Agent::CaAlgProlif[3]*(tMinusOne)*(Agent::agentWorldPtr->Alg_wv) + Agent::CaAlgProlif[4]*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-
-		#else 
-			float cellPopulation_t =13.06 - 3.69*(Agent::agentWorldPtr->Alg_wv) - 101.18*(Agent::agentWorldPtr->pXL) + 0.056*(t)*(Agent::agentWorldPtr->Alg_wv) + 30.44*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); //14.635 + 6.95*(t) - 1.04*(t)*(Agent::agentWorldPtr->pXL) - 2.65*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-			float cellPopulation_tMinusOne = 13.06 - 3.69*(Agent::agentWorldPtr->Alg_wv) - 101.18*(Agent::agentWorldPtr->pXL) + 0.056*(tMinusOne)*(Agent::agentWorldPtr->Alg_wv) + 30.44*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); //14.635 + 6.95*(tMinusOne) - 1.04*(tMinusOne)*(Agent::agentWorldPtr->pXL) - 2.65*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL);
-
-		#endif
-
-		// Change in cell population between current and previous time point, as percent of initial population:
-		float deltaCellPopulation = (cellPopulation_t < 0 || cellPopulation_t - cellPopulation_tMinusOne < 0)? 0: cellPopulation_t - cellPopulation_tMinusOne; 
-
-		// Calculate % of current chondrocytes that need to proliferate during current tick:
-		Agent::proliferationRate = 100*(deltaCellPopulation*Agent::agentWorldPtr->initialCells[0])/(Agent::agentWorldPtr->cells.size()); 
-		cout << " Proliferation Rate (%) = " << Agent::proliferationRate << endl;         
-		return; 
-	}
-
 	/* ----------------------------- VIABILITY RATE ----------------------------- */
 	void Agent::calculateViabilityRate(){
 		/* Calculate viability Rate (%) given current time (day)
@@ -150,7 +117,6 @@ bool Agent::rollDice(float percent) {
 
 void Agent::cellCaAlgBehavior() {
 	if (WHWorld::clock > 0) {
-		Agent::calculateProliferationRate();
 		Agent::calculateViabilityRate();
 	}
 	return; 
