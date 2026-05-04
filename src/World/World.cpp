@@ -133,3 +133,81 @@ void World::outputWorld_VTK_binary(const char* filename, double t) {
    cout << setw(15) << " Writing mesh in VTK binary format completed." << endl;
    cout << setfill('-') << setw(80) << "-" << endl;
 }
+
+void outputWorld_csv() {
+    if (this->clock == 0) {
+        remove(get_output_filename().c_str());
+
+        ofstream output_file(get_output_filename(), ios::app);
+        write_csv_header(output_file);
+        output_file.close();
+
+        write_auxiliary_header();
+    }
+
+    ofstream output_file(get_output_filename(), ios::app);
+
+    // agent counting
+    map<string, int> agent_counts;
+    for (const auto& name : get_agent_type_names())
+        agent_counts[name] = 0;
+
+    count_agent_types(agent_counts);
+
+    // derived class owns agent (e.g. cells) container, total comes via getter
+    int totalAgents = get_total_agent_count();
+
+    // env element (e.g. ecm) type counting
+    map<string, float> env_counts;
+
+    for (const auto& name : get_env_type_names())
+        env_counts[name] = 0;
+
+    count_env(env_counts);
+
+    // print counts generically
+    cout << " total agents: " << totalAgents << endl;
+    for (const auto& [name, count] : agent_counts)
+        cout << " " << name << " agents: " << count << endl;
+
+    for (const auto& [name, amount] : ecm_counts)
+        cout << " " << name << ": " << amount << endl;
+
+    // shared columns — clock and day always written first
+    output_file << this->clock << ","
+        << this->clock / 48 << ",";
+
+    // hook — remaining columns differ per world type
+    write_data_row(output_file, agent_counts, ecm_counts);
+
+    output_file.close();
+
+    // hook — auxiliary outputs e.g. tgf_line, empty in base
+    write_auxiliary_outputs();
+
+    // hook — derived class updates its own prev agent count
+    update_prev_agents();
+}
+
+// DEFAULT OUTPUT HOOK DEFINITIONS ///
+void World::write_csv_header(ofstream& file) { }
+
+void World::write_data_row(ofstream& file,
+    map<string, int>& agent_counts,
+    map<string, float>& env_counts) { }
+
+void World::write_auxiliary_header() { }
+
+void World::write_auxiliary_outputs() { }
+
+vector<string> World::get_agent_type_names() { return {}; }
+
+void World::count_agent_types(map<string, int>& counts) { }
+
+vector<string> World::get_env_type_names() { return {}; }
+
+void World::count_env(map<string, float>& counts) { }
+
+int  World::get_total_agent_count() { return 0; }
+
+void World::update_prev_agents() { }

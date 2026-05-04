@@ -86,34 +86,38 @@ class World {
         vector<vector<REAL> > field_var;      // Two dimensional array of field variables 
         unsigned seed;    // For generating random numbers
 
-//    /*
-//     * Description:	Outputs cell counts and cytokine levels from the current tick to the file "Output/Output_Biomarkers.csv".
-//     *              Used for testing.
-//     *
-//     * Return: void
-//     * Parameters: void
-//     */
-//    virtual void outputWorld_csv() final;
-//
-//protected:
-//    // --- output function-related hooks ---
-//    virtual std::string get_output_filename() = 0;
-//    virtual void write_csv_header(std::ofstream& file);
-//    virtual void write_data_row(std::ofstream& file, 
-//        std::map<std::string, int>& cell_counts,
-//        std::map<std::string, float>& ecm_counts);
-//
-//    // --- extra output hooks (e.g. tgf_line, o2_line - used to measure/output chemical along a line across the world) ---
-//    virtual void write_auxiliary_header();
-//    virtual void write_auxiliary_outputs();
-//
-//    // --- cellcounting hooks ---
-//    virtual std::vector<std::string> get_cell_type_names();
-//    virtual void count_cell_types(std::map<std::string, int>& cell_counts);
-//
-//    // --- ecm counting hooks ---
-//    virtual std::vector<std::string> get_ecm_type_names();
-//    virtual void count_ecm(std::map<std::string, double>& ecm_counts);
+    /*
+     * Description:	Outputs cell counts and cytokine levels from the current tick to the file "Output/Output_Biomarkers.csv".
+     *              Used for testing.
+     *
+     * Return: void
+     * Parameters: void
+     */
+    virtual void outputWorld_csv() final;
+
+protected:
+    // --- output function-related hooks ---
+    virtual std::string get_output_filename() = 0;
+    virtual void write_csv_header(std::ofstream& file);
+    virtual void write_data_row(std::ofstream& file, 
+        std::map<std::string, int>& agent_counts,
+        std::map<std::string, float>& env_counts);
+
+    // --- extra output hooks (e.g. tgf_line, o2_line - used to measure/output chemical along a line across the world) ---
+    virtual void write_auxiliary_header();
+    virtual void write_auxiliary_outputs();
+
+    // --- agent counting hooks ---
+    virtual std::vector<std::string> get_agent_type_names();
+    virtual void count_agent_types(std::map<std::string, int>& agent_counts);
+
+    // --- agent population hooks ---
+    virtual int  get_total_agent_count();
+    virtual void update_prev_agents();
+
+    // --- environment element counting hooks (e.g. ecm) ---
+    virtual std::vector<std::string> get_env_type_names();
+    virtual void count_env(std::map<std::string, double>& env_counts);
 };
 
 #endif	/* WORLD_H */
