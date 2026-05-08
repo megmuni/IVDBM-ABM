@@ -9,8 +9,8 @@
  *               Kimberley Trickey
  */
 
-#ifndef WHWORLD_H
-#define	WHWORLD_H
+#ifndef BMWORLD_H
+#define	BMWORLD_H
 
 #include "../World.h"
 #include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
@@ -49,16 +49,16 @@ class ECM;
 using namespace std;
 
 /*
- WHWORLD (WOUND HEALING WORLD) CLASS DESCRIPTION: WHWorld is a derived class of the parent class World.
- *                                                The WHWorld class manages the model world.
+ BMWORLD (BIOMATERIAL WORLD) CLASS DESCRIPTION: BMWorld is a derived class of the parent class World.
+ *                                                The BMWorld class manages the model world.
  *                                                It is used to initialize cells, ECM, patches, and chemicals; to destroy
  *                                                agent ArrayChains; to execute each timestep of the model; to sprout agents;
  *                                                to count patches; and to output data.
  */
-class WHWorld: public World {
+class BMWorld: public World {
  public:
     /*
-     * Description:	WHWorld constructor. 
+     * Description:	BMWorld constructor. 
      *
      * Return: void
      *
@@ -67,20 +67,20 @@ class WHWorld: public World {
      *             height   -- Height (z dimension) of the world in millimeters
      *             plength  -- Length of each patch (grid point) in millimeters
      */
-    WHWorld(double width = 5, //mm
+    BMWorld(double width = 5, //mm
     		double length = 4, //mm
     		double height = 3, //mm
     		double plength = 0.01 //mm (10 um)
     		);
 
     /*
-     * Description:	WHWorld destructor. 
+     * Description:	BMWorld destructor. 
      *
      * Return: void
      * Parameters: void
      * NOTE: Function is called implicitly: chonds.~ArrayChain()
      */
-    ~WHWorld();
+    ~BMWorld();
 
     /*
      * Description:	Destructor function for the Cell ArrayChain 
@@ -695,4 +695,4 @@ class WHWorld: public World {
     float calculate_viability();
     float calculate_pct_differentiated(std::map<std::string, int>& agent_counts);
 };
-#endif	/* WHWORLD_H */
+#endif	/* BMWorld_H */
