@@ -158,7 +158,7 @@ void World::count_env(map<string, float>& counts) { }
 
 int  World::get_total_agent_count() { return 0; }
 
-void outputWorld_csv() {
+void World::outputWorld_csv() {
     if (this->clock == 0) {
         remove(get_output_filename().c_str());
 
