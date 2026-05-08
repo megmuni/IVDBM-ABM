@@ -115,7 +115,7 @@ protected:
     virtual void count_agent_types(std::map<std::string, int>& agent_counts);
 
     // --- agent population hooks ---
-    virtual int  get_total_agent_count();
+    virtual int get_total_agent_count();
 
     // --- environment element counting hooks (e.g. ecm) ---
     virtual std::vector<std::string> get_env_type_names();
