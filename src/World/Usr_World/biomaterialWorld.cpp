@@ -1,7 +1,7 @@
 /*
- * woundHealingWorld.cpp
+ * biomaterialWorld.cpp
  *
- * File contents: Contains the WHWorld class.
+ * File contents: Contains the BMWorld class.
  *
  * Author: Yvonna
  * Contributors: Caroline Shung

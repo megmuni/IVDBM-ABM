@@ -1,7 +1,7 @@
 /*
- * woundHealingWorld.h
+ * biomaterialWorld.h
  *
- * File Contents: Contains declarations for the WHWorld class.
+ * File Contents: Contains declarations for the BMWorld class.
  *
  * Author: Yvonna
  * Contributors: Caroline Shung
