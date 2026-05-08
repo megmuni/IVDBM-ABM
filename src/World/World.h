@@ -69,6 +69,16 @@ class World {
      */
     void setupGrid(int nx, int ny,int nz, REAL x_min, REAL x_max, REAL y_min, REAL y_max, REAL z_min, REAL z_max); //!< set up the dimensions
 
+
+    /*
+     * Description:	(Stage 4d)	Update patches to reflect next tick's states
+     *
+     * Return: void
+     *
+     * Parameters: void
+     */
+    void updatePatches();
+
     /*
      * Description:	Write vtk output file "filename" for animation
      *

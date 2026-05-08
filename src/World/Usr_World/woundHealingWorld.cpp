@@ -2582,18 +2582,6 @@ void WHWorld::updateECMManagers() {
 	#endif
 }
 
-void WHWorld::updatePatches() {
-	for (int iz = 0; iz < nz; iz++) {
-		#pragma omp parallel for
-		for (int iy = 0; iy < ny; iy++) {
-			for (int ix = 0; ix < nx; ix++) {
-				int in = ix + iy*nx + iz*nx*ny;
-				this->worldPatch[in].updatePatch();
-			}
-		}
-	}
-}
-
 /*
  * Steps:
  * 1. Perform updates

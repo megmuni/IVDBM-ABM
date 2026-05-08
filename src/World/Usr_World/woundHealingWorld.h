@@ -672,15 +672,6 @@ class WHWorld: public World {
     void updateECMManagers();
 
     /*
-     * Description:	(Stage 4d)	Update patches to reflect next tick's states
-     *
-     * Return: void
-     *
-     * Parameters: void
-     */
-    void updatePatches();
-
-    /*
      * Description:	(Stage 4b)	Update cells to reflect next tick's states
      *
      * Return: void

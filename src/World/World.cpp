@@ -137,6 +137,24 @@ void World::outputWorld_VTK_binary(const char* filename, double t) {
    cout << setfill('-') << setw(80) << "-" << endl;
 }
 
+/*
+ * Steps:
+ * 1. Perform updates
+ * 2. Remove all dead cells
+ * 3. If OMP, add cells from thread-local lists to corresponding global lists
+ */
+void World::updatePatches() {
+    for (int iz = 0; iz < nz; iz++) {
+#pragma omp parallel for
+        for (int iy = 0; iy < ny; iy++) {
+            for (int ix = 0; ix < nx; ix++) {
+                int in = ix + iy * nx + iz * nx * ny;
+                this->worldPatch[in].updatePatch();
+            }
+        }
+    }
+}
+
 // DEFAULT OUTPUT HOOK DEFINITIONS ///
 void World::write_csv_header(ofstream& file) { }
 
