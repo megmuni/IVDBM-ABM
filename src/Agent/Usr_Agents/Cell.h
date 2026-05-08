@@ -158,7 +158,9 @@ class Cell: public Agent {
     virtual void proliferate() final;
 
     /*
-     * Description: template method for cell differentiation
+     * Description: template method for cell differentiation. Called once per simulation
+     * tick for each cell. Checks all conditions before attempting cell division, then creates
+     * a daughter cell and increments that cell's number of divisions.
      *
      */
     virtual void differentiate() final;
@@ -232,17 +234,17 @@ class Cell: public Agent {
       * Return: True if the agent is proliferative, false otherwise.
       * Parameters: agentType
       */
-      virtual bool isProliferative();
+      virtual bool isProliferative(); // checks if a cell can proliferate based on its current number of doublings
       virtual float get_prolif_prob(float meanTGF,
           float meanIL1,
           float meanTNF); // calculates probability of dividing based on local chemical
       virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
 
       // Differentiation-related hook functions
-      virtual int get_daughter_type();
+      virtual int get_daughter_type(); // determines what cell type is produced
       virtual float get_diff_prob(float meanTGF,
           float meanIL1,
-          float meanTNF);
+          float meanTNF); // calculates probability of differentiating based on local chemical
 
       // ECM synthesis-related hook functions
       virtual void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume); // calculates the ECM synthesis rates for each cell
