@@ -100,26 +100,26 @@ class World {
 
 protected:
     // --- output function-related hooks ---
-    virtual std::string get_output_filename() = 0;
-    virtual void write_csv_header(std::ofstream& file);
+    virtual std::string get_output_filename() = 0; // returns path and filename for primary CSV output file
+    virtual void write_csv_header(std::ofstream& file); // writes the header row to the CSV output file - make sure order matches write_data_row()
     virtual void write_data_row(std::ofstream& file, 
         std::map<std::string, int>& agent_counts,
-        std::map<std::string, float>& env_counts);
+        std::map<std::string, float>& env_counts); // writes all world-specific data columns for the current tick (after clock and day columns)
 
     // --- extra output hooks (e.g. tgf_line, o2_line - used to measure/output chemical along a line across the world) ---
-    virtual void write_auxiliary_header();
-    virtual void write_auxiliary_outputs();
+    virtual void write_auxiliary_header(); // sets up any secondary output files on clock == 0
+    virtual void write_auxiliary_outputs(); // writes to any secondary output files on each tick
 
     // --- agent counting hooks ---
-    virtual std::vector<std::string> get_agent_type_names();
-    virtual void count_agent_types(std::map<std::string, int>& agent_counts);
+    virtual std::vector<std::string> get_agent_type_names(); // returns the list of agent types to be tracked in output
+    virtual void count_agent_types(std::map<std::string, int>& agent_counts); // map that counts each agent type across ticks
 
     // --- agent population hooks ---
-    virtual int get_total_agent_count();
+    virtual int get_total_agent_count(); // returns total number of agents (used for other calculations)
 
     // --- environment element counting hooks (e.g. ecm) ---
-    virtual std::vector<std::string> get_env_type_names();
-    virtual void count_env(std::map<std::string, float>&env_counts);
+    virtual std::vector<std::string> get_env_type_names(); // returns the list of environment variable names (ECM, chem) to be tracked in output
+    virtual void count_env(std::map<std::string, float>&env_counts); // map that counts each env variable type across ticks
 };
 
 #endif	/* WORLD_H */
