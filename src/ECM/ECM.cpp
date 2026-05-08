@@ -10,7 +10,7 @@
  */
 
 #include "ECM.h"
-#include "../World/Usr_World/woundHealingWorld.h"
+#include "../World/Usr_World/biomaterialWorld.h"
 #include "../enums.h"
 #include <iostream>
 #include <vector>
