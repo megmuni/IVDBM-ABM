@@ -12,7 +12,7 @@
 #ifndef PATCH_H
 #define	PATCH_H
 
-#include "../Agent/Agent.h"
+//#include "../Agent/Agent.h"
 #include "../FieldVariable/FieldVariable.h"
 
 #include "../common.h"
