@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream>
 #include <omp.h>
-#include "woundHealingWorld.h"
+#include "biomaterialWorld.h"
 #include "../../enums.h"
 #include "../../Utilities/timer.h"
 #include "../../Utilities/error_utils.h"
@@ -1222,15 +1222,15 @@ using namespace std;
 /* ------------------------------------------------------------------------------------ */
 /*                            STATIC VARIABLES INITIALIZATIONS                          */
 /* ------------------------------------------------------------------------------------ */
-unsigned WHWorld::seed = 27000; //initial number of cells
-bool WHWorld::highTNFdamage = false;
-float WHWorld::patchpermm = 0;
-float WHWorld::liveCells = 0;
-float WHWorld::deadCells = 0;
-float WHWorld::deletedCells = 0;
-float WHWorld::prevCells = 0;
+unsigned BMWorld::seed = 27000; //initial number of cells
+bool BMWorld::highTNFdamage = false;
+float BMWorld::patchpermm = 0;
+float BMWorld::liveCells = 0;
+float BMWorld::deadCells = 0;
+float BMWorld::deletedCells = 0;
+float BMWorld::prevCells = 0;
 #ifdef MODEL_SCAFFOLD
-	int WHWorld::initialCaAlg = 0;
+	int BMWorld::initialCaAlg = 0;
 	float G;        // Elastic Modulus (kPa)
 	float pXL;     // Crosslink Density (mmol/mL = M)
 	float Alg_Mn ;  // molecular weight of alginate (kDa)
@@ -1242,26 +1242,26 @@ float WHWorld::prevCells = 0;
 #endif
 
 #ifdef MODEL_SCAFFOLD
-	float WHWorld::Ca_Mw = 3400;      // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
-	float WHWorld::Alg_Mn = 1500;     // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
-	float WHWorld::totalVolumeML;
-	//float WHWorld::Alg_Mn = 90;
-	//float WHWorld::Alg_Mn = 200; //143;
+	float BMWorld::Ca_Mw = 3400;      // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
+	float BMWorld::Alg_Mn = 1500;     // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
+	float BMWorld::totalVolumeML;
+	//float BMWorld::Alg_Mn = 90;
+	//float BMWorld::Alg_Mn = 200; //143;
 #endif
 
-float WHWorld::thresholdTNFdamage = 10.0; //ng //unused in IVDBM-ABM
-float WHWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5}; // 0.2, 0.2,
-float WHWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
+float BMWorld::thresholdTNFdamage = 10.0; //ng //unused in IVDBM-ABM
+float BMWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5}; // 0.2, 0.2,
+float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 
 #ifdef MODEL_SCAFFOLD
-	float WHWorld::ElasticMod[7] = {125, 58, 971, 1.037, 756, 0.516, 0.165}; 
-	float WHWorld::XLDensity[2] = {2.3, 10.1}; //IN IVDBM-ABM (stem cell version) THESE ARE NOT USED ANYWHERE
-	float WHWorld::SwellRatio[5] = {72.478, 0.131, 22.034, 3.284, 35.752};	//float WHWorld::SwellRatio[5] = {0.4, 0.4, 3, 7.9, 1400};
-	float WHWorld::MassLoss[4] = {0.234, 7.785, 0.15, 1.36};	//float WHWorld::MassLoss[4] = {17.6, 0.9, 60, 5.3};
-	float WHWorld::PoreSize[2] = {1769.8, 258.5};	//float WHWorld::PoreSize[3] = {345.2, 309.9, 138.1};
+	float BMWorld::ElasticMod[7] = {125, 58, 971, 1.037, 756, 0.516, 0.165}; 
+	float BMWorld::XLDensity[2] = {2.3, 10.1}; //IN IVDBM-ABM (stem cell version) THESE ARE NOT USED ANYWHERE
+	float BMWorld::SwellRatio[5] = {72.478, 0.131, 22.034, 3.284, 35.752};	//float BMWorld::SwellRatio[5] = {0.4, 0.4, 3, 7.9, 1400};
+	float BMWorld::MassLoss[4] = {0.234, 7.785, 0.15, 1.36};	//float BMWorld::MassLoss[4] = {17.6, 0.9, 60, 5.3};
+	float BMWorld::PoreSize[2] = {1769.8, 258.5};	//float BMWorld::PoreSize[3] = {345.2, 309.9, 138.1};
 #endif
 
-WHWorld::WHWorld(double length, double width, double height, double plength) {
+BMWorld::BMWorld(double length, double width, double height, double plength) {
 	// Generate random seeds:
 	for(int i = 0; i < NUM_THREAD; i++) seeds[i] = 25234 + 17*i;
 
@@ -1290,7 +1290,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
     );
 
 	// Read input parameters (chem baseline, wound dimensions, initial cells) from config file
-	int temp = WHWorld::userInput();
+	int temp = BMWorld::userInput();
 	cout << "length, width, height: " << length << " mm, " << width << " mm, " << height << " mm" << endl;
 	cout << "Number of patches: nx, ny, nz: " << nx << ", " << ny << ", " << nz << " " << endl;
 
@@ -1318,7 +1318,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
 	}
 
 	// Define Class static variables and pointers
-	WHWorld::patchpermm = nx/width;
+	BMWorld::patchpermm = nx/width;
 	Agent::nx = this->nx;
 	Agent::ny = this->ny;
 	Agent::nz = this->nz;
@@ -1349,7 +1349,7 @@ WHWorld::WHWorld(double length, double width, double height, double plength) {
     cout << "-------------------------------------------" << endl; 
 }
 
-WHWorld:: ~WHWorld(){
+BMWorld:: ~BMWorld(){
 	free(this->D);
 	free(this->HalfLifes);
 
@@ -1380,7 +1380,7 @@ WHWorld:: ~WHWorld(){
     if (chemAllocation != NULL) delete [] chemAllocation;
     if (worldPatch != NULL)	delete [] worldPatch;
     if (worldECM != NULL) delete [] worldECM;
-    cout << "WHWorld has been successfully destructed." << endl;
+    cout << "BMWorld has been successfully destructed." << endl;
 }
 
 void destroyCell(Cell* &agent) {
@@ -1390,7 +1390,7 @@ void destroyCell(Cell* &agent) {
 	}
 }
 
-void WHWorld::assignPatches(int type, int xmin, int xmax, int ymin, int ymax, int zmin, int zmax){
+void BMWorld::assignPatches(int type, int xmin, int xmax, int ymin, int ymax, int zmin, int zmax){
 	// Assign patches within bounds of type 'type'
 	for (int iz = 0; iz < nz; iz++) {
 		for (int iy = 0; iy < ny; iy++) {
@@ -1417,7 +1417,7 @@ void WHWorld::assignPatches(int type, int xmin, int xmax, int ymin, int ymax, in
     }
 }
 
-void WHWorld::initializePatches() {
+void BMWorld::initializePatches() {
   #ifdef MODEL_3D
         assignPatches(CaAlg, 0, nx, 0, ny, 0, nz); 
   #else
@@ -1429,12 +1429,12 @@ void WHWorld::initializePatches() {
 		lineZ = nz / 2;
 
 	// Assign values to initial:
-	WHWorld::initialCaAlg = this->countPatchType(CaAlg);
+	BMWorld::initialCaAlg = this->countPatchType(CaAlg);
 	//cout << "Finished building Ca-Alg Hydrogel" << endl;
 }
 
 #ifdef MODEL_SCAFFOLD
-	void WHWorld::initializeCaAlg(){
+	void BMWorld::initializeCaAlg(){
 		cout << "Begin Calculating Ca-Alg Properties..." << endl; 
 			
 		/* ---------------------- Parameters of Ca-Alg Scaffold --------------------- */
@@ -1470,7 +1470,7 @@ void WHWorld::initializePatches() {
 		*       Linear dependence of modulus on cross-link concentration for constant polymer concentration 
 		*/			
 		#ifdef CALIBRATION
-			this->E = -WHWorld::ElasticMod[0] + WHWorld::ElasticMod[1]*(Alg_wv) - WHWorld::ElasticMod[2]*(pXL) + WHWorld::ElasticMod[3]*(Alg_Mn) + WHWorld::ElasticMod[4]*(Alg_wv)*(pXL) - WHWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - WHWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
+			this->E = -BMWorld::ElasticMod[0] + BMWorld::ElasticMod[1]*(Alg_wv) - BMWorld::ElasticMod[2]*(pXL) + BMWorld::ElasticMod[3]*(Alg_Mn) + BMWorld::ElasticMod[4]*(Alg_wv)*(pXL) - BMWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - BMWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
 		#else 
 			this->E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
 		#endif
@@ -1478,11 +1478,11 @@ void WHWorld::initializePatches() {
 		
 		/* Pore Size (um): poreWidth = -a * Alg_ww^2 + b * Alg_ww + c */
 		#ifdef CALIBRATION
-			this->poreWidth = -WHWorld::PoreSize[0]*(pXL) + WHWorld::PoreSize[1]; 
+			this->poreWidth = -BMWorld::PoreSize[0]*(pXL) + BMWorld::PoreSize[1]; 
 		#else
 			this->poreWidth = -1769.84*(pXL) + 258.5;  //-0.3113*pow(Alg_ww,2) + 1.5*Alg_ww + 50;   //this->poreWidth = (-0.01)*345.2*pow(Alg_ww,2) + 309.9*Alg_ww + 138.1; 
 		#endif	
-		cout << "     this->poreWidth = -" <<WHWorld::PoreSize[0]<<"*"<<(pXL)<<" + "<< WHWorld::PoreSize[1] << endl; 
+		cout << "     this->poreWidth = -" <<BMWorld::PoreSize[0]<<"*"<<(pXL)<<" + "<< BMWorld::PoreSize[1] << endl; 
 		cout << "       Pore Width (um): " << this->poreWidth << endl; 
 		
 		/* Swelling Ratio:
@@ -1490,11 +1490,11 @@ void WHWorld::initializePatches() {
 		*       Important in retaining water, facilitating diffusion.
 		*/
 		#ifdef CALIBRATION
-			this->Q = WHWorld::SwellRatio[0] - WHWorld::SwellRatio[1]*(this->reportDay()) - WHWorld::SwellRatio[2]*(this->Alg_wv)	- WHWorld::SwellRatio[3]*(this->reportDay())*(this->pXL) + WHWorld::SwellRatio[4]*(this->Alg_wv)*(this->pXL);
+			this->Q = BMWorld::SwellRatio[0] - BMWorld::SwellRatio[1]*(this->reportDay()) - BMWorld::SwellRatio[2]*(this->Alg_wv)	- BMWorld::SwellRatio[3]*(this->reportDay())*(this->pXL) + BMWorld::SwellRatio[4]*(this->Alg_wv)*(this->pXL);
 		#else
 			this->Q = 72.478 - 0.131*(this->reportDay()) - 22.034*(Alg_wv) - 3.284*(this->reportDay())*(pXL) + 35.752*(Alg_wv)*(pXL);
 		#endif 
-		//cout << "    this->Q ="<< WHWorld::SwellRatio[0]<< "-"<< WHWorld::SwellRatio[1]<<"*"<<(this->reportDay())<<" - "<< WHWorld::SwellRatio[2]<<"*"<<(Alg_wv)<<" -"<< WHWorld::SwellRatio[3]<<"*"<<(this->reportDay())<<"*"<<(pXL) <<" + "<< WHWorld::SwellRatio[4]<<"*"<<(Alg_wv)<<"*"<<(pXL) << endl;
+		//cout << "    this->Q ="<< BMWorld::SwellRatio[0]<< "-"<< BMWorld::SwellRatio[1]<<"*"<<(this->reportDay())<<" - "<< BMWorld::SwellRatio[2]<<"*"<<(Alg_wv)<<" -"<< BMWorld::SwellRatio[3]<<"*"<<(this->reportDay())<<"*"<<(pXL) <<" + "<< BMWorld::SwellRatio[4]<<"*"<<(Alg_wv)<<"*"<<(pXL) << endl;
 		cout << "       Swelling Ratio: " << this->Q << endl;
 
 		/* Mass Loss (%) 
@@ -1502,19 +1502,19 @@ void WHWorld::initializePatches() {
 		*       Mass loss fraction (%) increases with time and Alg content
 		*/
 		#ifdef CALIBRATION
-			this->w = 0;// this->w = WHWorld::MassLoss[0] + WHWorld::MassLoss[1]*(pXL) + WHWorld::MassLoss[2]*(reportDay()) - WHWorld::MassLoss[3]*(pXL)*(reportDay());
+			this->w = 0;// this->w = BMWorld::MassLoss[0] + BMWorld::MassLoss[1]*(pXL) + BMWorld::MassLoss[2]*(reportDay()) - BMWorld::MassLoss[3]*(pXL)*(reportDay());
 		#else
 			this->w = 0.234 + 7.785*(pXL) + 0.15*(reportDay()) - 1.36*(pXL)*(reportDay());
 		#endif
 		if (w < 0 ) w = 0;  // no negative mass loss
-		//cout << " 	this->w ="<< WHWorld::MassLoss[0]<< " +"<< WHWorld::MassLoss[1]<<"*"<<(pXL)<<" +"<< WHWorld::MassLoss[2]<<"*"<<(reportDay())<<" - "<< WHWorld::MassLoss[3]<<"*"<<(pXL)<<"*"<<(reportDay()) << endl; 
+		//cout << " 	this->w ="<< BMWorld::MassLoss[0]<< " +"<< BMWorld::MassLoss[1]<<"*"<<(pXL)<<" +"<< BMWorld::MassLoss[2]<<"*"<<(reportDay())<<" - "<< BMWorld::MassLoss[3]<<"*"<<(pXL)<<"*"<<(reportDay()) << endl; 
 		cout << " Mass Loss (%): " << this->w << endl; 
 
 	cout << "Finished calculating initial Ca-Alg properties" << endl;
 	}
 #endif //MODEL_SCAFFOLD
 
-void WHWorld::initializeChem(){
+void BMWorld::initializeChem(){
 	#ifdef GPU_DIFFUSE
 		this->initializeChemGPU();
 	#else
@@ -1522,7 +1522,7 @@ void WHWorld::initializeChem(){
 	#endif
 }
 
-void WHWorld::initializeChemCPU() {
+void BMWorld::initializeChemCPU() {
 	/* Allocate two-dimensional matrix (chemAllocation[chemtype][patch index]) to store quantities of each chemical at each patch */
 	this->typesOfChem = (this->baselineChem.size())*2 + 3;
 	this->chemAllocation = new float*[this->typesOfChem];
@@ -1617,7 +1617,7 @@ void printWindow(float* a, int h, int w, int r){
 }
 
 #ifdef GPU_DIFFUSE
-	void WHWorld::initializeChemGPU() {
+	void BMWorld::initializeChemGPU() {
 		/********************************************
 		* Kernel Computation	                    *
 		********************************************/
@@ -1847,7 +1847,7 @@ void printWindow(float* a, int h, int w, int r){
 		this->WorldChem.totalTGF = 0;
 		this->WorldChem.totalIL1beta = 0;
 		
-		int countCaAlg = WHWorld::initialCaAlg;
+		int countCaAlg = BMWorld::initialCaAlg;
 
 		if (this->baselineChem.size() == 3) {
 			for (int iz = 0; iz < this->nz; iz++) {
@@ -1911,11 +1911,11 @@ void printWindow(float* a, int h, int w, int r){
 	}
 #endif // GPU_DIFFUSE
 
-void WHWorld::initializeCells() {
+void BMWorld::initializeCells() {
     //cout << "Begin Initializing Cells..." << endl;
 
 	// Instantiate Cell list:
-	cells = ArrayChain<Cell*>(DEFAULT_DATA_SMALL, 4, NULL, NULL);  // WHWorld::destroyChond);
+	cells = ArrayChain<Cell*>(DEFAULT_DATA_SMALL, 4, NULL, NULL);  // BMWorld::destroyChond);
     //cout << "Initialize Cells..." << endl; 
 
     // If initial cell count not input, seed scaffold with stem cells at density 10^6 cell/mL
@@ -1938,7 +1938,7 @@ void WHWorld::initializeCells() {
 	cout << "		Cell Density: " << cellDensity << " cells/mm^3  (" << 1.0*pow(10,6) << " cells/mL)" << endl;
     cout << " 		Seeding " << initialScaffoldCells << " cells in scaffold " << endl; 
 
-	WHWorld::totalVolumeML = hydrogelVolume;
+	BMWorld::totalVolumeML = hydrogelVolume;
 
     // Sprout cell seeded hydrogel with mesenchymal stem cells at density 10^6 cells/mL
     sproutAgent(                    
@@ -1957,7 +1957,7 @@ void WHWorld::initializeCells() {
 	//cout << "Finished initializing cells" << endl;
 }
 
-void WHWorld::initializeECM() {
+void BMWorld::initializeECM() {
 
 	/* -------------------------------------------------------------------------- */
 	/*                                  COLLAGEN                                  */
@@ -1991,7 +1991,7 @@ void WHWorld::initializeECM() {
     );    // aggrecan in CaAlg Scaffold
 }
 
-void WHWorld::initializeDamage() {
+void BMWorld::initializeDamage() {
     // Sprout Damage throughout Scaffold and fragment ECM proteins 
     for (int iz = 0; iz < nz; iz++){
         for (int iy = 0; iy < ny; iy++){
@@ -2013,7 +2013,7 @@ void WHWorld::initializeDamage() {
 }
 
 /*
- * Each call to WHWorld::go() performs the following major steps:
+ * Each call to BMWorld::go() performs the following major steps:
  * 	(0) Cell seedings
  * 	(1) Chemical diffusion
  * 	(2) Cell function
@@ -2024,7 +2024,7 @@ void WHWorld::initializeDamage() {
  * 			c) Update ECM managers
  * 			d) Update patches
 */
-int WHWorld::go() {
+int BMWorld::go() {
     cout << "-------------------------------------------" << endl; 
 
 	Patch* tempPatchPtr;
@@ -2039,7 +2039,7 @@ int WHWorld::go() {
 	#endif
 
 	// Increment Clock in ticks (1 tick = 30 min)
-	WHWorld::clock++;
+	BMWorld::clock++;
 	cout << "tick: " << clock << " , hour: " << hours << " , day: " << days << endl;
 
 	#ifdef PROFILE_MAJOR_STEPS
@@ -2138,7 +2138,7 @@ int WHWorld::go() {
 /* -------------------------------------------------------------------------- */
 /*                      MAJOR SECTION SUBROUTINES - begin                     */
 /* -------------------------------------------------------------------------- */
-void WHWorld::diffuseCytokines() {
+void BMWorld::diffuseCytokines() {
 	#ifdef PDE_DIFFUSE
 	#ifdef GPU_DIFFUSE
 		this->diffuseChemGPU();
@@ -2180,7 +2180,7 @@ void WHWorld::diffuseCytokines() {
 	#endif // PDE_DIFFUSE
 }
 
-void WHWorld::runCells() {
+void BMWorld::runCells() {
 	int cellsSize = cells.size(); /* This is only an upper bound on cell list size. It is NOT an actual count of cells (some entries are NULL) */
 	#pragma omp parallel for
 	for (int i = 0; i < cellsSize; i++) {
@@ -2190,7 +2190,7 @@ void WHWorld::runCells() {
 	}
 }
 
-void WHWorld::executeCells() {
+void BMWorld::executeCells() {
 	#ifdef PROFILE_CELL_FUNC
 		TIME_STAGE(this->runCells(),		"Cell Function: Chondrocytes",	"	");
 	#else
@@ -2199,7 +2199,7 @@ void WHWorld::executeCells() {
 	#endif
 }
 
-void WHWorld::executeECMs(){
+void BMWorld::executeECMs(){
 	cerr << " ECM function  " << endl;
 	int numPatches = (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny;
 	#pragma omp parallel for
@@ -2208,10 +2208,10 @@ void WHWorld::executeECMs(){
 	}
 }
 
-void WHWorld::requestECMfragments() {
-	if (WHWorld::highTNFdamage == true) { 
+void BMWorld::requestECMfragments() {
+	if (BMWorld::highTNFdamage == true) { 
 		cout << " high TNF damage " << endl;
-		WHWorld::highTNFdamage = false;
+		BMWorld::highTNFdamage = false;
 		for (int in = 0; in < (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny; in++) {
 			#ifndef CALIBRATION
 				if (this->WorldChem.pTNF[in] > 10) { 
@@ -2227,7 +2227,7 @@ void WHWorld::requestECMfragments() {
 }
 
 /* Each patch diffuses 50% of its chemical equally to its 8 neighboring patches. (Each neighbor receives 1/8 of 50% of the patch's original amount of chemical neighboring patch. */
-void WHWorld::NetlogoDiffuse() {
+void BMWorld::NetlogoDiffuse() {
 	cerr << " NetLogoDiffuse " << endl;
 	for(int ichem = TNF; ichem <= IL1beta; ichem++) {
 		for (int iz = 0; iz < nz; iz++) {
@@ -2274,7 +2274,7 @@ void WHWorld::NetlogoDiffuse() {
 }
 
 #ifdef GPU_DIFFUSE
-	void WHWorld::diffuseChemGPU(){
+	void BMWorld::diffuseChemGPU(){
 		cerr << "Diffuse Chem (GPU)" << endl;
 		// Loop over all types of chemical and perform convolution-based diffusion on GPU
 		const int num_basechem_types = this->baselineChem.size();
@@ -2285,14 +2285,14 @@ void WHWorld::NetlogoDiffuse() {
 				this->chemAllocation[ic],		 // input:  p<chem>
 				this->h_dKernel_spectrum[ic],
 				*(this->chem_cctx),
-				WHWorld::clock)) {} // TODO: Error handling
+				BMWorld::clock)) {} // TODO: Error handling
 		}
 	}
 #endif	// GPU_DIFFUSE
 
 // Discretization of PDE Diffusion Equation using central difference approximation
 // Note: diffuseChem() will very likely get replaced by a new correct version, thus this doesn't need comments just yet
-void WHWorld::diffuseChem(int ichem, float dt, float coeff){
+void BMWorld::diffuseChem(int ichem, float dt, float coeff){
 	// Calculate change in concentration over dt at each patch
 	float* tempPtr = new float[nx*ny*nz]; 
 	#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
@@ -2375,7 +2375,7 @@ void WHWorld::diffuseChem(int ichem, float dt, float coeff){
             
 			int index = xi+ yi*nx + zi*nx*ny;
             if (yi == 0 || yi == ny-1 || xi == 0 || xi == nx-1  || zi == 0 || zi == nz-1) { // constant padding boundary condition
-                int countCaAlg = WHWorld::initialCaAlg;
+                int countCaAlg = BMWorld::initialCaAlg;
                 this->chemAllocation[ichem][index] = this->baselineChem[ichem]/countCaAlg;
             } else {
                 this->chemAllocation[ichem][index] += tempPtr[index];
@@ -2399,7 +2399,7 @@ void WHWorld::diffuseChem(int ichem, float dt, float coeff){
 	delete[] tempPtr;
 }
 
-void WHWorld::updateTotalChem(){
+void BMWorld::updateTotalChem(){
 	this->WorldChem.totalTNF = 0;
 	this->WorldChem.totalTGF = 0;
 	this->WorldChem.totalIL1beta = 0;
@@ -2435,7 +2435,7 @@ void WHWorld::updateTotalChem(){
 }
 
 // Always called in non-GPU_DIFFUSE. Called only at beginning otherwise
-void WHWorld::updateChemCPU() {
+void BMWorld::updateChemCPU() {
 	int totaldam = countPatchType(damage);
 	this->WorldChem.totalTNF = 0;
 	this->WorldChem.totalTGF = 0;
@@ -2451,9 +2451,9 @@ void WHWorld::updateChemCPU() {
 					
 					// Update patch chemical concentration
 					#ifndef CALIBRATION
-						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];//*0.02; //					//this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + (this->WorldChem.pTNF[in])*(WHWorld::cytokineDecay[0]);
-						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];//*0.02; //					//this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + (this->WorldChem.pTGF[in])*(WHWorld::cytokineDecay[1]);
-						this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in];//*0.02; //					//this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + (this->WorldChem.pIL1beta[in])*(WHWorld::cytokineDecay[4]);
+						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];//*0.02; //					//this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + (this->WorldChem.pTNF[in])*(BMWorld::cytokineDecay[0]);
+						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];//*0.02; //					//this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + (this->WorldChem.pTGF[in])*(BMWorld::cytokineDecay[1]);
+						this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in];//*0.02; //					//this->WorldChem.pIL1beta[in] = this->WorldChem.dIL1beta[in] + (this->WorldChem.pIL1beta[in])*(BMWorld::cytokineDecay[4]);
 					#else
 						this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in]*0.02;
 						this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in]*0.02;
@@ -2482,7 +2482,7 @@ void WHWorld::updateChemCPU() {
 	this->WorldChem.totalIL1beta += sumIL1;
 }
 
-void WHWorld::updateChem() {
+void BMWorld::updateChem() {
 	#ifdef GPU_DIFFUSE
 		int totaldam = countPatchType(damage);
 		this->WorldChem.totalTNF = 0;
@@ -2548,7 +2548,7 @@ void WHWorld::updateChem() {
 	#endif
 }
 
-void WHWorld::executeAllECMUpdates() {
+void BMWorld::executeAllECMUpdates() {
 	for (int iz = 0; iz < nz; iz++) {
 		#pragma omp parallel for
 		for (int iy = 0; iy < ny; iy++) {
@@ -2560,7 +2560,7 @@ void WHWorld::executeAllECMUpdates() {
 	}
 }
 
-void WHWorld::executeAllECMResetRequests() {
+void BMWorld::executeAllECMResetRequests() {
 	for (int iz = 0; iz < nz; iz++) {
 		#pragma omp parallel for
 		for (int iy = 0; iy < ny; iy++) {
@@ -2572,7 +2572,7 @@ void WHWorld::executeAllECMResetRequests() {
 	}
 }
 
-void WHWorld::updateECMManagers() {
+void BMWorld::updateECMManagers() {
 	#ifdef PROFILE_ECM_UPDATE
 		TIME_STAGE(this->executeAllECMUpdates(),		"	updateECM()",		"	");
 		TIME_STAGE(this->executeAllECMResetRequests(),	"	resetrequests()",		"	");
@@ -2588,7 +2588,7 @@ void WHWorld::updateECMManagers() {
  * 2. Remove all dead cells
  * 3. If OMP, add cells from thread-local lists to corresponding global lists
  */
-void WHWorld::updateCells() { 
+void BMWorld::updateCells() { 
 	cout << " previous tick's cells " << prevCells << endl;
 	cerr << "	removing dead cells" << endl;
 	int cellsSize = cells.size();
@@ -2647,10 +2647,10 @@ void WHWorld::updateCells() {
 			deletedCells++;
 		}
 	}
-		//if (WHWorld::clock == 0) {
+		//if (BMWorld::clock == 0) {
 		//	prevCells = this->initialCells[0];
 		//}
-		//else if (WHWorld::clock > 0) {
+		//else if (BMWorld::clock > 0) {
 		//	prevCells = liveCells;
 		//}
 
@@ -2701,7 +2701,7 @@ void WHWorld::updateCells() {
  ****************************************************************/
 //NOTE: only use this function to sprout new_coll, new_agg in initialization.
 
-void WHWorld::sproutAgent(int num, int patchType, int agentType,
+void BMWorld::sproutAgent(int num, int patchType, int agentType,
 	int xmin, int xmax, int ymin, int ymax, int zmin, int zmax) {
 	#ifdef OPT_CELL_SEEDING
         if (xmin != 0 || xmax != nx || ymin != 0 || ymax != ny || zmin != 0 || zmax != nz) sproutAgentInArea (num, patchType, agentType, xmin, xmax, ymin, ymax, zmin, zmax);
@@ -2713,7 +2713,7 @@ void WHWorld::sproutAgent(int num, int patchType, int agentType,
 	#endif
 }
 
-void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin, int xmax, int ymin, int ymax, int zmin, int zmax) {
+void BMWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin, int xmax, int ymin, int ymax, int zmin, int zmax) {
 	int count = 0;
 	vector <int> patchlist;
 	int* reservoir = new int [num];
@@ -2728,7 +2728,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
         		
 				// Try another patch if this one is out of bounds or the wrong type or occupied
 				if (ixx < 0 || ixx >= nx || iyy < 0 || iyy >= ny || izz < 0 || izz >= nz) continue;
-				if (WHWorld::worldPatch[in].type[read_t] != patchType) continue;
+				if (BMWorld::worldPatch[in].type[read_t] != patchType) continue;
 				if (this->worldPatch[in].isOccupied() == false) patchlist.push_back(in);
 			}
 		}
@@ -2872,7 +2872,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 	*          - Pick randomly and sprout
 	*          - Repeat until 'num' cells are sprouted
 	*/
-	void WHWorld::sproutAgentInWorld(int num, int patchType, int agentType) {// bool bloodORtiss
+	void BMWorld::sproutAgentInWorld(int num, int patchType, int agentType) {// bool bloodORtiss
 		int count = 0;
 		vector <int> patchlist;
 		int* reservoir = new int [num];
@@ -2947,7 +2947,7 @@ void WHWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
 		}
 #endif  //OPT_CELL_SEEDING
 
-int WHWorld::countPatchType(int whichType) {
+int BMWorld::countPatchType(int whichType) {
 	if (whichType == CaAlg) {
 		Patch::numOfEachTypes[whichType] = 0;
 		for (int iz = 0; iz < this->nz; iz++) {
@@ -2983,27 +2983,27 @@ int WHWorld::countPatchType(int whichType) {
 	return Patch::numOfEachTypes[whichType];
 }
 
-int WHWorld::mmToPatch(double mm) {
+int BMWorld::mmToPatch(double mm) {
 	return mm*(this->patchpermm);
 }
 
-int WHWorld::reportTick(int hour, int day) {
+int BMWorld::reportTick(int hour, int day) {
 	return (hour*2 + day*48);
 }
 
-double WHWorld::reportMinute() {
-	return (WHWorld::clock)*30;
+double BMWorld::reportMinute() {
+	return (BMWorld::clock)*30;
 }
 
-double WHWorld::reportHour() {
-	return (WHWorld::clock)/2;
+double BMWorld::reportHour() {
+	return (BMWorld::clock)/2;
 }
 
-double WHWorld::reportDay() {
-	return (WHWorld::clock)/48;
+double BMWorld::reportDay() {
+	return (BMWorld::clock)/48;
 }
 
-int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
+int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 	int neighborcount = 0;
 	for (int dx = -1; dx < 2; dx++) {
 		for (int dy = -1; dy < 2; dy++) {
@@ -3019,7 +3019,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 }
 
 #ifdef MODEL_SCAFFOLD
-	void WHWorld::updateSwellingRatio(){
+	void BMWorld::updateSwellingRatio(){
 		float Alg_ww = this->Alg_wv/(this->Alg_wv);
 		double tmin = reportMinute(); 
 
@@ -3032,7 +3032,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		*/
 		#ifdef CALIBRATION
 			//this->Q = (this->SwellRatio[0]*Alg_ww + this->SwellRatio[1])*log(tmin) + (this->SwellRatio[2]*Alg_ww + this->SwellRatio[3]); old 
-		WHWorld::SwellRatio[0] - WHWorld::SwellRatio[1] * (this->reportDay()) - WHWorld::SwellRatio[2] * (this->Alg_wv) - WHWorld::SwellRatio[3] * (this->reportDay()) * (this->pXL) + WHWorld::SwellRatio[4] * (this->Alg_wv) * (this->pXL);
+		BMWorld::SwellRatio[0] - BMWorld::SwellRatio[1] * (this->reportDay()) - BMWorld::SwellRatio[2] * (this->Alg_wv) - BMWorld::SwellRatio[3] * (this->reportDay()) * (this->pXL) + BMWorld::SwellRatio[4] * (this->Alg_wv) * (this->pXL);
 		#else
 			this->Q = (0.4*Alg_ww + 0.4)*log(tmin) + (3*Alg_ww + 7.9); 
 		#endif
@@ -3041,7 +3041,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		//cout << " Swelling Ratio: " << this->Q << endl; 
 	}
 
-	void WHWorld::updateMassLoss(){
+	void BMWorld::updateMassLoss(){
 		float Alg_ww = this->Alg_wv/(this->Alg_wv);
 		float tweek = reportDay()/7;
 		float w_t;
@@ -3062,7 +3062,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 
 		// If there is % mass loss since last call, "degrade" % CaAlg patches and replace with tissue
 		if (w_t > this->w){
-			float changeInPatches = (0.01)*(w_t - this->w)*WHWorld::initialCaAlg; 
+			float changeInPatches = (0.01)*(w_t - this->w)*BMWorld::initialCaAlg; 
 			this->degradeCaAlg(changeInPatches); 
 		}
 		
@@ -3074,7 +3074,7 @@ int WHWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 #endif //MODEL_SCAFFOLD
 
 #ifdef MODEL_SCAFFOLD
-void WHWorld::degradeCaAlg(int numOfPatches){
+void BMWorld::degradeCaAlg(int numOfPatches){
 	int xmin = 0; 
 	int xmax = nx;
 	int ymin = 0; 
@@ -3096,7 +3096,7 @@ void WHWorld::degradeCaAlg(int numOfPatches){
         		
 				// Try another patch if this one is out of bounds or the wrong type or occupied
 				if (ix < 0 || ix >= nx || iy < 0 || iy >= ny || iz < 0 || iz >= nz) continue;
-				if (WHWorld::worldPatch[in].type[read_t] != patchType) continue;
+				if (BMWorld::worldPatch[in].type[read_t] != patchType) continue;
 				patchlist.push_back(in);
 			}
 		}
@@ -3117,16 +3117,16 @@ void WHWorld::degradeCaAlg(int numOfPatches){
 	for (int i = 0; i < numOfPatches; i++) {
 		int in = reservoir[i];
 		if (in < 0 || in > (nx - 1) + (ny - 1)*nx + (nz - 1)*nx*ny) continue;
-		WHWorld::worldPatch[in].type[write_t] = nothing; 
-		WHWorld::worldPatch[in].color[write_t] = cnothing;
-        WHWorld::worldPatch[in].dirty = true;
+		BMWorld::worldPatch[in].type[write_t] = nothing; 
+		BMWorld::worldPatch[in].color[write_t] = cnothing;
+        BMWorld::worldPatch[in].dirty = true;
         count ++; 
 	}
 	delete[] reservoir;
 }
 #endif //MODEL_SCAFFOLD
 
-void WHWorld::debugInfo() {
+void BMWorld::debugInfo() {
 	int alive = 0; int dead = 0;
 	int stemSize = 0; int progenSize = 0; int npSize = 0;
 	int cellsSize = cells.size();
@@ -3168,7 +3168,7 @@ void WHWorld::debugInfo() {
  *   1. If OMP, add cells from thread-local lists to corresponding global lists
  *   2. Perform updates
  */
-void WHWorld::updateCellsInitial() {
+void BMWorld::updateCellsInitial() {
 	// Cell lists should be empty
 	// Add new cells
 	#ifdef _OMP
@@ -3217,7 +3217,7 @@ void WHWorld::updateCellsInitial() {
 	Cell::numOfCells = cells.actualSize();
 }
 
-int WHWorld::userInput() {
+int BMWorld::userInput() {
 	// Read input parameters from user-specified file
 	ifstream infile(util::getInputFileName());
 
@@ -3380,7 +3380,7 @@ int WHWorld::userInput() {
 	return 0;
 }
 
-//void WHWorld::outputWorld_csv() {
+//void BMWorld::outputWorld_csv() {
 //	if (this->clock == 0) {
 //		remove("output/Output_Biomarkers.csv");
 //		remove("output/tgf_line.csv");
@@ -3499,15 +3499,15 @@ int WHWorld::userInput() {
 //
 //	prevCells = cells.actualSize();
 //}
-string WHWorld::get_output_filename() {
+string BMWorld::get_output_filename() {
 	return "output/Output_Biomarkers.csv";
 }
 
-vector<string> WHWorld::get_agent_type_names() {
+vector<string> BMWorld::get_agent_type_names() {
 	return { "Stem", "Progen", "NP" };
 }
 
-void WHWorld::count_agent_types(map<string, int>& agent_counts) {
+void BMWorld::count_agent_types(map<string, int>& agent_counts) {
 	int cellsSize = cells.size();
 	for (int i = 0; i < cellsSize; i++) {
 		Cell* cell = cells.getDataAt(i);
@@ -3518,22 +3518,22 @@ void WHWorld::count_agent_types(map<string, int>& agent_counts) {
 	}
 }
 
-int WHWorld::get_total_agent_count() {
+int BMWorld::get_total_agent_count() {
 	return cells.actualSize();
 }
 
-vector<string> WHWorld::get_env_type_names() {
+vector<string> BMWorld::get_env_type_names() {
 	return { "ncollagen", "naggrecan" };
 }
 
-void WHWorld::count_env(map<string, float>& env_counts) {
+void BMWorld::count_env(map<string, float>& env_counts) {
 	for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
 		env_counts["ncollagen"] += this->worldECM[in].ncollagen[read_t];
 		env_counts["naggrecan"] += this->worldECM[in].naggrecan[read_t];
 	}
 }
 
-void WHWorld::write_data_row(std::ofstream& file,
+void BMWorld::write_data_row(std::ofstream& file,
 	std::map<std::string, int>& agent_counts,
 	std::map<std::string, float>& env_counts) {
 
@@ -3571,16 +3571,16 @@ void WHWorld::write_data_row(std::ofstream& file,
 }
 
 // private helpers
-float WHWorld::calculate_viability() {
+float BMWorld::calculate_viability() {
 	if (this->clock == 0) return 100.0f;
 	return (static_cast<float>(liveCells) / (liveCells + deadCells)) * 100;
 }
 
-float WHWorld::calculate_pct_differentiated(map<string, int>& agent_counts) {
+float BMWorld::calculate_pct_differentiated(map<string, int>& agent_counts) {
 	return (static_cast<float>(agent_counts["NP"]) / get_total_agent_count()) * 100;
 }
 
-void WHWorld::write_csv_header(ofstream& file) {
+void BMWorld::write_csv_header(ofstream& file) {
 	file << "clock (30 min)" << ","   // written by skeleton
 		<< "Day" << ","   // written by skeleton
 		<< "Total TNF (pg)" << ","   // everything below written by this hook
@@ -3607,7 +3607,7 @@ void WHWorld::write_csv_header(ofstream& file) {
 // extra output - for IVDBM-ABM, 
 // a TGF line for measuring TGF for 
 // diffusion debugging purposes
-void WHWorld::write_auxiliary_header() {
+void BMWorld::write_auxiliary_header() {
 	remove("output/tgf_line.csv");
 	ofstream tgf_file("output/tgf_line.csv", ios::app);
 	for (int xi = 0; xi <= nx / 2; xi++)
@@ -3615,7 +3615,7 @@ void WHWorld::write_auxiliary_header() {
 	tgf_file.close();
 }
 
-void WHWorld::write_auxiliary_outputs() {
+void BMWorld::write_auxiliary_outputs() {
 	ofstream tgf_file("output/tgf_line.csv", ios::app);
 	tgf_file << fixed << setprecision(10);
 	for (int xi = 0; xi <= nx / 2; xi++)
@@ -3624,7 +3624,7 @@ void WHWorld::write_auxiliary_outputs() {
 }
 
 
-void WHWorld::patchassign_csv() {
+void BMWorld::patchassign_csv() {
 	int in = 0;
 	int Number = 0;
 	for (int iz = 0; iz < nz; iz++) {
