@@ -2693,6 +2693,7 @@ void WHWorld::updateCells() {
 			fvec_ptr->clear();
 		}
 	#endif
+	prevCells = cells.actualSize();
 }
 
 /****************************************************************
