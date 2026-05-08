@@ -469,7 +469,6 @@ class WHWorld: public World {
 
     int typesOfChem;    // The number of different chemicals there are in the world
     vector<float> baselineChem;     // Initial amount of each chemical in the world
-    Patch* worldPatch;              // Pointer to the array of patches
     ECM* worldECM;                  // Pointer to array of ECM
     vector<int> initialCells;       // Initial amount of each cell type (agent) in the world
 
