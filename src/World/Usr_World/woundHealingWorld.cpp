@@ -3549,9 +3549,9 @@ void WHWorld::write_data_row(std::ofstream& file,
 	std::map<std::string, float>& env_counts) {
 
 	// biomaterial world-specific chemicals
-	file << this->WHWorldChem.totalTNF << ","
-		<< this->WHWorldChem.totalIL1beta << ","
-		<< this->WHWorldChem.totalTGF << ",";
+	file << this->WorldChem.totalTNF << ","
+		<< this->WorldChem.totalIL1beta << ","
+		<< this->WorldChem.totalTGF << ",";
 
 	// ecm types
 	file << fixed << setprecision(5)
