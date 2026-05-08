@@ -24,7 +24,7 @@
 //Include local libraries
 #include "../src/ArrayChain/ArrayChain.h"
 #include "../src/World/World.h"
-#include "../src/World/Usr_World/woundHealingWorld.h"
+#include "../src/World/Usr_World/biomaterialWorld.h"
 #include "../src/Agent/Agent.h"
 #include "../src/Agent/Usr_Agents/Cell.h"
 #include "../src/FieldVariable/FieldVariable.h"
