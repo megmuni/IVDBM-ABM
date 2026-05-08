@@ -438,6 +438,7 @@ class WHWorld: public World {
     Chemical WorldChem;
     /* Used to allocate the chemicals as floats. It is an array of float*, where each float* points to array of concentrations of a given chemical at different patches. 
      * chemAllocation[chemIndex][patchIndex] can be used as a multidimensional array to access a given chemical concentration using indexing. It is linked to WorldChem. */
+    float** chemAllocation;
 
     float E;    // Elastic Modulus (Pa)
     float pXL;  // Crosslink Density (mmol/mL)
@@ -466,7 +467,6 @@ class WHWorld: public World {
     c_ctx*     chem_cctx;
 #endif
 
-    float** chemAllocation;
     int typesOfChem;    // The number of different chemicals there are in the world
     vector<float> baselineChem;     // Initial amount of each chemical in the world
     Patch* worldPatch;              // Pointer to the array of patches
