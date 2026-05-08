@@ -19,7 +19,7 @@
 #include "../enums.h"
 
 class World;
-class WHWorld;
+class BMWorld;
 class Patch;
 
 /*

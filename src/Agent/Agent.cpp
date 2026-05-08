@@ -11,7 +11,7 @@
  */
 
 #include "Agent.h"
-#include "../World/Usr_World/woundHealingWorld.h"
+#include "../World/Usr_World/biomaterialWorld.h"
 #include "../enums.h"
 #include <iostream>
 #include <vector>
@@ -19,7 +19,7 @@
 #include <iomanip> // Include for setprecision and fixed
 
 
-WHWorld* Agent::agentWorldPtr = NULL;
+BMWorld* Agent::agentWorldPtr = NULL;
 Patch* Agent::agentPatchPtr = NULL;
 ECM* Agent::agentECMPtr = NULL; 
 
