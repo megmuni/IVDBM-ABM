@@ -44,10 +44,10 @@ using namespace std;
  *
  * Return: 0 if succesful
  *
- * Parameters: WHWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
+ * Parameters: BMWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             char*     -- Output file name
  */
-int outputColor(WHWorld*,char*);
+int outputColor(BMWorld*,char*);
 
 /*
  * Description:	Outputs the color of each patch to the given file.
@@ -58,18 +58,18 @@ int outputColor(WHWorld*,char*);
  * Parameters: myWorld   -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             fileName  -- Output file name
  */
-int outputECM(WHWorld* myWorld, char* fileName);
+int outputECM(BMWorld* myWorld, char* fileName);
 
 /*
  * Description:	Outputs the chemical concentration of the given chemical on each patch to the given file.
  *
  * Return: 0 if succesful
  *
- * Parameters: WHWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
+ * Parameters: BMWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             char*     -- Output file name
  *             int       -- Enumic value of the chemical type to output
  */
-int outputChem(WHWorld*, char*, int);
+int outputChem(BMWorld*, char*, int);
 
 /*
  * Description:	Main method for model simulation. Sets up the world and executes each tick of the simulation. 
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();
-	WHWorld myWorld = WHWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
+	BMWorld myWorld = BMWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
 	myWorld.outputWorld_csv();
 	//printf("Setup Execution time: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
@@ -230,7 +230,7 @@ int main(int argc, char** argv) {
 	return 0;
 } // End Main
 
-int outputColor(WHWorld* myWorld, char* fileName) {
+int outputColor(BMWorld* myWorld, char* fileName) {
 	int dam = 0, tissue = 0, numCaAlg = 0, cells = 0, newCell = 0, stems = 0, progens = 0, nps = 0, total = 0, black = 0, actDam = 0;
 	ofstream outfile(fileName);
 
@@ -300,7 +300,7 @@ int outputColor(WHWorld* myWorld, char* fileName) {
 
 } // End outputColor
 
-int outputECM(WHWorld* myWorld, char* fileName) {
+int outputECM(BMWorld* myWorld, char* fileName) {
   /* Prepare legacy VTK file format for for visualization with Paraview 3.0 */
 	ofstream outfile(fileName);
 	outfile << "# vtk DataFile Version 2.0" << endl;
@@ -343,7 +343,7 @@ int outputECM(WHWorld* myWorld, char* fileName) {
 
 } // End outputECM
 
-int outputChem(WHWorld* myWorld, char* fileName, int chemIndex) {
+int outputChem(BMWorld* myWorld, char* fileName, int chemIndex) {
 
   /* Prepare legacy VTK file format for for visualization with Paraview 3.0 */
     ofstream outfile(fileName);
