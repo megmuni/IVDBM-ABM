@@ -161,10 +161,10 @@ NP::NP(Patch* patchPtr) : Cell(patchPtr) {
 
 	#ifndef MODEL_SCAFFOLD
 		// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours:
-		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand() % 12);
-		else this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+		if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = BMWorld::reportTick(0, rand() % 12);
+		else this->life[write_t] = BMWorld::reportTick(0, 5 + rand() % 7);
 	#else
-		//this->life[write_t] = WHWorld::reportTick(0, 5 + rand() % 7);
+		//this->life[write_t] = BMWorld::reportTick(0, 5 + rand() % 7);
 	this->life[write_t] = 0;
 	#endif
 }
@@ -181,10 +181,10 @@ Cell::Cell(int x, int y, int z) {
 
 	//#ifndef MODEL_SCAFFOLD
 	//	// Unactivated chondrocytes live for 5 to 11 days. 0 corresponds to hours.
-	//	if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = WHWorld::reportTick(0, rand()%12);
-	//	else this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
+	//	if (Agent::agentWorldPtr->clock == 0) this->life[write_t] = BMWorld::reportTick(0, rand()%12);
+	//	else this->life[write_t] = BMWorld::reportTick(0, 5 + rand()%7);
 	//#else
-	//	this->life[write_t] = WHWorld::reportTick(0, 5 + rand()%7);
+	//	this->life[write_t] = BMWorld::reportTick(0, 5 + rand()%7);
 	//#endif
 
 	this->life[write_t] = 0;
@@ -460,8 +460,8 @@ void Cell::ecm_synthesis() {
 	}
 
 	// Calculate total volume of surrounding patches to check for cytokine thresholds
-	float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-	//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
+	float patchVolume = BMWorld::totalVolumeML / (nx * ny * nz);
+	//int neighbors = BMWorld::countNeighborPatchType(x, y, z, CaAlg);
 	float patchesVolume = patchVolume * neighborCount;
 
 	calculate_ecm_synth_rates(meanTGF, meanIL1, meanTNF, patchesVolume);
@@ -767,7 +767,7 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 		Agent::agentPatchPtr[in].occupiedby[write_t] = agentType;
 
 		/* If executing OMP version, add the pointer to this new cell to the thread-local list first.
-	* WHWorld::UpdateCells() will take care of putting it in the global list at the end
+	* BMWorld::UpdateCells() will take care of putting it in the global list at the end
 	*/
 #ifdef _OMP
 		int tid = omp_get_thread_num();
@@ -885,7 +885,7 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 }
 
 float Stem::get_migration_speed() {
-	if (WHWorld::clock == 0) {
+	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
 		float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
 
@@ -987,7 +987,7 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 }
 
 float Progen::get_migration_speed() {
-	if (WHWorld::clock == 0) {
+	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
 		float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
 
@@ -1050,12 +1050,12 @@ float NP::get_prolif_prob(float meanTGF,
 void NP::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
 	NP::collagenSynthRate = NP::CollagenSynth[0]
-		* (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
+		* (NP::CollagenSynth[1] * BMWorld::reportDay() + NP::CollagenSynth[2]);
 	NP::aggrecanSynthRate = NP::AggrecanSynth[0]
-		* (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
+		* (NP::AggrecanSynth[1] * BMWorld::reportDay() + NP::AggrecanSynth[2]);
 #else
-	NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);
-	NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);
+	NP::collagenSynthRate = 10 * (6.45 * BMWorld::reportDay() + 3.6);
+	NP::aggrecanSynthRate = 20 * (38 * BMWorld::reportDay() + 16.6);
 #endif
 }
 

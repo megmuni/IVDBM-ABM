@@ -15,7 +15,7 @@
 
 #include "../Agent.h"
 #include "../../Patch/Patch.h"
-#include "../../World/Usr_World/woundHealingWorld.h"
+#include "../../World/Usr_World/biomaterialWorld.h"
 
 class ECM; 
 
