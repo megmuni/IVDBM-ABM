@@ -191,11 +191,11 @@ void World::outputWorld_csv() {
 
     // print counts generically
     cout << " total agents: " << totalAgents << endl;
-    for (const auto& [name, count] : agent_counts)
-        cout << " " << name << " agents: " << count << endl;
+    for (const auto& pair : agent_counts)
+        cout << " " << pair.first << " agents: " << pair.second << endl;
 
-    for (const auto& [name, amount] : env_counts)
-        cout << " " << name << ": " << amount << endl;
+    for (const auto& pair : env_counts)
+        cout << " " << pair.first << ": " << pair.second << endl;
 
     // shared columns — clock and day always written first
     output_file << this->clock << ","
