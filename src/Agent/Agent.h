@@ -22,7 +22,7 @@
 //#include "../ArrayChain/ArrayChain.h"
 
 class World;
-class WHWorld;
+class BMWorld;
 class Patch;
 class ECM; 
 
@@ -214,7 +214,7 @@ class Agent {
 /* -------------------------------------------------------------------------- */
 /*                              STATIC VARIABLES                              */
 /* -------------------------------------------------------------------------- */
-    static WHWorld* agentWorldPtr;  // Pointer from an agent to a WHWorld  
+    static BMWorld* agentWorldPtr;  // Pointer from an agent to a BMWorld  
     static Patch* agentPatchPtr;    // Pointer from an agent to a Patch
     static ECM* agentECMPtr;        // Pointer from an agent to an ECM
     static int nx, ny, nz;          // Number of patches in x,y,z dimensions of the world
