@@ -28,7 +28,7 @@ using namespace std;
  *                                       the type of agent on the patch, and to perform updates.
  */
 class Patch {
-//friend class WHWorld; 
+//friend class BMWorld; 
  public:
     /*
      * Description:	Default patch constructor. Initializes patch class members.
