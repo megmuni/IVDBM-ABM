@@ -1,0 +1,12 @@
+# Output files
+output
+
+# Build directories
+build
+build*
+
+# VTK files
+*_series
+
+# CUDA samples
+cuda-samples
