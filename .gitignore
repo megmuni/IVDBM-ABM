@@ -1,3 +1,8 @@
 ####### IVDBM-ABM #######
 
 .vs/
+
+
+.github/
+.vscode/
+.cursor/
