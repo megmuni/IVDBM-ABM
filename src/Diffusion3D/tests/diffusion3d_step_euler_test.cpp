@@ -1,69 +1,75 @@
 /**
  * @file diffusion3d_step_euler_test.cpp
- * @brief Catch2 tests for diffusion3d_step_euler_cpu / diffusion3d_step_euler_gpu.
+ * @brief Catch2 tests for diffusion3d_step_euler_scalar / diffusion3d_step_euler_gpu.
  */
 
 #include <cmath>
 
 #include <catch2/catch.hpp>
 
-#include "diffusion3d_common.h"
+#include "diffusion3d_step_euler_cpu.h"
+#include "diffusion3d_gpu.h"
+#include "scalar_field_grid.h"
 
-#ifdef GPU_DIFFUSE
+#ifdef DIFFUSION3D_CUDA
 #include <cuda_runtime.h>
 #endif
 
-static bool nearly_equal_vec(const std::vector<double> &a, const std::vector<double> &b,
-                             double eps)
+namespace
+{
+
+bool nearly_equal_vec(const std::vector<double> &a, const std::vector<double> &b, double eps)
 {
     REQUIRE(a.size() == b.size());
     for (size_t i = 0; i < a.size(); ++i)
     {
         if (std::fabs(a[i] - b[i]) > eps)
-        {
             return false;
-        }
     }
     return true;
 }
 
-/** @brief Advance `ctx` by `n_steps` explicit Euler steps at fixed `dt`. */
-static void cpu_advance(Diffusion3DContext &ctx, int n_steps, double dt)
+void fill_sin_ramp(ScalarFieldGrid &grid)
 {
-    for (int i = 0; i < n_steps; ++i)
-        diffusion3d_step_euler_cpu(ctx, dt);
+    for (int z = 0; z < grid.nz_; ++z)
+    {
+        for (int y = 0; y < grid.ny_; ++y)
+        {
+            for (int x = 0; x < grid.nx_; ++x)
+            {
+                grid.at(x, y, z) =
+                    std::sin(0.3 * static_cast<double>(x)) + 0.2 * static_cast<double>(y + z);
+            }
+        }
+    }
 }
 
-TEST_CASE("diffusion3d_step_euler_cpu identical ICs stay aligned over multiple steps", "[cpu][euler]")
+void cpu_advance(ScalarFieldGrid &grid, double h, double D, int n_steps, double dt)
+{
+    for (int i = 0; i < n_steps; ++i)
+        diffusion3d_step_euler_scalar(grid, h, D, dt);
+}
+
+} // namespace
+
+TEST_CASE("diffusion3d_step_euler_scalar identical ICs stay aligned over multiple steps", "[cpu][euler]")
 {
     const int nx = 6, ny = 5, nz = 4;
     const double h = 0.4, D = 0.08, dt = 0.02;
     const int nsteps = 4;
 
-    Diffusion3DContext a = Diffusion3DContext::make(nx, ny, nz, h, D);
-    Diffusion3DContext b = Diffusion3DContext::make(nx, ny, nz, h, D);
+    ScalarFieldGrid a(nx, ny, nz);
+    ScalarFieldGrid b(nx, ny, nz);
+    fill_sin_ramp(a);
+    fill_sin_ramp(b);
 
-    for (int z = 0; z < nz; ++z)
-    {
-        for (int y = 0; y < ny; ++y)
-        {
-            for (int x = 0; x < nx; ++x)
-            {
-                const double v =
-                    std::sin(0.3 * static_cast<double>(x)) + 0.2 * static_cast<double>(y + z);
-                a.set_at_coord(x, y, z, v);
-                b.set_at_coord(x, y, z, v);
-            }
-        }
-    }
+    cpu_advance(a, h, D, nsteps, dt);
+    cpu_advance(b, h, D, nsteps, dt);
 
-    cpu_advance(a, nsteps, dt);
-    cpu_advance(b, nsteps, dt);
-
-    CHECK(nearly_equal_vec(a.u, b.u, 1e-13));
+    CHECK(nearly_equal_vec(a.data_, b.data_, 1e-13));
 }
 
-#ifdef GPU_DIFFUSE
+#ifdef DIFFUSION3D_CUDA
 
 TEST_CASE("diffusion3d_step_euler_gpu chained matches CPU euler chain", "[gpu][euler]")
 {
@@ -71,40 +77,28 @@ TEST_CASE("diffusion3d_step_euler_gpu chained matches CPU euler chain", "[gpu][e
     const double h = 0.4, D = 0.08, dt = 0.02;
     const int nsteps = 4;
 
-    Diffusion3DContext cpu_ctx = Diffusion3DContext::make(nx, ny, nz, h, D);
-    Diffusion3DContext gpu_ctx = Diffusion3DContext::make(nx, ny, nz, h, D);
+    ScalarFieldGrid cpu_grid(nx, ny, nz);
+    ScalarFieldGrid gpu_grid(nx, ny, nz);
+    fill_sin_ramp(cpu_grid);
+    fill_sin_ramp(gpu_grid);
 
-    for (int z = 0; z < nz; ++z)
-    {
-        for (int y = 0; y < ny; ++y)
-        {
-            for (int x = 0; x < nx; ++x)
-            {
-                const double v =
-                    std::sin(0.3 * static_cast<double>(x)) + 0.2 * static_cast<double>(y + z);
-                cpu_ctx.set_at_coord(x, y, z, v);
-                gpu_ctx.set_at_coord(x, y, z, v);
-            }
-        }
-    }
-
-    cpu_advance(cpu_ctx, nsteps, dt);
+    cpu_advance(cpu_grid, h, D, nsteps, dt);
 
     double *d_u = nullptr;
     double *d_u_next = nullptr;
-    const size_t bytes = static_cast<size_t>(gpu_ctx.n) * sizeof(double);
+    const size_t bytes = static_cast<size_t>(gpu_grid.size()) * sizeof(double);
     REQUIRE(cudaMalloc(&d_u, bytes) == cudaSuccess);
     REQUIRE(cudaMalloc(&d_u_next, bytes) == cudaSuccess);
-    REQUIRE(cudaMemcpy(d_u, gpu_ctx.u.data(), bytes, cudaMemcpyHostToDevice) == cudaSuccess);
+    REQUIRE(cudaMemcpy(d_u, gpu_grid.data_.data(), bytes, cudaMemcpyHostToDevice) == cudaSuccess);
 
     for (int s = 0; s < nsteps; ++s)
-        diffusion3d_step_euler_gpu(gpu_ctx, dt, d_u, d_u_next);
+        diffusion3d_step_euler_gpu(nx, ny, nz, h, D, dt, d_u, d_u_next);
 
-    REQUIRE(cudaMemcpy(gpu_ctx.u.data(), d_u, bytes, cudaMemcpyDeviceToHost) == cudaSuccess);
+    REQUIRE(cudaMemcpy(gpu_grid.data_.data(), d_u, bytes, cudaMemcpyDeviceToHost) == cudaSuccess);
     cudaFree(d_u);
     cudaFree(d_u_next);
 
-    CHECK(nearly_equal_vec(cpu_ctx.u, gpu_ctx.u, 1e-13));
+    CHECK(nearly_equal_vec(cpu_grid.data_, gpu_grid.data_, 1e-13));
 }
 
-#endif // GPU_DIFFUSE
+#endif // DIFFUSION3D_CUDA

@@ -8,14 +8,15 @@
 
 #include <catch2/catch.hpp>
 
-#ifdef GPU_DIFFUSE
+#ifdef DIFFUSION3D_CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
 #endif
 
 #include "convolutionFFT3D_common.h"
 #include "analytic_diffusion3d.h"
-#include "diffusion3d_common.h"
+#include "diffusion3d_step_euler_cpu.h"
+#include "scalar_field_grid.h"
 
 static inline bool nearly_equal(float a, float b, float eps = 1e-6f)
 {
@@ -24,8 +25,8 @@ static inline bool nearly_equal(float a, float b, float eps = 1e-6f)
 
 TEST_CASE("modulateAndNormalize3D matches expected output", "[fft][helpers][modulate3d]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping CUDA helper test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping CUDA helper test.");
 #else
     // Mirror the 2D sample interface: elements = fftZ*fftY*(fftX/2 + padding)
     const int fftZ = 1;
@@ -110,8 +111,8 @@ fComplex spectrum_cpow_u32_host(fComplex z, unsigned int n)
 
 TEST_CASE("spectrumRaisePowInt3D matches host complex powers", "[fft][helpers][spectrum_pow]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping spectrumRaisePowInt3D test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping spectrumRaisePowInt3D test.");
 #else
     const int fftZ = 2;
     const int fftY = 2;
@@ -163,8 +164,8 @@ TEST_CASE("spectrumRaisePowInt3D matches host complex powers", "[fft][helpers][s
 
 TEST_CASE("Self-convolution: repeated one-step FFT matches spectrum power", "[fft][e2e][cufft][self_convolution]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping self-convolution test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping self-convolution test.");
 #else
     // This test validates the algebra behind the FFT backend:
     // - Repeating the same one-step convolution N times corresponds to raising the kernel spectrum to N.
@@ -330,25 +331,24 @@ TEST_CASE("CPU diffusion is qualitatively close to analytic Gaussian (early time
     const double h = 1.0;
     const double D = 0.1;
 
-    Diffusion3DContext ctx = Diffusion3DContext::make(nx, ny, nz, h, D);
+    ScalarFieldGrid grid(nx, ny, nz);
     const int cx = nx / 2, cy = ny / 2, cz = nz / 2;
-    ctx.set_at_coord(cx, cy, cz, 1.0);
+    grid.at(cx, cy, cz) = 1.0;
 
-    diffusion3d_step_euler_cpu(ctx, dt);
+    diffusion3d_step_euler_scalar(grid, h, D, dt);
 
     const double t = dt;
-    std::vector<double> ref = analytic_gaussian_impulse_3d(ctx, t, cx, cy, cz, 1.0);
+    std::vector<double> ref = analytic_gaussian_impulse_3d(nx, ny, nz, h, D, t, cx, cy, cz, 1.0);
 
-    // The discrete stencil on a finite grid won't match exactly; this is a coarse sanity check.
-    const double err = rel_l2_error(ctx.u, ref);
+    const double err = rel_l2_error(grid.data_, ref);
     INFO("rel_l2_error=" << err);
     CHECK(err < 5.0);
 }
 
 TEST_CASE("unpadResult3D extracts the top-left-front volume", "[fft][helpers][unpad3d]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping CUDA helper test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping CUDA helper test.");
 #else
     const int fftX = 6, fftY = 5, fftZ = 4;
     const int dX = 3, dY = 2, dZ = 2;
@@ -392,8 +392,8 @@ TEST_CASE("unpadResult3D extracts the top-left-front volume", "[fft][helpers][un
 
 TEST_CASE("padKernel3D performs ifftshift-on-write", "[fft][helpers][padKernel3d]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping CUDA helper test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping CUDA helper test.");
 #else
     const int fftX = 5, fftY = 5, fftZ = 5;
     const int kX = 3, kY = 3, kZ = 3;
@@ -433,8 +433,8 @@ TEST_CASE("padKernel3D performs ifftshift-on-write", "[fft][helpers][padKernel3d
 
 TEST_CASE("padDataClampToBorder3D matches CUDA-sample border semantics", "[fft][helpers][padDataClamp3d]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping CUDA helper test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping CUDA helper test.");
 #else
     const int dX = 2, dY = 2, dZ = 2;
     const int fftX = 4, fftY = 4, fftZ = 4;
@@ -493,10 +493,10 @@ TEST_CASE("padDataClampToBorder3D matches CUDA-sample border semantics", "[fft][
 
 TEST_CASE("3D FFT convolution matches CPU 6-point Laplacian update (interior voxels)", "[fft][e2e][cufft][laplacian]")
 {
-#ifndef GPU_DIFFUSE
-    SUCCEED("GPU_DIFFUSE is OFF; skipping cuFFT end-to-end test.");
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping cuFFT end-to-end test.");
 #else
-    // Compare against one CPU explicit Euler step (`diffusion3d_step_euler_cpu`).
+    // Compare against one CPU explicit Euler step (`diffusion3d_step_euler_scalar`).
     // We only compare interior voxels so boundary-condition differences do not dominate.
     const int nx = 6, ny = 6, nz = 6;
     const double dt = 1e-3;
@@ -506,14 +506,15 @@ TEST_CASE("3D FFT convolution matches CPU 6-point Laplacian update (interior vox
     const double s = dt * D / (h * h);
 
     // Set only one step for diffusion
-    Diffusion3DContext ctx = Diffusion3DContext::make(nx, ny, nz, h, D);
-    for (int z = 0; z < nz; z++)
-        for (int y = 0; y < ny; y++)
-            for (int x = 0; x < nx; x++)
-                ctx.u[ctx.idx(x, y, z)] = 0.01 * double((z + 1) * 100 + (y + 1) * 10 + (x + 1));
+    ScalarFieldGrid grid(nx, ny, nz);
+    for (int z = 0; z < nz; ++z)
+        for (int y = 0; y < ny; ++y)
+            for (int x = 0; x < nx; ++x)
+                grid.at(x, y, z) = 0.01 * double((z + 1) * 100 + (y + 1) * 10 + (x + 1));
 
-    diffusion3d_step_euler_cpu(ctx, dt);
-    const std::vector<double> cpu_out = ctx.u; // after 1 step, buffers swapped
+    const std::vector<double> initial_field = grid.data_;
+    diffusion3d_step_euler_scalar(grid, h, D, dt);
+    const std::vector<double> cpu_out = grid.data_;
 
     // Build a 3x3x3 convolution kernel that applies one explicit-Euler update:
     // u_next = u + s * (sum6(nei) - 6*u)
@@ -543,7 +544,7 @@ TEST_CASE("3D FFT convolution matches CPU 6-point Laplacian update (interior vox
 
     std::vector<float> h_data(dX * dY * dZ, 0.0f);
     for (int i = 0; i < (int)h_data.size(); i++)
-        h_data[i] = (float)ctx.u_next[i]; // same samples as pre-step `u` (after Euler swap, old field lives in `u_next`)
+        h_data[i] = static_cast<float>(initial_field[static_cast<size_t>(i)]);
 
     float *d_data = nullptr;
     float *d_kernel = nullptr;
@@ -606,7 +607,7 @@ TEST_CASE("3D FFT convolution matches CPU 6-point Laplacian update (interior vox
         for (int y = 1; y < ny - 1; y++)
             for (int x = 1; x < nx - 1; x++)
             {
-                const int i = ctx.idx(x, y, z);
+                const int i = x + nx * (y + ny * z);
                 const double ref = cpu_out[i];
                 const double got = (double)h_out[i];
                 const double diff = got - ref;

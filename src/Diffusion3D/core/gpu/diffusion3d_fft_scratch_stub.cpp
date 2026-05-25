@@ -16,11 +16,11 @@ void diffusion3d_fft_scratch_destroy(DiffusionFftScratch *) {}
 
 SubstepPlan diffusion3d_fft_scratch_rebuild_operator(DiffusionFftScratch *, double, double, double, double)
 {
-    assert(false && "diffusion3d_fft_scratch_rebuild_operator requires GPU_DIFFUSE=ON");
+    assert(false && "diffusion3d_fft_scratch_rebuild_operator requires DIFFUSION3D_CUDA=ON");
     return SubstepPlan{1, 0.0};
 }
 
-void diffusion3d_fft_scratch_apply(DiffusionFftScratch *, Diffusion3DContext &)
+void diffusion3d_fft_scratch_apply(DiffusionFftScratch *, std::vector<double> &)
 {
-    assert(false && "diffusion3d_fft_scratch_apply requires GPU_DIFFUSE=ON");
+    assert(false && "diffusion3d_fft_scratch_apply requires DIFFUSION3D_CUDA=ON");
 }

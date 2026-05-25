@@ -5,31 +5,17 @@
 #include <map>
 #include <vector>
 #include <stdexcept>
+#include "diffusion_algorithm.h"
 
 using SpeciesId = int;
 
 /**
  * @file multi_species_diffusion_settings.h
- * @brief Multi-species diffusion configuration (adapted from DiffusionParams).
- *
- * Stores per-species diffusivity, safety factor, and backend selection.
- * Each species has independent diffusivity D with unified safety scaling.
+ * @brief Multi-species diffusion configuration.
  */
 
 /**
- * @enum DiffusionBackend
- * @brief Hardware/algorithm backend selection (same as diffusion3d_solver.h).
- */
-enum class DiffusionBackend
-{
-    CpuStencil,
-    GpuStencil,
-    GpuFftPrecomputed,
-    Auto,
-};
-
-/**
- * @brief Multi-species diffusion parameters (adapted from DiffusionParams).
+ * @brief Multi-species diffusion parameters.
  *
  * Stores per-species diffusivity D, unified safety factor, backend choice.
  * All species share the same physical domain (nx, ny, nz) and spacing h.
@@ -58,12 +44,12 @@ struct MultiSpeciesDiffusionSettings
     double safety = 1.0;
 
     /**
-     * @brief Hardware backend selection (same enum as diffusion3d).
+     * @brief Algorithm / hardware backend selection.
      */
-    DiffusionBackend backend = DiffusionBackend::Auto;
+    DiffusionAlgorithm algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
 
     /**
-     * @brief FFT padding extents (same as DiffusionParams, for GPU FFT backend).
+     * @brief FFT padding extents (for GPU FFT backend).
      */
     int fft_real_extent_x = 0;
     int fft_real_extent_y = 0;

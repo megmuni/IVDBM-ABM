@@ -5,7 +5,8 @@ This module implements multi-species scalar field diffusion with unified double-
 ## Structure
 
 - `core/` - Core diffusion engine, field grids, settings, stepper implementations, and VTK export
-- `tests/` - Unit and integration tests
+- `demo/` - ParaView `.vti` time-series demo (`diffusion3d_demo`) for all three algorithms
+- `tests/` - Unit and integration tests (support helpers under `tests/support/`)
 
 ## Key Types
 
@@ -33,13 +34,57 @@ Options:
 | ---- | ------- | ------- |
 | `BUILD_DIFFUSION3D` | ON | Build module and tests from root `src/CMakeLists.txt` |
 | `DIFFUSION3D_TESTS` | ON | Build Catch2 test executable |
-| `DIFFUSION3D_CUDA` | OFF | Enable GPU paths in legacy numerical tests |
+| `DIFFUSION3D_DEMO` | ON | Build ParaView demo (`diffusion3d_demo`) |
+| `DIFFUSION3D_CUDA` | OFF | Enable GPU/FFT kernels in `core/gpu/` and GPU steppers |
+| `DIFFUSION3D_CUDA_ARCHITECTURES` | `89` | CUDA arch for GPU targets (`89` = sm_89, Ada/RTX 4050; or `native`, `89;90`) |
 
-Tests live under `tests/` and use Catch2 v2 via `FetchContent`. Legacy kernel sources remain in `diffusion3d/src/` until Phase I migration completes.
+Tests use `MultiSpeciesFieldGrid`, `MultiSpeciesDiffusionEngine`, and `MakeMultiSpeciesDiffusionEngine()` exclusively — no legacy solver or context types remain in the module.
 
-## ParaView visualization
+CUDA build example (RTX 4050 / sm_89):
 
-Export simulation fields as VTK **ImageData** (`.vti`) and open them in [ParaView](https://www.paraview.org/). Header-only helpers live in [`core/vtk_export.h`](core/vtk_export.h) (adapted from the standalone `diffusion3d` demo).
+```bash
+cmake -S src/Diffusion3D -B build-cuda \
+  -DDIFFUSION3D_TESTS=ON \
+  -DDIFFUSION3D_CUDA=ON \
+  -DDIFFUSION3D_CUDA_ARCHITECTURES=89
+cmake --build build-cuda --target diffusion3d_tests
+ctest -R diffusion3d --test-dir build-cuda
+```
+
+## ParaView demo (`diffusion3d_demo`)
+
+Runs all three diffusion backends and writes VTK ImageData time series for ParaView:
+
+| Output folder | Algorithm | Requires CUDA |
+| ------------- | --------- | ------------- |
+| `output/cpu_series/` | CPU explicit Euler stencil | no |
+| `output/gpu_series/` | GPU 6-point stencil | yes |
+| `output/fft_series/` | GPU FFT precomputed | yes |
+| `output/compare_series/` | CPU vs GPU stencil at final step (`abs_diff` array) | yes |
+
+Build and run from the module directory:
+
+```bash
+# CPU only (cpu_series/)
+cmake -S src/Diffusion3D -B build-demo -DDIFFUSION3D_DEMO=ON
+cmake --build build-demo --target diffusion3d_demo
+cd build-demo/demo && ./diffusion3d_demo
+
+# All three algorithms
+cmake -S src/Diffusion3D -B build-demo-gpu \
+  -DDIFFUSION3D_DEMO=ON -DDIFFUSION3D_CUDA=ON \
+  -DDIFFUSION3D_CUDA_ARCHITECTURES=89
+cmake --build build-demo-gpu --target diffusion3d_demo
+cd build-demo-gpu/demo && ./diffusion3d_demo
+```
+
+In ParaView: **File → Open** → select `output/cpu_series/diffusion3d_t*.vti` → enable **Group files as time series**.
+
+Scenario matches the legacy standalone demo: 8³ grid, point source at center, `tick_dt=2`, `D=0.1`, `h=1`, 4 macro steps (5 frames each).
+
+## ParaView visualization (API)
+
+Export simulation fields as VTK **ImageData** (`.vti`) and open them in [ParaView](https://www.paraview.org/). Header-only helpers live in [`core/vtk_export.h`](core/vtk_export.h).
 
 ### Single-species field
 
@@ -85,6 +130,6 @@ export_cpu_gpu_compare_to_vti(cpu_u, gpu_u, nx, ny, nz, h,
 | **Spacing** | VTK `Spacing` is set from grid spacing `h` (physical units consistent with the simulation) |
 | **Layout** | `ScalarFieldGrid::data_` uses the same point order as VTK ImageData (`idx = x + nx*(y + ny*z)`) |
 | **Scaling** | Use `viz_multiplier` on `export_scalar_field_to_vti` / `export_field_to_vti` when concentrations are small and ParaView auto-range is hard to read |
-| **Standalone demo** | The reference time-series workflow is in [`diffusion3d/src/main.cpp`](../../diffusion3d/src/main.cpp); it will link `diffusion3d_core` after I.8 migration |
+| **Demo** | Run `diffusion3d_demo` — see [ParaView demo](#paraview-demo-diffusion3d_demo) above |
 
 No VTK library dependency — files are plain XML written with the standard library.

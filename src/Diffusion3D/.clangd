@@ -1,0 +1,9 @@
+# Prefer CMake export (see root CMakeLists: CMAKE_EXPORT_COMPILE_COMMANDS):
+#   ln -sf ../../build-cuda/compile_commands.json src/Diffusion3D/compile_commands.json
+# We include this so we can use the clangd server to navigate the codebase.
+CompileFlags:
+  CompilationDatabase: .
+  Add:
+    - -std=c++17
+    - -Icore
+    - -Icore/gpu

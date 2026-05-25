@@ -1,7 +1,8 @@
 #ifndef DIFFUSION3D_FFT_SCRATCH_H
 #define DIFFUSION3D_FFT_SCRATCH_H
 
-#include "diffusion3d_common.h"
+#include <vector>
+
 #include "diffusion3d_timestep.h"
 
 /**
@@ -11,22 +12,11 @@
 
 struct DiffusionFftScratch;
 
-/** @brief Allocates device buffers and cuFFT plans (fft_* even, fft_* >= domain + 3x3x3 kernel halo). */
 DiffusionFftScratch *diffusion3d_fft_scratch_create(int nx, int ny, int nz,
                                                     int fft_x, int fft_y, int fft_z);
 
 void diffusion3d_fft_scratch_destroy(DiffusionFftScratch *s);
 
-/**
- * @brief Precompute composed operator for a fixed macro tick.
- *
- * Computes `plan_substeps(tick_dt, compute_stability_constraint(h,D,safety))`, then stores the composed
- * kernel spectrum (K_hat_one_step)^n_sub inside `s`.
- *
- * Returns the (n_sub, dt_sub) plan used for the composition.
- *
- * Periodic wrap from the padded torus differs from the open-box stencil at boundaries; compare interiors in tests.
- */
 SubstepPlan diffusion3d_fft_scratch_rebuild_operator(DiffusionFftScratch *s,
                                                      double h,
                                                      double D,
@@ -34,10 +24,10 @@ SubstepPlan diffusion3d_fft_scratch_rebuild_operator(DiffusionFftScratch *s,
                                                      double safety);
 
 /**
- * @brief Apply the precomputed composed operator to `ctx.u` (one convolution).
+ * @brief Apply the precomputed composed operator to `field` in-place (one convolution).
  *
- * Requires `diffusion3d_fft_scratch_rebuild_operator` to have been called.
+ * `field.size()` must equal nx*ny*nz stored in the scratch workspace.
  */
-void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &ctx);
+void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, std::vector<double> &field);
 
 #endif

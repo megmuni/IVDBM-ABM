@@ -5,7 +5,7 @@
  * @file vtk_export.h
  * @brief Export 3D scalar fields to VTK ImageData (.vti) for ParaView.
  *
- * Adapted from diffusion3d/src/vtk_export.h. Uses ScalarFieldGrid / MultiSpeciesFieldGrid
+ * Adapted from the original standalone diffusion demo. Uses ScalarFieldGrid / MultiSpeciesFieldGrid
  * (row-major layout: idx = x + nx*(y + ny*z), compatible with VTK ImageData point order).
  */
 

@@ -169,10 +169,10 @@ SubstepPlan diffusion3d_fft_scratch_rebuild_operator(DiffusionFftScratch *s,
     return plan;
 }
 
-void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &ctx)
+void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, std::vector<double> &field)
 {
     assert(s != nullptr);
-    assert(ctx.nx == s->nx && ctx.ny == s->ny && ctx.nz == s->nz);
+    assert(static_cast<int>(field.size()) == s->nx * s->ny * s->nz);
 
     const int fft_x = s->fft_x;
     const int fft_y = s->fft_y;
@@ -180,11 +180,11 @@ void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &c
     const int kX = 3, kY = 3, kZ = 3;
     const int cX = 1, cY = 1, cZ = 1;
     const int fft_n = fft_x * fft_y * fft_z;
-    const int n = ctx.n;
+    const int n = s->nx * s->ny * s->nz;
 
     std::vector<float> h_tmp(static_cast<size_t>(n));
     for (int i = 0; i < n; ++i)
-        h_tmp[static_cast<size_t>(i)] = static_cast<float>(ctx.u[static_cast<size_t>(i)]);
+        h_tmp[static_cast<size_t>(i)] = static_cast<float>(field[static_cast<size_t>(i)]);
 
     cuda_ok(cudaMemcpy(s->d_data, h_tmp.data(), static_cast<size_t>(n) * sizeof(float),
                        cudaMemcpyHostToDevice),
@@ -193,7 +193,7 @@ void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &c
     cuda_ok(cudaMemset(s->d_data_pad, 0, static_cast<size_t>(fft_n) * sizeof(float)), "memset data_pad");
     padDataClampToBorder3D(s->d_data_pad, s->d_data,
                            fft_z, fft_y, fft_x,
-                           ctx.nz, ctx.ny, ctx.nx,
+                           s->nz, s->ny, s->nx,
                            kZ, kY, kX,
                            cZ, cY, cX);
     cudaDeviceSynchronize();
@@ -213,7 +213,7 @@ void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &c
              "cufftExecC2R data_spec");
     cudaDeviceSynchronize();
 
-    unpadResult3D(s->d_out, s->d_data_pad, ctx.nz, ctx.ny, ctx.nx, fft_z, fft_y, fft_x);
+    unpadResult3D(s->d_out, s->d_data_pad, s->nz, s->ny, s->nx, fft_z, fft_y, fft_x);
     cudaDeviceSynchronize();
 
     cuda_ok(cudaMemcpy(h_tmp.data(), s->d_out, static_cast<size_t>(n) * sizeof(float),
@@ -223,7 +223,7 @@ void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, Diffusion3DContext &c
     for (int i = 0; i < n; ++i)
     {
         const double v = static_cast<double>(h_tmp[static_cast<size_t>(i)]);
-        ctx.u[static_cast<size_t>(i)] = (v > 0.0) ? v : 0.0;
+        field[static_cast<size_t>(i)] = (v > 0.0) ? v : 0.0;
     }
 }
 

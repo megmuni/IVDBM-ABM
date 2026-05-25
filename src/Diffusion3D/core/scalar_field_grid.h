@@ -1,9 +1,6 @@
 /**
  * @file scalar_field_grid.h
- * @brief 3D scalar field grid for diffusion in Diffusion3D (adapted from Diffusion3DContext).
- *
- * Encapsulates a single 3D double-precision grid with row-major C layout.
- * Replaces the (u, u_next) dual-buffer model from Diffusion3DContext.
+ * @brief 3D scalar field grid for multi-species diffusion (row-major layout).
  */
 
 #ifndef DIFFUSION3D_SCALAR_FIELD_GRID_H
@@ -22,8 +19,9 @@
 class ScalarFieldGrid
 {
 public:
-    int nx_, ny_, nz_;         ///< Grid dimensions (same units as h)
-    std::vector<double> data_; ///< Flattened grid: u[x + nx*(y + ny*z)]
+    int nx_, ny_, nz_;              ///< Grid dimensions (same units as h)
+    std::vector<double> data_;      ///< Flattened grid: u[x + nx*(y + ny*z)]
+    std::vector<double> scratch_;   ///< Euler scratch buffer (same layout as data_)
 
     /**
      * @brief Construct a grid with given dimensions, initialized to zero.
@@ -33,6 +31,13 @@ public:
         : nx_(nx), ny_(ny), nz_(nz), data_(static_cast<std::size_t>(nx) * ny * nz, 0.0)
     {
         assert(nx > 0 && ny > 0 && nz > 0);
+    }
+
+    /** @brief Ensure scratch buffer matches data_ size (Euler swap pattern). */
+    void ensure_scratch()
+    {
+        if (scratch_.size() != data_.size())
+            scratch_.assign(data_.size(), 0.0);
     }
 
     /**

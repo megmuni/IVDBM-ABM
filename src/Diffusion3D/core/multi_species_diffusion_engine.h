@@ -4,27 +4,7 @@
 #include <vector>
 #include "multi_species_field_grid.h"
 #include "multi_species_diffusion_settings.h"
-
-using SpeciesId = int;
-
-/**
- * @file multi_species_diffusion_engine.h
- * @brief Abstract interface for multi-species diffusion PDE stepping (adapted from DiffusionSolver).
- *
- * Defines MultiSpeciesDiffusionEngine (Strategy pattern) and DiffusionAlgorithm enum.
- * Enables CPU explicit, GPU stencil, GPU FFT backends with identical calling convention.
- */
-
-/**
- * @enum DiffusionAlgorithm
- * @brief PDE stepping algorithm (same enum values as diffusion3d_solver.h DiffusionBackend).
- */
-enum class DiffusionAlgorithm
-{
-    ExplicitHeatEquation = 0,  ///< CPU explicit Euler with 6-point stencil
-    GpuStencil = 1,             ///< GPU 6-point stencil (Phase II)
-    GpuFftPrecomputed = 2,      ///< GPU spectral via FFT (Phase III)
-};
+#include "diffusion_algorithm.h"
 
 /**
  * @class MultiSpeciesDiffusionEngine
@@ -50,7 +30,8 @@ public:
      */
     virtual void configure_species_interval(
         const MultiSpeciesFieldGrid &grid,
-        const MultiSpeciesDiffusionSettings &settings) = 0;
+        const MultiSpeciesDiffusionSettings &settings,
+        double tick_dt) = 0;
 
     /**
      * @brief Advance all species by their configured macro timestep.

@@ -84,38 +84,46 @@ __global__ void diffusion3d_kernel(
 /**
  * @brief Host wrapper: launch `diffusion3d_kernel`, sync, swap device buffers so `d_u` holds the new field.
  */
-void diffusion3d_step_euler_gpu(Diffusion3DContext &ctx, double dt_sub, double *&d_u, double *&d_u_next)
+void diffusion3d_step_euler_gpu(int nx, int ny, int nz,
+                                double h, double D, double dt_sub,
+                                double *&d_u, double *&d_u_next,
+                                int bx, int by, int bz)
 {
 #ifdef __CUDACC__
-    assert(ctx.h > 0.0);
-    assert(ctx.D >= 0.0);
+    assert(h > 0.0);
+    assert(D >= 0.0);
     assert(dt_sub >= 0.0);
 
-    const double lap_scale = ctx.D / (ctx.h * ctx.h);
+    const double lap_scale = D / (h * h);
 
-    dim3 block(ctx.bx, ctx.by, ctx.bz);
+    dim3 block(bx, by, bz);
     dim3 grid(
-        (ctx.nx + ctx.bx - 1) / ctx.bx,
-        (ctx.ny + ctx.by - 1) / ctx.by,
-        (ctx.nz + ctx.bz - 1) / ctx.bz
-    );
+        (nx + bx - 1) / bx,
+        (ny + by - 1) / by,
+        (nz + bz - 1) / bz);
 
     diffusion3d_kernel<<<grid, block>>>(
         d_u,
         d_u_next,
-        ctx.nx,
-        ctx.ny,
-        ctx.nz,
+        nx,
+        ny,
+        nz,
         lap_scale,
-        dt_sub
-    );
+        dt_sub);
 
     cudaDeviceSynchronize();
     std::swap(d_u, d_u_next);
 #else
-    (void)ctx;
+    (void)nx;
+    (void)ny;
+    (void)nz;
+    (void)h;
+    (void)D;
     (void)dt_sub;
     (void)d_u;
     (void)d_u_next;
+    (void)bx;
+    (void)by;
+    (void)bz;
 #endif
 }

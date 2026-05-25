@@ -3,22 +3,18 @@
 
 /**
  * @file diffusion3d_cuda_check.h
- * @brief Always-executed CUDA/cuFFT status checks; safe under `NDEBUG`.
+ * @brief CUDA/cuFFT error checks that abort on failure (safe under `NDEBUG`).
  *
- * Only available in GPU builds/
+ * Include only from CUDA translation units under `core/gpu/` or from `.cpp`
+ * files compiled with `-DDIFFUSION3D_CUDA` (see `DIFFUSION3D_CUDA` CMake option).
  */
 
 #include <cstdio>
 #include <cstdlib>
 
-#ifdef GPU_DIFFUSE
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-#endif
-
-#ifdef GPU_DIFFUSE
-/** @brief Abort with a CUDA error string if `e` is not `cudaSuccess`. */
 inline void cuda_ok(cudaError_t e, const char *msg) {
   if (e != cudaSuccess) {
     std::fprintf(stderr, "CUDA error: %s (%s)\n", cudaGetErrorString(e), msg);
@@ -26,7 +22,6 @@ inline void cuda_ok(cudaError_t e, const char *msg) {
   }
 }
 
-/** @brief Abort with the cuFFT status code if `e` is not `CUFFT_SUCCESS`. */
 inline void cufft_ok(cufftResult e, const char *msg) {
   if (e != CUFFT_SUCCESS) {
     std::fprintf(stderr, "cuFFT error: code %d (%s)\n", static_cast<int>(e),
@@ -34,7 +29,5 @@ inline void cufft_ok(cufftResult e, const char *msg) {
     std::abort();
   }
 }
-
-#endif
 
 #endif // DIFFUSION3D_CUDA_CHECK_H

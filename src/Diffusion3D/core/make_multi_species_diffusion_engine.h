@@ -1,30 +1,50 @@
 /**
  * @file make_multi_species_diffusion_engine.h
- * @brief Factory for creating multi-species diffusion engines for Diffusion3D.
- *
- * Provides MakeMultiSpeciesDiffusionEngine for constructing engine instances.
+ * @brief Factory for creating multi-species diffusion engines.
  */
 
 #ifndef DIFFUSION3D_MAKE_MULTI_SPECIES_DIFFUSION_ENGINE_H
 #define DIFFUSION3D_MAKE_MULTI_SPECIES_DIFFUSION_ENGINE_H
 
 #include <memory>
+#include <stdexcept>
 #include "multi_species_diffusion_engine.h"
 #include "explicit_multi_species_heat_stepper.h"
+#include "explicit_gpu_stencil_stepper.h"
+#include "explicit_gpu_fft_stepper.h"
+
+inline DiffusionAlgorithm ResolveDiffusionAlgorithm(const MultiSpeciesDiffusionSettings &settings)
+{
+#ifndef DIFFUSION3D_CUDA
+    (void)settings;
+    return DiffusionAlgorithm::ExplicitHeatEquation;
+#else
+    return settings.algorithm;
+#endif
+}
 
 /**
- * @brief Factory function to create a MultiSpeciesDiffusionEngine.
- * @param species List of species IDs.
- * @param settings Diffusion settings.
- * @return Unique pointer to a MultiSpeciesDiffusionEngine.
+ * @brief Create a MultiSpeciesDiffusionEngine for the requested algorithm.
+ *
+ * Caller must invoke configure_species_interval(grid, settings, tick_dt) before advance.
  */
 inline std::unique_ptr<MultiSpeciesDiffusionEngine> MakeMultiSpeciesDiffusionEngine(
-    const std::vector<SpeciesId> &species,
     const MultiSpeciesDiffusionSettings &settings)
 {
-    auto engine = std::make_unique<ExplicitMultiSpeciesHeatStepper>();
-    engine->configure_species_interval(MultiSpeciesFieldGrid(species, 1, 1, 1), settings); // Dummy grid for validation
-    return engine;
+    settings.validate();
+
+    switch (ResolveDiffusionAlgorithm(settings))
+    {
+    case DiffusionAlgorithm::ExplicitHeatEquation:
+        return std::make_unique<ExplicitMultiSpeciesHeatStepper>();
+    case DiffusionAlgorithm::GpuStencil:
+        return std::make_unique<ExplicitGpuStencilStepper>();
+    case DiffusionAlgorithm::GpuFftPrecomputed:
+        return std::make_unique<ExplicitGpuFftStepper>();
+    default:
+        break;
+    }
+    throw std::logic_error("unsupported DiffusionAlgorithm");
 }
 
 #endif // DIFFUSION3D_MAKE_MULTI_SPECIES_DIFFUSION_ENGINE_H

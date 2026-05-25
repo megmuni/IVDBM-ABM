@@ -1,8 +1,6 @@
 /**
  * @file multi_species_field_grid.h
- * @brief Multi-species grid container (adapted from Diffusion3DContext with native multi-species).
- *
- * Manages per-species ScalarFieldGrid objects on a shared spatial domain.
+ * @brief Multi-species grid container on a shared spatial domain.
  */
 
 #ifndef DIFFUSION3D_MULTI_SPECIES_FIELD_GRID_H
@@ -20,9 +18,7 @@ using SpeciesId = int;
  * @class MultiSpeciesFieldGrid
  * @brief Container for all species' 3D scalar fields on shared domain (nx, ny, nz).
  *
- * Replaces Diffusion3DContext (single species) with native multi-species support.
- * Each species owns its own ScalarFieldGrid; all share dimensions and spacing h.
- * Zero-copy memory mapping enabled: species_grids_[id]->data_.data() == physical buffer.
+ * Each species owns a ScalarFieldGrid; all share dimensions and spacing h.
  */
 class MultiSpeciesFieldGrid
 {
