@@ -162,12 +162,10 @@ void processOptions(int argc, char** argv) {
 			#ifdef MODEL_3D
 				worldZwidth = atof(argv[++i]);
 				#ifdef PDE_DIFFUSE
-					#ifndef GPU_DIFFUSE
-						if (worldZwidth < 0.06){  // minimum z dimension for 3D PDE diffuseChem
-							cerr << " Error: 3D wzw must be greater than 0.06mm" << endl;
-							exit(1);
-						}
-					#endif
+					if (worldZwidth < 0.06){  // minimum z dimension for 3D PDE diffuseChem
+						cerr << " Error: 3D wzw must be greater than 0.06mm" << endl;
+						exit(1);
+					}
 				#endif
 			#else
 				cerr << "Error: 3D functionalities undefined. Enter 2D World dimensions. " << endl;

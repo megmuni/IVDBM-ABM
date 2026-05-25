@@ -24,19 +24,6 @@
 #include <new>
 #include <map>
 
-#ifdef GPU_DIFFUSE
-// Include CUDA runtime and CUFFT
-#include <cuda_runtime.h>
-#include <cufft.h>
-
-// Helper functions for CUDA
-//#include <helper_functions.h>
-//#include <helper_cuda.h>
-
-#include "../../Diffusion/convolutionFFT2D_common.h"
-#endif	// GPU_DIFFUSE
-
-
 class Cell;
 class Stem;
 class Progen;
@@ -122,16 +109,6 @@ class BMWorld: public World {
      * Parameters: void
      */
     void initializeChemCPU(); 
-
-#ifdef GPU_DIFFUSE
-    /*
-     * Description:	Initializes chemical concentrations in each patch and initializes the total concentration of each chemical
-     *
-     * Return: void
-     * Parameters: void
-     */
-    void initializeChemGPU(); 
-#endif
 
     /*
      * Description:	Initializes chemical concentrations in each patch and initializes the total concentration of each chemical
@@ -446,27 +423,6 @@ class BMWorld: public World {
     float w;    // Mass Loss (%)
     float poreWidth;    // Pore Size (um)
 
-#ifdef GPU_DIFFUSE		// Diffusion using Third buffer
-    /* 
-    typedef struct CCTX		// convolution context
-    {
-	int KH;
-	int KW;
-	int KX;
-	int KY;
-	int DH;
-	int DW;
-	int FFTH;
-	int FFTW;
-    } c_ctx;
-    */
-    typedef struct CCTX c_ctx;
-    float**   h_diffusion_results;
-    fComplex** d_kernel_spectrum;
-    fComplex** h_dKernel_spectrum;
-    c_ctx*     chem_cctx;
-#endif
-
     int typesOfChem;    // The number of different chemicals there are in the world
     vector<float> baselineChem;     // Initial amount of each chemical in the world
     ECM* worldECM;                  // Pointer to array of ECM
@@ -603,20 +559,6 @@ class BMWorld: public World {
         void diffuseChem(int ichem, float dt = 0.03, float coeff = 0.0018);
     #endif
 
-    
-#ifdef GPU_DIFFUSE
-    /*
-     * Description:	Helper function for diffuseCytokines(). 
-     *              Convolution-based chemical diffusion executed on GPU.
-     *
-     * Return: void
-     *
-     * Parameters: void
-     *             Note:  All parameters are assumed to have been intialized in cctx_t (convolution context) via initializeChemGPU()
-     */
-    void diffuseChemGPU();
-#endif
-
     /*
      * Description:	(Stage 4a)	Update chemicals to reflect next tick's states
      * 			Differ from updateChem() since this should update in the following manner:
@@ -691,7 +633,7 @@ class BMWorld: public World {
 
     // --- output function hooks ---
     // viability and differentiation are internal calculations
-    // used only in write_data_row — not exposed as hooks
+    // used only in write_data_row ? not exposed as hooks
     float calculate_viability();
     float calculate_pct_differentiated(std::map<std::string, int>& agent_counts);
 };

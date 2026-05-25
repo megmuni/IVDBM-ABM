@@ -80,11 +80,9 @@
 #define MODEL_3D // Run in 3D
 
 // Initialize Alg/Ca Scaffold (for in vitro case define MODEL_SCAFFOLD, in vivo case define MODEL_VOCALFOLD && MODEL_SCAFFOLD)
-// NOTE: GPU diffuse not implemented for MODEL_SCAFFOLD
 #define MODEL_SCAFFOLD
 //#define PEVOC_SCALE // Use PEVOC scale parameters 	(Obsolete?)
 #define PDE_DIFFUSE // Use PDE based chemical diffusion
-#define GPU_DIFFUSE // Use PDE-based Convolution-based GPU diffusion
 //#define COLLECT_CELL_INS_DEL_STATS // TODO(Nuttiiya)
 
 #define NUM_TICKS	240
