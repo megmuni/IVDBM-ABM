@@ -181,6 +181,23 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
 #ifdef MODEL_SCAFFOLD
   this->initializeCaAlg();
 #endif
+  /* Chemistry facade + diffusion adapter (h = patchlength mm). */
+  {
+    const double swelling_Q =
+        (this->Q > 0.0f) ? static_cast<double>(this->Q) : 1.0;
+    chemical_environment_.reset(new ChemicalEnvironment(nx, ny, nz));
+    chemical_environment_->load_ivdbm_default(swelling_Q);
+    chemical_environment_->bind_legacy_grid(chemAllocation, pcellgrad);
+
+    patch_field_diffusion_.reset(
+        new PatchFieldDiffusion(nx, ny, nz, this->patchlength));
+    patch_field_diffusion_->set_registry(chemical_environment_->registry());
+    chemical_environment_->set_diffusion_runner([this](double tick_dt) {
+      if (patch_field_diffusion_)
+        patch_field_diffusion_->diffuse_all_species(
+            chemical_environment_->diffusion_buffers(), tick_dt);
+    });
+  }
   this->initializeDamage();
 
   /* Calling update functions to synchronize read and write portion of the
@@ -194,9 +211,6 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
 }
 
 BMWorld::~BMWorld() {
-  free(this->D);
-  free(this->HalfLifes);
-
   for (int i = 0; i < MAX_NUM_THREADS; i++)
     delete localNewCells[i];
   cerr << " removing dead cells" << endl;
@@ -594,14 +608,10 @@ void BMWorld::initializeDamage() {
 /*
  * Each call to BMWorld::go() performs the following major steps:
  * 	(0) Cell seedings
- * 	(1) Chemical diffusion
- * 	(2) Cell function
- * 	(3) ECM function
- * 	(4) Attributes synchronization
- * 			a) Update chemicals
- * 			b) Update cells
- * 			c) Update ECM managers
- * 			d) Update patches
+ * 	(1) Chemical diffusion — diffuseCytokines(): PDE step; writes increment
+ * to d* (2) Cell function       — cells may add secretion into d* (3) ECM
+ * function (4) Attributes synchronization a) Update chemicals — updateChem():
+ * p* += d*, clear d* b) Update cells c) Update ECM managers d) Update patches
  */
 int BMWorld::go() {
   cout << "-------------------------------------------" << endl;
@@ -698,7 +708,44 @@ int BMWorld::go() {
 /* -------------------------------------------------------------------------- */
 /*                      MAJOR SECTION SUBROUTINES - begin                     */
 /* -------------------------------------------------------------------------- */
-void BMWorld::diffuseCytokines() {} // No-op for now
+/*
+ * Chemical diffusion tick — delegated to ChemicalEnvironment (see go()
+ * ordering). PDE numerics remain in PatchFieldDiffusion /
+ * src/Diffusion3D/core/.
+ */
+
+const ChemicalEnvironment *BMWorld::chemical_environment() const
+{
+  return chemical_environment_.get();
+}
+
+float BMWorld::chem_concentration(SpeciesId species, int patch_index) const
+{
+  if (!chemical_environment_)
+    return 0.f;
+  return chemical_environment_->concentration_at(patch_index, species);
+}
+
+void BMWorld::chem_add_secretion(SpeciesId species, int patch_index,
+                                 float delta) const
+{
+  if (chemical_environment_)
+    chemical_environment_->accumulate_secretion(patch_index, species, delta);
+}
+
+float BMWorld::chem_concentration_channel(int concentration_channel,
+                                          int patch_index) const
+{
+  if (!chemical_environment_)
+    return 0.f;
+  return chemical_environment_->concentration_at_channel(patch_index,
+                                                         concentration_channel);
+}
+
+void BMWorld::diffuseCytokines() {
+  if (chemical_environment_)
+    chemical_environment_->run_diffusion_phase(kTickIntervalMinutes);
+}
 
 void BMWorld::runCells() {
   int cellsSize =
@@ -750,188 +797,6 @@ void BMWorld::requestECMfragments() {
   }
 }
 
-/* Each patch diffuses 50% of its chemical equally to its 8 neighboring patches.
- * (Each neighbor receives 1/8 of 50% of the patch's original amount of chemical
- * neighboring patch. */
-void BMWorld::NetlogoDiffuse() {
-  cerr << " NetLogoDiffuse " << endl;
-  for (int ichem = TNF; ichem <= IL1beta; ichem++) {
-    for (int iz = 0; iz < nz; iz++) {
-      for (int iy = 0; iy < ny; iy++) {
-        for (int ix = 0; ix < nx; ix++) {
-          int in = ix + iy * nx + iz * nx * ny; // Patch row major index
-          if (this->chemAllocation[ichem][in] <= 0) {
-            this->chemAllocation[ichem][in] = 0;
-            continue; // No chemical to diffuse
-          }
-
-          float value = 0.5 * this->chemAllocation[ichem][in] / 8;
-          for (int dx = -1; dx < 2; dx++) {
-            for (int dy = -1; dy < 2; dy++) {
-              int dz = 0;
-              int neighborindex =
-                  (ix + dx) + (iy + dy) * nx + (iz + dz) * ny * nx;
-              if (ix + dx < 0 || ix + dx >= nx || iy + dy < 0 || iy + dy >= ny)
-                continue;
-              if (dx == 0 && dy == 0)
-                continue;
-              if (ix % (nx - 1) == 0 && dx == 1)
-                continue; // TODO(Kim): INSERT REF? (What is this?)
-              if (ix % nx == 0 && dx == -1)
-                continue; // TODO(Kim): INSERT REF? (What is this?)
-              this->chemAllocation[ichem + 8][neighborindex] += value;
-              this->chemAllocation[ichem + 8][in] -= value;
-            }
-          }
-        }
-      }
-    }
-  }
-  for (int xi = 0; xi < nx; xi++) {
-    for (int yi = 0; yi < ny; yi++) {
-      for (int zi = 0; zi < nz; zi++) {
-        int in = xi + yi * nx + zi * nx * ny;
-
-        // Update patch chemical concentration:
-        this->WorldChem.pTNF[in] =
-            this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];
-        this->WorldChem.pTGF[in] =
-            this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];
-        this->WorldChem.pIL1beta[in] =
-            this->WorldChem.dIL1beta[in] + this->WorldChem.pTGF[in];
-        this->WorldChem.dTNF[in] = 0;
-        this->WorldChem.dTGF[in] = 0;
-        this->WorldChem.dIL1beta[in] = 0;
-      }
-    }
-  }
-}
-
-// Discretization of PDE Diffusion Equation using central difference
-// approximation Note: diffuseChem() will very likely get replaced by a new
-// correct version, thus this doesn't need comments just yet
-void BMWorld::diffuseChem(int ichem, float dt, float coeff) {
-  // Calculate change in concentration over dt at each patch
-  float *tempPtr = new float[nx * ny * nz];
-#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
-#pragma omp parallel
-  {
-    int tid = omp_get_thread_num();
-    if (tid == 0)
-      *ntp = omp_get_num_threads();
-    start_times[tid] = omp_get_wtime();
-#pragma omp for nowait
-#else
-#ifdef V_a
-#pragma omp parallel for schedule(dynamic)
-#else
-#pragma omp parallel
-  {
-#pragma omp for
-#endif // V_a or V_b
-#endif
-
-    // Calculate central difference approximation at each patch along each
-    // direction
-    for (int yi = 1; yi < ny - 1; yi++) {
-      for (int xi = 1; xi < nx - 1; xi++) {
-#ifdef MODEL_3D
-        for (int zi = 1; zi < nz - 1; zi++) {
-#else
-      int zi = 0;
-#endif
-          int index = xi + yi * nx + zi * nx * ny;
-          REAL d;
-          int XPlusOne = (xi + 1) + yi * nx + zi * nx * ny;
-          int XMinusOne = (xi - 1) + yi * nx + zi * nx * ny;
-          int YPlusOne = xi + (yi + 1) * nx + zi * nx * ny;
-          int YMinusOne = xi + (yi - 1) * nx + zi * nx * ny;
-#ifdef MODEL_3D
-          int ZPlusOne = xi + yi * nx + (zi + 1) * nx * ny;
-          int ZMinusOne = xi + yi * nx + (zi - 1) * nx * ny;
-#endif
-
-          // Central Difference Approximation along x and y directions:
-          float d2phi_dx2 = (this->chemAllocation[ichem][XPlusOne] -
-                             2. * this->chemAllocation[ichem][index] +
-                             this->chemAllocation[ichem][XMinusOne]) /
-                            (dx * dx);
-          float d2phi_dy2 = (this->chemAllocation[ichem][YPlusOne] -
-                             2. * this->chemAllocation[ichem][index] +
-                             this->chemAllocation[ichem][YMinusOne]) /
-                            (dy * dy);
-          // 2D Central Differnce Approximation of Diffusion:
-          tempPtr[index] = dt * coeff * (d2phi_dx2 + d2phi_dy2);
-#ifdef MODEL_3D
-          // Central Difference Approximation along z direction
-          float d2phi_dz2 = (this->chemAllocation[ichem][ZPlusOne] -
-                             2. * this->chemAllocation[ichem][index] +
-                             this->chemAllocation[ichem][ZMinusOne]) /
-                            (dz * dz);
-          // 3D Central Differnce Approximation of Diffusion
-          tempPtr[index] = dt * coeff * (d2phi_dx2 + d2phi_dy2 + d2phi_dz2);
-        }
-#endif
-      }
-    }
-
-#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
-    end_times[tid] = omp_get_wtime();
-    elapsed1[tid] = end_times[tid] - start_times[tid];
-#pragma omp barrier
-#endif
-
-#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
-    start_times[tid] = omp_get_wtime();
-#pragma omp for nowait
-#else
-#ifdef V_a
-#pragma omp parallel for schedule(dynamic)
-#else
-#pragma omp for
-#endif // V_a or V_b
-#endif
-
-    // Update concentration from central difference scheme
-    for (int yi = 0; yi < ny; yi++) {
-#pragma omp simd
-      for (int xi = 0; xi < nx; xi++) {
-#ifdef MODEL_3D
-        for (int zi = 0; zi < nz; zi++) {
-#else
-      int zi = 0;
-#endif
-
-          int index = xi + yi * nx + zi * nx * ny;
-          if (yi == 0 || yi == ny - 1 || xi == 0 || xi == nx - 1 || zi == 0 ||
-              zi == nz - 1) { // constant padding boundary condition
-            int countCaAlg = BMWorld::initialCaAlg;
-            this->chemAllocation[ichem][index] =
-                this->baselineChem[ichem] / countCaAlg;
-          } else {
-            this->chemAllocation[ichem][index] += tempPtr[index];
-          }
-
-#ifdef MODEL_3D
-        }
-#endif
-      }
-    }
-  }
-#ifdef PROFILE_THREAD_LEVEL_CHEM_DIFF
-  end_times[tid] = omp_get_wtime();
-  elapsed2[tid] = end_times[tid] - start_times[tid];
-#pragma omp barrier
-}
-
-cout << "Chemical " << ichem << ":" << endl;
-for (int t = 0; t < num_threads; t++)
-  cout << "	thread " << t << " took: [" << elapsed1[t] << "]	["
-       << elapsed2[t] << "]" << endl;
-#endif
-delete[] tempPtr;
-}
-
 void BMWorld::updateTotalChem() {
   this->WorldChem.totalTNF = 0;
   this->WorldChem.totalTGF = 0;
@@ -971,69 +836,8 @@ void BMWorld::updateTotalChem() {
 }
 
 void BMWorld::updateChemCPU() {
-  int totaldam = countPatchType(damage);
-  this->WorldChem.totalTNF = 0;
-  this->WorldChem.totalTGF = 0;
-  this->WorldChem.totalIL1beta = 0;
-
-  float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
-  for (int zi = 0; zi < nz; zi++) {
-#pragma omp parallel for reduction(+ : sumTNF, sumTGF, sumIL1)
-    for (int yi = 0; yi < ny; yi++) {
-#pragma omp simd
-      for (int xi = 0; xi < nx; xi++) {
-        int in = xi + yi * nx + zi * nx * ny;
-
-// Update patch chemical concentration
-#ifndef CALIBRATION
-        this->WorldChem.pTNF[in] =
-            this->WorldChem.dTNF[in] +
-            this->WorldChem.pTNF
-                [in]; //*0.02; //
-                      ////this->WorldChem.pTNF[in] = this->WorldChem.dTNF[in] +
-                      //(this->WorldChem.pTNF[in])*(BMWorld::cytokineDecay[0]);
-        this->WorldChem.pTGF[in] =
-            this->WorldChem.dTGF[in] +
-            this->WorldChem.pTGF
-                [in]; //*0.02; //
-                      ////this->WorldChem.pTGF[in] = this->WorldChem.dTGF[in] +
-                      //(this->WorldChem.pTGF[in])*(BMWorld::cytokineDecay[1]);
-        this->WorldChem.pIL1beta[in] =
-            this->WorldChem.dIL1beta[in] +
-            this->WorldChem.pIL1beta
-                [in]; //*0.02; //
-                      ////this->WorldChem.pIL1beta[in] =
-                      //this->WorldChem.dIL1beta[in] +
-                      //(this->WorldChem.pIL1beta[in])*(BMWorld::cytokineDecay[4]);
-#else
-        this->WorldChem.pTNF[in] =
-            this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in] * 0.02;
-        this->WorldChem.pTGF[in] =
-            this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in] * 0.02;
-        this->WorldChem.pIL1beta[in] =
-            this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in] * 0.02;
-#endif
-
-        this->WorldChem.dTNF[in] = 0;
-        this->WorldChem.dTGF[in] = 0;
-        this->WorldChem.dIL1beta[in] = 0;
-
-        // Update gradient
-        float patchIL1beta = this->WorldChem.pIL1beta[in];
-        float patchTNF = this->WorldChem.pTNF[in];
-        float patchTGF = this->WorldChem.pTGF[in];
-        this->WorldChem.pcellgrad[in] = patchTGF;
-
-        // Update total chemical values
-        sumTNF += this->WorldChem.pTNF[in];
-        sumTGF += this->WorldChem.pTGF[in];
-        sumIL1 += this->WorldChem.pIL1beta[in];
-      }
-    }
-  }
-  this->WorldChem.totalTNF += sumTNF;
-  this->WorldChem.totalTGF += sumTGF;
-  this->WorldChem.totalIL1beta += sumIL1;
+  if (chemical_environment_)
+    chemical_environment_->merge_and_reset_secretion(this->WorldChem);
 }
 
 void BMWorld::updateChem() { updateChemCPU(); }
@@ -1273,7 +1077,7 @@ void BMWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
       }
 #endif
       ///* Added by MM to check types of cell stages and add to respective
-      ///counters: */
+      /// counters: */
       // if (typeid(*this) == typeid(Stem)) {
       //	Stem::numOfStem++;
       // }
@@ -1301,7 +1105,7 @@ void BMWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
       }
 #endif
       ///* Added by MM to check types of cell stages and add to respective
-      ///counters: */
+      /// counters: */
       // if (typeid(*this) == typeid(Progen)) {
       //	Progen::numOfProgen++;
       // }
@@ -1328,7 +1132,7 @@ void BMWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
       }
 #endif
       ///* Added by MM to check types of cell stages and add to respective
-      ///counters: */
+      /// counters: */
       // if (typeid(*this) == typeid(NP)) {
       //	NP::numOfNP++;
       // }
@@ -1561,6 +1365,10 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 #else
     this->Q = (0.4 * Alg_ww + 0.4) * log(tmin) + (3 * Alg_ww + 7.9);
 #endif
+    /* Swelling reduces effective diffusivity: D_eff = base_D * Q in
+     * SpeciesRegistry. */
+    if (this->Q > 0.0f && chemical_environment_)
+      chemical_environment_->set_swelling_ratio(static_cast<double>(this->Q));
     // this->Q=0;
     // cout << " this->Q =" << (this->SwellRatio[0]<<"*"<<Alg_ww<< " + "<<
     // this->SwellRatio[1])<<"*log("<<tmin<<") +
@@ -1863,60 +1671,9 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 
       /* --------------------------- CYTOKINE PROPERTIES
        * -------------------------- */
-      // cout << "Reading Cytokine Properties..." << endl;
-      float D;
-      int HL_s;
-      char tag[200];
-      do {
-        if (numChem < 1) {
-          cerr << "Warning: No chem allocated!!!" << endl;
-          break;
-        }
-        // Allocate memory for diffusion coefficients and half-lifes
-        this->D = (float *)malloc(sizeof(float) * numChem);
-        this->HalfLifes = (int *)malloc(sizeof(int) * numChem);
-        while (infile >> tag) {
-          // infile >> tag;
-          if (!strcmp(tag, "D:")) {
-            infile >> D;
-            for (int ic = 0; ic < numChem; ic++)
-              this->D[ic] = D;
-            cout << "	setting all D to: " << D << endl;
-          } else if (!strcmp(tag, "HL:")) {
-            infile >> HL_s;
-            for (int ic = 0; ic < numChem; ic++)
-              this->HalfLifes[ic] = HL_s;
-            cout << "	setting all HLs to: " << HL_s << endl;
-
-          } else if (!strcmp(tag, "D_TNF:")) {
-            infile >> D;
-            this->D[TNF] = D;
-            cout << "	D_TNF: " << D << endl;
-          } else if (!strcmp(tag, "HL_TNF:")) {
-            infile >> HL_s;
-            this->HalfLifes[TNF] = HL_s;
-            cout << "	HL_TNF: " << HL_s << endl;
-          } else if (!strcmp(tag, "D_TGF:")) {
-            infile >> D;
-            this->D[TGF] = D;
-            cout << "	D_TGF: " << D << endl;
-          } else if (!strcmp(tag, "HL_TGF:")) {
-            infile >> HL_s;
-            this->HalfLifes[TGF] = HL_s;
-            cout << "	HL_TGF: " << HL_s << endl;
-          } else if (!strcmp(tag, "D_IL1beta:")) {
-            infile >> D;
-            this->D[IL1beta] = D;
-            cout << "	D_IL1beta: " << D << endl;
-          } else if (!strcmp(tag, "HL_IL1beta:")) {
-            infile >> HL_s;
-            this->HalfLifes[IL1beta] = HL_s;
-            cout << "	HL_IL1beta: " << HL_s << endl;
-          } else
-            cout << "	invalid tag: " << tag << endl;
-        }
-      } while (0);
-
+      /* Per-species D and half-life from config (D:/HL: tags) removed.
+       * Diffusivity is defined in SpeciesRegistry::ivdbm_default(); Q updated
+       * each tick. */
       infile.close();
       cout << "-------------------------------------------" << endl;
     } // end of if file opens properly
@@ -1950,11 +1707,11 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //		ofstream tgf_file("output/tgf_line.csv", ios::app);
   //
   //		output_file << "clock (30 min)" << "," << "Day" << "," << "Total
-  //TNF (pg)" << "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," <<
+  // TNF (pg)" << "," << "Total IL1b (pg)" << "," << "Total TGF (pg)" << "," <<
   //"Collagen (ug)" << "," << "Aggrecan (ug)" << "," << "Total Cells" << "," <<
   //"Stem Cells" << ", Pre-NP Cells" << ", NP Cells" << ", Live Cells" << ",
-  //Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass
-  //Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" <<
+  // Dead Cells" << ", Elastic Modulus(kPa) " << ", Swelling Ratio " << ", Mass
+  // Loss(%) " << ", Alginate_wv(%)" << ", Alginate_Mw(kDa)" << ", Ca_XL(M)" <<
   //", Viability Rate(%)" << ", Differentiation (%)" << endl; //output_file <<
   //"Tropocollagen" << ", " << "Collagen" << ", " << "FragentedCollagen" << ", "
   //<< "Tropoaggrecan" << ", " << "Aggrecan" << ", " << "FragmentedAggrecan" <<
@@ -1981,7 +1738,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //	int alive = 0; int dead = 0;
   //	float cellViability = 0;
   //	float perDiff = 0; // percent of NP cells out of total cells at a given
-  //tick 	int x = 0;
+  // tick 	int x = 0;
   //
   //	int cellsSize = cells.size();
   //	for (int i = 0; i < cellsSize; i++) {
@@ -2007,12 +1764,12 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //	cout << " np cells: " << npSize << endl;
   //
   //	for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny;
-  //in++) { 		orig_coll += this->worldECM[in].ocollagen[read_t]; 		new_coll +=
-  //this->worldECM[in].ncollagen[read_t]; 		frag_coll +=
-  //this->worldECM[in].fcollagen[read_t]; 		orig_agg +=
-  //this->worldECM[in].oaggrecan[read_t]; 		new_agg +=
-  //this->worldECM[in].naggrecan[read_t]; 		frag_agg +=
-  //this->worldECM[in].faggrecan[read_t];
+  // in++) { 		orig_coll += this->worldECM[in].ocollagen[read_t];
+  // new_coll += this->worldECM[in].ncollagen[read_t]; 		frag_coll +=
+  // this->worldECM[in].fcollagen[read_t]; 		orig_agg +=
+  // this->worldECM[in].oaggrecan[read_t]; 		new_agg +=
+  // this->worldECM[in].naggrecan[read_t]; 		frag_agg +=
+  // this->worldECM[in].faggrecan[read_t];
   //	}
   //
   //	//calculating viable cells
@@ -2032,7 +1789,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //	}
   //	else {
   //		cellViability = (static_cast<float>(liveCells) / (liveCells +
-  //deadCells)) * 100;
+  // deadCells)) * 100;
   //	}
   //	perDiff = (static_cast<float>(npSize) / cells.actualSize()) * 100;
   //
@@ -2043,26 +1800,26 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //	output_file << this->WorldChem.totalIL1beta << ",";
   //	output_file << this->WorldChem.totalTGF << ",";
   //	output_file << fixed << std::setprecision(5) << new_coll << "," <<
-  //new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll <<
+  // new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll <<
   //"," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg
   //<< "," << frag_agg << "," << HA << "," << fHA << "," <<
-  //Patch::numOfEachTypes[4] << "," ;
+  // Patch::numOfEachTypes[4] << "," ;
   //	//output_file << fixed << std::setprecision(5) << new_coll << "," <<
-  //new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll <<
+  // new_agg << ","; //ECM 	//output_file << orig_coll << "," << new_coll <<
   //"," << frag_coll << "," << orig_agg << "," ; 	//output_file << new_agg
   //<< "," << frag_agg << "," << HA << "," << fHA << "," <<
-  //Patch::numOfEachTypes[4] << "," ;
+  // Patch::numOfEachTypes[4] << "," ;
   //
   //	//output_file << af << "," << f+af << ","; //cells
   //	output_file << cells.actualSize() << "," << stemSize << "," <<
-  //progenSize << "," << npSize << "," << liveCells << "," << deadCells << ",";
+  // progenSize << "," << npSize << "," << liveCells << "," << deadCells << ",";
   //// cell counts
   //
   // #ifdef MODEL_SCAFFOLD
   //	output_file << this->E << " , " << this->Q << ", " << this->w << "," <<
-  //this->Alg_wv << "," << this->Alg_Mn << "," << this->pXL << "," <<
-  //cellViability << "," << perDiff << endl; #else 	output_file << endl; #endif
-  //	output_file.close();
+  // this->Alg_wv << "," << this->Alg_Mn << "," << this->pXL << "," <<
+  // cellViability << "," << perDiff << endl; #else 	output_file << endl;
+  // #endif 	output_file.close();
   //
   //	cout << " Collagen: " << new_coll << endl;
   //	cout << " Aggrecan: " << new_agg << endl;

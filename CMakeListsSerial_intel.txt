@@ -49,7 +49,7 @@ find_package(CUDA REQUIRED)
 #SET(CMAKE_BUILD_TYPE DEBUG) #to enable debugging. Change to release for production
 SET(CMAKE_BUILD_TYPE RELEASE)
 
-set(NYVONNA_LIBS World Agent FieldVariable Patch ECM ArrayChain Utilities Diffusion)
+set(NYVONNA_LIBS World Agent FieldVariable Patch ECM ArrayChain Utilities)
 
 
 #added "Patch" as part of library - Yvonna, Jun 6 2013
@@ -78,7 +78,6 @@ include_directories(${CUDA_SAMPLES_INC})
 add_subdirectory(src)
 
 add_executable(Nyvonna main.cpp)
-add_executable(ex_diffuse_temperature examples/ex_diffuse_temperature.cpp)
 add_executable(testRun examples/test_not_main.cpp)
 
 message("here 1")
@@ -91,7 +90,6 @@ set( allLIBS ${NYVONNA_LIBS})
 >>>>>>> sensitivityanalysis
 
 target_link_libraries(Nyvonna ${allLIBS})
-target_link_libraries(ex_diffuse_temperature ${allLIBS})
 target_link_libraries(testRun ${allLIBS})
 
 message("here 2")

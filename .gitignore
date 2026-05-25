@@ -9,3 +9,6 @@
 
 build*/
 output*/
+
+## CMake
+CMakefiles/

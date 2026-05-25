@@ -1,15 +1,17 @@
 set(WORLD_SRC World.cpp PatchFieldDiffusion.cpp)
 file( GLOB USR_WORLD_SRC Usr_World/*.cpp)
-#modified by Yvonna Jun 17th, 2013: add subdirectory Usr_World
 
 set(world_lib_type SHARED)
-#because Agent needs functions from WHWorld!!!!
 add_library(World ${world_lib_type} ${WORLD_SRC} ${USR_WORLD_SRC})
 
 target_include_directories(World PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(World FieldVariable Chemistry)
-#World is shared and is referenced by Agent! Without the last command, the linking process wouldnt work!
+
+if(BUILD_DIFFUSION3D)
+    target_link_libraries(World diffusion3d_core_lib)
+    set_source_files_properties(PatchFieldDiffusion.cpp PROPERTIES COMPILE_FLAGS "-std=c++17")
+endif()
 
 ## Added by Nuttiiya for atomic flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")

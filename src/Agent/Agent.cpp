@@ -224,8 +224,20 @@ void Agent::wiggle() {
 
 } // End Agent::wiggle()
 
+float Agent::patchChemConcentration(int species_id, int patch_index) {
+	if (Agent::agentWorldPtr)
+		return Agent::agentWorldPtr->chem_concentration(species_id, patch_index);
+	return 0.f;
+}
+
+void Agent::addPatchChemSecretion(int species_id, int patch_index, float delta) {
+	if (Agent::agentWorldPtr)
+		Agent::agentWorldPtr->chem_add_secretion(species_id, patch_index, delta);
+}
+
 float Agent::meanNeighborChem(int chemIndex) {
-	int totalchemical = 0, numberofpatches = 0;
+	float totalchemical = 0.f;
+	int numberofpatches = 0;
   	
 	// Location of agent in x,y,z dimensions of world.
 	int x = this->ix[read_t];
@@ -243,14 +255,14 @@ float Agent::meanNeighborChem(int chemIndex) {
 			for (int dX = -1; dX <= 1; dX++) {
 				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
 				int in = (x + dX) + (y + dY)*nx + (z + dZ)*nx*ny;
-				totalchemical += Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+				if (Agent::agentWorldPtr)
+					totalchemical += Agent::agentWorldPtr->chem_concentration_channel(
+					    chemIndex, in);
 				numberofpatches++;
 			}
 		}
 	}
-	//cout << "totalchemical = " << totalchemical << endl;
-	//cout << "nuumberofpatches = " << numberofpatches << endl;
-	return totalchemical/numberofpatches;
+	return totalchemical / numberofpatches;
 }
 
 int Agent::countNeighborECM(int ECMIndex) {
@@ -348,7 +360,8 @@ bool Agent::moveToHighestChem(int chemIndex) {
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 
-	double highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][index];
+	double highestchem =
+	    Agent::agentWorldPtr->chem_concentration_channel(chemIndex, index);
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
@@ -376,8 +389,11 @@ bool Agent::moveToHighestChem(int chemIndex) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
 					
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					if (Agent::agentWorldPtr->chemAllocation[chemIndex][in] > highestchem) {
-						highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+					const float neighbor =
+					    Agent::agentWorldPtr->chem_concentration_channel(
+					        chemIndex, in);
+					if (neighbor > highestchem) {
+						highestchem = neighbor;
 						dx = deltax;
 						dy = deltay;
 						dz = deltaz;
@@ -394,8 +410,11 @@ bool Agent::moveToHighestChem(int chemIndex) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
 					
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					if (Agent::agentWorldPtr->chemAllocation[chemIndex][in] > highestchem) {
-						highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+					const float neighbor =
+					    Agent::agentWorldPtr->chem_concentration_channel(
+					        chemIndex, in);
+					if (neighbor > highestchem) {
+						highestchem = neighbor;
 						dx = deltax;
 						dy = deltay;
 						dz = deltaz;

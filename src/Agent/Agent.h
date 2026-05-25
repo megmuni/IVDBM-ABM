@@ -129,6 +129,12 @@ class Agent {
      */
     float meanNeighborChem(int chemIndex);
 
+    /** Local p* at patch (species id TNF / TGF / IL1beta). Phase III.6. */
+    float patchChemConcentration(int species_id, int patch_index);
+
+    /** Add to per-tick d* accumulator for a species at patch. Phase III.6. */
+    void addPatchChemSecretion(int species_id, int patch_index, float delta);
+
     /*
      * Description:	Determines the number of cells of type cellIndex from 27 neighboring patches.
      *

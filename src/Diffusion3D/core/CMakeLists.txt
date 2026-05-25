@@ -35,6 +35,7 @@ target_link_libraries(diffusion3d_core_objs PUBLIC diffusion3d_core diffusion3d_
 set_target_properties(diffusion3d_core_objs PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
+    POSITION_INDEPENDENT_CODE ON
 )
 
 # Linkable archive for standalone demo and external consumers (I.8).
@@ -49,4 +50,5 @@ endif()
 set_target_properties(diffusion3d_core_lib PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
+    POSITION_INDEPENDENT_CODE ON
 )

@@ -13,6 +13,8 @@
 #define	BMWORLD_H
 
 #include "../World.h"
+#include "../PatchFieldDiffusion.h"
+#include "../../Chemistry/chemical_environment.h"
 #include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../../Agent/Usr_Agents/Cell.h"
 #include "../../ECM/ECM.h"
@@ -23,6 +25,7 @@
 #include <vector>
 #include <new>
 #include <map>
+#include <memory>
 
 class Cell;
 class Stem;
@@ -276,6 +279,14 @@ class BMWorld: public World {
      */
     static double reportHour();
 
+    /** Phase III agent/cell access to the chemistry facade (may be null before init). */
+    const ChemicalEnvironment *chemical_environment() const;
+
+    float chem_concentration(SpeciesId species, int patch_index) const;
+    void chem_add_secretion(SpeciesId species, int patch_index, float delta) const;
+    float chem_concentration_channel(int concentration_channel,
+                                     int patch_index) const;
+
     /*
      * Description:	Determines the number of days elapsed
      *
@@ -413,8 +424,14 @@ class BMWorld: public World {
   
     // Instance of type to manage chemicals in the world:
     Chemical WorldChem;
-    /* Used to allocate the chemicals as floats. It is an array of float*, where each float* points to array of concentrations of a given chemical at different patches. 
-     * chemAllocation[chemIndex][patchIndex] can be used as a multidimensional array to access a given chemical concentration using indexing. It is linked to WorldChem. */
+    /*
+     * Per-species patch buffers (legacy layout; see enums.h for channel indices):
+     *   p*  (pTNF, pTGF, pIL1beta) ? concentration at each patch; read-only during diffusion
+     *   d*  (dTNF, dTGF, dIL1beta) ? per-tick accumulator: diffusion increment + cell secretion
+     *
+     * chemAllocation[channel][patchIndex] is linked to WorldChem pointers above.
+     * End-of-tick merge (updateChemCPU): p* += d*, then d* = 0.
+     */
     float** chemAllocation;
 
     float E;    // Elastic Modulus (Pa)
@@ -432,8 +449,6 @@ class BMWorld: public World {
     vector<Cell*>* localNewCells[MAX_NUM_THREADS];    // Vector of pointers to local lists of cell pointers to add to global list
     vector<int> initHAcenters;          // Vector of patches which can be centers for sprouting original hyaluronan
     unsigned seeds[MAX_NUM_THREADS];    // Seeds used to generate random numbers for each thread
-    float *D;          // Array of diffusion coefficients, gets allocated in userInput()
-    int *HalfLifes;    // Arsray of cytokine half-life (seconds), gets allocated in userInput()
 
     vector<float> tgfLine; // Vector to store TGF values along an x-face line from boundary to center of ABM grid
 
@@ -444,6 +459,14 @@ class BMWorld: public World {
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
 
+    /*
+     * Chemical tick (Phase III): environment owns SpeciesRegistry + tick API;
+     * patch_field_diffusion_ runs Diffusion3D CPU stepper via injected runner.
+     */
+    std::unique_ptr<ChemicalEnvironment> chemical_environment_;
+    std::unique_ptr<PatchFieldDiffusion> patch_field_diffusion_;
+
+    static constexpr double kTickIntervalMinutes = 30.0;
 
  protected:
      // --- output file hooks ---
@@ -483,12 +506,13 @@ class BMWorld: public World {
     //void seedCells(float hours);
 
     /*
-     * Description:	(Stage 1)	Entry point function for diffusing chemicals
-     * 							Selects the appropriate diffusion function to apply
+     * Description: (Stage 1) Diffuse all registry species over one tick.
+     *
+     * Clears d*, reads p*, writes diffusion increment into d* (cells add secretion later).
+     * PDE numerics live in PatchFieldDiffusion / diffusion3d_core ? not in this file.
      *
      * Return: void
-     *
-     * Parameters: 
+     * Parameters: void
      */
     void diffuseCytokines();
 
@@ -529,62 +553,24 @@ class BMWorld: public World {
     void requestECMfragments();
 
     /*
-     * Description:	Helper function for diffuseCytokines(). 
-     *              Update chemical  concentration of all chemicals at each patch over a given time step using Netlogo diffusion procedure.
+     * Description: (Stage 4a) Commit per-tick chemical changes to patch concentrations.
+     *
+     * For each diffusing species: p* += d* (diffusion increment + cell secretion), then d* = 0.
+     * Called after executeCells() so d* holds both contributions when merged.
      *
      * Return: void
-     *
-     * Parameters: void
-     */
-    void NetlogoDiffuse();
-
-    /*
-     * Description:	Helper function for diffuseCytokines(). 
-     *              Update chemical concentration of all chemicals at each patch over a given
-     * 				time step using partial differential diffusion equation.
-     *
-     * Return: void
-     *
-     * Parameters: coeff  -- Diffusion coefficient (mm^2/min)
-     *             dt     -- Time step ( min) 
-     *             NOTE: Examples of diffusion coefficients can be found at http://www.math.ubc.ca/~ais/website/status/diffuse.html
-     */
-    #ifdef MODEL_3D
-        // 3D stability condition, dt < dx^2/6*D min = 0.020833
-        //assuming dx = dy = dz = 0.015 mm, D = 0.0018 mm^2/min :
-        void diffuseChem(int ichem, float dt = 0.02, float coeff = 0.0018);      
-    #else
-        // 2D stability condition, dt < dx^2/4*D min = 0.03125
-        // assuming dx = dy = 0.015 mm, D = 0.0018 mm^2/min
-        void diffuseChem(int ichem, float dt = 0.03, float coeff = 0.0018);
-    #endif
-
-    /*
-     * Description:	(Stage 4a)	Update chemicals to reflect next tick's states
-     * 			Differ from updateChem() since this should update in the following manner:
-     * 				p<chem> = d<chem> + t<chem>*(1-gamma)
-     * 			where gamma is a cytokine specific constant derived from the cytokine's halflife.
-     * 				gamma = 1 - 2^(-1/halflife)
-     * Return: void
-     *
      * Parameters: void
      */
     void updateChem();
 
     /*
-     * Description:	Update chemicals to reflect next tick's states.
-     * 			This is called once at the initilzation state.
-     * 			Differ from updateChem() since this should update in the following manner:
-     * 				p<chem> = d<chem> + p<chem>*(1-gamma)
-     * 			where gamma is a cytokine specific constant derived from the cytokine's halflife.
-     * 				gamma = 1 - 2^(-1/halflife)
+     * Description: Same merge as updateChem(); CPU implementation used each tick.
      *
      * Return: void
-     *
      * Parameters: void
      */
     void updateChemCPU();
-    
+
     /*
      * Description:	Helper function for ECM updates. Execute updates for ALL ECM managers.
      *

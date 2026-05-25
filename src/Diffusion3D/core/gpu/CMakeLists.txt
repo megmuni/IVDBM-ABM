@@ -31,3 +31,7 @@ endif()
 
 target_include_directories(diffusion3d_core_gpu PUBLIC ${DIFFUSION3D_GPU_INCLUDES})
 target_link_libraries(diffusion3d_core_gpu PUBLIC diffusion3d_core)
+# The GPU code is not thread-safe, so we need to mark it as position-independent code.
+# This is a hack to get around the fact that the GPU code is not thread-safe.
+# It is not a good solution, but it is the best we can do for now.
+set_target_properties(diffusion3d_core_gpu PROPERTIES POSITION_INDEPENDENT_CODE ON)

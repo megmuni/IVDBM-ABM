@@ -25,9 +25,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/cuda" ${CMAKE_MODULE_PATH})
 message(" (2) cxx compiler = ${CMAKE_CXX_COMPILER}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
-# find_package(CUDA)
-find_package(CUDA QUIET REQUIRED)
-# find_package(CUDA 2.1)
+# find_package(CUDA) — optional; World uses CPU Diffusion3D only (Phase II.8)
+find_package(CUDA QUIET)
+if(CUDA_FOUND)
+  message("CUDA found")
+else()
+  message("CUDA not found — ABM builds CPU-only")
+endif()
 # find_package(CUDA 2.2)
 # find_package(CUDA 2.3)
 # find_package(CUDA 2.1 REQUIRED)
@@ -41,84 +45,61 @@ find_package(CUDA QUIET REQUIRED)
 # find_package(CUDA 2.3 EXACT REQUIRED)
 # find_package(CUDA 2.2 EXACT QUIET REQUIRED)
 
-SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
+if(CUDA_FOUND)
+  SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  if(DEFINED CUDA_TOOLKIT_ROOT_DIR)
+    set(CUDA_SAMPLES_INC ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
+    if(EXISTS "${CUDA_SAMPLES_INC}")
+      message(STATUS "CUDA_SAMPLES_INC = ${CUDA_SAMPLES_INC}")
+      cuda_include_directories(${CUDA_SAMPLES_INC})
+      include_directories(${CUDA_SAMPLES_INC})
+    endif()
+    set(CUDA_TARGET_LIB ${CUDA_TOOLKIT_ROOT_DIR}/include)
+    message(STATUS "CUDA_TARGET_LIB = ${CUDA_TARGET_LIB}")
+    include_directories(${CUDA_TARGET_LIB})
+  endif()
+endif()
 
- if (CUDA_FOUND)
-   message("CUDA found")
- else()
-   message("CUDA not found")
- endif()
-
-
-#added by Yvonna June 2 2013 to enable nvcc 
 message(" (3) cxx compiler = ${CMAKE_CXX_COMPILER}")
 
 #SET(CMAKE_BUILD_TYPE DEBUG) #to enable debugging. Change to release for production
 SET(CMAKE_BUILD_TYPE RELEASE)
 
-
-set(NYVONNA_LIBS World Agent FieldVariable Patch ECM ArrayChain Utilities Diffusion)
-
-
-#added "Patch" as part of library - Yvonna, Jun 6 2013
+set(NYVONNA_LIBS World Agent FieldVariable Patch ECM ArrayChain Utilities)
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}; src)
 
-#####################
-#
-#  MPI
-#####################
-#find_package ( MPI )
 message(" --->")
 message(" CXX is set to ${CXX}")
 message(" cxx_compiler is set to ${CMAKE_CXX_COMPILER}")
 
-
-#set(CUDA_SAMPLES_INC ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
-set(CUDA_SAMPLES_INC /home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/Common)
-message(STATUS "CUDA_SAMPLES_INC = ${CUDA_SAMPLES_INC}")
-cuda_include_directories(${CUDA_SAMPLES_INC})
-include_directories(${CUDA_SAMPLES_INC})
-
-# Add your custom CUDA samples include path
-include_directories(/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples)
-include_directories(/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc)
-
-
-# Set CUDA NVCC flags to support compute capability 9.0 (for NVIDIA H100 on Nibi - Aug 2025)
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_90,code=sm_90 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
-
-# Set CUDA NVCC flags to support compute capability 6.0 (for Tesla P100)
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_60,code=sm_60 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61) 
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_70,code=sm_70 -gencode arch=compute_72,code=sm_72) 
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11; -gencode arch=compute_70,code=sm_70 -gencode arch=compute_72,code=sm_72 "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples" "-I/home/meghana7/projects/def-nicoleli/meghana7/cuda-samples/common/inc")
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_37,code=sm_37 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_61,code=sm_61)
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35)
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11;-gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61)
-
-
-set (CUDA_TARGET_LIB ${CUDA_TOOLKIT_ROOT_DIR}/include)
-message(STATUS "CUDA_TARGET_LIB = ${CUDA_TARGET_LIB}")
-include_directories(${CUDA_TARGET_LIB})
-
 add_subdirectory(src)
 
 add_executable(Nyvonna main.cpp)
-add_executable(ex_diffuse_temperature examples/ex_diffuse_temperature.cpp)
-add_executable(testRun examples/test_not_main.cpp)
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/ex_diffuse_temperature.cpp")
+  add_executable(ex_diffuse_temperature examples/ex_diffuse_temperature.cpp)
+endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/test_not_main.cpp")
+  add_executable(testRun examples/test_not_main.cpp)
+endif()
 
 message("here 1")
 
-set( allLIBS ${NYVONNA_LIBS} cufft cudart)
-
+set(allLIBS ${NYVONNA_LIBS})
+if(CUDA_FOUND)
+  list(APPEND allLIBS cufft cudart)
+endif()
 
 target_link_libraries(Nyvonna ${allLIBS})
-target_link_libraries(ex_diffuse_temperature ${allLIBS})
-target_link_libraries(testRun ${allLIBS})
+if(TARGET ex_diffuse_temperature)
+  target_link_libraries(ex_diffuse_temperature ${allLIBS})
+endif()
+if(TARGET testRun)
+  target_link_libraries(testRun ${allLIBS})
+endif()
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lGL -lGLU -lglut")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lGL -lGLU -lglut")

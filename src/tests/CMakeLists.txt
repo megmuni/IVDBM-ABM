@@ -16,3 +16,7 @@ endif()
 if(TARGET Chemistry)
     add_subdirectory(Chemistry)
 endif()
+
+if(TARGET diffusion3d_core_lib AND TARGET Chemistry)
+    add_subdirectory(World)
+endif()
