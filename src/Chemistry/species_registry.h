@@ -3,10 +3,10 @@
 
 /**
  * @file species_registry.h
- * @brief Central registry of diffusing species and their physical parameters.
+ * @brief Lists diffusing species and maps them to grid channels and diffusivity.
  *
- * Cytokine-specific names and chemAllocation channel indices live here (and in
- * factory helpers), not in PatchFieldDiffusion or diffusion3d_core.
+ * Keeps cytokine names and channel indices out of PatchFieldDiffusion and
+ * Diffusion3D core code.
  */
 
 #include "species_id.h"
@@ -15,18 +15,22 @@
 #include <string>
 #include <vector>
 
+/** Metadata for one diffusing species on the patch grid. */
 struct SpeciesDescriptor
 {
     SpeciesId id = -1;
     std::string name;
-    /** Base diffusivity scale (mm²/min) before hydrogel swelling `Q` is applied. */
+    /** Base diffusivity (mm²/min) before swelling ratio Q is applied. */
     double base_diffusivity = 0.0;
-    /** chemAllocation index for present/concentration channel (e.g. pTNF). */
+    /** Grid channel for stored concentration (e.g. pTNF). */
     int concentration_channel = -1;
-    /** chemAllocation index for diffused output channel (e.g. dTNF). */
+    /** Grid channel for per-tick delta / diffusion output (e.g. dTNF). */
     int diffused_channel = -1;
 };
 
+/**
+ * @brief Registry of species, effective D, and channel indices.
+ */
 class SpeciesRegistry
 {
 public:
@@ -39,7 +43,7 @@ public:
     std::vector<SpeciesId> diffusing_species() const;
     bool empty() const { return species_.empty(); }
 
-    /** IVDBM baseline cytokines (TNF, TGF, IL-1β) with legacy diffusivity constants. */
+    /** TNF, TGF, and IL-1β with IVDBM baseline coefficients scaled by @p swelling_ratio_Q. */
     static SpeciesRegistry ivdbm_default(double swelling_ratio_Q);
 
 private:

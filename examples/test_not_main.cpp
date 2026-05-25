@@ -363,7 +363,9 @@ int outputChem(BMWorld* myWorld, char* fileName, int chemIndex) {
 		for (int iy = 0; iy < myWorld->ny; iy++) {
 			for (int ix = 0; ix < myWorld->nx; ix++) {
 				int in = ix + iy*myWorld->nx + iz*myWorld->nx*myWorld->ny;
-				outfile << (myWorld->chemAllocation[chemIndex][in]) << " ";
+				const float *grid =
+				    myWorld->chemical_environment()->channel_grid(chemIndex);
+				outfile << grid[in] << " ";
 			}
 			outfile << endl;
 		}

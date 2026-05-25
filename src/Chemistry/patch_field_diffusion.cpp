@@ -1,8 +1,8 @@
-#include "PatchFieldDiffusion.h"
+#include "patch_field_diffusion.h"
 
-#include "make_multi_species_diffusion_engine.h"
-#include "multi_species_diffusion_settings.h"
-#include "multi_species_field_grid.h"
+#include "../Diffusion3D/core/make_multi_species_diffusion_engine.h"
+#include "../Diffusion3D/core/multi_species_diffusion_settings.h"
+#include "../Diffusion3D/core/multi_species_field_grid.h"
 
 #include <algorithm>
 #include <cmath>

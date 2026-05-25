@@ -181,22 +181,17 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
 #ifdef MODEL_SCAFFOLD
   this->initializeCaAlg();
 #endif
-  /* Chemistry facade + diffusion adapter (h = patchlength mm). */
+  /* Chemistry controller. */
   {
     const double swelling_Q =
         (this->Q > 0.0f) ? static_cast<double>(this->Q) : 1.0;
-    chemical_environment_.reset(new ChemicalEnvironment(nx, ny, nz));
+    chemical_environment_.reset(
+        new ChemicalEnvironment(nx, ny, nz, this->patchlength));
     chemical_environment_->load_ivdbm_default(swelling_Q);
-    chemical_environment_->bind_legacy_grid(chemAllocation, pcellgrad);
-
-    patch_field_diffusion_.reset(
-        new PatchFieldDiffusion(nx, ny, nz, this->patchlength));
-    patch_field_diffusion_->set_registry(chemical_environment_->registry());
-    chemical_environment_->set_diffusion_runner([this](double tick_dt) {
-      if (patch_field_diffusion_)
-        patch_field_diffusion_->diffuse_all_species(
-            chemical_environment_->diffusion_buffers(), tick_dt);
-    });
+    this->typesOfChem = static_cast<int>(this->baselineChem.size()) * 2 + 3;
+    chemical_environment_->allocate_channel_storage(this->typesOfChem,
+                                                    pcellgrad);
+    this->initializeChemBaseline();
   }
   this->initializeDamage();
 
@@ -232,11 +227,6 @@ BMWorld::~BMWorld() {
     delete cell;
   }
 
-  for (int ic = 0; ic < this->typesOfChem; ic++)
-    if (chemAllocation[ic] != NULL)
-      delete[] chemAllocation[ic];
-  if (chemAllocation != NULL)
-    delete[] chemAllocation;
   if (worldPatch != NULL)
     delete[] worldPatch;
   if (worldECM != NULL)
@@ -411,88 +401,61 @@ void BMWorld::initializeCaAlg() {
 }
 #endif // MODEL_SCAFFOLD
 
-void BMWorld::initializeChem() { this->initializeChemCPU(); }
+void BMWorld::initializeChem() {
+  /* Channel count only; grids are allocated on ChemicalEnvironment after load.
+   */
+  this->typesOfChem = static_cast<int>(this->baselineChem.size()) * 2 + 3;
+}
 
-void BMWorld::initializeChemCPU() {
-  /* Allocate two-dimensional matrix (chemAllocation[chemtype][patch index]) to
-   * store quantities of each chemical at each patch */
-  this->typesOfChem = (this->baselineChem.size()) * 2 + 3;
-  this->chemAllocation = new float *[this->typesOfChem];
-  // cout << "number of chem allocated is "<< this->typesOfChem << endl;
-
-  for (int ic = 0; ic < this->typesOfChem; ic++) {
-    if (util::ABMerror(!(this->chemAllocation[ic] = new float[nx * ny * nz]),
-                       "InitializeChem mem alloc error!", __FILE__, __LINE__))
+void BMWorld::initializeChemBaseline() {
+  if (!chemical_environment_) {
+    if (util::ABMerror(1, "ChemicalEnvironment not initialized", __FILE__,
+                       __LINE__))
       exit(1);
   }
 
-  // Link World attribute chemAllocation with Chemical class attribute
-  // WorldChem:
-  this->WorldChem.pTNF = this->chemAllocation[pTNF];
-  this->WorldChem.pTGF = this->chemAllocation[pTGF];
-  this->WorldChem.pIL1beta = this->chemAllocation[pIL1beta];
-  this->WorldChem.dTNF = this->chemAllocation[dTNF];
-  this->WorldChem.dTGF = this->chemAllocation[dTGF];
-  this->WorldChem.dIL1beta = this->chemAllocation[dIL1beta];
-  this->WorldChem.pcellgrad = this->chemAllocation[pcellgrad];
-
-  // Initialize chemical concentrations:
+  chemical_environment_->clear_delta_channels();
   this->WorldChem.totalTNF = 0;
   this->WorldChem.totalTGF = 0;
   this->WorldChem.totalIL1beta = 0;
 
-  int countCaAlg = this->countPatchType(CaAlg);
-  if (this->baselineChem.size() == 4) {
-    for (int iz = 0; iz < this->nz; iz++) {
-/* Try initializing chemicals with the threads that will access them later since
-the default allocation policy on Linux platforms is first-touch. This is a
-best-effort implementation, since we cannot guarantee size of data accessed per
-thread to be an integer multiple of page size. */
+  if (this->baselineChem.size() != 4) {
+    if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__, __LINE__))
+      exit(1);
+    return;
+  }
+
+  const int countCaAlg = this->countPatchType(CaAlg);
+  const float tnf0 = this->baselineChem[TNF] / countCaAlg;
+  const float tgf0 = this->baselineChem[TGF] / countCaAlg;
+  const float il10 = this->baselineChem[IL1beta] / countCaAlg;
+
+  for (int iz = 0; iz < this->nz; iz++) {
 #pragma omp parallel for
-      for (int iy = 0; iy < this->ny; iy++) {
-        for (int ix = 0; ix < this->nx; ix++) {
-          int in = ix + iy * nx + iz * nx * ny;
-          this->WorldChem.dTNF[in] = 0;
-          this->WorldChem.dTGF[in] = 0;
-          this->WorldChem.dIL1beta[in] = 0;
-
-          // Baseline chemical concentrations are initialized in tissue
-          if (this->worldPatch[in].type[read_t] == CaAlg) {
-            this->WorldChem.pTNF[in] = this->baselineChem[TNF] / countCaAlg;
-            this->WorldChem.pTGF[in] = this->baselineChem[TGF] / countCaAlg;
-            this->WorldChem.pIL1beta[in] =
-                this->baselineChem[IL1beta] / countCaAlg;
-          } else {
-            this->WorldChem.pTNF[in] = 0;
-            this->WorldChem.pTGF[in] = 0;
-            this->WorldChem.pIL1beta[in] = 0;
-          }
-
-          // Initialize chemical gradient levels that agents are attracted by
-          float patchIL1 = this->WorldChem.pIL1beta[in];
-          float patchTNF = this->WorldChem.pTNF[in];
-          float patchTGF = this->WorldChem.pTGF[in];
-          float patchcollagen = this->worldECM[in].fcollagen[read_t];
-          // float grad = patchTNF + patchTGF + patchcollagen + patchIL1;
-          this->WorldChem.pcellgrad[in] = patchTGF;
-#pragma omp critical
-          {
-            // Initialize total chemical concentration:
-            this->WorldChem.totalTNF += this->WorldChem.pTNF[in];
-            this->WorldChem.totalTGF += this->WorldChem.pTGF[in];
-            this->WorldChem.totalIL1beta += this->WorldChem.pIL1beta[in];
-          }
+    for (int iy = 0; iy < this->ny; iy++) {
+      for (int ix = 0; ix < this->nx; ix++) {
+        const int in = ix + iy * nx + iz * nx * ny;
+        if (this->worldPatch[in].type[read_t] == CaAlg) {
+          chemical_environment_->set_concentration(in, TNF, tnf0);
+          chemical_environment_->set_concentration(in, TGF, tgf0);
+          chemical_environment_->set_concentration(in, IL1beta, il10);
+        } else {
+          chemical_environment_->set_concentration(in, TNF, 0.f);
+          chemical_environment_->set_concentration(in, TGF, 0.f);
+          chemical_environment_->set_concentration(in, IL1beta, 0.f);
         }
       }
     }
-    cout << "		Initial cytokine concentrations: totalTNF = "
-         << this->WorldChem.totalTNF
-         << ", totalTGF = " << this->WorldChem.totalTGF
-         << ", totalIL1beta = " << this->WorldChem.totalIL1beta << endl;
-  } else if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__,
-                            __LINE__))
-    exit(1);
-  // cout << "Finished initializing chem" << endl;
+  }
+
+  chemical_environment_->update_chemotaxis_from_species(TGF);
+  chemical_environment_->recompute_world_totals();
+  chemical_environment_->copy_totals_to(this->WorldChem);
+
+  cout << "		Initial cytokine concentrations: totalTNF = "
+       << this->WorldChem.totalTNF
+       << ", totalTGF = " << this->WorldChem.totalTGF
+       << ", totalIL1beta = " << this->WorldChem.totalIL1beta << endl;
 }
 
 void BMWorld::initializeCells() {
@@ -664,7 +627,6 @@ int BMWorld::go() {
 #else // PROFILE_MAJOR_STEPS
 
   // For testing purposes:
-  // this->updateTotalChem();
   // cout << "  TNF: " << this->WorldChem.totalTNF << ", TGF: " <<
   // this->WorldChem.totalTGF << ", IL1beta: " << this->WorldChem.totalIL1beta
   // << endl;
@@ -710,36 +672,59 @@ int BMWorld::go() {
 /* -------------------------------------------------------------------------- */
 /*
  * Chemical diffusion tick — delegated to ChemicalEnvironment (see go()
- * ordering). PDE numerics remain in PatchFieldDiffusion /
- * src/Diffusion3D/core/.
+ * ordering). PDE numerics run inside ChemicalEnvironment (Diffusion3D).
  */
 
-const ChemicalEnvironment *BMWorld::chemical_environment() const
-{
+ChemicalEnvironment *BMWorld::chemical_environment() {
   return chemical_environment_.get();
 }
 
-float BMWorld::chem_concentration(SpeciesId species, int patch_index) const
-{
+const ChemicalEnvironment *BMWorld::chemical_environment() const {
+  return chemical_environment_.get();
+}
+
+float BMWorld::world_total_tnf() const {
+  if (chemical_environment_)
+    return chemical_environment_->total_tnf();
+  return WorldChem.totalTNF;
+}
+
+float BMWorld::world_total_tgf() const {
+  if (chemical_environment_)
+    return chemical_environment_->total_tgf();
+  return WorldChem.totalTGF;
+}
+
+float BMWorld::world_total_il1beta() const {
+  if (chemical_environment_)
+    return chemical_environment_->total_il1beta();
+  return WorldChem.totalIL1beta;
+}
+
+float BMWorld::chem_concentration(SpeciesId species, int patch_index) const {
   if (!chemical_environment_)
     return 0.f;
   return chemical_environment_->concentration_at(patch_index, species);
 }
 
 void BMWorld::chem_add_secretion(SpeciesId species, int patch_index,
-                                 float delta) const
-{
+                                 float delta) const {
   if (chemical_environment_)
     chemical_environment_->accumulate_secretion(patch_index, species, delta);
 }
 
 float BMWorld::chem_concentration_channel(int concentration_channel,
-                                          int patch_index) const
-{
+                                          int patch_index) const {
   if (!chemical_environment_)
     return 0.f;
   return chemical_environment_->concentration_at_channel(patch_index,
                                                          concentration_channel);
+}
+
+float BMWorld::chemotaxis_at(int patch_index) const {
+  if (!chemical_environment_)
+    return 0.f;
+  return chemical_environment_->chemotaxis_at(patch_index);
 }
 
 void BMWorld::diffuseCytokines() {
@@ -785,9 +770,9 @@ void BMWorld::requestECMfragments() {
     BMWorld::highTNFdamage = false;
     for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
 #ifndef CALIBRATION
-      if (this->WorldChem.pTNF[in] > 10) {
+      if (this->chem_concentration(TNF, in) > 10.f) {
 #else
-      if (this->WorldChem.pTNF[in] > 10) {
+      if (this->chem_concentration(TNF, in) > 10.f) {
 #endif
         cout << " Degrade ECM " << endl;
         this->worldECM[in].fragmentNCollagen();
@@ -797,47 +782,11 @@ void BMWorld::requestECMfragments() {
   }
 }
 
-void BMWorld::updateTotalChem() {
-  this->WorldChem.totalTNF = 0;
-  this->WorldChem.totalTGF = 0;
-  this->WorldChem.totalIL1beta = 0;
-
-  float sumTNF = 0, sumTGF = 0, sumIL1 = 0;
-  for (int zi = 0; zi < nz; zi++) {
-    for (int yi = 0; yi < ny; yi++) {
-      for (int xi = 0; xi < nx; xi++) {
-        int in = xi + yi * nx + zi * nx * ny;
-        this->WorldChem.pTNF[in] =
-            this->WorldChem.dTNF[in] + this->WorldChem.pTNF[in];
-        this->WorldChem.pTGF[in] =
-            this->WorldChem.dTGF[in] + this->WorldChem.pTGF[in];
-        this->WorldChem.pIL1beta[in] =
-            this->WorldChem.dIL1beta[in] + this->WorldChem.pIL1beta[in];
-
-        this->WorldChem.dTNF[in] = 0;
-        this->WorldChem.dTGF[in] = 0;
-        this->WorldChem.dIL1beta[in] = 0;
-
-        // Update gradient
-        float patchIL1beta = this->WorldChem.pIL1beta[in];
-        float patchTNF = this->WorldChem.pTNF[in];
-        float patchTGF = this->WorldChem.pTGF[in];
-        this->WorldChem.pcellgrad[in] = patchTGF;
-
-        sumTNF += this->WorldChem.pTNF[in];
-        sumTGF += this->WorldChem.pTGF[in];
-        sumIL1 += this->WorldChem.pIL1beta[in];
-      }
-    }
-  }
-  this->WorldChem.totalTNF += sumTNF;
-  this->WorldChem.totalTGF += sumTGF;
-  this->WorldChem.totalIL1beta += sumIL1;
-}
-
 void BMWorld::updateChemCPU() {
-  if (chemical_environment_)
-    chemical_environment_->merge_and_reset_secretion(this->WorldChem);
+  if (!chemical_environment_)
+    return;
+  chemical_environment_->merge_and_reset_secretion();
+  chemical_environment_->copy_totals_to(this->WorldChem);
 }
 
 void BMWorld::updateChem() { updateChemCPU(); }
@@ -869,8 +818,7 @@ void BMWorld::executeAllECMResetRequests() {
 void BMWorld::updateECMManagers() {
 #ifdef PROFILE_ECM_UPDATE
   TIME_STAGE(this->executeAllECMUpdates(), "	updateECM()", "	");
-  TIME_STAGE(this->executeAllECMResetRequests(), "	resetrequests()",
-             "	");
+  TIME_STAGE(this->executeAllECMResetRequests(), "	resetrequests()", "	");
 #else
   this->executeAllECMUpdates();
   this->executeAllECMResetRequests();

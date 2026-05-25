@@ -13,7 +13,6 @@
 #define	BMWORLD_H
 
 #include "../World.h"
-#include "../PatchFieldDiffusion.h"
 #include "../../Chemistry/chemical_environment.h"
 #include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../../Agent/Usr_Agents/Cell.h"
@@ -97,29 +96,11 @@ class BMWorld: public World {
      */
     void initializePatches();
 
-    /*
-     * Description:	Helper function update WorldChem TotalChem variables for testing
-     *
-     * Return: void
-     * Parameters: void
-     */
-    void updateTotalChem(); 
+    /** Record channel count from baselineChem; grid alloc is on ChemicalEnvironment. */
+    void initializeChem();
 
-    /*
-     * Description:	Initializes chemical concentrations in each patch and initializes the total concentration of each chemical
-     *
-     * Return: void
-     * Parameters: void
-     */
-    void initializeChemCPU(); 
-
-    /*
-     * Description:	Initializes chemical concentrations in each patch and initializes the total concentration of each chemical
-     *
-     * Return: void
-     * Parameters: void
-     */
-    void initializeChem(); 
+    /** Set baseline p* on patches via ChemicalEnvironment (after facade is wired). */
+    void initializeChemBaseline(); 
 
     /*
      * Description:	Initializes all cells to their correct patches
@@ -279,13 +260,20 @@ class BMWorld: public World {
      */
     static double reportHour();
 
-    /** Phase III agent/cell access to the chemistry facade (may be null before init). */
+    /** Chemistry facade (null before constructor finishes chem init). */
+    ChemicalEnvironment *chemical_environment();
     const ChemicalEnvironment *chemical_environment() const;
+
+    /** Integrated cytokine masses (from environment when available). */
+    float world_total_tnf() const;
+    float world_total_tgf() const;
+    float world_total_il1beta() const;
 
     float chem_concentration(SpeciesId species, int patch_index) const;
     void chem_add_secretion(SpeciesId species, int patch_index, float delta) const;
     float chem_concentration_channel(int concentration_channel,
                                      int patch_index) const;
+    float chemotaxis_at(int patch_index) const;
 
     /*
      * Description:	Determines the number of days elapsed
@@ -422,17 +410,8 @@ class BMWorld: public World {
  ****************************************************************/
     double patchlength;    // The length of each patch
   
-    // Instance of type to manage chemicals in the world:
+    /** World-level cytokine totals (grid owned by chemical_environment_). */
     Chemical WorldChem;
-    /*
-     * Per-species patch buffers (legacy layout; see enums.h for channel indices):
-     *   p*  (pTNF, pTGF, pIL1beta) ? concentration at each patch; read-only during diffusion
-     *   d*  (dTNF, dTGF, dIL1beta) ? per-tick accumulator: diffusion increment + cell secretion
-     *
-     * chemAllocation[channel][patchIndex] is linked to WorldChem pointers above.
-     * End-of-tick merge (updateChemCPU): p* += d*, then d* = 0.
-     */
-    float** chemAllocation;
 
     float E;    // Elastic Modulus (Pa)
     float pXL;  // Crosslink Density (mmol/mL)
@@ -459,12 +438,8 @@ class BMWorld: public World {
     float Ca_v, Ca_wv;    // Volume (mL) and final concentration (% w/v) of Ca 3400
     float highMW_alg, lowMW_alg; // ratio components of high and low MW kDa in the alginate hydrogel
 
-    /*
-     * Chemical tick (Phase III): environment owns SpeciesRegistry + tick API;
-     * patch_field_diffusion_ runs Diffusion3D CPU stepper via injected runner.
-     */
+    /** Owns patch grids, registry, and per-tick diffusion. */
     std::unique_ptr<ChemicalEnvironment> chemical_environment_;
-    std::unique_ptr<PatchFieldDiffusion> patch_field_diffusion_;
 
     static constexpr double kTickIntervalMinutes = 30.0;
 
@@ -509,7 +484,7 @@ class BMWorld: public World {
      * Description: (Stage 1) Diffuse all registry species over one tick.
      *
      * Clears d*, reads p*, writes diffusion increment into d* (cells add secretion later).
-     * PDE numerics live in PatchFieldDiffusion / diffusion3d_core ? not in this file.
+     * PDE numerics live in ChemicalEnvironment / diffusion3d_core ? not in this file.
      *
      * Return: void
      * Parameters: void

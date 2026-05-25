@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-TEST_CASE("SpeciesRegistry ivdbm_default diffusivity matches legacy Q scaling", "[chemistry][registry]")
+TEST_CASE("SpeciesRegistry ivdbm_default diffusivity scales with Q", "[chemistry][registry]")
 {
     const double Q = 0.85;
     SpeciesRegistry registry = SpeciesRegistry::ivdbm_default(Q);

@@ -11,6 +11,7 @@
  */
 
 #include "Agent.h"
+#include "../Chemistry/chemical_environment.h"
 #include "../World/Usr_World/biomaterialWorld.h"
 #include "../enums.h"
 #include <iostream>
@@ -21,7 +22,14 @@
 
 BMWorld* Agent::agentWorldPtr = NULL;
 Patch* Agent::agentPatchPtr = NULL;
-ECM* Agent::agentECMPtr = NULL; 
+ECM* Agent::agentECMPtr = NULL;
+
+ChemicalEnvironment* Agent::chemicalEnvironment()
+{
+	if (Agent::agentWorldPtr)
+		return Agent::agentWorldPtr->chemical_environment();
+	return nullptr;
+}
 
 int Agent::nx = 0;
 int Agent::ny = 0;
@@ -224,40 +232,46 @@ void Agent::wiggle() {
 
 } // End Agent::wiggle()
 
-float Agent::patchChemConcentration(int species_id, int patch_index) {
-	if (Agent::agentWorldPtr)
-		return Agent::agentWorldPtr->chem_concentration(species_id, patch_index);
+float Agent::patchChemConcentration(SpeciesId species, int patch_index) {
+	const ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		return env->concentration_at(patch_index, species);
 	return 0.f;
 }
 
-void Agent::addPatchChemSecretion(int species_id, int patch_index, float delta) {
-	if (Agent::agentWorldPtr)
-		Agent::agentWorldPtr->chem_add_secretion(species_id, patch_index, delta);
+void Agent::addPatchChemSecretion(SpeciesId species, int patch_index, float delta) {
+	ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		env->accumulate_secretion(patch_index, species, delta);
 }
 
-float Agent::meanNeighborChem(int chemIndex) {
+float Agent::patchChemotaxis(int patch_index) {
+	const ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		return env->chemotaxis_at(patch_index);
+	return 0.f;
+}
+
+float Agent::meanNeighborConcentration(SpeciesId species) {
 	float totalchemical = 0.f;
 	int numberofpatches = 0;
-  	
-	// Location of agent in x,y,z dimensions of world.
+
 	int x = this->ix[read_t];
 	int y = this->iy[read_t];
 	int z = this->iz[read_t];
-  	
-	// Number of patches in x,y,z dimensions of world
+
 	int nx = Agent::nx;
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 
-	// Count number of chemicals of type chemIndex in all neighbors inside world dimensions:
 	for (int dZ = -1; dZ <= 1; dZ++) {
 		for (int dY = -1; dY <= 1; dY++) {
 			for (int dX = -1; dX <= 1; dX++) {
-				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-				int in = (x + dX) + (y + dY)*nx + (z + dZ)*nx*ny;
-				if (Agent::agentWorldPtr)
-					totalchemical += Agent::agentWorldPtr->chem_concentration_channel(
-					    chemIndex, in);
+				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny ||
+				    z + dZ < 0 || z + dZ >= nz)
+					continue;
+				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+				totalchemical += this->patchChemConcentration(species, in);
 				numberofpatches++;
 			}
 		}
@@ -342,26 +356,24 @@ int Agent::countNeighborCells(int cellIndex) {
 	return numberofcells;
 }
 
-bool Agent::moveToHighestChem(int chemIndex) {
+bool Agent::moveTowardChemotaxis() {
 	int read_index;
-	
-	// Check if the location has been modified in this tick
-	if (isModified(this->index)) read_index = write_t;	// If it has, work off of the intermediate value
-	else read_index = read_t;							// If it has NOT, work off of the original value
 
-    // Location of agent in x,y,z dimensions of world.
+	if (isModified(this->index))
+		read_index = write_t;
+	else
+		read_index = read_t;
+
 	int ix = this->ix[read_index];
 	int iy = this->iy[read_index];
 	int iz = this->iz[read_index];
 	int index = this->index[read_index];
-    
-	// Number of patches in x,y,z dimensions of world.
+
 	int nx = Agent::nx;
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 
-	double highestchem =
-	    Agent::agentWorldPtr->chem_concentration_channel(chemIndex, index);
+	double highestchem = this->patchChemotaxis(index);
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
@@ -369,29 +381,22 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		switch (this->type[read_t]) {
 			case stem: {
 				int radius = Stem::migrationSpeed;
-				//agentType = stem;
 			}
 			case progen: {
 				int radius = Progen::migrationSpeed;
-				//agentType = progen;
 			}
 			case np: {
 				int radius = NP::migrationSpeed;
-				//agentType = np;
 			}
 		}
-        //int radius = Agent::migrationSpeed; // Cells in Ca-Alg can move up to 'migrationSpeed' patches radius per tick 
 
-        // Find the neighbor inside world dimensions with the highest concentration of chemical of type chemIndex:
 		for (int deltaz = -radius; deltaz <= radius; deltaz++) {
 			for (int deltay = -radius; deltay <= radius; deltay++) {
 				for (int deltax = -radius; deltax <= radius; deltax++) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
-					
+
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					const float neighbor =
-					    Agent::agentWorldPtr->chem_concentration_channel(
-					        chemIndex, in);
+					const float neighbor = this->patchChemotaxis(in);
 					if (neighbor > highestchem) {
 						highestchem = neighbor;
 						dx = deltax;
@@ -403,16 +408,13 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		}
 
 	#else
-		// Find the neighbor inside world dimensions with the highest concentration of chemical of type chemIndex:
 		for (int deltaz = -1; deltaz <= 1; deltaz++) {
 			for (int deltay = -1; deltay <= 1; deltay++) {
 				for (int deltax = -1; deltax <= 1; deltax++) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
-					
+
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					const float neighbor =
-					    Agent::agentWorldPtr->chem_concentration_channel(
-					        chemIndex, in);
+					const float neighbor = this->patchChemotaxis(in);
 					if (neighbor > highestchem) {
 						highestchem = neighbor;
 						dx = deltax;
@@ -424,7 +426,6 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		}
 	#endif
 
-	// Move to the neighbor with the highest concentration of chemical of type chemIndex if it is not the agent's current patch:
 	if (dx == 0 && dy == 0 && dz == 0) return false;
 	int newIndex = (ix + dx) + (iy + dy)*nx + (iz + dz)*nx*ny;
 	return this->move(dx, dy, dz, read_index);

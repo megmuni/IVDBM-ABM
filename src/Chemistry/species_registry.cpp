@@ -54,7 +54,7 @@ SpeciesRegistry SpeciesRegistry::ivdbm_default(double swelling_ratio_Q)
     SpeciesRegistry registry;
     registry.set_swelling_ratio(swelling_ratio_Q);
 
-    // Matches legacy diffuseCytokines() coefficients: D = base * Q (mm²/min).
+    // IVDBM baseline coefficients: effective D = base_diffusivity * Q (mm²/min).
     const struct
     {
         SpeciesId id;

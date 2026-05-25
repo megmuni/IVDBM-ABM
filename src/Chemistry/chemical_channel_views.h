@@ -3,25 +3,24 @@
 
 /**
  * @file chemical_channel_views.h
- * @brief Canonical names for per-species patch buffers (Phase III).
+ * @brief Named views into per-species patch chemistry buffers.
  *
- * During transition, secretion_delta and the diffusion export share the legacy
- * d* channel within one tick (diffuse then cells, then merge). Future work may
- * split into separate arrays.
+ * Within one tick, the delta row holds diffusion output and cell secretion
+ * before merge adds it to the concentration row.
  */
 
 #include <memory>
 #include <vector>
 
-/** Owns one species' per-patch fields (Phase III+); optional shared storage. */
+/** Optional owned buffer for a single species grid (future shared storage). */
 using ChemicalFieldBuffer = std::shared_ptr<std::vector<float>>;
 
-/** Non-owning views into legacy chemAllocation rows for one species. */
+/** Non-owning pointers into ChemicalEnvironment channel rows for one species. */
 struct SpeciesChannelViews
 {
-    float *concentration = nullptr;    /**< Legacy p* */
-    float *secretion_delta = nullptr;  /**< Legacy d* (accumulator pre-merge) */
-    float *diffused = nullptr;         /**< Same as secretion_delta until channels split */
+    float *concentration = nullptr;   /**< Stored level (p* channel). */
+    float *secretion_delta = nullptr; /**< Per-tick accumulator (d* channel). */
+    float *diffused = nullptr;        /**< Same as secretion_delta until channels are split. */
 };
 
 #endif

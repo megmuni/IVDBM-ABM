@@ -275,7 +275,7 @@ void Cell::cellSniff() {
 	float speed = get_migration_speed();
 
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
-		if (rollDice(80) && this->moveToHighestChem(pcellgrad) == true){
+		if (rollDice(80) && this->moveTowardChemotaxis() == true){
 			#ifdef MODEL_SCAFFOLD
 			if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 				// Move up to "migrationSpeed" patches per tick:
@@ -382,9 +382,9 @@ void Cell::proliferate() {
 	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
 
 	// calculating local cytokines
-	float meanTNF = this->meanNeighborChem(TNF);
-	float meanTGF = this->meanNeighborChem(TGF);
-	float meanIL1 = this->meanNeighborChem(IL1beta);
+	float meanTNF = this->meanNeighborConcentration(TNF);
+	float meanTGF = this->meanNeighborConcentration(TGF);
+	float meanIL1 = this->meanNeighborConcentration(IL1beta);
 
 	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF); // get the proliferation probability for the cell type
 
@@ -402,9 +402,9 @@ void Cell::differentiate() {
 	if (!isProliferative()) return;
 
 	// calculating local cytokines
-	float meanTNF = this->meanNeighborChem(TNF);
-	float meanTGF = this->meanNeighborChem(TGF);
-	float meanIL1 = this->meanNeighborChem(IL1beta);
+	float meanTNF = this->meanNeighborConcentration(TNF);
+	float meanTGF = this->meanNeighborConcentration(TGF);
+	float meanIL1 = this->meanNeighborConcentration(IL1beta);
 
 	float prob = get_diff_prob(meanTGF, meanIL1, meanTNF);
 	int daughterType = get_daughter_type();
@@ -430,9 +430,9 @@ void Cell::ecm_synthesis() {
 	int in = this->index[read_t];
 
 	// Calculates chemical gradients and patch chemical concentrations:
-	float meanTNF = this->meanNeighborChem(pTNF);
-	float meanTGF = this->meanNeighborChem(pTGF);
-	float meanIL1 = this->meanNeighborChem(pIL1beta);
+	float meanTNF = this->meanNeighborConcentration(TNF);
+	float meanTGF = this->meanNeighborConcentration(TGF);
+	float meanIL1 = this->meanNeighborConcentration(IL1beta);
 	float patchTNF = this->patchChemConcentration(TNF, in);
 	float patchTGF = this->patchChemConcentration(TGF, in);
 	float patchIL1beta = this->patchChemConcentration(IL1beta, in);
@@ -1117,7 +1117,7 @@ float NP::get_migration_speed() {
 }
 
 bool NP::can_tgf_excite() {
-	return this->meanNeighborChem(pTGF) > 0;
+	return this->meanNeighborConcentration(TGF) > 0;
 }
 
 float NP::get_apoptosis_chance() {

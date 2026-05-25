@@ -1,10 +1,8 @@
 add_executable(patch_field_diffusion_test
     patch_field_diffusion_test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../World/PatchFieldDiffusion.cpp
 )
 
 target_include_directories(patch_field_diffusion_test PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../World
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Chemistry
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Diffusion3D/core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Diffusion3D/core/gpu

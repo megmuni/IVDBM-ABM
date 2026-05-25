@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
-#include "PatchFieldDiffusion.h"
+#include "patch_field_diffusion.h"
 
 #include "../../Chemistry/species_registry.h"
 #include "../../enums.h"

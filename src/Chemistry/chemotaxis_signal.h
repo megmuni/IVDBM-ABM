@@ -3,10 +3,10 @@
 
 /**
  * @file chemotaxis_signal.h
- * @brief Agent chemotaxis field on the patch grid (legacy pcellgrad).
+ * @brief Per-patch signal used for cell movement toward higher cytokine levels.
  */
 
-/** Non-owning view of per-patch chemotaxis strength (size nx * ny * nz). */
+/** Non-owning view of chemotaxis strength on each patch (length nx×ny×nz). */
 struct ChemotaxisSignal
 {
     float *data = nullptr;

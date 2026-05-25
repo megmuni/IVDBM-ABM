@@ -2,26 +2,27 @@
 #define IVDBM_PATCH_FIELD_DIFFUSION_H
 
 /**
- * @file PatchFieldDiffusion.h
- * @brief World adapter: ABM float buffers ↔ Diffusion3D CPU engine (Phase II).
- *
- * Interface only in II.0–II.1; implementation lands in II.3. No CUDA/GPU paths.
+ * @file patch_field_diffusion.h
+ * @brief Connects ABM patch buffers to the Diffusion3D CPU solver.
  */
 
-#include "../Chemistry/species_id.h"
-#include "../Chemistry/species_registry.h"
+#include "species_id.h"
+#include "species_registry.h"
 
 #include <cstddef>
 #include <map>
 #include <memory>
 
-/** Per-species ABM buffer handles (size = nx * ny * nz). */
+/** Per-species buffer handles on the patch grid (length nx × ny × nz). */
 struct SpeciesDiffusionBuffers
 {
     const float *concentration = nullptr;
     float *diffused = nullptr;
 };
 
+/**
+ * @brief Runs one macro-tick of 3D diffusion for all registered species.
+ */
 class PatchFieldDiffusion
 {
 public:
@@ -34,8 +35,9 @@ public:
     void set_registry(const SpeciesRegistry &registry);
 
     /**
-     * Advance all diffusing species over one macro tick (`tick_dt`, same units as BMWorld).
-     * Reads `concentration`, writes incremental diffused field into `diffused`.
+     * @brief Advance all diffusing species over one tick.
+     * @param buffers Concentration (read) and diffused row (write increment).
+     * @param tick_dt Macro tick length in minutes (same as BMWorld).
      */
     void diffuse_all_species(const std::map<SpeciesId, SpeciesDiffusionBuffers> &buffers,
                              double tick_dt);
