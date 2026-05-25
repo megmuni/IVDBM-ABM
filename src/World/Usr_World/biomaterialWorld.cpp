@@ -422,6 +422,15 @@ void BMWorld::sync_baseline_chem_from_config() {
        << cfg.schema_version << ")" << endl;
   cout << "  tick_interval_minutes = " << cfg.tick_interval_minutes << endl;
   cout << "  channel_count = " << cfg.channel_count << endl;
+  cout << "  diffusion algorithm: "
+       << chemical_environment_->diffusion_algorithm_label() << endl;
+  const DiffusionAlgorithm requested =
+      chemical_environment_->diffusion_algorithm();
+  if (std::string(chemical_environment_->diffusion_algorithm_label()) !=
+      diffusion_algorithm_label(requested)) {
+    cout << "  diffusion requested: "
+         << diffusion_algorithm_label(requested) << endl;
+  }
 }
 
 void BMWorld::initializeChemBaseline() {

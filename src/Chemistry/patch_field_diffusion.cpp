@@ -1,5 +1,6 @@
 #include "patch_field_diffusion.h"
 
+#include "diffusion_algorithm_name.h"
 #include "../Diffusion3D/core/make_multi_species_diffusion_engine.h"
 #include "../Diffusion3D/core/multi_species_diffusion_settings.h"
 #include "../Diffusion3D/core/multi_species_field_grid.h"
@@ -12,10 +13,11 @@
 namespace
 {
 
-MultiSpeciesDiffusionSettings make_settings(const SpeciesRegistry &registry)
+MultiSpeciesDiffusionSettings make_settings(const SpeciesRegistry &registry,
+                                            DiffusionAlgorithm algorithm)
 {
     MultiSpeciesDiffusionSettings settings;
-    settings.algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
+    settings.algorithm = algorithm;
     settings.safety = 1.0;
     for (SpeciesId id : registry.diffusing_species())
         settings.species_diffusivities[id] = registry.diffusivity(id);
@@ -28,6 +30,7 @@ struct PatchFieldDiffusion::Impl
 {
     std::unique_ptr<MultiSpeciesFieldGrid> grid;
     std::unique_ptr<MultiSpeciesDiffusionEngine> engine;
+    DiffusionAlgorithm engine_algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
     std::vector<SpeciesId> species_ids;
     std::map<SpeciesId, std::vector<double>> initial_snapshot;
 
@@ -64,6 +67,31 @@ PatchFieldDiffusion::PatchFieldDiffusion(int nx, int ny, int nz, double grid_spa
 }
 
 PatchFieldDiffusion::~PatchFieldDiffusion() = default;
+
+void PatchFieldDiffusion::set_diffusion_algorithm(DiffusionAlgorithm algo)
+{
+    if (algorithm_ == algo)
+        return;
+    algorithm_ = algo;
+    impl_->engine.reset();
+}
+
+DiffusionAlgorithm PatchFieldDiffusion::configured_algorithm() const
+{
+    return algorithm_;
+}
+
+const char *PatchFieldDiffusion::configured_algorithm_label() const
+{
+    return diffusion_algorithm_label(configured_algorithm());
+}
+
+const char *PatchFieldDiffusion::effective_algorithm_label() const
+{
+    if (impl_->engine)
+        return diffusion_algorithm_label(impl_->engine->resolved_algorithm());
+    return configured_algorithm_label();
+}
 
 void PatchFieldDiffusion::set_registry(const SpeciesRegistry &registry)
 {
@@ -111,9 +139,14 @@ void PatchFieldDiffusion::diffuse_all_species(
         }
     }
 
-    const MultiSpeciesDiffusionSettings settings = make_settings(*registry_);
-    if (!impl_->engine)
+    const MultiSpeciesDiffusionSettings settings =
+        make_settings(*registry_, algorithm_);
+    const DiffusionAlgorithm resolved = ResolveDiffusionAlgorithm(settings);
+    if (!impl_->engine || impl_->engine_algorithm != resolved)
+    {
         impl_->engine = MakeMultiSpeciesDiffusionEngine(settings);
+        impl_->engine_algorithm = resolved;
+    }
 
     impl_->engine->configure_species_interval(*impl_->grid, settings, tick_dt);
     impl_->engine->advance_species_interval(*impl_->grid);

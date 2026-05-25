@@ -9,9 +9,11 @@
  * loaded from JSON - see configFiles/chemical_environment.template.json.
  */
 
+#include "../Diffusion3D/core/diffusion_algorithm.h"
 #include "chemical_channel_views.h"
 #include "chemical_environment_config.h"
 #include "chemotaxis_signal.h"
+#include "diffusion_algorithm_name.h"
 #include "patch_field_diffusion.h"
 #include "species_registry.h"
 
@@ -51,6 +53,21 @@ public:
 
   /** Macro tick length in minutes (from config). */
   double tick_interval_minutes() const { return config_.tick_interval_minutes; }
+
+  /**
+   * @brief Human-readable diffusion algorithm (or why diffusion is off).
+   * Shows the effective solver (resolved backend), not only the requested one.
+   */
+  const char *diffusion_algorithm_label() const;
+
+  /** Requested Diffusion3D algorithm for patch-field diffusion. */
+  DiffusionAlgorithm diffusion_algorithm() const;
+
+  /**
+   * @brief Select the patch-field diffusion algorithm (ignored if a custom
+   *        diffusion runner is set via set_diffusion_runner).
+   */
+  void set_diffusion_algorithm(DiffusionAlgorithm algo);
 
   /** Total baseline mass for a species (from config), e.g. @c "TNF". */
   float baseline_total_mass_for(const std::string &species_name) const;

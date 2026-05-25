@@ -45,6 +45,25 @@ float ChemicalEnvironment::baseline_total_mass_for(
   return config_.baseline_total_mass_for(species_name);
 }
 
+const char *ChemicalEnvironment::diffusion_algorithm_label() const {
+  if (diffusion_runner_)
+    return "custom diffusion runner";
+  if (!patch_diffusion_)
+    return "diffusion disabled (grid spacing not set)";
+  return patch_diffusion_->effective_algorithm_label();
+}
+
+DiffusionAlgorithm ChemicalEnvironment::diffusion_algorithm() const {
+  if (patch_diffusion_)
+    return patch_diffusion_->configured_algorithm();
+  return patch_field_default_diffusion_algorithm();
+}
+
+void ChemicalEnvironment::set_diffusion_algorithm(DiffusionAlgorithm algo) {
+  if (patch_diffusion_)
+    patch_diffusion_->set_diffusion_algorithm(algo);
+}
+
 void ChemicalEnvironment::allocate_channels_from_config() {
   if (config_.channel_count <= 0)
     throw std::runtime_error(

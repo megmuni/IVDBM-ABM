@@ -6,6 +6,8 @@
  * @brief Connects ABM patch buffers to the Diffusion3D CPU solver.
  */
 
+#include "../Diffusion3D/core/diffusion_algorithm.h"
+#include "diffusion_algorithm_name.h"
 #include "species_id.h"
 #include "species_registry.h"
 
@@ -42,6 +44,16 @@ public:
     void diffuse_all_species(const std::map<SpeciesId, SpeciesDiffusionBuffers> &buffers,
                              double tick_dt);
 
+    /** Requested algorithm (see patch_field_default_diffusion_algorithm() for initial value). */
+    void set_diffusion_algorithm(DiffusionAlgorithm algo);
+    DiffusionAlgorithm configured_algorithm() const;
+
+    /** Label for configured_algorithm() (see diffusion_algorithm_name.h). */
+    const char *configured_algorithm_label() const;
+
+    /** Label for the solver actually used (may differ if CUDA is off). */
+    const char *effective_algorithm_label() const;
+
     int nx() const { return nx_; }
     int ny() const { return ny_; }
     int nz() const { return nz_; }
@@ -55,6 +67,7 @@ private:
     int ny_;
     int nz_;
     double h_;
+    DiffusionAlgorithm algorithm_ = patch_field_default_diffusion_algorithm();
     const SpeciesRegistry *registry_ = nullptr;
 };
 

@@ -3,6 +3,7 @@
 
 #include "patch_field_diffusion.h"
 
+#include "../../Chemistry/diffusion_algorithm_name.h"
 #include "../../Chemistry/chemical_environment_config.h"
 #include "../../Chemistry/species_registry.h"
 #include "../../enums.h"
@@ -51,4 +52,22 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick", "[world][patch
     for (float v : diffused_tnf)
         max_diffused = std::max(max_diffused, std::abs(v));
     REQUIRE(max_diffused > 0.f);
+}
+
+TEST_CASE("PatchFieldDiffusion default and custom algorithm selection",
+          "[world][patch_field_diffusion]")
+{
+    PatchFieldDiffusion pfd(4, 4, 4, 0.01);
+    REQUIRE(pfd.configured_algorithm() == patch_field_default_diffusion_algorithm());
+
+    pfd.set_diffusion_algorithm(DiffusionAlgorithm::ExplicitHeatEquation);
+    REQUIRE(pfd.configured_algorithm() == DiffusionAlgorithm::ExplicitHeatEquation);
+    REQUIRE(std::string(pfd.configured_algorithm_label()) ==
+            std::string(diffusion_algorithm_label(
+                DiffusionAlgorithm::ExplicitHeatEquation)));
+
+#ifdef DIFFUSION3D_CUDA
+    pfd.set_diffusion_algorithm(DiffusionAlgorithm::GpuStencil);
+    REQUIRE(pfd.configured_algorithm() == DiffusionAlgorithm::GpuStencil);
+#endif
 }

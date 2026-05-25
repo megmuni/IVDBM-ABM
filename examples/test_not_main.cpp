@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();
-	BMWorld myWorld = BMWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
+	BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
 	myWorld.outputWorld_csv();
 	//printf("Setup Execution time: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
