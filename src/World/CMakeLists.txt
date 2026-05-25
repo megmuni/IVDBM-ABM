@@ -1,4 +1,4 @@
-set(WORLD_SRC World.cpp)
+set(WORLD_SRC World.cpp PatchFieldDiffusion.cpp)
 file( GLOB USR_WORLD_SRC Usr_World/*.cpp)
 #modified by Yvonna Jun 17th, 2013: add subdirectory Usr_World
 
@@ -6,7 +6,9 @@ set(world_lib_type SHARED)
 #because Agent needs functions from WHWorld!!!!
 add_library(World ${world_lib_type} ${WORLD_SRC} ${USR_WORLD_SRC})
 
-target_link_libraries(World FieldVariable)
+target_include_directories(World PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(World FieldVariable Chemistry)
 #World is shared and is referenced by Agent! Without the last command, the linking process wouldnt work!
 
 ## Added by Nuttiiya for atomic flags
