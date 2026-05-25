@@ -26,6 +26,8 @@ float patchWidth;  // Desired width of each patch in millimeters
 float worldXwidth; // Desired x-dimension width of the world in millimeters
 float worldYwidth; // Desired y-dimension width of the world in millimeters
 float worldZwidth; // Desired z-dimension width of the world in millimeters
+/** Path to chemical_environment.json (copy from chemical_environment.template.json). */
+char chemicalEnvironmentConfigFile[200];
 char inputFileName[200]; /* Path to input file containing these inputs:
                           * Number_of_baseline_chemicals_to_be_inputed,
                           * Baseline_TNF,
@@ -44,6 +46,13 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Macrophage (initial cell count),
                           * Neutrophil (initial cell count),
                           * Treatment_option */
+
+/*
+ * Description: Path to the chemical environment JSON config.
+ */
+inline const char *getChemicalEnvironmentConfigPath() {
+  return chemicalEnvironmentConfigFile;
+}
 
 /*
  * Description:	Function for getting the number of ticks that the user inputted
@@ -133,6 +142,9 @@ void processOptions(int argc, char **argv) {
   strcpy(inputFileName, "configFiles/config.txt");
 #endif
 
+  strcpy(chemicalEnvironmentConfigFile,
+         "configFiles/chemical_environment.json");
+
   if (argc == 1)
     return;
 
@@ -166,6 +178,8 @@ void processOptions(int argc, char **argv) {
 
     } else if (!strcmp(option_string, "--inputfile")) {
       strcpy(inputFileName, argv[++i]);
+    } else if (!strcmp(option_string, "--chem-config")) {
+      strcpy(chemicalEnvironmentConfigFile, argv[++i]);
     } else if (!strcmp(option_string, "--help")) {
       cout << "Options: " << endl;
       cout << "   --numticks:      Number of ticks" << endl;
@@ -174,6 +188,7 @@ void processOptions(int argc, char **argv) {
       cout << "   --wyw:           World length   (mm)" << endl;
       cout << "   --wzw:           World height   (mm)" << endl;
       cout << "   --inputfile:     path/name of input file" << endl;
+      cout << "   --chem-config:   path to chemical_environment.json" << endl;
       cout << " Usage: " << endl;
       cout << "   For a 24.9mm x 17.4mm, with patch width 15 um," << endl;
       cout << "   running for 240 ticks, and input parameters from "
@@ -204,6 +219,8 @@ void printOptions() {
   cout << "	worldYwidth:	" << worldYwidth << " mm" << endl;
   cout << "	worldZwidth:	" << worldZwidth << " mm" << endl;
   cout << "	inputFileName:	" << inputFileName << endl;
+  cout << "	chemicalEnvironmentConfig:	"
+       << chemicalEnvironmentConfigFile << endl;
 }
 
 } // namespace util

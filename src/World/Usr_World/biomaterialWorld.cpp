@@ -176,7 +176,6 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
    * user defined values (in config file) and traits of native tissue */
   this->initializePatches();
   this->initializeECM();
-  this->initializeChem();
   this->initializeCells();
 #ifdef MODEL_SCAFFOLD
   this->initializeCaAlg();
@@ -187,10 +186,10 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
         (this->Q > 0.0f) ? static_cast<double>(this->Q) : 1.0;
     chemical_environment_.reset(
         new ChemicalEnvironment(nx, ny, nz, this->patchlength));
-    chemical_environment_->load_ivdbm_default(swelling_Q);
-    this->typesOfChem = static_cast<int>(this->baselineChem.size()) * 2 + 3;
-    chemical_environment_->allocate_channel_storage(this->typesOfChem,
-                                                    pcellgrad);
+    chemical_environment_->load_from_config(
+        util::getChemicalEnvironmentConfigPath(), swelling_Q);
+    chemical_environment_->allocate_channels_from_config();
+    this->sync_baseline_chem_from_config();
     this->initializeChemBaseline();
   }
   this->initializeDamage();
@@ -401,10 +400,28 @@ void BMWorld::initializeCaAlg() {
 }
 #endif // MODEL_SCAFFOLD
 
-void BMWorld::initializeChem() {
-  /* Channel count only; grids are allocated on ChemicalEnvironment after load.
-   */
-  this->typesOfChem = static_cast<int>(this->baselineChem.size()) * 2 + 3;
+void BMWorld::sync_baseline_chem_from_config() {
+  if (!chemical_environment_) {
+    if (util::ABMerror(1, "ChemicalEnvironment not initialized", __FILE__,
+                       __LINE__))
+      exit(1);
+  }
+
+  const ChemicalEnvironmentConfig &cfg = chemical_environment_->configuration();
+  this->typesOfChem = cfg.channel_count;
+
+  this->baselineChem.assign(4, 0.f);
+  this->baselineChem[TNF] =
+      chemical_environment_->baseline_total_mass_for("TNF");
+  this->baselineChem[TGF] =
+      chemical_environment_->baseline_total_mass_for("TGF");
+  this->baselineChem[IL1beta] =
+      chemical_environment_->baseline_total_mass_for("IL1beta");
+
+  cout << "Chemical environment config: " << cfg.model << " (schema "
+       << cfg.schema_version << ")" << endl;
+  cout << "  tick_interval_minutes = " << cfg.tick_interval_minutes << endl;
+  cout << "  channel_count = " << cfg.channel_count << endl;
 }
 
 void BMWorld::initializeChemBaseline() {
@@ -571,9 +588,9 @@ void BMWorld::initializeDamage() {
 /*
  * Each call to BMWorld::go() performs the following major steps:
  * 	(0) Cell seedings
- * 	(1) Chemical diffusion — diffuseCytokines(): PDE step; writes increment
- * to d* (2) Cell function       — cells may add secretion into d* (3) ECM
- * function (4) Attributes synchronization a) Update chemicals — updateChem():
+ * 	(1) Chemical diffusion - diffuseCytokines(): PDE step; writes increment
+ * to d* (2) Cell function       - cells may add secretion into d* (3) ECM
+ * function (4) Attributes synchronization a) Update chemicals - updateChem():
  * p* += d*, clear d* b) Update cells c) Update ECM managers d) Update patches
  */
 int BMWorld::go() {
@@ -671,7 +688,7 @@ int BMWorld::go() {
 /*                      MAJOR SECTION SUBROUTINES - begin                     */
 /* -------------------------------------------------------------------------- */
 /*
- * Chemical diffusion tick — delegated to ChemicalEnvironment (see go()
+ * Chemical diffusion tick - delegated to ChemicalEnvironment (see go()
  * ordering). PDE numerics run inside ChemicalEnvironment (Diffusion3D).
  */
 
@@ -699,6 +716,12 @@ float BMWorld::world_total_il1beta() const {
   if (chemical_environment_)
     return chemical_environment_->total_il1beta();
   return WorldChem.totalIL1beta;
+}
+
+double BMWorld::tick_interval_minutes() const {
+  if (chemical_environment_)
+    return chemical_environment_->tick_interval_minutes();
+  return kTickIntervalMinutes;
 }
 
 float BMWorld::chem_concentration(SpeciesId species, int patch_index) const {
@@ -729,7 +752,7 @@ float BMWorld::chemotaxis_at(int patch_index) const {
 
 void BMWorld::diffuseCytokines() {
   if (chemical_environment_)
-    chemical_environment_->run_diffusion_phase(kTickIntervalMinutes);
+    chemical_environment_->run_diffusion_phase(tick_interval_minutes());
 }
 
 void BMWorld::runCells() {
@@ -1619,9 +1642,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 
       /* --------------------------- CYTOKINE PROPERTIES
        * -------------------------- */
-      /* Per-species D and half-life from config (D:/HL: tags) removed.
-       * Diffusivity is defined in SpeciesRegistry::ivdbm_default(); Q updated
-       * each tick. */
+      /* Species diffusivity and baselines come from chemical_environment.json.
+       */
       infile.close();
       cout << "-------------------------------------------" << endl;
     } // end of if file opens properly

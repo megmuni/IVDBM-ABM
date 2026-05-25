@@ -49,33 +49,20 @@ std::vector<SpeciesId> SpeciesRegistry::diffusing_species() const
     return order_;
 }
 
-SpeciesRegistry SpeciesRegistry::ivdbm_default(double swelling_ratio_Q)
+SpeciesRegistry SpeciesRegistry::from_config(const ChemicalEnvironmentConfig &cfg,
+                                             double swelling_ratio_Q)
 {
     SpeciesRegistry registry;
     registry.set_swelling_ratio(swelling_ratio_Q);
 
-    // IVDBM baseline coefficients: effective D = base_diffusivity * Q (mm²/min).
-    const struct
-    {
-        SpeciesId id;
-        const char *name;
-        double base_D;
-        int p_channel;
-        int d_channel;
-    } kIvdbm[] = {
-        {TNF, "TNF", 0.0018 * 0.1, pTNF, dTNF},
-        {TGF, "TGF", 0.00156 * 0.1, pTGF, dTGF},
-        {IL1beta, "IL1beta", 0.0018 * 0.1, pIL1beta, dIL1beta},
-    };
-
-    for (const auto &s : kIvdbm)
+    for (const SpeciesConfigEntry &s : cfg.species)
     {
         SpeciesDescriptor desc;
         desc.id = s.id;
         desc.name = s.name;
-        desc.base_diffusivity = s.base_D;
-        desc.concentration_channel = s.p_channel;
-        desc.diffused_channel = s.d_channel;
+        desc.base_diffusivity = s.base_diffusivity_mm2_per_min;
+        desc.concentration_channel = s.concentration_channel;
+        desc.diffused_channel = s.diffused_channel;
         registry.register_species(desc);
     }
 

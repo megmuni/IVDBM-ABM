@@ -9,6 +9,7 @@
  * Diffusion3D core code.
  */
 
+#include "chemical_environment_config.h"
 #include "species_id.h"
 
 #include <map>
@@ -43,8 +44,9 @@ public:
     std::vector<SpeciesId> diffusing_species() const;
     bool empty() const { return species_.empty(); }
 
-    /** TNF, TGF, and IL-1β with IVDBM baseline coefficients scaled by @p swelling_ratio_Q. */
-    static SpeciesRegistry ivdbm_default(double swelling_ratio_Q);
+    /** Build registry from a validated @ref ChemicalEnvironmentConfig. */
+    static SpeciesRegistry from_config(const ChemicalEnvironmentConfig &cfg,
+                                       double swelling_ratio_Q);
 
 private:
     double Q_ = 1.0;

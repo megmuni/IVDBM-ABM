@@ -27,16 +27,42 @@ void ChemicalEnvironment::sync_diffusion_registry() {
     patch_diffusion_->set_registry(registry_);
 }
 
-void ChemicalEnvironment::load_ivdbm_default(double swelling_ratio_Q) {
-  registry_ = SpeciesRegistry::ivdbm_default(swelling_ratio_Q);
-  if (registry_.empty())
-    throw std::runtime_error(
-        "ChemicalEnvironment: ivdbm_default produced empty registry");
+void ChemicalEnvironment::load_from_config(const std::string &config_path,
+                                           double swelling_ratio_Q) {
+  config_ = load_chemical_environment_config(config_path);
+  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q);
+  merge_chemotaxis_species_ =
+      species_id_by_name(config_.merge_chemotaxis_from_species);
   sync_diffusion_registry();
 }
 
 void ChemicalEnvironment::set_swelling_ratio(double Q) {
   registry_.set_swelling_ratio(Q);
+}
+
+float ChemicalEnvironment::baseline_total_mass_for(
+    const std::string &species_name) const {
+  return config_.baseline_total_mass_for(species_name);
+}
+
+void ChemicalEnvironment::allocate_channels_from_config() {
+  if (config_.channel_count <= 0)
+    throw std::runtime_error(
+        "ChemicalEnvironment: load_from_config before allocate_channels_from_config");
+  allocate_channel_storage(config_.channel_count, config_.chemotaxis_channel);
+}
+
+SpeciesId ChemicalEnvironment::species_id_by_name(const std::string &name) const {
+  for (const SpeciesConfigEntry &s : config_.species) {
+    if (s.name == name)
+      return s.id;
+  }
+  throw std::out_of_range("ChemicalEnvironment: unknown species name " + name);
+}
+
+int ChemicalEnvironment::concentration_channel_for(
+    const std::string &name) const {
+  return registry_.descriptor(species_id_by_name(name)).concentration_channel;
 }
 
 void ChemicalEnvironment::allocate_channel_storage(int channel_count,
@@ -98,9 +124,9 @@ void ChemicalEnvironment::recompute_world_totals() {
   if (channel_data_.empty() || registry_.empty())
     return;
 
-  const int tnf_ch = registry_.descriptor(TNF).concentration_channel;
-  const int tgf_ch = registry_.descriptor(TGF).concentration_channel;
-  const int il1_ch = registry_.descriptor(IL1beta).concentration_channel;
+  const int tnf_ch = concentration_channel_for("TNF");
+  const int tgf_ch = concentration_channel_for("TGF");
+  const int il1_ch = concentration_channel_for("IL1beta");
 
   for (int i = 0; i < grid_size_; ++i) {
     total_tnf_ += channel_row(tnf_ch)[i];
@@ -188,9 +214,11 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   total_il1beta_ = 0.f;
 
   const std::vector<SpeciesId> diffusing = registry_.diffusing_species();
-  const int tnf_ch = registry_.descriptor(TNF).concentration_channel;
-  const int tgf_ch = registry_.descriptor(TGF).concentration_channel;
-  const int il1_ch = registry_.descriptor(IL1beta).concentration_channel;
+  const int tnf_ch = concentration_channel_for("TNF");
+  const int tgf_ch = concentration_channel_for("TGF");
+  const int il1_ch = concentration_channel_for("IL1beta");
+  const int chemo_src =
+      registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
 
   for (int zi = 0; zi < nz_; ++zi) {
     for (int yi = 0; yi < ny_; ++yi) {
@@ -210,7 +238,7 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
         }
 
         if (chemotaxis_channel_ >= 0)
-          channel_row(chemotaxis_channel_)[in] = channel_row(tgf_ch)[in];
+          channel_row(chemotaxis_channel_)[in] = channel_row(chemo_src)[in];
 
         total_tnf_ += channel_row(tnf_ch)[in];
         total_tgf_ += channel_row(tgf_ch)[in];

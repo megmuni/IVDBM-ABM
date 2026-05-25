@@ -3,12 +3,18 @@
 
 #include "patch_field_diffusion.h"
 
+#include "../../Chemistry/chemical_environment_config.h"
 #include "../../Chemistry/species_registry.h"
 #include "../../enums.h"
 
 #include <cmath>
 #include <map>
+#include <string>
 #include <vector>
+
+#ifndef IVDBM_CHEM_CONFIG_DIR
+#define IVDBM_CHEM_CONFIG_DIR "configFiles"
+#endif
 
 TEST_CASE("PatchFieldDiffusion advances one species over a tick", "[world][patch_field_diffusion]")
 {
@@ -16,7 +22,11 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick", "[world][patch
     const double h = 0.01;
     const std::size_t n = static_cast<std::size_t>(nx) * ny * nz;
 
-    SpeciesRegistry registry = SpeciesRegistry::ivdbm_default(1.0);
+    const std::string config_path = std::string(IVDBM_CHEM_CONFIG_DIR) +
+                                    "/chemical_environment.template.json";
+    const ChemicalEnvironmentConfig cfg =
+        load_chemical_environment_config(config_path);
+    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0);
     PatchFieldDiffusion pfd(nx, ny, nz, h);
     pfd.set_registry(registry);
 

@@ -1,4 +1,4 @@
-# Diffusion3D Module — Phase I
+# Diffusion3D Module - Phase I
 
 This module implements multi-species scalar field diffusion with unified double-precision storage and shared pointer support. It is designed for integration with ABM frameworks and supports extensible PDE stepping strategies.
 
@@ -39,16 +39,16 @@ ctest -R diffusion3d --test-dir build
 
 Options:
 
-| Flag | Default | Purpose |
-| ---- | ------- | ------- |
-| `BUILD_DIFFUSION3D` | ON | Build module from root `src/CMakeLists.txt` |
-| `BUILD_SRC_TESTS` | ON | Build Catch2 tests under `src/tests/` |
-| `DIFFUSION3D_TESTS` | ON | When configuring **only** `-S src/Diffusion3D`, build tests via `../tests` |
-| `DIFFUSION3D_DEMO` | ON | Build ParaView demo (`diffusion3d_demo`) |
-| `DIFFUSION3D_CUDA` | OFF | Enable GPU/FFT kernels in `core/gpu/` and GPU steppers |
-| `DIFFUSION3D_CUDA_ARCHITECTURES` | `89` | CUDA arch for GPU targets (`89` = sm_89, Ada/RTX 4050; or `native`, `89;90`) |
+| Flag                             | Default | Purpose                                                                      |
+| -------------------------------- | ------- | ---------------------------------------------------------------------------- |
+| `BUILD_DIFFUSION3D`              | ON      | Build module from root `src/CMakeLists.txt`                                  |
+| `BUILD_SRC_TESTS`                | ON      | Build Catch2 tests under `src/tests/`                                        |
+| `DIFFUSION3D_TESTS`              | ON      | When configuring **only** `-S src/Diffusion3D`, build tests via `../tests`   |
+| `DIFFUSION3D_DEMO`               | ON      | Build ParaView demo (`diffusion3d_demo`)                                     |
+| `DIFFUSION3D_CUDA`               | OFF     | Enable GPU/FFT kernels in `core/gpu/` and GPU steppers                       |
+| `DIFFUSION3D_CUDA_ARCHITECTURES` | `89`    | CUDA arch for GPU targets (`89` = sm_89, Ada/RTX 4050; or `native`, `89;90`) |
 
-Tests use `MultiSpeciesFieldGrid`, `MultiSpeciesDiffusionEngine`, and `MakeMultiSpeciesDiffusionEngine()` exclusively — no legacy solver or context types remain in the module.
+Tests use `MultiSpeciesFieldGrid`, `MultiSpeciesDiffusionEngine`, and `MakeMultiSpeciesDiffusionEngine()` exclusively - no legacy solver or context types remain in the module.
 
 CUDA build example (RTX 4050 / sm_89):
 
@@ -65,12 +65,12 @@ ctest -R diffusion3d --test-dir build-cuda
 
 Runs all three diffusion backends and writes VTK ImageData time series for ParaView:
 
-| Output folder | Algorithm | Requires CUDA |
-| ------------- | --------- | ------------- |
-| `output/cpu_series/` | CPU explicit Euler stencil | no |
-| `output/gpu_series/` | GPU 6-point stencil | yes |
-| `output/fft_series/` | GPU FFT precomputed | yes |
-| `output/compare_series/` | CPU vs GPU stencil at final step (`abs_diff` array) | yes |
+| Output folder            | Algorithm                                           | Requires CUDA |
+| ------------------------ | --------------------------------------------------- | ------------- |
+| `output/cpu_series/`     | CPU explicit Euler stencil                          | no            |
+| `output/gpu_series/`     | GPU 6-point stencil                                 | yes           |
+| `output/fft_series/`     | GPU FFT precomputed                                 | yes           |
+| `output/compare_series/` | CPU vs GPU stencil at final step (`abs_diff` array) | yes           |
 
 Build and run from the module directory:
 
@@ -135,11 +135,11 @@ export_cpu_gpu_compare_to_vti(cpu_u, gpu_u, nx, ny, nz, h,
 
 ### Notes
 
-| Topic | Detail |
-| ----- | ------ |
-| **Spacing** | VTK `Spacing` is set from grid spacing `h` (physical units consistent with the simulation) |
-| **Layout** | `ScalarFieldGrid::data_` uses the same point order as VTK ImageData (`idx = x + nx*(y + ny*z)`) |
+| Topic       | Detail                                                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spacing** | VTK `Spacing` is set from grid spacing `h` (physical units consistent with the simulation)                                                         |
+| **Layout**  | `ScalarFieldGrid::data_` uses the same point order as VTK ImageData (`idx = x + nx*(y + ny*z)`)                                                    |
 | **Scaling** | Use `viz_multiplier` on `export_scalar_field_to_vti` / `export_field_to_vti` when concentrations are small and ParaView auto-range is hard to read |
-| **Demo** | Run `diffusion3d_demo` — see [ParaView demo](#paraview-demo-diffusion3d_demo) above |
+| **Demo**    | Run `diffusion3d_demo` - see [ParaView demo](#paraview-demo-diffusion3d_demo) above                                                                |
 
-No VTK library dependency — files are plain XML written with the standard library.
+No VTK library dependency - files are plain XML written with the standard library.
