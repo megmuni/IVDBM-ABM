@@ -112,15 +112,15 @@ Open `cpu_series/diffusion3d_t*.vti` (and `gpu_series/`, `fft_series/` as built)
 
 ## Tests (CTest)
 
-Catch2 via `FetchContent` when `DIFFUSION3D_TESTS=ON` (default).
+Catch2 tests moved to `src/Diffusion3D/tests/`. Build from the repo root:
 
 ```sh
-cmake -S . -B build -DGPU_DIFFUSE=OFF -DDIFFUSION3D_TESTS=ON
-cmake --build build -j
-ctest --test-dir build --output-on-failure
+cmake -S .. -B build -DBUILD_DIFFUSION3D=ON -DDIFFUSION3D_TESTS=ON
+cmake --build build --target diffusion3d_tests -j
+ctest -R diffusion3d --test-dir build --output-on-failure
 ```
 
-`-DDIFFUSION3D_TESTS=OFF` disables tests.
+Legacy kernel sources remain in `diffusion3d/src/` until Phase I migration completes. `-DDIFFUSION3D_TESTS=OFF` disables tests.
 
 ## Logging
 

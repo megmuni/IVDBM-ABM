@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (NYVONNA_CPU_ABM)
+include(CTest)
 #project(ProjectName)
 #SET(CMAKE_C_COMPILER gcc-7)
 #SET(CMAKE_CXX_COMPILER g++-7)

@@ -6,3 +6,5 @@
 .github/
 .vscode/
 .cursor/
+
+build*/

@@ -7,6 +7,7 @@ set(DIFFUSION3D_CORE_HEADERS
     multi_species_diffusion_engine.h
     explicit_multi_species_heat_stepper.h
     make_multi_species_diffusion_engine.h
+    vtk_export.h
 )
 
 add_library(diffusion3d_core INTERFACE)
@@ -18,3 +19,7 @@ add_library(diffusion3d_core_objs OBJECT
 )
 target_include_directories(diffusion3d_core_objs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(diffusion3d_core_objs PUBLIC diffusion3d_core)
+set_target_properties(diffusion3d_core_objs PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)

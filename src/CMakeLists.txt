@@ -11,4 +11,10 @@ add_subdirectory(ArrayChain)
 add_subdirectory(Utilities)
 add_subdirectory(Diffusion)
 
+# Note: Will not hide this behind a flag until Diffusion3D is fully complete
+option(BUILD_DIFFUSION3D "Build Diffusion3D module and Catch2 tests" ON)
+if(BUILD_DIFFUSION3D)
+    add_subdirectory(Diffusion3D)
+endif()
+
 #added the subdir - Yvonna Jun 6 2013
