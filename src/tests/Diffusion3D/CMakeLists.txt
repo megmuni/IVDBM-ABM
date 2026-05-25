@@ -1,4 +1,4 @@
-# Catch2 tests for Diffusion3D core kernels
+# Catch2 tests for Diffusion3D (lives under src/tests/, links diffusion3d_core_lib)
 
 set(DIFFUSION3D_TEST_SOURCES
     catch2_main.cpp
@@ -13,8 +13,8 @@ set(DIFFUSION3D_TEST_SOURCES
 add_executable(diffusion3d_tests ${DIFFUSION3D_TEST_SOURCES})
 
 target_include_directories(diffusion3d_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../core
-    ${CMAKE_CURRENT_SOURCE_DIR}/../core/gpu
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Diffusion3D/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Diffusion3D/core/gpu
     ${CMAKE_CURRENT_SOURCE_DIR}/support
 )
 
@@ -35,7 +35,6 @@ if(DIFFUSION3D_CUDA)
     )
 endif()
 
-# Catch2 v2: pass test name/tag as positional filter (not -c).
 add_test(NAME diffusion3d_modulateAndNormalize3D
          COMMAND diffusion3d_tests "modulateAndNormalize3D matches expected output")
 add_test(NAME diffusion3d_spectrumRaisePowInt3D

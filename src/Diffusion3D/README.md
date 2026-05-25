@@ -6,7 +6,8 @@ This module implements multi-species scalar field diffusion with unified double-
 
 - `core/` - Core diffusion engine, field grids, settings, stepper implementations, and VTK export
 - `demo/` - ParaView `.vti` time-series demo (`diffusion3d_demo`) for all three algorithms
-- `tests/` - Unit and integration tests (support helpers under `tests/support/`)
+
+Catch2 tests live under [`../tests/Diffusion3D/`](../tests/Diffusion3D/) (src-level, not inside this module directory).
 
 ## Key Types
 
@@ -20,10 +21,18 @@ This module implements multi-species scalar field diffusion with unified double-
 
 ## Build
 
-From the repo root:
+From the repo root (via `src/CMakeLists.txt`):
 
 ```bash
-cmake -S . -B build -DBUILD_DIFFUSION3D=ON
+cmake -S . -B build -DBUILD_DIFFUSION3D=ON -DBUILD_SRC_TESTS=ON
+cmake --build build --target diffusion3d_tests
+ctest -R diffusion3d --test-dir build
+```
+
+Standalone module configure (tests pulled from `src/tests/`):
+
+```bash
+cmake -S src/Diffusion3D -B build -DDIFFUSION3D_TESTS=ON
 cmake --build build --target diffusion3d_tests
 ctest -R diffusion3d --test-dir build
 ```
@@ -32,8 +41,9 @@ Options:
 
 | Flag | Default | Purpose |
 | ---- | ------- | ------- |
-| `BUILD_DIFFUSION3D` | ON | Build module and tests from root `src/CMakeLists.txt` |
-| `DIFFUSION3D_TESTS` | ON | Build Catch2 test executable |
+| `BUILD_DIFFUSION3D` | ON | Build module from root `src/CMakeLists.txt` |
+| `BUILD_SRC_TESTS` | ON | Build Catch2 tests under `src/tests/` |
+| `DIFFUSION3D_TESTS` | ON | When configuring **only** `-S src/Diffusion3D`, build tests via `../tests` |
 | `DIFFUSION3D_DEMO` | ON | Build ParaView demo (`diffusion3d_demo`) |
 | `DIFFUSION3D_CUDA` | OFF | Enable GPU/FFT kernels in `core/gpu/` and GPU steppers |
 | `DIFFUSION3D_CUDA_ARCHITECTURES` | `89` | CUDA arch for GPU targets (`89` = sm_89, Ada/RTX 4050; or `native`, `89;90`) |

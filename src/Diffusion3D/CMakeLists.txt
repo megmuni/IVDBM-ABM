@@ -24,15 +24,8 @@ if(DIFFUSION3D_DEMO)
     add_subdirectory(demo)
 endif()
 
+# Standalone configure (-S src/Diffusion3D): tests live under ../tests
 if(DIFFUSION3D_TESTS)
-    include(FetchContent)
-
-    FetchContent_Declare(
-        Catch2
-        URL https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.10.tar.gz
-    )
-    FetchContent_MakeAvailable(Catch2)
-
     enable_testing()
-    add_subdirectory(tests)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tests ${CMAKE_BINARY_DIR}/src_tests)
 endif()
