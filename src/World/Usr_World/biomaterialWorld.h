@@ -406,6 +406,8 @@ class BMWorld: public World {
     static float prevCells;
     static int initialCaAlg;      // The number of initial tissue patches
 
+    static float E;    // Effective stiffness
+
     //Crosslinked Ca-Alg Hydrogel Parameters
     // Ca Crosslinker:
     static float Ca_Mw;	 // Molecular Weight 
@@ -440,11 +442,14 @@ class BMWorld: public World {
      * chemAllocation[chemIndex][patchIndex] can be used as a multidimensional array to access a given chemical concentration using indexing. It is linked to WorldChem. */
     float** chemAllocation;
 
-    float E;    // Elastic Modulus (Pa)
     float pXL;  // Crosslink Density (mmol/mL)
     float Q;    // Swelling Ratio (%)
     float w;    // Mass Loss (%)
     float poreWidth;    // Pore Size (um)
+
+#ifdef PEPTIDE_BM
+    string peptide; // Type of peptide
+#endif
 
 #ifdef GPU_DIFFUSE		// Diffusion using Third buffer
     /* 
