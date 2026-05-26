@@ -1231,6 +1231,7 @@ float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 #ifdef MODEL_SCAFFOLD
 	int BMWorld::initialCaAlg = 0;
+	float BMWorld::E = 0;
 	float G;        // Elastic Modulus (kPa)
 	float pXL;     // Crosslink Density (mmol/mL = M)
 	float Alg_Mn ;  // molecular weight of alginate (kDa)
