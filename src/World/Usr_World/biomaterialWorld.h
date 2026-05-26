@@ -430,6 +430,15 @@ class BMWorld: public World {
     static float MassLoss[4];     // Mass loss of Ca-Alg Hydrogel
     static float PoreSize[2];     // PoreSize of Ca-Alg Hydrogel
 
+#ifdef PEPTIDE_BM
+    /* Experimental values for peptide biomaterial */
+    struct peptideCondition {
+        float E_0; // initial modulus, represents elastic portion of model
+        float E_inf; // 'equilibrium' modulus, represents viscous portion of model
+        float t; // stress relaxation time (t = t_half/ln(2))
+    } MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+#endif // PEPTIDE_BM
+
 
 /****************************************************************
  * CONSTANT VARIABLES                                           *

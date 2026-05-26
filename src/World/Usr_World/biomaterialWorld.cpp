@@ -1266,6 +1266,14 @@ float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 	float BMWorld::PoreSize[2] = {1769.8, 258.5};	//float BMWorld::PoreSize[3] = {345.2, 309.9, 138.1};
 #endif
 
+#ifdef PEPTIDE_BM
+	/* Experimental values for peptide biomaterial */
+	peptideCondition MAL{2.0031, 3.8757, 44.00};
+	peptideCondition CHAD{3.0180, 5.0709, 37.87};
+	peptideCondition hA5G26{2.9628, 4.6913, 35.35};
+	peptideCondition IKVAV{2.9067, 5.4795, 42.56};
+#endif
+
 BMWorld::BMWorld(double length, double width, double height, double plength) {
 	// Generate random seeds:
 	for(int i = 0; i < NUM_THREAD; i++) seeds[i] = 25234 + 17*i;
