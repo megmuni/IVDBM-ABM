@@ -887,7 +887,7 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 float Stem::get_migration_speed() {
 	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
+		float migration_ummin = Stem::CaAlgMigration[0] * log(BMWorld::E) + Stem::CaAlgMigration[1]; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -896,7 +896,7 @@ float Stem::get_migration_speed() {
 			Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
 		}
 #else
-		float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+		float migration_ummin = 0.1096 * log(BMWorld::E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(BMWorld::E) + 0.223; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -989,7 +989,7 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 float Progen::get_migration_speed() {
 	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
+		float migration_ummin = Progen::CaAlgMigration[0] * log(BMWorld::E) + Progen::CaAlgMigration[1]; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -998,7 +998,7 @@ float Progen::get_migration_speed() {
 			Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
 		}
 #else
-		float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+		float migration_ummin = 0.1096 * log(BMWorld::E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(BMWorld::E) + 0.223; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -1094,7 +1094,7 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 
 float NP::get_migration_speed() {
 #ifdef CALIBRATION
-	float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min
+	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.2431; // um/min
 
 	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -1103,7 +1103,7 @@ float NP::get_migration_speed() {
 		NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
 	}
 #else
-	float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
+	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(BMWorld::E) + 0.223; // um/min
 
 	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 

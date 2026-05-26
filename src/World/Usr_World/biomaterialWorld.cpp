@@ -1475,11 +1475,11 @@ void BMWorld::initializePatches() {
 		*       Linear dependence of modulus on cross-link concentration for constant polymer concentration 
 		*/			
 		#ifdef CALIBRATION
-			this->E = -BMWorld::ElasticMod[0] + BMWorld::ElasticMod[1]*(Alg_wv) - BMWorld::ElasticMod[2]*(pXL) + BMWorld::ElasticMod[3]*(Alg_Mn) + BMWorld::ElasticMod[4]*(Alg_wv)*(pXL) - BMWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - BMWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
+			BMWorld::E = -BMWorld::ElasticMod[0] + BMWorld::ElasticMod[1]*(Alg_wv) - BMWorld::ElasticMod[2]*(pXL) + BMWorld::ElasticMod[3]*(Alg_Mn) + BMWorld::ElasticMod[4]*(Alg_wv)*(pXL) - BMWorld::ElasticMod[5]*(Alg_wv)*(Alg_Mn) - BMWorld::ElasticMod[6]*(pXL)*(Alg_Mn);
 		#else 
-			this->E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
+			BMWorld::E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
 		#endif
-		cout << "       Elastic Modulus (kPa) = " << this->E << endl; 
+		cout << "       Elastic Modulus (kPa) = " << BMWorld::E << endl;
 		
 		/* Pore Size (um): poreWidth = -a * Alg_ww^2 + b * Alg_ww + c */
 		#ifdef CALIBRATION
@@ -3569,7 +3569,7 @@ void BMWorld::write_data_row(std::ofstream& file,
 
 	// scaffold-specific columns
 #ifdef MODEL_SCAFFOLD
-	file << this->E << "," << this->Q << ","
+	file << BMWorld::E << "," << this->Q << ","
 		<< this->w << "," << this->Alg_wv << ","
 		<< this->Alg_Mn << "," << this->pXL << ","
 		<< viability << "," << perDiff << endl;
