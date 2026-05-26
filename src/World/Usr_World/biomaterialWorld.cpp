@@ -1243,6 +1243,7 @@ float BMWorld::prevCells = 0;
 
 #ifdef PEPTIDE_BM
 	string peptide; // Type of peptide used for biomaterial conjugation
+#endif
 
 #ifdef MODEL_SCAFFOLD
 	float BMWorld::Ca_Mw = 3400;      // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
@@ -3308,7 +3309,7 @@ int BMWorld::userInput() {
 
 		infile >> garbage;
 		infile >> this->peptide;
-		cout << "Type of peptide condjugation = " << this->peptide << endl;
+		cout << "Type of peptide conjugation = " << this->peptide << endl;
 
 
 
