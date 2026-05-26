@@ -1241,6 +1241,9 @@ float BMWorld::prevCells = 0;
 	float poreWidth = 200.00;    // (um)
 #endif
 
+#ifdef PEPTIDE_BM
+	string peptide; // Type of peptide used for biomaterial conjugation
+
 #ifdef MODEL_SCAFFOLD
 	float BMWorld::Ca_Mw = 3400;      // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
 	float BMWorld::Alg_Mn = 1500;     // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
@@ -3303,6 +3306,9 @@ int BMWorld::userInput() {
 		infile >> this->pXL;
 		cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
 
+		infile >> garbage;
+		infile >> this->peptide;
+		cout << "Type of peptide condjugation = " << this->peptide << endl;
 
 
 
