@@ -925,7 +925,7 @@ float Progen::get_prolif_prob(float meanTGF,
 
 #ifdef CALIBRATION
 	//float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
-	float prolif = 50; //testing
+	float prolif = 40; //testing
 #else  
 	float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
 #endif 
@@ -939,7 +939,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 30;
+	return 20;
 }
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
