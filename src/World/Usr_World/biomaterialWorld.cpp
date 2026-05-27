@@ -3113,11 +3113,9 @@ int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		//cout << " Mass Loss (%): " << this->w << endl; 
 		//cout << " Number of Ca-Alg patches: " << this->countPatchType(CaAlg) << endl;
 	}
-#ifdef PEPTIDE_BM
-	void BMWorld::updateE() {
-		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
-	}
-#endif //PEPTIDE_BM
+void BMWorld::updateE() {
+	BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+}
 #endif //MODEL_SCAFFOLD
 
 #ifdef MODEL_SCAFFOLD
