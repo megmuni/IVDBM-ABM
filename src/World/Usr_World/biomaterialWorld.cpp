@@ -1491,26 +1491,26 @@ void BMWorld::initializePatches() {
 
 #ifdef PEPTIDE_BM
 		if (this->peptide.compare("MAL") == 0) {
-			this->E_0 = MAL.E_0;
-			this->E_inf = MAL.E_inf;
-			this->t = MAL.t;
+			BMWorld::E_0 = MAL.E_0;
+			BMWorld::E_inf = MAL.E_inf;
+			BMWorld::t = MAL.t;
 		}
 		else if (this->peptide.compare("CHAD") == 0) {
-			this->E_0 = CHAD.E_0;
-			this->E_inf = CHAD.E_inf;
-			this->t = CHAD.t;
+			BMWorld::E_0 = CHAD.E_0;
+			BMWorld::E_inf = CHAD.E_inf;
+			BMWorld::t = CHAD.t;
 		}
 		else if (this->peptide.compare("hA5G26") == 0) {
-			this->E_0 = hA5G26.E_0;
-			this->E_inf = hA5G26.E_inf;
-			this->t = hA5G26.t;
+			BMWorld::E_0 = hA5G26.E_0;
+			BMWorld::E_inf = hA5G26.E_inf;
+			BMWorld::t = hA5G26.t;
 		}
 		else if (this->peptide.compare("IKVAV") == 0) {
-			this->E_0 = IKVAV.E_0;
-			this->E_inf = IKVAV.E_inf;
-			this->t = IKVAV.t;
+			BMWorld::E_0 = IKVAV.E_0;
+			BMWorld::E_inf = IKVAV.E_inf;
+			BMWorld::t = IKVAV.t;
 		}
-		BMWorld::E = this->E_inf + (this->E_0 - this->E_inf) * exp(-(this->clock * 30 * 60) / this->t); // converts tick to seconds
+		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
 #endif
 		cout << "       Elastic Modulus (kPa) = " << BMWorld::E << endl;
 		
