@@ -39,7 +39,7 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 5;
+float Progen::apoptosisChance = 1;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
@@ -805,7 +805,7 @@ float Stem::get_prolif_prob(float meanTGF,
 
 #ifdef CALIBRATION
 	//float prolif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
-	float prolif = 40; //testing
+	float prolif = 50; //testing
 #else  
 	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 #endif  
@@ -925,7 +925,7 @@ float Progen::get_prolif_prob(float meanTGF,
 
 #ifdef CALIBRATION
 	//float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
-	float prolif = 40; //testing
+	float prolif = 50; //testing
 #else  
 	float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
 #endif 
@@ -939,7 +939,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 20;
+	return 30;
 }
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
