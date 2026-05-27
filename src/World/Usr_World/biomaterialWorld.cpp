@@ -3112,7 +3112,7 @@ int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 	}
 #ifdef PEPTIDE_BM
 	void updateE() {
-		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
 	}
 #endif //PEPTIDE_BM
 #endif //MODEL_SCAFFOLD
