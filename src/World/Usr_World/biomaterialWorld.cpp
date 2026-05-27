@@ -1244,6 +1244,7 @@ float BMWorld::prevCells = 0;
 
 #ifdef PEPTIDE_BM
 	string peptide; // Type of peptide used for biomaterial conjugation
+	float E_0, E_inf, t;
 #endif
 
 #ifdef MODEL_SCAFFOLD
@@ -1487,6 +1488,30 @@ void BMWorld::initializePatches() {
 		#else 
 			BMWorld::E = -125 + 58*(Alg_wv) - 971*(pXL) + 1.037*(Alg_Mn) + 756*(Alg_wv*pXL) - 0.516*(Alg_wv*Alg_Mn) - 0.165*(pXL*Alg_Mn);
 		#endif
+
+#ifdef PEPTIDE_BM
+		if (this->peptide.compare("MAL") == 0) {
+			this->E_0 = MAL.E_0;
+			this->E_inf = MAL.E_inf;
+			this->t = MAL.t;
+		}
+		else if (this->peptide.compare("CHAD") == 0) {
+			this->E_0 = CHAD.E_0;
+			this->E_inf = CHAD.E_inf;
+			this->t = CHAD.t;
+		}
+		else if (this->peptide.compare("hA5G26") == 0) {
+			this->E_0 = hA5G26.E_0;
+			this->E_inf = hA5G26.E_inf;
+			this->t = hA5G26.t;
+		}
+		else if (this->peptide.compare("IKVAV") == 0) {
+			this->E_0 = IKVAV.E_0;
+			this->E_inf = IKVAV.E_inf;
+			this->t = IKVAV.t;
+		}
+		BMWorld::E = this->E_inf + (this->E_0 - this->E_inf) * exp(-(this->clock * 30 * 60) / this->t); // converts tick to seconds
+#endif
 		cout << "       Elastic Modulus (kPa) = " << BMWorld::E << endl;
 		
 		/* Pore Size (um): poreWidth = -a * Alg_ww^2 + b * Alg_ww + c */
@@ -2135,6 +2160,7 @@ int BMWorld::go() {
 			/* ------------------------- UPDATE CaAlg Properties ------------------------ */
 			this->updateSwellingRatio();
 			this->updateMassLoss();
+			this->updateE();
 		#endif
 
 		/* ----------------------- ATTRIBUTES SYNCHRONIZATION ----------------------- */
@@ -3084,6 +3110,11 @@ int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		//cout << " Mass Loss (%): " << this->w << endl; 
 		//cout << " Number of Ca-Alg patches: " << this->countPatchType(CaAlg) << endl;
 	}
+#ifdef PEPTIDE_BM
+	void updateE() {
+		BMWorld::E = this->E_inf + (this->E_0 - this->E_inf) * exp(-(this->clock * 30 * 60) / this->t); // converts tick to seconds
+	}
+#endif //PEPTIDE_BM
 #endif //MODEL_SCAFFOLD
 
 #ifdef MODEL_SCAFFOLD

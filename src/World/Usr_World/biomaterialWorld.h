@@ -355,6 +355,14 @@ class BMWorld: public World {
     void updateMassLoss();
 
     /*
+     * Description:Update Ca-Alg effective stiffness (E) at current tick
+     *
+     * Return:
+     * Parameters:
+     */
+    void updateE();
+
+    /*
      * Description:Degrade Ca-Alg Patches and replace with immature tissue patch (no new ECM produced)
      *
      * Return:
@@ -439,6 +447,7 @@ class BMWorld: public World {
     };
     //extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
     struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+    static float E_0, E_inf, t;
 #endif // PEPTIDE_BM
 
 
@@ -459,7 +468,7 @@ class BMWorld: public World {
     float poreWidth;    // Pore Size (um)
 
 #ifdef PEPTIDE_BM
-    string peptide; // Type of peptide used for biomaterial conjugation
+    int peptide; // Type of peptide used for biomaterial conjugation
 #endif
 
 #ifdef GPU_DIFFUSE		// Diffusion using Third buffer
