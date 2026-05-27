@@ -1513,7 +1513,7 @@ void BMWorld::initializePatches() {
 			BMWorld::t = IKVAV.t_stress;
 		}
 		cout << "Peptide: " << this->peptide << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf << BMWorld::t << endl;
-		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
 #endif
 		cout << "       Elastic Modulus (kPa) = " << BMWorld::E << endl;
 		
@@ -3114,7 +3114,9 @@ int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		//cout << " Number of Ca-Alg patches: " << this->countPatchType(CaAlg) << endl;
 	}
 void BMWorld::updateE() {
-	BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+	BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+	// debug
+	cout << "E value is " << BMWorld::E << endl;
 }
 #endif //MODEL_SCAFFOLD
 
