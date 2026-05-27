@@ -445,8 +445,8 @@ class BMWorld: public World {
         float E_eq; // 'equilibrium' modulus, represents viscous portion of model
         float t_stress; // stress relaxation time (t = t_half/ln(2))
     };
-    //extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
-    struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+    extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+    //struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
     static float E_0, E_inf, t;
 #endif // PEPTIDE_BM
 
