@@ -1266,10 +1266,6 @@ float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 	float BMWorld::PoreSize[2] = {1769.8, 258.5};	//float BMWorld::PoreSize[3] = {345.2, 309.9, 138.1};
 #endif
 
-#ifdef PEPTIDE_BM
-	struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
-#endif
-
 BMWorld::BMWorld(double length, double width, double height, double plength) {
 	// Generate random seeds:
 	for(int i = 0; i < NUM_THREAD; i++) seeds[i] = 25234 + 17*i;
