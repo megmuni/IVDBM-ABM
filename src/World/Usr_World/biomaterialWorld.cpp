@@ -1267,7 +1267,7 @@ float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 #endif
 
 #ifdef PEPTIDE_BM
-	peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+	struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
