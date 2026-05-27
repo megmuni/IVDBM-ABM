@@ -1339,10 +1339,10 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
 
 #ifdef PEPTIDE_BM
 	/* Experimental values for peptide biomaterial */
-	peptideCondition MAL{ 2.0031, 3.8757, 44.00 };
-	peptideCondition CHAD{ 3.0180, 5.0709, 37.87 };
-	peptideCondition hA5G26{ 2.9628, 4.6913, 35.35 };
-	peptideCondition IKVAV{ 2.9067, 5.4795, 42.56 };
+	struct peptideCondition MAL{ 2.0031, 3.8757, 44.00 };
+	struct peptideCondition CHAD{ 3.0180, 5.0709, 37.87 };
+	struct peptideCondition hA5G26{ 2.9628, 4.6913, 35.35 };
+	struct peptideCondition IKVAV{ 2.9067, 5.4795, 42.56 };
 #endif
 
 	/* ----------------------- INITIALIZATION SUBROUTINES ----------------------- */
