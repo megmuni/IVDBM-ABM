@@ -712,8 +712,8 @@ class BMWorld: public World {
     float calculate_viability();
     float calculate_pct_differentiated(std::map<std::string, int>& agent_counts);
 };
-#endif	/* BMWorld_H */
 
+#ifdef PEPTIDE_BM
 /* Experimental values for peptide biomaterial */
 struct peptideCondition {
     float E_init; // initial modulus, represents elastic portion of model
@@ -722,3 +722,6 @@ struct peptideCondition {
 };
 extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
 //struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+#endif //PEPTIDE_BM
+
+#endif	/* BMWorld_H */
