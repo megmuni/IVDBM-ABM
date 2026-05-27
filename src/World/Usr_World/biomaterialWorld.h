@@ -468,7 +468,7 @@ class BMWorld: public World {
     float poreWidth;    // Pore Size (um)
 
 #ifdef PEPTIDE_BM
-    int peptide; // Type of peptide used for biomaterial conjugation
+    string peptide; // Type of peptide used for biomaterial conjugation
 #endif
 
 #ifdef GPU_DIFFUSE		// Diffusion using Third buffer
