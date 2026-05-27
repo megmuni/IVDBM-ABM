@@ -85,11 +85,11 @@ enum readwrite_t {
   write_t = 1  // End of a tick
 }; 
 
-enum peptides {
-	MAL,
-	CHAD,
-	hA5G26,
-	IKVAV
-};
+//enum peptides {
+//	MAL,
+//	CHAD,
+//	hA5G26,
+//	IKVAV
+//};
 
 #endif	/* ENUMS_H */
