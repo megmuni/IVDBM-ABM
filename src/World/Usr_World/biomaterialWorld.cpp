@@ -1512,6 +1512,7 @@ void BMWorld::initializePatches() {
 			BMWorld::E_inf = IKVAV.E_inf;
 			BMWorld::t = IKVAV.t;
 		}
+		cout << "Peptide: " << this->peptide << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf << BMWorld::t << endl;
 		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds
 #endif
 		cout << "       Elastic Modulus (kPa) = " << BMWorld::E << endl;
