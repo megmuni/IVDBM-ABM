@@ -439,14 +439,6 @@ class BMWorld: public World {
     static float PoreSize[2];     // PoreSize of Ca-Alg Hydrogel
 
 #ifdef PEPTIDE_BM
-    /* Experimental values for peptide biomaterial */
-    struct peptideCondition {
-        float E_init; // initial modulus, represents elastic portion of model
-        float E_eq; // 'equilibrium' modulus, represents viscous portion of model
-        float t_stress; // stress relaxation time (t = t_half/ln(2))
-    };
-    extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
-    //struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
     static float E_0, E_inf, t;
 #endif // PEPTIDE_BM
 
@@ -721,3 +713,12 @@ class BMWorld: public World {
     float calculate_pct_differentiated(std::map<std::string, int>& agent_counts);
 };
 #endif	/* BMWorld_H */
+
+/* Experimental values for peptide biomaterial */
+struct peptideCondition {
+    float E_init; // initial modulus, represents elastic portion of model
+    float E_eq; // 'equilibrium' modulus, represents viscous portion of model
+    float t_stress; // stress relaxation time (t = t_half/ln(2))
+};
+extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+//struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
