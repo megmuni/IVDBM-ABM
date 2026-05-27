@@ -1338,10 +1338,10 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
 
 #ifdef PEPTIDE_BM
 	/* Experimental values for peptide biomaterial */
-	struct peptideCondition MAL{ 2.0031, 3.8757, 44.00 };
-	struct peptideCondition CHAD{ 3.0180, 5.0709, 37.87 };
-	struct peptideCondition hA5G26{ 2.9628, 4.6913, 35.35 };
-	struct peptideCondition IKVAV{ 2.9067, 5.4795, 42.56 };
+	struct peptideCondition MAL = { 2.0031, 3.8757, 44.00 };
+	struct peptideCondition CHAD = { 3.0180, 5.0709, 37.87 };
+	struct peptideCondition hA5G26 = { 2.9628, 4.6913, 35.35 };
+	struct peptideCondition IKVAV = { 2.9067, 5.4795, 42.56 };
 #endif
 
 	/* ----------------------- INITIALIZATION SUBROUTINES ----------------------- */
@@ -1493,24 +1493,24 @@ void BMWorld::initializePatches() {
 
 #ifdef PEPTIDE_BM
 		if (this->peptide.compare("MAL") == 0) {
-			BMWorld::E_0 = MAL.E_0;
-			BMWorld::E_inf = MAL.E_inf;
-			BMWorld::t = MAL.t;
+			BMWorld::E_0 = MAL.E_init;
+			BMWorld::E_inf = MAL.E_eq;
+			BMWorld::t = MAL.t_stress;
 		}
 		else if (this->peptide.compare("CHAD") == 0) {
-			BMWorld::E_0 = CHAD.E_0;
-			BMWorld::E_inf = CHAD.E_inf;
-			BMWorld::t = CHAD.t;
+			BMWorld::E_0 = CHAD.E_init;
+			BMWorld::E_inf = CHAD.E_eq;
+			BMWorld::t = CHAD.t_stress;
 		}
 		else if (this->peptide.compare("hA5G26") == 0) {
-			BMWorld::E_0 = hA5G26.E_0;
-			BMWorld::E_inf = hA5G26.E_inf;
-			BMWorld::t = hA5G26.t;
+			BMWorld::E_0 = hA5G26.E_init;
+			BMWorld::E_inf = hA5G26.E_eq;
+			BMWorld::t = hA5G26.t_stress;
 		}
 		else if (this->peptide.compare("IKVAV") == 0) {
-			BMWorld::E_0 = IKVAV.E_0;
-			BMWorld::E_inf = IKVAV.E_inf;
-			BMWorld::t = IKVAV.t;
+			BMWorld::E_0 = IKVAV.E_init;
+			BMWorld::E_inf = IKVAV.E_eq;
+			BMWorld::t = IKVAV.t_stress;
 		}
 		cout << "Peptide: " << this->peptide << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf << BMWorld::t << endl;
 		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(this->clock * 30 * 60) / BMWorld::t); // converts tick to seconds

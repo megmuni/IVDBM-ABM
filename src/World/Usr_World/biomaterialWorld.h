@@ -441,9 +441,9 @@ class BMWorld: public World {
 #ifdef PEPTIDE_BM
     /* Experimental values for peptide biomaterial */
     struct peptideCondition {
-        float E_0; // initial modulus, represents elastic portion of model
-        float E_inf; // 'equilibrium' modulus, represents viscous portion of model
-        float t; // stress relaxation time (t = t_half/ln(2))
+        float E_init; // initial modulus, represents elastic portion of model
+        float E_eq; // 'equilibrium' modulus, represents viscous portion of model
+        float t_stress; // stress relaxation time (t = t_half/ln(2))
     };
     //extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
     struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
