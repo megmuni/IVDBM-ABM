@@ -1244,7 +1244,9 @@ float BMWorld::prevCells = 0;
 
 #ifdef PEPTIDE_BM
 	string peptide; // Type of peptide used for biomaterial conjugation
-	float E_0, E_inf, t;
+	float BMWorld::E_0 = 0;
+	float BMWorld::E_inf = 0;
+	float BMWorld::t = 0;
 #endif
 
 #ifdef MODEL_SCAFFOLD
@@ -3111,7 +3113,7 @@ int BMWorld::countNeighborPatchType(int ix, int iy, int iz,  int patchType) {
 		//cout << " Number of Ca-Alg patches: " << this->countPatchType(CaAlg) << endl;
 	}
 #ifdef PEPTIDE_BM
-	void updateE() {
+	void BMWorld::updateE() {
 		BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
 	}
 #endif //PEPTIDE_BM
