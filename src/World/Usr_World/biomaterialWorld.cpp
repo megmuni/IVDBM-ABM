@@ -3548,7 +3548,8 @@ int BMWorld::userInput() {
 //	prevCells = cells.actualSize();
 //}
 string BMWorld::get_output_filename() {
-	return "output/Output_Biomarkers.csv";
+	return util::outputFileName;
+	//return "output/Output_Biomarkers.csv";
 }
 
 vector<string> BMWorld::get_agent_type_names() {

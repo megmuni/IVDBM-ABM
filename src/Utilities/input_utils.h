@@ -44,6 +44,7 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Macrophage (initial cell count),
                           * Neutrophil (initial cell count), 
 						  * Treatment_option */
+string outputFileName; // Path to output file (output_biomarkers)
 
 /*
  * Description:	Function for getting the number of ticks that the user inputted
@@ -174,8 +175,11 @@ void processOptions(int argc, char** argv) {
 				exit(1);
 			#endif
 
-		} else if (!strcmp(option_string, "--inputfile")) {
+		}
+		else if (!strcmp(option_string, "--inputfile")) {
 			strcpy(inputFileName, argv[++i]);
+		} else if (!strcmp(option_string, "--outputfile")) {
+			strcpy(outputFileName, argv[++i]);
 		} else if (!strcmp(option_string, "--help")){
 			cout << "Options: " << endl;
 			cout << "   --numticks:      Number of ticks" << endl;
@@ -210,6 +214,7 @@ void printOptions() {
 	cout << "	worldYwidth:	"	<< worldYwidth << " mm" << endl;
 	cout << "	worldZwidth:	"	<< worldZwidth << " mm" << endl;
 	cout << "	inputFileName:	"	<< inputFileName << endl;
+	cout << "	outputFileName:	" << outputFileName << endl;
 }
 
 }  // namespace util
