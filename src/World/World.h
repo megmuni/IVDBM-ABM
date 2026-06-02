@@ -111,7 +111,7 @@ class World {
 
 protected:
     // --- output function-related hooks ---
-    virtual std::string get_output_filename() = 0; // returns path and filename for primary CSV output file
+    virtual char* get_output_filename() = 0; // returns path and filename for primary CSV output file
     virtual void write_csv_header(std::ofstream& file); // writes the header row to the CSV output file - make sure order matches write_data_row()
     virtual void write_data_row(std::ofstream& file, 
         std::map<std::string, int>& agent_counts,

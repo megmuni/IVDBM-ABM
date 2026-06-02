@@ -3547,7 +3547,7 @@ int BMWorld::userInput() {
 //
 //	prevCells = cells.actualSize();
 //}
-string BMWorld::get_output_filename() {
+char* BMWorld::get_output_filename() {
 	return util::outputFileName;
 	//return "output/Output_Biomarkers.csv";
 }

@@ -508,7 +508,7 @@ class BMWorld: public World {
 
  protected:
      // --- output file hooks ---
-     std::string get_output_filename()                                override;
+     char* get_output_filename()                                override;
      void        write_csv_header(std::ofstream& file)               override;
      void        write_data_row(std::ofstream& file,
          std::map<std::string, int>& agent_counts,

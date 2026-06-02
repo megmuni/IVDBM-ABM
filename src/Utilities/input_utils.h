@@ -44,7 +44,7 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Macrophage (initial cell count),
                           * Neutrophil (initial cell count), 
 						  * Treatment_option */
-string outputFileName; // Path to output file (output_biomarkers)
+char outputFileName[200]; // Path to output file (output_biomarkers)
 
 /*
  * Description:	Function for getting the number of ticks that the user inputted
