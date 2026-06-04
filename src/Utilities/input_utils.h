@@ -26,7 +26,8 @@ float patchWidth;  // Desired width of each patch in millimeters
 float worldXwidth; // Desired x-dimension width of the world in millimeters
 float worldYwidth; // Desired y-dimension width of the world in millimeters
 float worldZwidth; // Desired z-dimension width of the world in millimeters
-/** Path to chemical_environment.json (copy from chemical_environment.template.json). */
+/** Path to chemical_environment.json (copy from
+ * chemical_environment.template.json). */
 char chemicalEnvironmentConfigFile[200];
 char inputFileName[200]; /* Path to input file containing these inputs:
                           * Number_of_baseline_chemicals_to_be_inputed,
@@ -137,7 +138,7 @@ void processOptions(int argc, char **argv) {
 #elif defined(MODEL_VOCALFOLD)
   strcpy(inputFileName, "configFiles/config_VocalFold.txt");
 #elif defined(MODEL_SCAFFOLD)
-  strcpy(inputFileName, "configFiles/config_Scaffold_GH10.txt");
+  strcpy(inputFileName, "configFiles/config_scaffold.txt");
 #else
   strcpy(inputFileName, "configFiles/config.txt");
 #endif
@@ -154,7 +155,7 @@ void processOptions(int argc, char **argv) {
     if (!strcmp(option_string, "--numticks")) {
       numTicks = atoi(argv[++i]);
       //} else if (!strcmp(option_string, "--patchwidth")) {    // patch width
-      //fixed at 0.01mm
+      // fixed at 0.01mm
       // maintain 1 cell max per patch occupancy
       // patchWidth = atof(argv[++i]);
     } else if (!strcmp(option_string, "--wxw")) {

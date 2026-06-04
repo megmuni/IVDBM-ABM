@@ -4,6 +4,7 @@ add_library(Chemistry
     chemical_environment.cpp
     diffusion_algorithm_name.cpp
     patch_field_diffusion.cpp
+    chemical_environment_vtk_export.cpp
 )
 
 set_target_properties(Chemistry PROPERTIES

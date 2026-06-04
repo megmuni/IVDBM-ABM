@@ -119,6 +119,17 @@ public:
 
   const float *channel_grid(int channel_index) const;
 
+  int grid_nx() const { return nx_; }
+  int grid_ny() const { return ny_; }
+  int grid_nz() const { return nz_; }
+  int grid_size() const { return grid_size_; }
+
+  /** Patch spacing in mm (from construction); 0 if diffusion was not enabled. */
+  double grid_spacing_mm() const { return grid_spacing_mm_; }
+
+  /** Chemotaxis channel index from config, or -1 before allocation. */
+  int chemotaxis_channel_index() const { return chemotaxis_channel_; }
+
   float total_tnf() const { return total_tnf_; }
   float total_tgf() const { return total_tgf_; }
   float total_il1beta() const { return total_il1beta_; }
@@ -135,6 +146,7 @@ private:
   int ny_;
   int nz_;
   int grid_size_;
+  double grid_spacing_mm_ = 0.0;
 
   ChemicalEnvironmentConfig config_;
   SpeciesRegistry registry_;

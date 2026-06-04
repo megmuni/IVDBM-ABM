@@ -13,7 +13,11 @@
 
 ChemicalEnvironment::ChemicalEnvironment(int nx, int ny, int nz,
                                            double grid_spacing_mm)
-    : nx_(nx), ny_(ny), nz_(nz), grid_size_(nx * ny * nz) {
+    : nx_(nx),
+      ny_(ny),
+      nz_(nz),
+      grid_size_(nx * ny * nz),
+      grid_spacing_mm_(grid_spacing_mm) {
   if (nx_ <= 0 || ny_ <= 0 || nz_ <= 0)
     throw std::invalid_argument(
         "ChemicalEnvironment: grid dimensions must be positive");
@@ -253,11 +257,14 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
 #else
           p[in] = d[in] + p[in] * 0.02f;
 #endif
+          p[in] = std::max(p[in], 0.f);
           d[in] = 0.f;
         }
 
-        if (chemotaxis_channel_ >= 0)
-          channel_row(chemotaxis_channel_)[in] = channel_row(chemo_src)[in];
+        if (chemotaxis_channel_ >= 0) {
+          float chemo = channel_row(chemo_src)[in];
+          channel_row(chemotaxis_channel_)[in] = std::max(chemo, 0.f);
+        }
 
         total_tnf_ += channel_row(tnf_ch)[in];
         total_tgf_ += channel_row(tgf_ch)[in];

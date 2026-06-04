@@ -46,6 +46,18 @@ TEST_CASE("ChemicalEnvironment merge updates concentration from delta channel",
   REQUIRE(env.channels(TNF).secretion_delta[0] == Approx(0.f));
 }
 
+TEST_CASE("ChemicalEnvironment merge clamps concentration to non-negative",
+          "[chemistry][environment]") {
+  ChemicalEnvironment env(2, 2, 2);
+  load_test_env(env);
+
+  env.set_concentration(0, TNF, 5.f);
+  env.accumulate_secretion(0, TNF, -12.f);
+  env.merge_and_reset_secretion();
+
+  REQUIRE(env.concentration_at(0, TNF) == Approx(0.f));
+}
+
 TEST_CASE("ChemicalEnvironment agent API reads and accumulates secretion",
           "[chemistry][environment][agent]") {
   ChemicalEnvironment env(2, 2, 2);

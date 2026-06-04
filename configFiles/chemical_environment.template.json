@@ -2,7 +2,7 @@
   "schema_version": 1,
   "model": "IVDBM",
   "description": "Copy this file to chemical_environment.json and edit values. Do not hard-code biology in C++.",
-  "tick_interval_minutes": 30,
+  "tick_interval_minutes": 2,
   "channels": {
     "count": 7,
     "chemotaxis": 6,

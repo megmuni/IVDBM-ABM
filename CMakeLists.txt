@@ -33,6 +33,14 @@ endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/examples/test_not_main.cpp")
   add_executable(testRun examples/test_not_main.cpp)
 endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/ex_chem_random_spikes.cpp")
+  add_executable(ex_chem_random_spikes examples/ex_chem_random_spikes.cpp)
+  target_compile_definitions(ex_chem_random_spikes PRIVATE
+    IVDBM_CHEM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
+  set_target_properties(ex_chem_random_spikes PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON)
+endif()
 
 message("here 1")
 
@@ -44,6 +52,9 @@ if(TARGET ex_diffuse_temperature)
 endif()
 if(TARGET testRun)
   target_link_libraries(testRun ${allLIBS})
+endif()
+if(TARGET ex_chem_random_spikes)
+  target_link_libraries(ex_chem_random_spikes Chemistry FieldVariable)
 endif()
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lGL -lGLU -lglut")
