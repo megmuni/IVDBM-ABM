@@ -56,14 +56,6 @@ class Chemical: public FieldVariable {
      */
     ~Chemical();
 
-
-#ifdef GPU_DIFFUSE
-
-    /* The following variables keep track of a patch's cytokine level immediately after the GPU diffusion is performed */
-    float *tTNF, *tTGF, *tIL1beta;
-
-#endif
-
     // The following variables keep track of a patch's cytokine levels (pTNF, pTGF,...) and the change in a patch's cytokine levels throughout the current tick (dTNF, dTGF,...):
     float* pTNF, *dTNF;
     float* pTGF, *dTGF;

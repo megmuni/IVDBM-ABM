@@ -491,9 +491,9 @@ void outputTotalChem(BMWorld* myWorld, string filename) {
 		tp += myWorld->worldECM[in].faggrecan[read_t];
   }
 
-  tp += myWorld->WorldChem.totalTNF;
-  tp += myWorld->WorldChem.totalTGF;
-  tp += myWorld->WorldChem.totalIL1beta;
+  tp += myWorld->world_total_tnf();
+  tp += myWorld->world_total_tgf();
+  tp += myWorld->world_total_il1beta();
 
   //Output:
   output_file << fixed << myWorld->cells.actualSize() << "\t";
@@ -501,9 +501,9 @@ void outputTotalChem(BMWorld* myWorld, string filename) {
   output_file << agg << "\t";
   output_file << tp << "\t";
 
-  output_file << fixed << myWorld->WorldChem.totalTNF << "\t";
-  output_file << myWorld->WorldChem.totalTGF << "\t";
-  output_file << myWorld->WorldChem.totalIL1beta << "\t";
+  output_file << fixed << myWorld->world_total_tnf() << "\t";
+  output_file << myWorld->world_total_tgf() << "\t";
+  output_file << myWorld->world_total_il1beta() << "\t";
   
   output_file << endl;
   
