@@ -390,6 +390,8 @@ public:
   static float deletedCells;
   static float prevCells;
   static int initialCaAlg; // The number of initial tissue patches
+  
+  static float E; // Effective stiffness
 
   // Crosslinked Ca-Alg Hydrogel Parameters
   //  Ca Crosslinker:
@@ -423,11 +425,14 @@ public:
   /** World-level cytokine totals (grid owned by chemical_environment_). */
   Chemical WorldChem;
 
-  float E;         // Elastic Modulus (Pa)
   float pXL;       // Crosslink Density (mmol/mL)
   float Q;         // Swelling Ratio (%)
   float w;         // Mass Loss (%)
   float poreWidth; // Pore Size (um)
+  
+#ifdef PEPTIDE_BM
+  string peptide; // Type of peptide used for biomaterial conjugation
+#endif
 
   int typesOfChem; // The number of different chemicals there are in the world
   vector<float> baselineChem; // Initial amount of each chemical in the world
@@ -466,7 +471,7 @@ public:
 
 protected:
   // --- output file hooks ---
-  std::string get_output_filename() override;
+  char* get_output_filename() override;
   void write_csv_header(std::ofstream &file) override;
   void write_data_row(std::ofstream &file,
                       std::map<std::string, int> &agent_counts,
@@ -627,4 +632,16 @@ private:
   float calculate_viability();
   float calculate_pct_differentiated(std::map<std::string, int> &agent_counts);
 };
+
+#ifdef PEPTIDE_BM
+/* Experimental values for peptide biomaterial */
+struct peptideCondition {
+    float E_init; // initial modulus, represents elastic portion of model
+    float E_eq; // 'equilibrium' modulus, represents viscous portion of model
+    float t_stress; // stress relaxation time (t = t_half/ln(2))
+};
+extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+//struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
+#endif //PEPTIDE_BM
+
 #endif /* BMWorld_H */

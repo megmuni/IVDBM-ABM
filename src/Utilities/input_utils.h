@@ -45,8 +45,9 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Number_of_cell_to_be_inputed,
                           * Chondrocyte (initial cell count),
                           * Macrophage (initial cell count),
-                          * Neutrophil (initial cell count),
-                          * Treatment_option */
+                          * Neutrophil (initial cell count), 
+						              * Treatment_option */
+char outputFileName[200]; // Path to output file (output_biomarkers)
 
 /*
  * Description: Path to the chemical environment JSON config.
@@ -179,6 +180,8 @@ void processOptions(int argc, char **argv) {
 
     } else if (!strcmp(option_string, "--inputfile")) {
       strcpy(inputFileName, argv[++i]);
+    } else if (!strcmp(option_string, "--outputfile")) {
+			strcpy(outputFileName, argv[++i]);
     } else if (!strcmp(option_string, "--chem-config")) {
       strcpy(chemicalEnvironmentConfigFile, argv[++i]);
     } else if (!strcmp(option_string, "--help")) {
@@ -220,6 +223,7 @@ void printOptions() {
   cout << "	worldYwidth:	" << worldYwidth << " mm" << endl;
   cout << "	worldZwidth:	" << worldZwidth << " mm" << endl;
   cout << "	inputFileName:	" << inputFileName << endl;
+  cout << "	outputFileName:	" << outputFileName << endl;
   cout << "	chemicalEnvironmentConfig:	"
        << chemicalEnvironmentConfigFile << endl;
 }

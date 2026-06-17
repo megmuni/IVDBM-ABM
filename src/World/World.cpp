@@ -178,7 +178,7 @@ int  World::get_total_agent_count() { return 0; }
 
 void World::outputWorld_csv() {
     if (this->clock == 0) {
-        remove(get_output_filename().c_str());
+        remove(get_output_filename());
 
         ofstream output_file(get_output_filename(), ios::app);
         write_csv_header(output_file);

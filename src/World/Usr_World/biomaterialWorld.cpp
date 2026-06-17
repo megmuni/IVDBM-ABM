@@ -49,6 +49,7 @@ float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
+float BMWorld::E = 0;     // Effective stiffness
 float G;                  // Elastic Modulus (kPa)
 float pXL;                // Crosslink Density (mmol/mL = M)
 float Alg_Mn;             // molecular weight of alginate (kDa)
@@ -57,6 +58,13 @@ int lowMW_alg;            // ratio component of low-MW alginate
 float Q;                  // Swelling Ratio
 float w = 0;              // Mass Loss (%)
 float poreWidth = 200.00; // (um)
+#endif
+
+#ifdef PEPTIDE_BM
+	string peptide; // Type of peptide used for biomaterial conjugation
+	float BMWorld::E_0 = 0;
+	float BMWorld::E_inf = 0;
+	float BMWorld::t = 0;
 #endif
 
 #ifdef MODEL_SCAFFOLD
@@ -84,6 +92,14 @@ float BMWorld::MassLoss[4] = {
     1.36}; // float BMWorld::MassLoss[4] = {17.6, 0.9, 60, 5.3};
 float BMWorld::PoreSize[2] = {
     1769.8, 258.5}; // float BMWorld::PoreSize[3] = {345.2, 309.9, 138.1};
+#endif
+
+#ifdef PEPTIDE_BM
+	/* Experimental values for peptide biomaterial */
+	peptideCondition MAL = { 2.0031, 3.8757, 44.00 };
+	peptideCondition CHAD = { 3.0180, 5.0709, 37.87 };
+	peptideCondition hA5G26 = { 2.9628, 4.6913, 35.35 };
+	peptideCondition IKVAV = { 2.9067, 5.4795, 42.56 };
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
@@ -339,6 +355,32 @@ void BMWorld::initializeCaAlg() {
             756 * (Alg_wv * pXL) - 0.516 * (Alg_wv * Alg_Mn) -
             0.165 * (pXL * Alg_Mn);
 #endif
+
+#ifdef PEPTIDE_BM
+	if (this->peptide.compare("MAL") == 0) {
+		BMWorld::E_0 = MAL.E_init;
+		BMWorld::E_inf = MAL.E_eq;
+		BMWorld::t = MAL.t_stress;
+	}
+	else if (this->peptide.compare("CHAD") == 0) {
+	  BMWorld::E_0 = CHAD.E_init;
+		BMWorld::E_inf = CHAD.E_eq;
+		BMWorld::t = CHAD.t_stress;
+	}
+	else if (this->peptide.compare("hA5G26") == 0) {
+		BMWorld::E_0 = hA5G26.E_init;
+		BMWorld::E_inf = hA5G26.E_eq;
+		BMWorld::t = hA5G26.t_stress;
+	}
+	else if (this->peptide.compare("IKVAV") == 0) {
+		BMWorld::E_0 = IKVAV.E_init;
+		BMWorld::E_inf = IKVAV.E_eq;
+		BMWorld::t = IKVAV.t_stress;
+	}
+	cout << "Peptide: " << this->peptide << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf << BMWorld::t << endl;
+	BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+#endif
+
   cout << "       Elastic Modulus (kPa) = " << this->E << endl;
 
 /* Pore Size (um): poreWidth = -a * Alg_ww^2 + b * Alg_ww + c */
@@ -679,6 +721,7 @@ int BMWorld::go() {
    */
   this->updateSwellingRatio();
   this->updateMassLoss();
+  this->updateE();
 #endif
 
   /* ----------------------- ATTRIBUTES SYNCHRONIZATION -----------------------
@@ -1378,9 +1421,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
         1.36 * (pXL) *
             (reportDay()); //(17.6*Alg_ww - 0.9)*log(tweek) + (60*Alg_ww + 5.3);
 #endif
-
     if (w_t < 0)
-      w_t = 0; // no negative mass loss
+    w_t = 0; // no negative mass loss
 
     // If there is % mass loss since last call, "degrade" % CaAlg patches and
     // replace with tissue
@@ -1396,6 +1438,10 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     // <<this->MassLoss[3]<<"*"<<(pXL)<<"*"<<(reportDay()) << endl; cout << "
     // Mass Loss (%): " << this->w << endl; cout << " Number of Ca-Alg patches:
     // " << this->countPatchType(CaAlg) << endl;
+  }
+  
+  void BMWorld::updateE() {
+	  BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
   }
 #endif // MODEL_SCAFFOLD
 
@@ -1648,6 +1694,10 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
       infile >> garbage;
       infile >> this->pXL;
       cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
+      
+      infile >> garbage;
+		  infile >> this->peptide;
+		  cout << "Type of peptide conjugation = " << this->peptide << endl;
 
       /* --------------------------- CYTOKINE PROPERTIES
        * -------------------------- */
@@ -1815,8 +1865,9 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   //
   //	prevCells = cells.actualSize();
   // }
-  string BMWorld::get_output_filename() {
-    return "output/Output_Biomarkers.csv";
+  char* BMWorld::get_output_filename() {
+    return util::outputFileName;
+    //return "output/Output_Biomarkers.csv";
   }
 
   vector<string> BMWorld::get_agent_type_names() {
