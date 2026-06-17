@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();
-	BMWorld myWorld = BMWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
+	BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
 	myWorld.outputWorld_csv();
 	//printf("Setup Execution time: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
@@ -363,7 +363,9 @@ int outputChem(BMWorld* myWorld, char* fileName, int chemIndex) {
 		for (int iy = 0; iy < myWorld->ny; iy++) {
 			for (int ix = 0; ix < myWorld->nx; ix++) {
 				int in = ix + iy*myWorld->nx + iz*myWorld->nx*myWorld->ny;
-				outfile << (myWorld->chemAllocation[chemIndex][in]) << " ";
+				const float *grid =
+				    myWorld->chemical_environment()->channel_grid(chemIndex);
+				outfile << grid[in] << " ";
 			}
 			outfile << endl;
 		}

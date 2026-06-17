@@ -54,9 +54,9 @@ enum color_t {
   cCaAlg = 119 
 };
 
-// Types of chemicals:
+/** Species ids and matching grid channel indices (see ChemicalEnvironment). */
 enum chemical_t {
-  // p: patch, d: delta (change during the tick)
+  /** Species identifiers for agent/world API. */
   TNF = 0,
   TGF = 1,
   IL1beta = 2,
