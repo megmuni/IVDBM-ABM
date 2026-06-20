@@ -3,9 +3,7 @@
 #
 # Usage:
 #   ./scripts/submit_testrun.sh user@institution.ca
-#   ./scripts/submit_testrun.sh --email user@institution.ca --array 0-9 --numticks 200
-#
-# Run from the repository root (or any directory). Requires a built testRun binary and sbatch.
+#   ./scripts/submit_testrun.sh --email user@institution.ca --testrun build/bin/testRun
 
 set -euo pipefail
 
@@ -25,6 +23,7 @@ WXW="1"
 WYW="1"
 WZW="1"
 INPUTFILE="configFiles/config_scaffold.txt"
+TESTRUN_REL="build/bin/testRun"
 DRY_RUN=0
 
 usage() {
@@ -45,6 +44,7 @@ Options:
   --cpus N              CPUs per task (default: 32)
   --gpus SPEC           GPUs per node (default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
+  --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
   --numticks N          Simulation ticks (default: 288)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
@@ -53,9 +53,13 @@ Options:
   --dry-run             Print sbatch command without submitting
   -h, --help            Show this help
 
+The batch script is scripts/testrun.sbatch (do not sbatch it directly unless you
+export REPO_ROOT, TESTRUN, etc. yourself). This wrapper sets those for you.
+
 Examples:
-  ./scripts/submit_testrun.sh emily.wang10@mail.mcgill.ca
-  ./scripts/submit_testrun.sh emily.wang10@mail.mcgill.ca--array 0-0 --numticks 50 --time 0-00:30:00
+  ./scripts/submit_testrun.sh user@institution.ca
+  ./scripts/submit_testrun.sh user@institution.ca --testrun bin/testRun
+  ./scripts/submit_testrun.sh user@institution.ca --array 0-0 --numticks 50
 EOF
 }
 
@@ -66,6 +70,15 @@ die() {
 
 valid_email() {
   [[ "$1" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]
+}
+
+resolve_testrun() {
+  local path="$1"
+  if [[ "${path}" != /* ]]; then
+    path="${REPO_ROOT}/${path}"
+  fi
+  [[ -f "${path}" && -x "${path}" ]] || die "testRun not found or not executable: ${path}"
+  printf '%s' "${path}"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -112,6 +125,11 @@ while [[ $# -gt 0 ]]; do
     --mem)
       [[ $# -ge 2 ]] || die "missing value for $1"
       MEM="$2"
+      shift 2
+      ;;
+    --testrun)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      TESTRUN_REL="$2"
       shift 2
       ;;
     --numticks)
@@ -161,14 +179,7 @@ valid_email "${EMAIL}" || die "invalid email address: ${EMAIL}"
 
 [[ -f "${SBATCH_SCRIPT}" ]] || die "missing batch script: ${SBATCH_SCRIPT}"
 
-TESTRUN=""
-if [[ -x "${REPO_ROOT}/build/bin/testRun" ]]; then
-  TESTRUN="${REPO_ROOT}/build/bin/testRun"
-elif [[ -x "${REPO_ROOT}/bin/testRun" ]]; then
-  TESTRUN="${REPO_ROOT}/bin/testRun"
-else
-  die "testRun not found. Build first: cmake -S . -B build && cmake --build build --target testRun"
-fi
+TESTRUN="$(resolve_testrun "${TESTRUN_REL}")"
 
 [[ -f "${REPO_ROOT}/${INPUTFILE}" ]] || die "input file not found: ${REPO_ROOT}/${INPUTFILE}"
 
@@ -203,4 +214,5 @@ command -v sbatch >/dev/null 2>&1 || die "sbatch not found (log in to a DRAC clu
 SUBMIT_OUTPUT="$(sbatch "${SBATCH_ARGS[@]}")"
 echo "${SUBMIT_OUTPUT}"
 JOB_ID="${SUBMIT_OUTPUT##* }"
+echo "testRun: ${TESTRUN}"
 echo "Mail notifications for ${EMAIL} will be sent by Slurm for job ${JOB_ID}."

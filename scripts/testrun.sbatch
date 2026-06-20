@@ -1,10 +1,7 @@
 #!/bin/bash
-#SBATCH --time=0-00:05:00
-#SBATCH --nodes=1
-#SBATCH --cpus-per-task=32
-#SBATCH --gpus-per-node=h100:2
-#SBATCH --mem=32000M
-# Account, mail-user, array range, and log path are set by scripts/submit_testrun.sh.
+# Slurm batch script for testRun — submit via scripts/submit_testrun.sh, not directly.
+# Required env (set by submit_testrun.sh): REPO_ROOT, TESTRUN
+# Optional env: NUMTICKS, WXW, WYW, WZW, INPUTFILE, OUTPUTFILE
 
 set -euo pipefail
 

@@ -91,35 +91,38 @@ Useful CLI flags (see `./build/bin/testRun --help`):
 
 With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line).
 
-## Run `testRun` as a Slurm job
+## Run `testRun` on DRAC (Slurm)
 
-[`slurm_job.sh`](slurm_job.sh) submits a job array on a Compute Canada–style cluster (`def-nicoleli` account, H100 GPUs). Edit the `#SBATCH` lines (account, time, memory, mail user, array range) before submitting.
-
-The script expects the executable at `./bin/testRun` relative to the repo root. After an out-of-tree build, either symlink or copy the binary:
+Use [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) from the repository root. It calls [`scripts/testrun.sbatch`](scripts/testrun.sbatch) with the correct `#SBATCH` options, your email, and paths to the binary and config files.
 
 ```bash
-ln -sf build/bin/testRun bin/testRun
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca
 ```
 
-Then submit from the repository root:
+Common options:
+
+| Flag             | Default                           | Purpose                                        |
+| ---------------- | --------------------------------- | ---------------------------------------------- |
+| `--testrun PATH` | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
+| `--array`        | `0-4`                             | Job array range                                |
+| `--account`      | `def-nicoleli`                    | Slurm allocation                               |
+| `--numticks`     | `288`                             | Simulation length                              |
+| `--inputfile`    | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
+
+Examples:
 
 ```bash
-module load cuda    # loaded inside slurm_job.sh as well
-sbatch slurm_job.sh
+# Default binary at build/bin/testRun
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca
+
+# In-tree binary from an older layout
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca --testrun bin/testRun
+
+# Preview the sbatch command
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca --dry-run
 ```
 
-The default script body runs five array tasks (`--array=0-4`), writing Slurm logs to `test_<task_id>.out` and biomarker CSVs to `output/Output_Biomarkers_<task_id>.csv`. Uncomment the plain `./bin/testRun ...` line (and comment out the GDB line) for production runs without the debugger.
-
-Example production command (already present, commented, in `slurm_job.sh`):
-
-```bash
-./bin/testRun \
-  --numticks 200 \
-  --inputfile config_scaffold.txt \
-  --wxw 3 --wyw 3 --wzw 3
-```
-
-On the compute node, load CUDA before building or running if GPU diffusion is enabled (`module load cuda`), and match `-DDIFFUSION3D_CUDA_ARCHITECTURES` to the node GPU (e.g. `90` for H100).
+Logs go to `logs/testrun_<array>_<jobid>.out`; biomarker CSVs to `output/Output_Biomarkers_<task>.csv`.
 
 ## Related docs
 
