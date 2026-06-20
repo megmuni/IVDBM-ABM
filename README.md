@@ -28,7 +28,33 @@ cmake -S . -B build \
 cmake --build build --target testRun -j"$(nproc)"
 ```
 
-To enable GPU diffusion kernels (required on CUDA Slurm nodes for the GPU/FFT chemistry path):
+### DRAC (Alliance Canada)
+
+On a cluster login node, load compiler modules before `cmake`. **If you pass `-DDIFFUSION3D_CUDA=ON`, you must load CUDA first**, otherwise CMake fails with `Failed to find nvcc`.
+
+```bash
+# CPU-only (default; no nvcc required)
+module load StdEnv/2023 gcc/12.3 cmake
+./scripts/build_drac.sh
+
+# GPU diffusion (H100 = sm_90)
+module load StdEnv/2023 gcc/12.3 cuda/12.2 cmake
+./scripts/build_drac.sh --cuda --arch 90
+```
+
+Or manually:
+
+```bash
+module load StdEnv/2023 gcc/12.3 cuda/12.2 cmake   # cuda only needed for GPU build
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SRC_TESTS=OFF \
+  -DDIFFUSION3D_CUDA=ON \
+  -DDIFFUSION3D_CUDA_ARCHITECTURES=90
+cmake --build build --target testRun -j"$(nproc)"
+```
+
+To enable GPU diffusion kernels locally (requires CUDA toolkit / `nvcc` on `PATH`):
 
 ```bash
 cmake -S . -B build \
