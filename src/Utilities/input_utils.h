@@ -13,6 +13,9 @@
 
 #pragma once
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 
 using namespace std;
@@ -47,7 +50,45 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Macrophage (initial cell count),
                           * Neutrophil (initial cell count), 
 						              * Treatment_option */
-char outputFileName[200]; // Path to output file (output_biomarkers)
+char outputDir[200];       // Base directory for run artifacts
+char outputFileName[200];  // Primary biomarker CSV path
+
+inline const char *getOutputDir() { return outputDir; }
+
+inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
+  snprintf(dest, dest_size, "%s/%s", outputDir, filename);
+}
+
+inline void ensureOutputDir() {
+  char cmd[512];
+  snprintf(cmd, sizeof(cmd), "mkdir -p '%s'", outputDir);
+  system(cmd);
+}
+
+inline void ensureOutputSubpath(const char *subpath) {
+  char path[512];
+  makeOutputPath(path, sizeof(path), subpath);
+  char cmd[768];
+  snprintf(cmd, sizeof(cmd), "mkdir -p '%s'", path);
+  system(cmd);
+}
+
+inline void initOutputDirFromEnv() {
+  const char *env = getenv("IVDBM_OUTPUT_DIR");
+  if (env == nullptr || env[0] == '\0')
+    env = getenv("OUTPUT_DIR");
+  if (env != nullptr && env[0] != '\0')
+    strncpy(outputDir, env, sizeof(outputDir) - 1);
+  else
+    strncpy(outputDir, "output", sizeof(outputDir) - 1);
+  outputDir[sizeof(outputDir) - 1] = '\0';
+}
+
+inline void finalizeOutputPaths() {
+  if (outputFileName[0] == '\0')
+    snprintf(outputFileName, sizeof(outputFileName), "%s/Output_Biomarkers.csv",
+             outputDir);
+}
 
 /*
  * Description: Path to the chemical environment JSON config.
@@ -100,6 +141,9 @@ char *getInputFileName() { return inputFileName; }
  */
 void processOptions(int argc, char **argv) {
 
+  outputFileName[0] = '\0';
+  initOutputDirFromEnv();
+
 /* ------------------------- Setting default options ------------------------ */
 #ifdef MODEL_SCAFFOLD
   numTicks = 432;
@@ -147,8 +191,10 @@ void processOptions(int argc, char **argv) {
   strcpy(chemicalEnvironmentConfigFile,
          "configFiles/chemical_environment.json");
 
-  if (argc == 1)
+  if (argc == 1) {
+    finalizeOutputPaths();
     return;
+  }
 
   // Get options from command line arguments
   for (int i = 1; i < argc; i++) {
@@ -181,7 +227,9 @@ void processOptions(int argc, char **argv) {
     } else if (!strcmp(option_string, "--inputfile")) {
       strcpy(inputFileName, argv[++i]);
     } else if (!strcmp(option_string, "--outputfile")) {
-			strcpy(outputFileName, argv[++i]);
+      strcpy(outputFileName, argv[++i]);
+    } else if (!strcmp(option_string, "--output-dir")) {
+      strcpy(outputDir, argv[++i]);
     } else if (!strcmp(option_string, "--chem-config")) {
       strcpy(chemicalEnvironmentConfigFile, argv[++i]);
     } else if (!strcmp(option_string, "--help")) {
@@ -192,6 +240,8 @@ void processOptions(int argc, char **argv) {
       cout << "   --wyw:           World length   (mm)" << endl;
       cout << "   --wzw:           World height   (mm)" << endl;
       cout << "   --inputfile:     path/name of input file" << endl;
+      cout << "   --outputfile:    path to biomarker CSV (default: <output-dir>/Output_Biomarkers.csv)" << endl;
+      cout << "   --output-dir:    directory for run output (default: output, or $IVDBM_OUTPUT_DIR)" << endl;
       cout << "   --chem-config:   path to chemical_environment.json" << endl;
       cout << " Usage: " << endl;
       cout << "   For a 24.9mm x 17.4mm, with patch width 15 um," << endl;
@@ -207,6 +257,8 @@ void processOptions(int argc, char **argv) {
       exit(-1);
     }
   }
+
+  finalizeOutputPaths();
 }
 
 /*
@@ -223,6 +275,7 @@ void printOptions() {
   cout << "	worldYwidth:	" << worldYwidth << " mm" << endl;
   cout << "	worldZwidth:	" << worldZwidth << " mm" << endl;
   cout << "	inputFileName:	" << inputFileName << endl;
+  cout << "	outputDir:	" << outputDir << endl;
   cout << "	outputFileName:	" << outputFileName << endl;
   cout << "	chemicalEnvironmentConfig:	"
        << chemicalEnvironmentConfigFile << endl;

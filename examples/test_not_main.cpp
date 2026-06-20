@@ -87,6 +87,7 @@ int main(int argc, char** argv) {
 /* -------------------------------------------------------------------------- */
 	// Get baseline cell and chemical values that user specified:
 	util::processOptions(argc, argv);
+	util::ensureOutputDir();
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();
@@ -105,12 +106,17 @@ int main(int argc, char** argv) {
 		//myWorld.debugInfo(); // debug function
 #ifdef PARAVIEW_RENDERING
 		if (tick % 12 == 0) {
+			util::ensureOutputSubpath("Simulation");
 			// Prepare output filenames and output current state of wound healing world:
-			char simulation[50] = "output/Simulation/Simulation_";
-			char ECMsim[50] = "output/Simulation/ECM_";
-			char chem0Sim[50] = "output/Simulation/chem0_";
+			char simulation[512];
+			char ECMsim[512];
+			char chem0Sim[512];
 			char extension[10] = ".vtk";
 			char tempNumber[20] = "";
+
+			util::makeOutputPath(simulation, sizeof(simulation), "Simulation/Simulation_");
+			util::makeOutputPath(ECMsim, sizeof(ECMsim), "Simulation/ECM_");
+			util::makeOutputPath(chem0Sim, sizeof(chem0Sim), "Simulation/chem0_");
 
 			sprintf(tempNumber, "%d", tick); // %d makes the result be a signed decimal integer
 			strcat(simulation, tempNumber);
@@ -119,10 +125,14 @@ int main(int argc, char** argv) {
 			strcat(ECMsim, extension);
 
 			// Ouput the cytokine values:
-			char ptnf[50] = "output/Simulation/tnf_";
-			char ptgf[50] = "output/Simulation/tgf_";
-			char pil1[50] = "output/Simulation/il1_";
-			char pcell[50] = "output/Simulation/pcellgrad_";
+			char ptnf[512];
+			char ptgf[512];
+			char pil1[512];
+			char pcell[512];
+			util::makeOutputPath(ptnf, sizeof(ptnf), "Simulation/tnf_");
+			util::makeOutputPath(ptgf, sizeof(ptgf), "Simulation/tgf_");
+			util::makeOutputPath(pil1, sizeof(pil1), "Simulation/il1_");
+			util::makeOutputPath(pcell, sizeof(pcell), "Simulation/pcellgrad_");
 
 			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
 			strcat(ptnf, tempNumber);
@@ -164,7 +174,11 @@ int main(int argc, char** argv) {
 	}
 
 	#ifdef CALIBRATION // Used for sensitivity analysis
-		util::outputTotalChem(&myWorld, "output/SensitivityAnalysis/FinalTotalChemVR.dat");
+		char calib_path[512];
+		util::ensureOutputSubpath("SensitivityAnalysis");
+		util::makeOutputPath(calib_path, sizeof(calib_path),
+		                     "SensitivityAnalysis/FinalTotalChemVR.dat");
+		util::outputTotalChem(&myWorld, calib_path);
 	#endif
 
 #ifdef COLLECT_CELL_INS_DEL_STATS

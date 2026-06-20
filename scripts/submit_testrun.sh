@@ -24,6 +24,7 @@ WYW="1"
 WZW="1"
 INPUTFILE="configFiles/config_scaffold.txt"
 TESTRUN_REL="build/bin/testRun"
+OUTPUT_DIR=""
 DRY_RUN=0
 
 usage() {
@@ -45,6 +46,7 @@ Options:
   --gpus SPEC           GPUs per node (default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
+  --output-dir PATH     Override run output directory (default: output/job_<SLURM_JOB_ID> on compute node)
   --numticks N          Simulation ticks (default: 24, ~0.5 days at 30 min/tick)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
@@ -157,6 +159,11 @@ while [[ $# -gt 0 ]]; do
       INPUTFILE="$2"
       shift 2
       ;;
+    --output-dir)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
     --dry-run)
       DRY_RUN=1
       shift
@@ -183,7 +190,12 @@ TESTRUN="$(resolve_testrun "${TESTRUN_REL}")"
 
 [[ -f "${REPO_ROOT}/${INPUTFILE}" ]] || die "input file not found: ${REPO_ROOT}/${INPUTFILE}"
 
-mkdir -p "${REPO_ROOT}/output" "${REPO_ROOT}/logs"
+mkdir -p "${REPO_ROOT}/logs"
+
+EXPORT_VARS="ALL,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE}"
+if [[ -n "${OUTPUT_DIR}" ]]; then
+  EXPORT_VARS="${EXPORT_VARS},OUTPUT_DIR=${OUTPUT_DIR}"
+fi
 
 SBATCH_ARGS=(
   --job-name=ivdbm-testrun
@@ -198,7 +210,8 @@ SBATCH_ARGS=(
   --array="${ARRAY}"
   --chdir="${REPO_ROOT}"
   --output="${REPO_ROOT}/logs/testrun_%a_%j.out"
-  --export=ALL,REPO_ROOT="${REPO_ROOT}",TESTRUN="${TESTRUN}",NUMTICKS="${NUMTICKS}",WXW="${WXW}",WYW="${WYW}",WZW="${WZW}",INPUTFILE="${INPUTFILE}"
+  --error="${REPO_ROOT}/logs/testrun_%a_%j.err"
+  --export="${EXPORT_VARS}"
   "${SBATCH_SCRIPT}"
 )
 
@@ -215,4 +228,9 @@ SUBMIT_OUTPUT="$(sbatch "${SBATCH_ARGS[@]}")"
 echo "${SUBMIT_OUTPUT}"
 JOB_ID="${SUBMIT_OUTPUT##* }"
 echo "testRun: ${TESTRUN}"
+if [[ -n "${OUTPUT_DIR}" ]]; then
+  echo "Output dir (override): ${OUTPUT_DIR}"
+else
+  echo "Output dir: output/job_<SLURM_JOB_ID> (set on compute node)"
+fi
 echo "Mail notifications for ${EMAIL} will be sent by Slurm for job ${JOB_ID}."

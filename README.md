@@ -73,11 +73,13 @@ Run from the **repository root** so default paths such as `configFiles/chemical_
 
 ```bash
 ./build/bin/testRun \
-  --numticks 288 \
+  --output-dir output/local_run \
+  --numticks 24 \
   --inputfile configFiles/config_scaffold.txt \
-  --outputfile output/Output_Biomarkers.csv \
   --wxw 1 --wyw 1 --wzw 1
 ```
+
+If `--outputfile` is omitted, the biomarker CSV defaults to `<output-dir>/Output_Biomarkers.csv`.
 
 Useful CLI flags (see `./build/bin/testRun --help`):
 
@@ -86,8 +88,9 @@ Useful CLI flags (see `./build/bin/testRun --help`):
 | `--numticks`              | Number of simulation ticks (1 tick = 30 min by default)                                |
 | `--wxw`, `--wyw`, `--wzw` | World width, length, height (mm)                                                       |
 | `--inputfile`             | Text config for cells, alginate, and scaffold parameters                               |
-| `--outputfile`            | CSV biomarker output path                                                              |
-| `--chem-config`           | Path to `chemical_environment.json` (default: `configFiles/chemical_environment.json`) |
+| `--outputfile`            | `<output-dir>/Output_Biomarkers.csv` | CSV biomarker output path                              |
+| `--output-dir`            | `output`                             | Base directory for all run artifacts                   |
+| `--chem-config`           | `configFiles/chemical_environment.json` | Path to chemical environment JSON                   |
 
 With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line).
 
@@ -122,7 +125,7 @@ Examples:
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca --dry-run
 ```
 
-Logs go to `logs/testrun_<array>_<jobid>.out`; biomarker CSVs to `output/Output_Biomarkers_<task>.csv`.
+Logs go to `logs/testrun_<array>_<jobid>.out` (and `.err`). Simulation artifacts go under **`output/job_<jobid>/`** (biomarker CSV, `tgf_line.csv`, patch dumps, etc.). Override with `--output-dir` on the submit script or `--output-dir` / `$IVDBM_OUTPUT_DIR` when running `testRun` locally.
 
 ## Related docs
 
