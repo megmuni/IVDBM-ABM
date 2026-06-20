@@ -60,7 +60,7 @@ Options:
   --array RANGE         Job array range (default: 0-0, single task)
   --time D-HH:MM:SS     Wall time (default: 0-00:05:00)
   --cpus N              CPUs per task (default: 32)
-  --profile cpu|gpu     Job profile (default: cpu — matches ./scripts/build_drac.sh)
+  --profile cpu|gpu     Job profile (default: gpu — 2× H100; use cpu for CPU-only builds)
   --gpus SPEC           GPUs per node (overrides --profile; gpu default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
@@ -106,6 +106,20 @@ resolve_testrun() {
   fi
   [[ -f "${path}" && -x "${path}" ]] || die "testRun not found or not executable: ${path}"
   printf '%s' "${path}"
+}
+
+testrun_links_cuda() {
+  ldd "${TESTRUN}" 2>/dev/null | grep -qE 'libcudart|libcuda'
+}
+
+warn_profile_binary_mismatch() {
+  if testrun_links_cuda; then
+    if [[ "${PROFILE}" == "cpu" ]]; then
+      warn "testRun is CUDA-linked; default is --profile gpu (pass --profile gpu explicitly)"
+    fi
+  elif [[ "${PROFILE}" == "gpu" ]]; then
+    warn "profile=gpu but testRun is not CUDA-linked; run ./scripts/build_drac.sh --cuda or use --profile cpu"
+  fi
 }
 
 apply_profile() {
@@ -264,9 +278,7 @@ if [[ ! -f "${REPO_ROOT}/${CHEM_CONFIG}" ]]; then
   die "missing ${CHEM_CONFIG} — run: cp configFiles/chemical_environment.template.json configFiles/chemical_environment.json"
 fi
 
-if [[ "${PROFILE}" == "gpu" ]]; then
-  warn "profile=gpu: build with ./scripts/build_drac.sh --cuda before expecting GPU diffusion"
-fi
+warn_profile_binary_mismatch
 
 mkdir -p "${REPO_ROOT}/logs"
 

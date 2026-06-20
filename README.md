@@ -169,7 +169,7 @@ Common options:
 | Flag               | Default                           | Purpose                                        |
 | ------------------ | --------------------------------- | ---------------------------------------------- |
 | `--testrun PATH`   | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
-| `--profile cpu\|gpu` | `cpu`                           | CPU-only (default build) or 2× H100 GPU job    |
+| `--profile cpu\|gpu` | `gpu` (2× H100)                   | Use `cpu` only for `./scripts/build_drac.sh` without `--cuda` |
 | `--array`          | `0-0`                             | Single job (use e.g. `0-4` for a batch)        |
 | `--account`        | `def-nicoleli`                    | Slurm allocation                               |
 | `--numticks`       | `24` (~12 h simulated)            | Simulation length (30 min/tick)                |
@@ -177,7 +177,7 @@ Common options:
 | `--outputfile`     | `<output-dir>/Output_Biomarkers.csv` | Biomarker CSV path                        |
 | `--inputfile`      | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
 
-Shared cluster defaults are in [`scripts/job_defaults.env`](scripts/job_defaults.env). Use `--profile gpu` only after `./scripts/build_drac.sh --cuda`.
+Shared cluster defaults are in [`scripts/job_defaults.env`](scripts/job_defaults.env). Default submit profile is **gpu** (matches `./scripts/build_drac.sh --cuda`). Use `--profile cpu` for CPU-only builds.
 
 Examples:
 
