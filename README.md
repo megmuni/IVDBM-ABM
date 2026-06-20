@@ -68,14 +68,16 @@ One tick = **30 minutes** of simulated time. Set `--numticks N` on `testRun` loc
 # Shorthand: email then tick count (same as --numticks 12)
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca 12
 
-# Or explicitly:
-./scripts/submit_testrun.sh your.email@mail.mcgill.ca --numticks 48
+# GPU diffusion (build first: ./scripts/build_drac.sh --cuda)
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca --profile gpu --numticks 24
 
 # Long run — also raise wall time (submit default is 5 minutes)
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca \
   --numticks 432 \
   --time 2-00:00:00
 ```
+
+Cluster simulation defaults (24 ticks, 1 mm cube, etc.) live in [`scripts/job_defaults.env`](scripts/job_defaults.env). Edit that file or override flags on the submit script.
 
 ## Compile
 
@@ -164,13 +166,18 @@ Use [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) from the repository
 
 Common options:
 
-| Flag             | Default                           | Purpose                                        |
-| ---------------- | --------------------------------- | ---------------------------------------------- |
-| `--testrun PATH` | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
-| `--array`        | `0-0`                             | Single job (use e.g. `0-4` for a batch)        |
-| `--account`      | `def-nicoleli`                    | Slurm allocation                               |
-| `--numticks`     | `24` (~0.5 days)                  | Simulation length (30 min/tick)                |
-| `--inputfile`    | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
+| Flag               | Default                           | Purpose                                        |
+| ------------------ | --------------------------------- | ---------------------------------------------- |
+| `--testrun PATH`   | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
+| `--profile cpu\|gpu` | `cpu`                           | CPU-only (default build) or 2× H100 GPU job    |
+| `--array`          | `0-0`                             | Single job (use e.g. `0-4` for a batch)        |
+| `--account`        | `def-nicoleli`                    | Slurm allocation                               |
+| `--numticks`       | `24` (~12 h simulated)            | Simulation length (30 min/tick)                |
+| `--chem-config`    | `configFiles/chemical_environment.json` | Chemical environment JSON              |
+| `--outputfile`     | `<output-dir>/Output_Biomarkers.csv` | Biomarker CSV path                        |
+| `--inputfile`      | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
+
+Shared cluster defaults are in [`scripts/job_defaults.env`](scripts/job_defaults.env). Use `--profile gpu` only after `./scripts/build_drac.sh --cuda`.
 
 Examples:
 

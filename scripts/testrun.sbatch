@@ -1,7 +1,7 @@
 #!/bin/bash
 # Slurm batch script for testRun — submit via scripts/submit_testrun.sh, not directly.
 # Required env (set by submit_testrun.sh): REPO_ROOT, TESTRUN
-# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, INPUTFILE, OUTPUTFILE, CHEM_CONFIG
+# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, INPUTFILE, OUTPUTFILE, CHEM_CONFIG, IVDBM_PROFILE
 
 set -uo pipefail
 
@@ -12,13 +12,12 @@ fail() {
 
 cd "${REPO_ROOT:?Set REPO_ROOT when submitting this job.}" || fail "cannot cd to REPO_ROOT=${REPO_ROOT}"
 
+JOB_DEFAULTS="${REPO_ROOT}/scripts/job_defaults.env"
+[[ -f "${JOB_DEFAULTS}" ]] || fail "missing ${JOB_DEFAULTS}"
+# shellcheck source=job_defaults.env
+source "${JOB_DEFAULTS}"
+
 OUTPUT_DIR="${OUTPUT_DIR:-output/job_${SLURM_JOB_ID}}"
-INPUTFILE="${INPUTFILE:-configFiles/config_scaffold.txt}"
-CHEM_CONFIG="${CHEM_CONFIG:-configFiles/chemical_environment.json}"
-NUMTICKS="${NUMTICKS:-24}"
-WXW="${WXW:-1}"
-WYW="${WYW:-1}"
-WZW="${WZW:-1}"
 OUTPUTFILE="${OUTPUTFILE:-${OUTPUT_DIR}/Output_Biomarkers.csv}"
 
 mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
@@ -39,7 +38,9 @@ if [[ -f /etc/profile.d/modules.sh ]]; then
   source /etc/profile.d/modules.sh
 fi
 module load StdEnv/2023 2>&1 || true
-module load cuda 2>&1 || module load cuda/12.2 2>&1 || true
+if [[ "${IVDBM_PROFILE:-cpu}" == "gpu" ]]; then
+  module load cuda 2>&1 || module load cuda/12.2 2>&1 || true
+fi
 
 echo "Job ${SLURM_JOB_ID:-?} starting on $(hostname)"
 echo "  REPO_ROOT=${REPO_ROOT}"
@@ -47,7 +48,8 @@ echo "  TESTRUN=${TESTRUN}"
 echo "  OUTPUT_DIR=${OUTPUT_DIR}"
 echo "  INPUTFILE=${INPUTFILE}"
 echo "  CHEM_CONFIG=${CHEM_CONFIG}"
-echo "  NUMTICKS=${NUMTICKS}  OMP_NUM_THREADS=${OMP_NUM_THREADS}"
+echo "  OUTPUTFILE=${OUTPUTFILE}"
+echo "  NUMTICKS=${NUMTICKS}  OMP_NUM_THREADS=${OMP_NUM_THREADS}  PROFILE=${IVDBM_PROFILE:-cpu}"
 
 set -e
 "${TESTRUN}" \

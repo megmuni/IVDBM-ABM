@@ -4,29 +4,42 @@
 # Usage:
 #   ./scripts/submit_testrun.sh user@institution.ca
 #   ./scripts/submit_testrun.sh user@institution.ca 48
-#   ./scripts/submit_testrun.sh --email user@institution.ca --testrun build/bin/testRun
+#   ./scripts/submit_testrun.sh --email user@institution.ca --profile gpu
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SBATCH_SCRIPT="${SCRIPT_DIR}/testrun.sbatch"
+JOB_DEFAULTS="${SCRIPT_DIR}/job_defaults.env"
+
+[[ -f "${JOB_DEFAULTS}" ]] || {
+  echo "submit_testrun.sh: missing ${JOB_DEFAULTS}" >&2
+  exit 1
+}
+# shellcheck source=job_defaults.env
+source "${JOB_DEFAULTS}"
 
 EMAIL=""
-ACCOUNT="def-nicoleli"
-ARRAY="0-0"
-TIME="0-00:05:00"
-CPUS="32"
-GPUS="h100:2"
-MEM="32000M"
-NUMTICKS="24"
-WXW="1"
-WYW="1"
-WZW="1"
-INPUTFILE="configFiles/config_scaffold.txt"
-TESTRUN_REL="build/bin/testRun"
+ACCOUNT="${IVDBM_DEFAULT_ACCOUNT}"
+ARRAY="${IVDBM_DEFAULT_ARRAY}"
+TIME="${IVDBM_DEFAULT_TIME}"
+CPUS="${IVDBM_DEFAULT_CPUS}"
+GPUS=""
+MEM="${IVDBM_DEFAULT_MEM}"
+PROFILE="${IVDBM_DEFAULT_PROFILE}"
+NUMTICKS="${NUMTICKS}"
+WXW="${WXW}"
+WYW="${WYW}"
+WZW="${WZW}"
+INPUTFILE="${INPUTFILE}"
+CHEM_CONFIG="${CHEM_CONFIG}"
+TESTRUN_REL="${IVDBM_DEFAULT_TESTRUN}"
 OUTPUT_DIR=""
+OUTPUTFILE=""
 DRY_RUN=0
+GPUS_EXPLICIT=0
+TIME_EXPLICIT=0
 
 usage() {
   cat <<'EOF'
@@ -47,11 +60,14 @@ Options:
   --array RANGE         Job array range (default: 0-0, single task)
   --time D-HH:MM:SS     Wall time (default: 0-00:05:00)
   --cpus N              CPUs per task (default: 32)
-  --gpus SPEC           GPUs per node (default: h100:2)
+  --profile cpu|gpu     Job profile (default: cpu — matches ./scripts/build_drac.sh)
+  --gpus SPEC           GPUs per node (overrides --profile; gpu default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
   --output-dir PATH     Override run output directory (default: output/job_<SLURM_JOB_ID> on compute node)
-  --numticks N          Simulation ticks (default: 24, ~0.5 days at 30 min/tick)
+  --outputfile PATH     Biomarker CSV path (default: <output-dir>/Output_Biomarkers.csv on compute node)
+  --chem-config PATH    Chemical environment JSON (default: configFiles/chemical_environment.json)
+  --numticks N          Simulation ticks (default: 24, ~12 h at 30 min/tick)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)
@@ -59,20 +75,24 @@ Options:
   --dry-run             Print sbatch command without submitting
   -h, --help            Show this help
 
-The batch script is scripts/testrun.sbatch (do not sbatch it directly unless you
-export REPO_ROOT, TESTRUN, etc. yourself). This wrapper sets those for you.
+Defaults live in scripts/job_defaults.env. The batch script is scripts/testrun.sbatch
+(submit via this wrapper, not sbatch directly unless you export REPO_ROOT, TESTRUN, etc.).
 
 Examples:
   ./scripts/submit_testrun.sh user@institution.ca
   ./scripts/submit_testrun.sh user@institution.ca 48
-  ./scripts/submit_testrun.sh user@institution.ca --testrun bin/testRun
-  ./scripts/submit_testrun.sh user@institution.ca --array 0-0 --numticks 50
+  ./scripts/submit_testrun.sh user@institution.ca --profile gpu --numticks 24
+  ./scripts/submit_testrun.sh user@institution.ca --chem-config configFiles/chemical_environment.json
 EOF
 }
 
 die() {
   echo "submit_testrun.sh: $*" >&2
   exit 1
+}
+
+warn() {
+  echo "submit_testrun.sh: warning: $*" >&2
 }
 
 valid_email() {
@@ -86,6 +106,20 @@ resolve_testrun() {
   fi
   [[ -f "${path}" && -x "${path}" ]] || die "testRun not found or not executable: ${path}"
   printf '%s' "${path}"
+}
+
+apply_profile() {
+  case "${PROFILE}" in
+    cpu)
+      GPUS="${IVDBM_PROFILE_CPU_GPUS}"
+      ;;
+    gpu)
+      GPUS="${IVDBM_PROFILE_GPU_GPUS}"
+      ;;
+    *)
+      die "unknown profile: ${PROFILE} (use cpu or gpu)"
+      ;;
+  esac
 }
 
 if [[ $# -eq 0 ]]; then
@@ -117,6 +151,7 @@ while [[ $# -gt 0 ]]; do
     --time)
       [[ $# -ge 2 ]] || die "missing value for $1"
       TIME="$2"
+      TIME_EXPLICIT=1
       shift 2
       ;;
     --cpus)
@@ -124,9 +159,15 @@ while [[ $# -gt 0 ]]; do
       CPUS="$2"
       shift 2
       ;;
+    --profile)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      PROFILE="$2"
+      shift 2
+      ;;
     --gpus)
       [[ $# -ge 2 ]] || die "missing value for $1"
       GPUS="$2"
+      GPUS_EXPLICIT=1
       shift 2
       ;;
     --mem)
@@ -164,6 +205,16 @@ while [[ $# -gt 0 ]]; do
       INPUTFILE="$2"
       shift 2
       ;;
+    --chem-config)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      CHEM_CONFIG="$2"
+      shift 2
+      ;;
+    --outputfile)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      OUTPUTFILE="$2"
+      shift 2
+      ;;
     --output-dir)
       [[ $# -ge 2 ]] || die "missing value for $1"
       OUTPUT_DIR="$2"
@@ -195,22 +246,36 @@ done
 [[ -n "${EMAIL}" ]] || die "EMAIL is required (positional or --email)"
 valid_email "${EMAIL}" || die "invalid email address: ${EMAIL}"
 
+if [[ "${GPUS_EXPLICIT}" -eq 0 ]]; then
+  apply_profile
+fi
+
+if [[ "${NUMTICKS}" -gt 24 && "${TIME_EXPLICIT}" -eq 0 && "${TIME}" == "${IVDBM_DEFAULT_TIME}" ]]; then
+  warn "NUMTICKS=${NUMTICKS} with default wall time ${TIME} may TIMEOUT; pass --time D-HH:MM:SS"
+fi
+
 [[ -f "${SBATCH_SCRIPT}" ]] || die "missing batch script: ${SBATCH_SCRIPT}"
 
 TESTRUN="$(resolve_testrun "${TESTRUN_REL}")"
 
 [[ -f "${REPO_ROOT}/${INPUTFILE}" ]] || die "input file not found: ${REPO_ROOT}/${INPUTFILE}"
 
-CHEM_CONFIG="configFiles/chemical_environment.json"
 if [[ ! -f "${REPO_ROOT}/${CHEM_CONFIG}" ]]; then
-  die "missing ${CHEM_CONFIG} — run: cp configFiles/chemical_environment.template.json ${CHEM_CONFIG}"
+  die "missing ${CHEM_CONFIG} — run: cp configFiles/chemical_environment.template.json configFiles/chemical_environment.json"
+fi
+
+if [[ "${PROFILE}" == "gpu" ]]; then
+  warn "profile=gpu: build with ./scripts/build_drac.sh --cuda before expecting GPU diffusion"
 fi
 
 mkdir -p "${REPO_ROOT}/logs"
 
-EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE},CHEM_CONFIG=${CHEM_CONFIG}"
+EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE},CHEM_CONFIG=${CHEM_CONFIG},IVDBM_PROFILE=${PROFILE}"
 if [[ -n "${OUTPUT_DIR}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUT_DIR=${OUTPUT_DIR}"
+fi
+if [[ -n "${OUTPUTFILE}" ]]; then
+  EXPORT_VARS="${EXPORT_VARS},OUTPUTFILE=${OUTPUTFILE}"
 fi
 
 SBATCH_ARGS=(
@@ -221,15 +286,19 @@ SBATCH_ARGS=(
   --time="${TIME}"
   --nodes=1
   --cpus-per-task="${CPUS}"
-  --gpus-per-node="${GPUS}"
   --mem="${MEM}"
   --array="${ARRAY}"
   --chdir="${REPO_ROOT}"
   --output="${REPO_ROOT}/logs/testrun_%a_%j.out"
   --error="${REPO_ROOT}/logs/testrun_%a_%j.err"
   --export="${EXPORT_VARS}"
-  "${SBATCH_SCRIPT}"
 )
+
+if [[ -n "${GPUS}" ]]; then
+  SBATCH_ARGS+=(--gpus-per-node="${GPUS}")
+fi
+
+SBATCH_ARGS+=("${SBATCH_SCRIPT}")
 
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   printf 'Would run: sbatch'
@@ -244,6 +313,7 @@ SUBMIT_OUTPUT="$(sbatch "${SBATCH_ARGS[@]}")"
 echo "${SUBMIT_OUTPUT}"
 JOB_ID="${SUBMIT_OUTPUT##* }"
 echo "testRun: ${TESTRUN}"
+echo "Profile: ${PROFILE}${GPUS:+ (${GPUS})}"
 if [[ -n "${OUTPUT_DIR}" ]]; then
   echo "Output dir (override): ${OUTPUT_DIR}"
 else
