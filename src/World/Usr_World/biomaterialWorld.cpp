@@ -61,7 +61,6 @@ float poreWidth = 200.00; // (um)
 #endif
 
 #ifdef PEPTIDE_BM
-	string peptide; // Type of peptide used for biomaterial conjugation
 	float BMWorld::E_0 = 0;
 	float BMWorld::E_inf = 0;
 	float BMWorld::t = 0;
