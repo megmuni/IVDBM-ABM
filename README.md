@@ -104,9 +104,9 @@ Common options:
 | Flag             | Default                           | Purpose                                        |
 | ---------------- | --------------------------------- | ---------------------------------------------- |
 | `--testrun PATH` | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
-| `--array`        | `0-4`                             | Job array range                                |
+| `--array`        | `0-0`                             | Single job (use e.g. `0-4` for a batch)        |
 | `--account`      | `def-nicoleli`                    | Slurm allocation                               |
-| `--numticks`     | `288`                             | Simulation length                              |
+| `--numticks`     | `240`                             | Simulation length                              |
 | `--inputfile`    | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
 
 Examples:

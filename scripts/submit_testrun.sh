@@ -13,12 +13,12 @@ SBATCH_SCRIPT="${SCRIPT_DIR}/testrun.sbatch"
 
 EMAIL=""
 ACCOUNT="def-nicoleli"
-ARRAY="0-4"
+ARRAY="0-0"
 TIME="0-00:05:00"
 CPUS="32"
 GPUS="h100:2"
 MEM="32000M"
-NUMTICKS="288"
+NUMTICKS="240"
 WXW="1"
 WYW="1"
 WZW="1"
@@ -39,13 +39,13 @@ Required:
 
 Options:
   --account ACCOUNT     Slurm allocation (default: def-nicoleli)
-  --array RANGE         Job array range (default: 0-4)
+  --array RANGE         Job array range (default: 0-0, single task)
   --time D-HH:MM:SS     Wall time (default: 0-00:05:00)
   --cpus N              CPUs per task (default: 32)
   --gpus SPEC           GPUs per node (default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
-  --numticks N          Simulation ticks (default: 288)
+  --numticks N          Simulation ticks (default: 240)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)

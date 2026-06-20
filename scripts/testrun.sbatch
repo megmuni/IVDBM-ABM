@@ -13,7 +13,7 @@ module load StdEnv/2023 2>/dev/null || true
 module load cuda 2>/dev/null || module load cuda/12.2 2>/dev/null || true
 
 INPUTFILE="${INPUTFILE:-configFiles/config_scaffold.txt}"
-NUMTICKS="${NUMTICKS:-288}"
+NUMTICKS="${NUMTICKS:-240}"
 WXW="${WXW:-1}"
 WYW="${WYW:-1}"
 WZW="${WZW:-1}"
