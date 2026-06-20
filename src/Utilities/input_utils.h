@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <sys/stat.h>
 
@@ -273,6 +274,106 @@ void processOptions(int argc, char **argv) {
   }
 
   finalizeOutputPaths();
+}
+
+inline std::string jsonEscape(const char *s) {
+  if (s == nullptr)
+    return std::string();
+
+  std::string out;
+  out.reserve(strlen(s) + 8);
+  for (const char *p = s; *p != '\0'; ++p) {
+    switch (*p) {
+    case '"':
+      out += "\\\"";
+      break;
+    case '\\':
+      out += "\\\\";
+      break;
+    case '\n':
+      out += "\\n";
+      break;
+    case '\r':
+      out += "\\r";
+      break;
+    case '\t':
+      out += "\\t";
+      break;
+    default:
+      if (static_cast<unsigned char>(*p) < 0x20) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "\\u%04x", static_cast<unsigned char>(*p));
+        out += buf;
+      } else {
+        out += *p;
+      }
+    }
+  }
+  return out;
+}
+
+inline void writeJsonStringField(std::ofstream &out, const char *key,
+                                 const char *value, bool last = false) {
+  out << "    \"" << key << "\": ";
+  if (value != nullptr && value[0] != '\0')
+    out << "\"" << jsonEscape(value) << "\"";
+  else
+    out << "null";
+  if (!last)
+    out << ",";
+  out << "\n";
+}
+
+/*
+ * Description: Write resolved run parameters to JSON when IVDBM_RUN_PARAMS_JSON
+ *              is set (Slurm jobs via scripts/testrun.sbatch).
+ */
+inline void writeRunParamsJson(int argc, char **argv) {
+  const char *path = getenv("IVDBM_RUN_PARAMS_JSON");
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  std::ofstream out(path);
+  if (!out) {
+    fprintf(stderr, "Warning: cannot write run params to %s\n", path);
+    return;
+  }
+
+  out << "{\n";
+  out << "  \"slurm\": {\n";
+  writeJsonStringField(out, "job_id", getenv("SLURM_JOB_ID"));
+  writeJsonStringField(out, "array_task_id", getenv("SLURM_ARRAY_TASK_ID"));
+  writeJsonStringField(out, "job_name", getenv("SLURM_JOB_NAME"));
+  writeJsonStringField(out, "cpus_per_task", getenv("SLURM_CPUS_PER_TASK"));
+  writeJsonStringField(out, "mem_per_node", getenv("SLURM_MEM_PER_NODE"));
+  writeJsonStringField(out, "submit_dir", getenv("SLURM_SUBMIT_DIR"));
+  writeJsonStringField(out, "account", getenv("SLURM_JOB_ACCOUNT"), true);
+  out << "  },\n";
+
+  out << "  \"simulation\": {\n";
+  out << "    \"num_ticks\": " << numTicks << ",\n";
+  out << "    \"patch_width_mm\": " << patchWidth << ",\n";
+  out << "    \"world_x_width_mm\": " << worldXwidth << ",\n";
+  out << "    \"world_y_width_mm\": " << worldYwidth << ",\n";
+  out << "    \"world_z_width_mm\": " << worldZwidth << ",\n";
+  writeJsonStringField(out, "input_file", inputFileName);
+  writeJsonStringField(out, "output_dir", outputDir);
+  writeJsonStringField(out, "output_file", outputFileName);
+  writeJsonStringField(out, "chemical_environment_config",
+                       chemicalEnvironmentConfigFile);
+  writeJsonStringField(out, "calibration_file", "Sample.txt", true);
+  out << "  },\n";
+
+  out << "  \"command\": {\n";
+  out << "    \"argv\": [";
+  for (int i = 0; i < argc; ++i) {
+    if (i > 0)
+      out << ", ";
+    out << "\"" << jsonEscape(argv[i]) << "\"";
+  }
+  out << "]\n";
+  out << "  }\n";
+  out << "}\n";
 }
 
 /*

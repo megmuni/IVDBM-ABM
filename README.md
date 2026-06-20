@@ -17,6 +17,26 @@ mkdir -p output
 
 Model compile-time options (scaffold vs vocal fold, 3D, biomarker output, etc.) are set in [`src/common.h`](src/common.h).
 
+## Default run definition
+
+These are the **canonical defaults** when you run `./build/bin/testRun` with no CLI flags from the repository root (with the current `src/common.h` scaffold build). Slurm submission via [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) passes shorter overrides (24 ticks, 1 mm cube) suited to quick cluster smoke tests; override those flags on the submit script if you want a full-length run.
+
+| Setting | Default |
+| ------- | ------- |
+| `--numticks` | **432** (~9 days at 30 min/tick) |
+| `--wxw`, `--wyw`, `--wzw` | **3.1 mm** each (3D scaffold cube) |
+| `--patchwidth` | **0.01 mm** (fixed; not overridable on CLI) |
+| `--inputfile` | `configFiles/config_scaffold.txt` |
+| `--chem-config` | `configFiles/chemical_environment.json` (copy from template) |
+| `--output-dir` | `output` (or `$IVDBM_OUTPUT_DIR`) |
+| `--outputfile` | `<output-dir>/Output_Biomarkers.csv` |
+| Tick duration | **30 minutes** per tick (ABM clock and `tick_interval_minutes` in JSON) |
+| Calibration parameters | **`Sample.txt`** at repo root (loaded automatically; not a CLI flag) |
+
+Compile-time flags in [`src/common.h`](src/common.h) for the default scaffold build include: `MODEL_SCAFFOLD`, `MODEL_3D`, `PDE_DIFFUSE`, `PEPTIDE_BM`, `BIOMARKER_OUTPUT`, and `CALIBRATION`. Change these before rebuilding to switch model geometry, diffusion backend, or output behaviour.
+
+Biological chemistry (diffusivities, baselines, tick interval) lives in `configFiles/chemical_environment.json`; the template sets `tick_interval_minutes` to **30**.
+
 ## Compile
 
 Configure and build from the repository root. Binaries are written to `build/bin/` and libraries to `build/lib/`.
@@ -83,16 +103,16 @@ If `--outputfile` is omitted, the biomarker CSV defaults to `<output-dir>/Output
 
 Useful CLI flags (see `./build/bin/testRun --help`):
 
-| Flag                      | Description                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `--numticks`              | Number of simulation ticks (1 tick = 30 min by default)                                |
-| `--wxw`, `--wyw`, `--wzw` | World width, length, height (mm)                                                       |
-| `--inputfile`             | Text config for cells, alginate, and scaffold parameters                               |
+| Flag                      | Default | Description                                                                            |
+| ------------------------- | ------- | -------------------------------------------------------------------------------------- |
+| `--numticks`              | 432     | Number of simulation ticks (1 tick = 30 min)                                           |
+| `--wxw`, `--wyw`, `--wzw` | 3.1 mm  | World width, length, height                                                            |
+| `--inputfile`             | `configFiles/config_scaffold.txt` | Text config for cells, alginate, and scaffold parameters               |
 | `--outputfile`            | `<output-dir>/Output_Biomarkers.csv` | CSV biomarker output path                              |
-| `--output-dir`            | `output`                             | Base directory for all run artifacts                   |
+| `--output-dir`            | `output` | Base directory for all run artifacts                                                   |
 | `--chem-config`           | `configFiles/chemical_environment.json` | Path to chemical environment JSON                   |
 
-With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line).
+With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line). Calibration values are read from **`Sample.txt`** in the repo root (not configurable via CLI). See [Default run definition](#default-run-definition).
 
 ## Run `testRun` on DRAC (Slurm)
 
@@ -125,7 +145,7 @@ Examples:
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca --dry-run
 ```
 
-Logs go to `logs/testrun_<array>_<jobid>.out` (and `.err`). Simulation artifacts go under **`output/job_<jobid>/`** (biomarker CSV, `tgf_line.csv`, patch dumps, etc.). Override with `--output-dir` on the submit script or `--output-dir` / `$IVDBM_OUTPUT_DIR` when running `testRun` locally.
+Logs go to `logs/testrun_<array>_<jobid>.out` (and `.err`). Simulation artifacts go under **`output/job_<jobid>/`** (biomarker CSV, `tgf_line.csv`, patch dumps, etc.). Each Slurm job also writes **`output/job_<jobid>/run_params.json`** with resolved simulation parameters, the full `testRun` command line, and Slurm metadata. Override output location with `--output-dir` on the submit script or `--output-dir` / `$IVDBM_OUTPUT_DIR` when running `testRun` locally.
 
 ## Related docs
 

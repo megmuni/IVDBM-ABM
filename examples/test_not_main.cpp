@@ -88,6 +88,7 @@ int main(int argc, char** argv) {
 	// Get baseline cell and chemical values that user specified:
 	util::processOptions(argc, argv);
 	util::ensureOutputDir();
+	util::writeRunParamsJson(argc, argv);
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();

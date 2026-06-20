@@ -32,6 +32,7 @@ mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
 export LD_LIBRARY_PATH="${REPO_ROOT}/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-${SLURM_CPUS_PER_TASK:-1}}"
 export IVDBM_OUTPUT_DIR="${OUTPUT_DIR}"
+export IVDBM_RUN_PARAMS_JSON="${OUTPUT_DIR}/run_params.json"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then
   # shellcheck disable=SC1091
