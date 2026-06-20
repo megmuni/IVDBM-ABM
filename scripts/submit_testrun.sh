@@ -3,6 +3,7 @@
 #
 # Usage:
 #   ./scripts/submit_testrun.sh user@institution.ca
+#   ./scripts/submit_testrun.sh user@institution.ca 48
 #   ./scripts/submit_testrun.sh --email user@institution.ca --testrun build/bin/testRun
 
 set -euo pipefail
@@ -32,11 +33,14 @@ usage() {
 Submit testRun to DRAC (Slurm).
 
 Usage:
-  submit_testrun.sh EMAIL [options]
+  submit_testrun.sh EMAIL [NUMTICKS] [options]
   submit_testrun.sh --email EMAIL [options]
 
 Required:
   EMAIL                 Address for Slurm mail notifications (--mail-user)
+
+Optional positional:
+  NUMTICKS              Shorthand for --numticks (e.g. 48 for a 1-day run at 30 min/tick)
 
 Options:
   --account ACCOUNT     Slurm allocation (default: def-nicoleli)
@@ -60,6 +64,7 @@ export REPO_ROOT, TESTRUN, etc. yourself). This wrapper sets those for you.
 
 Examples:
   ./scripts/submit_testrun.sh user@institution.ca
+  ./scripts/submit_testrun.sh user@institution.ca 48
   ./scripts/submit_testrun.sh user@institution.ca --testrun bin/testRun
   ./scripts/submit_testrun.sh user@institution.ca --array 0-0 --numticks 50
 EOF
@@ -173,10 +178,16 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       if [[ -n "${EMAIL}" ]]; then
-        die "unexpected argument: $1 (email already set to ${EMAIL})"
+        if [[ "$1" =~ ^[0-9]+$ ]]; then
+          NUMTICKS="$1"
+          shift
+        else
+          die "unexpected argument: $1 (email already set to ${EMAIL}; use --numticks N or pass N as second argument)"
+        fi
+      else
+        EMAIL="$1"
+        shift
       fi
-      EMAIL="$1"
-      shift
       ;;
   esac
 done
