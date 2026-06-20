@@ -37,6 +37,43 @@ Compile-time flags in [`src/common.h`](src/common.h) for the default scaffold bu
 
 Biological chemistry (diffusivities, baselines, tick interval) lives in `configFiles/chemical_environment.json`; the template sets `tick_interval_minutes` to **30**.
 
+### Adjusting simulation length
+
+One tick = **30 minutes** of simulated time. Set `--numticks N` on `testRun` locally, or pass `--numticks N` to [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) on DRAC.
+
+| `--numticks` | Simulated time |
+| ------------ | -------------- |
+| 24           | 12 hours       |
+| 48           | 1 day          |
+| 432          | 9 days (full default) |
+
+**Local** (from repo root):
+
+```bash
+# Quick test — 24 ticks (~12 h simulated), small 1 mm cube
+./build/bin/testRun \
+  --output-dir output/local_24 \
+  --numticks 24 \
+  --wxw 1 --wyw 1 --wzw 1
+
+# Full default — 432 ticks (~9 days simulated), 3.1 mm scaffold cube
+./build/bin/testRun \
+  --output-dir output/local_432 \
+  --numticks 432
+```
+
+**DRAC (Slurm)**:
+
+```bash
+# Override the submit script default (24 ticks)
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca --numticks 48
+
+# Long run — also raise wall time (submit default is 5 minutes)
+./scripts/submit_testrun.sh your.email@mail.mcgill.ca \
+  --numticks 432 \
+  --time 2-00:00:00
+```
+
 ## Compile
 
 Configure and build from the repository root. Binaries are written to `build/bin/` and libraries to `build/lib/`.
