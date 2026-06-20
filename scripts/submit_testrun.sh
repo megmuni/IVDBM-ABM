@@ -18,7 +18,7 @@ TIME="0-00:05:00"
 CPUS="32"
 GPUS="h100:2"
 MEM="32000M"
-NUMTICKS="240"
+NUMTICKS="24"
 WXW="1"
 WYW="1"
 WZW="1"
@@ -45,7 +45,7 @@ Options:
   --gpus SPEC           GPUs per node (default: h100:2)
   --mem SIZE            Memory per node (default: 32000M)
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
-  --numticks N          Simulation ticks (default: 240)
+  --numticks N          Simulation ticks (default: 24, ~0.5 days at 30 min/tick)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)

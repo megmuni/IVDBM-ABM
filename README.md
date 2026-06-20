@@ -106,7 +106,7 @@ Common options:
 | `--testrun PATH` | `build/bin/testRun`               | Executable (relative to repo root or absolute) |
 | `--array`        | `0-0`                             | Single job (use e.g. `0-4` for a batch)        |
 | `--account`      | `def-nicoleli`                    | Slurm allocation                               |
-| `--numticks`     | `240`                             | Simulation length                              |
+| `--numticks`     | `24` (~0.5 days)                  | Simulation length (30 min/tick)                |
 | `--inputfile`    | `configFiles/config_scaffold.txt` | Cell/scaffold config                           |
 
 Examples:
