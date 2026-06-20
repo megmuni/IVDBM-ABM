@@ -13,10 +13,12 @@
 
 #pragma once
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <sys/stat.h>
 
 using namespace std;
 namespace util {
@@ -59,18 +61,30 @@ inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
   snprintf(dest, dest_size, "%s/%s", outputDir, filename);
 }
 
-inline void ensureOutputDir() {
-  char cmd[512];
-  snprintf(cmd, sizeof(cmd), "mkdir -p '%s'", outputDir);
-  system(cmd);
+inline void mkdir_p(const char *path) {
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  char buf[512];
+  strncpy(buf, path, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
+
+  for (char *p = buf + 1; *p != '\0'; ++p) {
+    if (*p == '/') {
+      *p = '\0';
+      mkdir(buf, 0755);
+      *p = '/';
+    }
+  }
+  mkdir(buf, 0755);
 }
+
+inline void ensureOutputDir() { mkdir_p(outputDir); }
 
 inline void ensureOutputSubpath(const char *subpath) {
   char path[512];
   makeOutputPath(path, sizeof(path), subpath);
-  char cmd[768];
-  snprintf(cmd, sizeof(cmd), "mkdir -p '%s'", path);
-  system(cmd);
+  mkdir_p(path);
 }
 
 inline void initOutputDirFromEnv() {

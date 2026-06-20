@@ -190,9 +190,14 @@ TESTRUN="$(resolve_testrun "${TESTRUN_REL}")"
 
 [[ -f "${REPO_ROOT}/${INPUTFILE}" ]] || die "input file not found: ${REPO_ROOT}/${INPUTFILE}"
 
+CHEM_CONFIG="configFiles/chemical_environment.json"
+if [[ ! -f "${REPO_ROOT}/${CHEM_CONFIG}" ]]; then
+  die "missing ${CHEM_CONFIG} — run: cp configFiles/chemical_environment.template.json ${CHEM_CONFIG}"
+fi
+
 mkdir -p "${REPO_ROOT}/logs"
 
-EXPORT_VARS="ALL,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE}"
+EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE},CHEM_CONFIG=${CHEM_CONFIG}"
 if [[ -n "${OUTPUT_DIR}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUT_DIR=${OUTPUT_DIR}"
 fi
