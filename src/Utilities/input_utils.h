@@ -347,7 +347,13 @@ inline void writeRunParamsJson(int argc, char **argv) {
   writeJsonStringField(out, "cpus_per_task", getenv("SLURM_CPUS_PER_TASK"));
   writeJsonStringField(out, "mem_per_node", getenv("SLURM_MEM_PER_NODE"));
   writeJsonStringField(out, "submit_dir", getenv("SLURM_SUBMIT_DIR"));
-  writeJsonStringField(out, "account", getenv("SLURM_JOB_ACCOUNT"), true);
+  writeJsonStringField(out, "partition", getenv("SLURM_JOB_PARTITION"));
+  writeJsonStringField(out, "qos", getenv("SLURM_JOB_QOS"));
+  writeJsonStringField(out, "nodelist", getenv("SLURM_JOB_NODELIST"));
+  writeJsonStringField(out, "submit_host", getenv("SLURM_SUBMIT_HOST"));
+  writeJsonStringField(out, "gpus_on_node", getenv("SLURM_GPUS_ON_NODE"));
+  writeJsonStringField(out, "account", getenv("SLURM_JOB_ACCOUNT"));
+  writeJsonStringField(out, "profile", getenv("IVDBM_PROFILE"), true);
   out << "  },\n";
 
   out << "  \"simulation\": {\n";
@@ -373,6 +379,33 @@ inline void writeRunParamsJson(int argc, char **argv) {
   }
   out << "]\n";
   out << "  }\n";
+  out << "}\n";
+}
+
+/*
+ * Description: Write per-tick simulation timing when IVDBM_RUN_TIMING_JSON is
+ *              set (merged into run_params.json after the job by sbatch).
+ */
+inline void writeRunTimingJson(long total_tick_ms, int num_ticks,
+                               double setup_wall_seconds) {
+  const char *path = getenv("IVDBM_RUN_TIMING_JSON");
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  std::ofstream out(path);
+  if (!out) {
+    fprintf(stderr, "Warning: cannot write run timing to %s\n", path);
+    return;
+  }
+
+  const double avg_ms =
+      num_ticks > 0 ? static_cast<double>(total_tick_ms) / num_ticks : 0.0;
+
+  out << "{\n";
+  out << "  \"num_ticks_completed\": " << num_ticks << ",\n";
+  out << "  \"setup_wall_seconds\": " << setup_wall_seconds << ",\n";
+  out << "  \"tick_execution_ms_total\": " << total_tick_ms << ",\n";
+  out << "  \"tick_execution_ms_avg\": " << avg_ms << "\n";
   out << "}\n";
 }
 

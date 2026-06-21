@@ -242,6 +242,9 @@ int main(int argc, char** argv) {
 	}
 	//cout << "Average time:	" << acc/numTicks << " ms" << endl;
 
+	util::writeRunTimingJson(
+	    acc, numTicks, (double)(clock() - tStart) / CLOCKS_PER_SEC);
+
 	return 0;
 } // End Main
 

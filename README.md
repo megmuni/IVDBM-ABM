@@ -192,7 +192,7 @@ Examples:
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca --dry-run
 ```
 
-Logs go to `logs/testrun_<array>_<jobid>.out` (and `.err`). Simulation artifacts go under **`output/job_<jobid>/`** (biomarker CSV, `tgf_line.csv`, patch dumps, etc.). Each Slurm job also writes **`output/job_<jobid>/run_params.json`** with resolved simulation parameters, the full `testRun` command line, and Slurm metadata. Override output location with `--output-dir` on the submit script or `--output-dir` / `$IVDBM_OUTPUT_DIR` when running `testRun` locally.
+Logs go to `logs/testrun_<array>_<jobid>.out` (and `.err`). Simulation artifacts go under **`output/job_<jobid>/`** (biomarker CSV, `tgf_line.csv`, patch dumps, etc.). Each Slurm job writes **`output/job_<jobid>/run_params.json`**: resolved parameters and command at start, then a **`runtime`** section after the job finishes with wall time, memory, per-tick timing, and Slurm accounting (`sacct`). A human-readable summary is also printed at the end of the job log. Override output location with `--output-dir` on the submit script or `--output-dir` / `$IVDBM_OUTPUT_DIR` when running `testRun` locally.
 
 ## Related docs
 
