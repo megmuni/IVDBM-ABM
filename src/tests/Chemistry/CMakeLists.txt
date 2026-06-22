@@ -13,3 +13,13 @@ add_test(NAME chemistry_species_registry COMMAND chemistry_tests "[chemistry][re
 add_test(NAME chemistry_environment COMMAND chemistry_tests "[chemistry][environment]")
 add_test(NAME chemistry_config_load COMMAND chemistry_tests "[chemistry][environment][config]")
 add_test(NAME chemistry_vtk_export COMMAND chemistry_tests "[chemistry][vtk]")
+
+set_tests_properties(
+    chemistry_species_registry
+    chemistry_environment
+    chemistry_config_load
+    chemistry_vtk_export
+    PROPERTIES
+        LABELS "chemistry;cpu;fast"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)

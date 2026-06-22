@@ -62,7 +62,33 @@ add_test(NAME diffusion3d_engine_suite
 add_test(NAME diffusion3d_core_suite
          COMMAND diffusion3d_tests "[core]")
 
+set(DIFFUSION3D_CPU_TESTS
+    diffusion3d_modulateAndNormalize3D
+    diffusion3d_spectrumRaisePowInt3D
+    diffusion3d_self_convolution_matches_spectrum_power
+    diffusion3d_cpuDiffusion_vs_analyticGaussian
+    diffusion3d_unpadResult3D
+    diffusion3d_padKernel3D
+    diffusion3d_padDataClampToBorder3D
+    diffusion3d_fft3d_convolution_matches_cpu
+    diffusion3d_fft3d_matches_cpu_laplacian
+    diffusion3d_step_euler_cpu_determinism
+    diffusion3d_timestep_suite
+    diffusion3d_engine_suite
+    diffusion3d_core_suite
+)
+
+set_tests_properties(${DIFFUSION3D_CPU_TESTS}
+    PROPERTIES
+        LABELS "diffusion3d;cpu"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
 if(DIFFUSION3D_CUDA)
     add_test(NAME diffusion3d_step_euler_gpu_vs_cpu_chain
              COMMAND diffusion3d_tests "diffusion3d_step_euler_gpu chained matches CPU euler chain")
+    set_tests_properties(diffusion3d_step_euler_gpu_vs_cpu_chain
+                         PROPERTIES
+                             LABELS "diffusion3d;gpu"
+                             WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()

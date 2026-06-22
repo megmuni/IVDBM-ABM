@@ -2,9 +2,9 @@
 # Submit an IVDBM-ABM testRun job to a Digital Research Alliance of Canada (DRAC) cluster.
 #
 # Usage:
-#   ./scripts/submit_testrun.sh user@institution.ca
-#   ./scripts/submit_testrun.sh user@institution.ca 48
-#   ./scripts/submit_testrun.sh --email user@institution.ca --profile gpu
+#   ./scripts/submit_testrun.sh $EMAIL
+#   ./scripts/submit_testrun.sh $EMAIL 48
+#   ./scripts/submit_testrun.sh --email $EMAIL --profile gpu
 
 set -euo pipefail
 
@@ -79,10 +79,10 @@ Defaults live in scripts/job_defaults.env. The batch script is scripts/testrun.s
 (submit via this wrapper, not sbatch directly unless you export REPO_ROOT, TESTRUN, etc.).
 
 Examples:
-  ./scripts/submit_testrun.sh user@institution.ca
-  ./scripts/submit_testrun.sh user@institution.ca 48
-  ./scripts/submit_testrun.sh user@institution.ca --profile gpu --numticks 24
-  ./scripts/submit_testrun.sh user@institution.ca --chem-config configFiles/chemical_environment.json
+  ./scripts/submit_testrun.sh $EMAIL
+  ./scripts/submit_testrun.sh $EMAIL 48
+  ./scripts/submit_testrun.sh $EMAIL --profile gpu --numticks 24
+  ./scripts/submit_testrun.sh $EMAIL --chem-config configFiles/chemical_environment.json
 EOF
 }
 

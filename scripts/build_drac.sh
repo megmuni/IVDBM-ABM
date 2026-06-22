@@ -2,9 +2,10 @@
 # Configure and build testRun on a DRAC (Alliance Canada) login node.
 #
 # Usage:
-#   ./scripts/build_drac.sh              # CPU-only (no cuda module required)
+#   ./scripts/build_drac.sh              # CPU-only (no nvcc required)
 #   ./scripts/build_drac.sh --cuda       # GPU diffusion (loads cuda module)
-#   ./scripts/build_drac.sh --cuda --arch 90
+#   ./scripts/build_drac.sh --tests      # Also build Catch2/CTest targets
+#   ./scripts/build_drac.sh --cuda --tests --arch 90
 
 set -euo pipefail
 
@@ -13,6 +14,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 BUILD_DIR="${REPO_ROOT}/build"
 BUILD_TYPE="Release"
 ENABLE_CUDA=0
+ENABLE_TESTS=0
 CUDA_ARCH="90"
 BUILD_JOBS="${BUILD_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
@@ -21,10 +23,11 @@ usage() {
 Build IVDBM-ABM on a DRAC login node.
 
 Usage:
-  build_drac.sh [--cuda] [--arch SM] [--debug] [--clean]
+  build_drac.sh [--cuda] [--tests] [--arch SM] [--debug] [--clean]
 
 Options:
   --cuda        Enable GPU diffusion (-DDIFFUSION3D_CUDA=ON; loads cuda module)
+  --tests       Build Catch2 test binaries (-DBUILD_SRC_TESTS=ON; loads catch2/2.11.0)
   --arch SM     CUDA architecture for --cuda (default: 90 for H100)
   --debug       Use Debug build type instead of Release
   --clean       Remove build/ before configuring
@@ -33,8 +36,12 @@ Options:
 CPU-only example (login node, no nvcc needed):
   ./scripts/build_drac.sh
 
+Tests example (uses Catch2 2.11.0 module — not 3.2.1):
+  ./scripts/build_drac.sh --tests
+  ./scripts/submit_tests.sh $EMAIL --suite chemistry
+
 GPU example (must load cuda before cmake):
-  ./scripts/build_drac.sh --cuda --arch 90
+  ./scripts/build_drac.sh --cuda --arch 90 --tests
 EOF
 }
 
@@ -51,6 +58,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --cuda)
       ENABLE_CUDA=1
+      shift
+      ;;
+    --tests)
+      ENABLE_TESTS=1
       shift
       ;;
     --arch)
@@ -76,6 +87,11 @@ module load StdEnv/2023 2>/dev/null || true
 module load gcc/12.3 2>/dev/null || module load gcc 2>/dev/null || true
 module load cmake 2>/dev/null || true
 
+if [[ "${ENABLE_TESTS}" -eq 1 ]]; then
+  module load catch2/2.11.0 2>/dev/null || \
+    die "could not load catch2/2.11.0 (required for --tests; do not use catch2/3.2.1)"
+fi
+
 if [[ "${ENABLE_CUDA}" -eq 1 ]]; then
   module load cuda/12.2 2>/dev/null || module load cuda 2>/dev/null || \
     die "could not load a cuda module; run 'module avail cuda' and load one manually"
@@ -85,11 +101,16 @@ fi
 mkdir -p "${BUILD_DIR}"
 cd "${REPO_ROOT}"
 
+BUILD_SRC_TESTS=OFF
+if [[ "${ENABLE_TESTS}" -eq 1 ]]; then
+  BUILD_SRC_TESTS=ON
+fi
+
 CMAKE_ARGS=(
   -S .
   -B "${BUILD_DIR}"
   -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
-  -DBUILD_SRC_TESTS=OFF
+  -DBUILD_SRC_TESTS="${BUILD_SRC_TESTS}"
 )
 
 if [[ "${ENABLE_CUDA}" -eq 1 ]]; then
@@ -102,7 +123,16 @@ fi
 echo "==> cmake ${CMAKE_ARGS[*]}"
 cmake "${CMAKE_ARGS[@]}"
 
-echo "==> cmake --build ${BUILD_DIR} --target testRun -j${BUILD_JOBS}"
-cmake --build "${BUILD_DIR}" --target testRun -j"${BUILD_JOBS}"
+BUILD_TARGETS=(testRun)
+if [[ "${ENABLE_TESTS}" -eq 1 ]]; then
+  BUILD_TARGETS+=(chemistry_tests diffusion3d_tests patch_field_diffusion_test)
+fi
+
+echo "==> cmake --build ${BUILD_DIR} --target ${BUILD_TARGETS[*]} -j${BUILD_JOBS}"
+cmake --build "${BUILD_DIR}" --target "${BUILD_TARGETS[@]}" -j"${BUILD_JOBS}"
 
 echo "Built: ${BUILD_DIR}/bin/testRun"
+if [[ "${ENABLE_TESTS}" -eq 1 ]]; then
+  echo "Built tests: ${BUILD_DIR}/bin/chemistry_tests ${BUILD_DIR}/bin/diffusion3d_tests ${BUILD_DIR}/bin/patch_field_diffusion_test"
+  echo "Submit: ./scripts/submit_tests.sh your.email@institution.ca --suite cpu"
+fi

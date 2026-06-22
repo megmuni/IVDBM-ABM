@@ -1,6 +1,7 @@
 # src-level Catch2 tests (module tests live in subdirectories)
 
-if(NOT TARGET Catch2::Catch2)
+find_package(Catch2 2.11 CONFIG QUIET)
+if(NOT Catch2_FOUND)
     include(FetchContent)
     FetchContent_Declare(
         Catch2

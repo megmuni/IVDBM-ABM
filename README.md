@@ -135,9 +135,9 @@ On a cluster login node, load compiler modules before `cmake`. **If you pass `-D
 module load StdEnv/2023 gcc/12.3 cmake
 ./scripts/build_drac.sh
 
-# GPU diffusion (H100 = sm_90)
+# GPU diffusion (H100 = sm_90) + tests
 module load StdEnv/2023 gcc/12.3 cuda/12.2 cmake
-./scripts/build_drac.sh --cuda --arch 90
+./scripts/build_drac.sh --cuda --arch 90 --tests
 ```
 
 Or manually:
@@ -164,6 +164,72 @@ cmake --build build --target testRun -j"$(nproc)"
 ```
 
 Legacy CMake entry points (`CMakeListsSerial.txt`, `CMakeListsOMP.txt`, and Intel variants) remain for older cluster setups that linked the deprecated `Diffusion` library directly against CUDA. Prefer the root `CMakeLists.txt` above for current development.
+
+Simulation builds keep tests off by default (`BUILD_SRC_TESTS=OFF`). Use `./scripts/build_drac.sh --tests` on DRAC to build test binaries (see [Testing on DRAC](#testing-on-drac)).
+
+## Testing on DRAC
+
+Catch2/CTest suites live under [`src/tests/`](src/tests/). They are **separate from `testRun` simulation jobs** - build once, then submit test jobs repeatedly via Slurm.
+
+### Build test binaries
+
+DRAC provides Catch2 **2.11.0** and **3.2.1**. This project uses **v2 only** (`catch2/2.11.0` - do not load 3.2.1).
+
+```bash
+# CPU tests (login node)
+./scripts/build_drac.sh --tests
+
+# CPU + GPU tests (requires cuda module)
+./scripts/build_drac.sh --cuda --tests --arch 90
+```
+
+Locally (without the Catch2 module), configure with `-DBUILD_SRC_TESTS=ON`; CMake falls back to FetchContent (Catch2 v2.13.10).
+
+### Submit test jobs (Slurm)
+
+```bash
+EMAIL="your.email@mail.mcgill.ca"
+
+# Fast CPU suite (default) - chemistry, diffusion3d CPU, world
+./scripts/submit_tests.sh "${EMAIL}" --suite cpu
+
+# Single module
+./scripts/submit_tests.sh "${EMAIL}" --suite chemistry
+
+# GPU-labelled tests (CUDA build + GPU node)
+./scripts/submit_tests.sh "${EMAIL}" --suite gpu --profile gpu
+
+# Everything
+./scripts/submit_tests.sh "${EMAIL}" --suite all --time 1-00:00:00
+
+# Preview
+./scripts/submit_tests.sh "${EMAIL}" --suite cpu --dry-run
+```
+
+| `--suite`     | CTest filter     | GPU needed                                              |
+| ------------- | ---------------- | ------------------------------------------------------- |
+| `chemistry`   | `-L chemistry`   | No                                                      |
+| `diffusion3d` | `-L diffusion3d` | Mixed (CPU tests always; GPU test if CUDA build)        |
+| `world`       | `-L world`       | No                                                      |
+| `cpu`         | `-L cpu`         | No                                                      |
+| `gpu`         | `-L gpu`         | Yes                                                     |
+| `all`         | (no filter)      | For full GPU coverage, use CUDA build + `--profile gpu` |
+
+Pass extra ctest flags after `--`:
+
+```bash
+./scripts/submit_tests.sh "${EMAIL}" --suite chemistry -- --verbose
+```
+
+### Test output
+
+| Artifact     | Location                                  |
+| ------------ | ----------------------------------------- |
+| Job log      | `logs/tests_<array>_<jobid>.out` / `.err` |
+| JUnit XML    | `output/tests_<jobid>/test_results.xml`   |
+| Summary JSON | `output/tests_<jobid>/test_summary.json`  |
+
+Shared Slurm defaults: [`scripts/test_defaults.env`](scripts/test_defaults.env).
 
 ## Run `testRun` locally
 
