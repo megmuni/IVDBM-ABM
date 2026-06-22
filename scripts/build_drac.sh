@@ -27,7 +27,7 @@ Usage:
 
 Options:
   --cuda        Enable GPU diffusion (-DDIFFUSION3D_CUDA=ON; loads cuda module)
-  --tests       Build Catch2 test binaries (-DBUILD_SRC_TESTS=ON; loads catch2/2.11.0)
+  --tests       Build Catch2 test binaries (-DBUILD_SRC_TESTS=ON; loads catch2 module if present)
   --arch SM     CUDA architecture for --cuda (default: 90 for H100)
   --debug       Use Debug build type instead of Release
   --clean       Remove build/ before configuring
@@ -36,7 +36,7 @@ Options:
 CPU-only example (login node, no nvcc needed):
   ./scripts/build_drac.sh
 
-Tests example (uses Catch2 2.11.0 module — not 3.2.1):
+Tests example (Catch2 v2 via module or CMake FetchContent fallback):
   ./scripts/build_drac.sh --tests
   ./scripts/submit_tests.sh $EMAIL --suite chemistry
 
@@ -88,8 +88,23 @@ module load gcc/12.3 2>/dev/null || module load gcc 2>/dev/null || true
 module load cmake 2>/dev/null || true
 
 if [[ "${ENABLE_TESTS}" -eq 1 ]]; then
-  module load catch2/2.11.0 2>/dev/null || \
-    die "could not load catch2/2.11.0 (required for --tests; do not use catch2/3.2.1)"
+  CATCH2_LOADED=0
+  # Prefer Catch2 v2 modules. Do not load catch2/3.x (API incompatible with this project).
+  for mod in catch2/2.11.0 catch2/2.11 catch2/2.13.10 catch2/2.13 catch2; do
+    if module load "${mod}" 2>/dev/null; then
+      # Reject Catch2 v3 if the default "catch2" alias points at 3.x
+      if [[ -n "${EBVERSIONCATCH2:-}" && "${EBVERSIONCATCH2}" == 3.* ]]; then
+        module unload "${mod}" 2>/dev/null || true
+        continue
+      fi
+      echo "==> loaded module ${mod}"
+      CATCH2_LOADED=1
+      break
+    fi
+  done
+  if [[ "${CATCH2_LOADED}" -eq 0 ]]; then
+    echo "build_drac.sh: warning: no Catch2 v2 module found (module spider catch2); CMake will download Catch2 v2.13.10 via FetchContent" >&2
+  fi
 fi
 
 if [[ "${ENABLE_CUDA}" -eq 1 ]]; then

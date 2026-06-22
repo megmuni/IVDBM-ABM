@@ -61,7 +61,7 @@ Options:
   -h, --help            Show this help
 
 Build tests first:
-  ./scripts/build_drac.sh --tests              # loads catch2/2.11.0
+  ./scripts/build_drac.sh --tests              # Catch2 v2 module or FetchContent fallback
   ./scripts/build_drac.sh --cuda --tests       # include GPU tests
 
 Examples:

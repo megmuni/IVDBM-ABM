@@ -15,41 +15,66 @@ cp configFiles/chemical_environment.template.json configFiles/chemical_environme
 mkdir -p output
 ```
 
-Model compile-time options (scaffold vs vocal fold, 3D, biomarker output, etc.) are set in `[src/common.h](src/common.h)`.
+Simulation and cluster parameters are documented in [Where to set run parameters](#where-to-set-run-parameters) (including [`scripts/job_defaults.env`](scripts/job_defaults.env) for shared DRAC defaults).
 
-## Default run definition
+## Where to set run parameters
 
-These are the **canonical defaults** when you run `./build/bin/testRun` with no CLI flags from the repository root (with the current `src/common.h` scaffold build). Slurm submission via `[scripts/submit_testrun.sh](scripts/submit_testrun.sh)` passes shorter overrides (24 ticks, 1 mm cube) suited to quick cluster smoke tests; override those flags on the submit script if you want a full-length run.
+Run parameters live in **different places** depending on what you are changing and how you launch the model. There is no single `.env` file for the whole project.
 
-| Setting                   | Default                                                                 |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `--numticks`              | **432** (~9 days at 30 min/tick)                                        |
-| `--wxw`, `--wyw`, `--wzw` | **3.1 mm** each (3D scaffold cube)                                      |
-| `--patchwidth`            | **0.01 mm** (fixed; not overridable on CLI)                             |
-| `--inputfile`             | `configFiles/config_scaffold.txt`                                       |
-| `--chem-config`           | `configFiles/chemical_environment.json` (copy from template)            |
-| `--output-dir`            | `output` (or `$IVDBM_OUTPUT_DIR`)                                       |
-| `--outputfile`            | `<output-dir>/Output_Biomarkers.csv`                                    |
-| Tick duration             | **30 minutes** per tick (ABM clock and `tick_interval_minutes` in JSON) |
-| Calibration parameters    | **`Sample.txt`** at repo root (loaded automatically; not a CLI flag)    |
+### What to edit when
 
-Compile-time flags in `[src/common.h](src/common.h)` for the default scaffold build include: `MODEL_SCAFFOLD`, `MODEL_3D`, `PDE_DIFFUSE`, `PEPTIDE_BM`, `BIOMARKER_OUTPUT`, and `CALIBRATION`. Change these before rebuilding to switch model geometry, diffusion backend, or output behaviour.
+| You want to change… | Set it here | When |
+| ------------------- | ----------- | ---- |
+| Tick count, world size, config paths, output location for **one run** | `testRun` CLI flags (local) or [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) flags (DRAC) | Every one-off or experimental run |
+| Shared **simulation** defaults for all DRAC jobs in your group | [`scripts/job_defaults.env`](scripts/job_defaults.env) (`NUMTICKS`, `WXW`, paths, …) | When the whole group should stop passing the same flags |
+| Slurm wall time, CPUs, memory, account, GPU profile | `submit_testrun.sh` flags (`--time`, `--cpus`, …) or `IVDBM_DEFAULT_*` in `job_defaults.env` | Per job, or group-wide cluster policy |
+| Chemistry (diffusivities, baselines, tick interval) | [`configFiles/chemical_environment.json`](configFiles/chemical_environment.json) | Before any run; copy from [`configFiles/chemical_environment.template.json`](configFiles/chemical_environment.template.json) once |
+| Cell seeding, alginate, scaffold layout | [`configFiles/config_scaffold.txt`](configFiles/config_scaffold.txt) (or `--inputfile`) | Before any run |
+| Calibration coefficients | [`Sample.txt`](Sample.txt) at repo root | Before any run; **not** a CLI flag |
+| Model type (scaffold vs vocal fold), 3D, GPU diffusion, biomarker output | [`src/common.h`](src/common.h) | **Recompile** after editing |
+| CTest suite / test-job Slurm defaults | [`scripts/test_defaults.env`](scripts/test_defaults.env) or [`scripts/submit_tests.sh`](scripts/submit_tests.sh) | Test jobs only; unrelated to `testRun` simulation |
 
-Biological chemistry (diffusivities, baselines, tick interval) lives in `configFiles/chemical_environment.json`; the template sets `tick_interval_minutes` to **30**.
+### Precedence (same knob, multiple sources)
 
-### Setting run parameters (copy-paste)
+For ticks, world size, and paths, **highest priority wins**:
 
-Edit the variables at the top, then run the block from the **repository root**. One tick = **30 minutes** simulated time.
+```text
+submit_testrun.sh / testRun CLI  >  job_defaults.env  >  C++ defaults (input_utils.h)
+```
 
-| Parameter        | Flag / file               | Notes                                              |
-| ---------------- | ------------------------- | -------------------------------------------------- |
-| Tick count       | `--numticks`              | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days                |
-| World size (mm)  | `--wxw`, `--wyw`, `--wzw` | C++ default is 3.1 mm; cluster submit default 1 mm |
-| Cells / scaffold | `--inputfile`             | e.g. `configFiles/config_scaffold.txt`             |
-| Chemistry        | `--chem-config`           | `configFiles/chemical_environment.json`            |
-| Calibration      | `Sample.txt`              | Repo root; not a CLI flag                          |
-| Output directory | `--output-dir`            | All CSVs and `run_params.json` (Slurm)             |
-| Biomarker CSV    | `--outputfile`            | Default `<output-dir>/Output_Biomarkers.csv`       |
+- **Local:** `./build/bin/testRun` with no flags uses C++ defaults (**432 ticks**, **3.1 mm** cube).
+- **DRAC:** [`scripts/job_defaults.env`](scripts/job_defaults.env) shortens that to **24 ticks**, **1 mm** cube for smoke tests unless you pass flags or edit the file.
+- **Biology** (JSON, text configs, `Sample.txt`) is read at runtime and is independent of the precedence chain above.
+
+### Default values (reference)
+
+| Setting | Local (`testRun`, no flags) | DRAC (`submit_testrun.sh`, no extra flags) |
+| ------- | ----------------------------- | -------------------------------------------- |
+| `--numticks` | **432** (~9 days) | **24** (~12 h) via `job_defaults.env` |
+| `--wxw`, `--wyw`, `--wzw` | **3.1 mm** each | **1 mm** each |
+| `--inputfile` | `configFiles/config_scaffold.txt` | same |
+| `--chem-config` | `configFiles/chemical_environment.json` | same |
+| `--output-dir` | `output` (or `$IVDBM_OUTPUT_DIR`) | `output/job_<jobid>` on compute node |
+| `--outputfile` | `<output-dir>/Output_Biomarkers.csv` | same |
+| Tick duration | **30 min** (`tick_interval_minutes` in JSON) | same |
+| `--patchwidth` | **0.01 mm** (fixed in code; not on CLI) | same |
+| Calibration | **`Sample.txt`** (auto-loaded) | same |
+
+Compile-time flags in [`src/common.h`](src/common.h) for the default scaffold build include `MODEL_SCAFFOLD`, `MODEL_3D`, `PDE_DIFFUSE`, `PEPTIDE_BM`, `BIOMARKER_OUTPUT`, and `CALIBRATION`.
+
+### Copy-paste parameter blocks
+
+Edit the variables at the top of each block, then run from the **repository root**. One tick = **30 minutes** simulated time.
+
+| Parameter | Flag / file | Notes |
+| --------- | ----------- | ----- |
+| Tick count | `--numticks` | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days |
+| World size (mm) | `--wxw`, `--wyw`, `--wzw` | C++ default 3.1 mm; DRAC shared default 1 mm |
+| Cells / scaffold | `--inputfile` | e.g. `configFiles/config_scaffold.txt` |
+| Chemistry | `--chem-config` | `configFiles/chemical_environment.json` |
+| Calibration | `Sample.txt` | Repo root; not a CLI flag |
+| Output directory | `--output-dir` | All CSVs; on DRAC also `run_params.json` |
+| Biomarker CSV | `--outputfile` | Default `<output-dir>/Output_Biomarkers.csv` |
 
 **Local run:**
 
@@ -111,9 +136,7 @@ Preview without submitting: append `--dry-run` to the submit command.
 
 **Shorthand (ticks only):** `./scripts/submit_testrun.sh "${EMAIL}" 12` is the same as `--numticks 12`.
 
-**Group-wide cluster defaults:** edit [`scripts/job_defaults.env`](scripts/job_defaults.env) instead of passing flags every time.
-
-**Biology not on the CLI:** edit `configFiles/chemical_environment.json` (chemistry), `configFiles/config_scaffold.txt` (cells/scaffold), and `Sample.txt` (calibration coefficients) before submitting.
+**Prefer editing a file over flags?** Change simulation defaults in [`scripts/job_defaults.env`](scripts/job_defaults.env). Change biology in `configFiles/` and `Sample.txt` (see table above).
 
 ## Compile
 
@@ -173,7 +196,7 @@ Catch2/CTest suites live under [`src/tests/`](src/tests/). They are **separate f
 
 ### Build test binaries
 
-DRAC provides Catch2 **2.11.0** and **3.2.1**. This project uses **v2 only** (`catch2/2.11.0` - do not load 3.2.1).
+This project uses **Catch2 v2 only** (v3 is incompatible). On many DRAC clusters a `catch2/2.x` module is available; on others (e.g. Nibi) `./scripts/build_drac.sh --tests` falls back to downloading Catch2 v2.13.10 during CMake configure. Do not `module load catch2/3.x`.
 
 ```bash
 # CPU tests (login node)
@@ -183,7 +206,7 @@ DRAC provides Catch2 **2.11.0** and **3.2.1**. This project uses **v2 only** (`c
 ./scripts/build_drac.sh --cuda --tests --arch 90
 ```
 
-Locally (without the Catch2 module), configure with `-DBUILD_SRC_TESTS=ON`; CMake falls back to FetchContent (Catch2 v2.13.10).
+If the build warns that no Catch2 module was found, that is expected on some clusters — the FetchContent download runs once at configure time on the login node.
 
 ### Submit test jobs (Slurm)
 
@@ -233,7 +256,7 @@ Shared Slurm defaults: [`scripts/test_defaults.env`](scripts/test_defaults.env).
 
 ## Run `testRun` locally
 
-Run from the **repository root** so default paths such as `configFiles/chemical_environment.json` resolve correctly. For a full parameter template, see [Setting run parameters (copy-paste)](#setting-run-parameters-copy-paste).
+Run from the **repository root** so default paths such as `configFiles/chemical_environment.json` resolve correctly. For where each parameter is set and copy-paste blocks, see [Where to set run parameters](#where-to-set-run-parameters).
 
 ```bash
 ./build/bin/testRun \
@@ -258,7 +281,7 @@ Useful CLI flags (see `./build/bin/testRun --help`):
 | `--output-dir`            | `output`                                | Base directory for all run artifacts                     |
 | `--chem-config`           | `configFiles/chemical_environment.json` | Path to chemical environment JSON                        |
 
-With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line). Calibration values are read from **`Sample.txt`** in the repo root (not configurable via CLI). See [Default run definition](#default-run-definition).
+With `MODEL_SCAFFOLD` defined in `src/common.h`, defaults match a small alginate scaffold (`configFiles/config_scaffold.txt`, 3.1 mm cube unless overridden on the command line). Calibration values are read from **`Sample.txt`** in the repo root (not configurable via CLI). See [Where to set run parameters](#where-to-set-run-parameters).
 
 ## Logging and output
 
@@ -334,7 +357,7 @@ Override the output directory on submit: `./scripts/submit_testrun.sh email@host
 
 ## Run `testRun` on DRAC (Slurm)
 
-Use [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) from the repository root. It wraps [`scripts/testrun.sbatch`](scripts/testrun.sbatch) with Slurm options and paths. For a copy-paste parameter block, see [Setting run parameters (copy-paste)](#setting-run-parameters-copy-paste).
+Use [`scripts/submit_testrun.sh`](scripts/submit_testrun.sh) from the repository root. It wraps [`scripts/testrun.sbatch`](scripts/testrun.sbatch) with Slurm options and paths. For parameter locations and a copy-paste block, see [Where to set run parameters](#where-to-set-run-parameters).
 
 ```bash
 ./scripts/submit_testrun.sh your.email@mail.mcgill.ca
@@ -354,7 +377,7 @@ Common options:
 | `--output-dir`       | `output/job_<jobid>`                    | Simulation output directory                    |
 | `--inputfile`        | `configFiles/config_scaffold.txt`       | Cell/scaffold config                           |
 
-Shared cluster defaults are in `[scripts/job_defaults.env](scripts/job_defaults.env)`. Default submit profile is **gpu** (matches `./scripts/build_drac.sh --cuda`). Use `--profile cpu` for CPU-only builds.
+Shared cluster defaults are in [`scripts/job_defaults.env`](scripts/job_defaults.env) (simulation + Slurm). Default submit profile is **gpu** (matches `./scripts/build_drac.sh --cuda`). Use `--profile cpu` for CPU-only builds. See [Where to set run parameters](#where-to-set-run-parameters) for when to edit that file vs passing flags.
 
 Examples:
 
