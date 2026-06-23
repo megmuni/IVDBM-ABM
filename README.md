@@ -34,7 +34,7 @@ Run parameters live in **different places** depending on what you are changing a
 | Model type (scaffold vs vocal fold), 3D, GPU diffusion, biomarker output | [`src/common.h`](src/common.h)                                                                                   | **Recompile** after editing                                                                                                       |
 | CTest suite / test-job Slurm defaults                                    | [`scripts/test_defaults.env`](scripts/test_defaults.env) or [`scripts/submit_tests.sh`](scripts/submit_tests.sh) | Test jobs only; unrelated to `testRun` simulation                                                                                 |
 
-### Precedence (same knob, multiple sources)
+### Precedence of variables
 
 For ticks, world size, and paths, **highest priority wins**:
 
