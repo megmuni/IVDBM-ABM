@@ -6,6 +6,7 @@
 #include "diffusion3d_step_euler_cpu.h"
 
 #include <cassert>
+#include <cstddef>
 
 namespace {
 

@@ -61,7 +61,6 @@ float poreWidth = 200.00; // (um)
 #endif
 
 #ifdef PEPTIDE_BM
-	string peptide; // Type of peptide used for biomaterial conjugation
 	float BMWorld::E_0 = 0;
 	float BMWorld::E_inf = 0;
 	float BMWorld::t = 0;
@@ -1973,15 +1972,19 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   // a TGF line for measuring TGF for
   // diffusion debugging purposes
   void BMWorld::write_auxiliary_header() {
-    remove("output/tgf_line.csv");
-    ofstream tgf_file("output/tgf_line.csv", ios::app);
+    char tgf_path[512];
+    util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
+    remove(tgf_path);
+    ofstream tgf_file(tgf_path, ios::app);
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     tgf_file.close();
   }
 
   void BMWorld::write_auxiliary_outputs() {
-    ofstream tgf_file("output/tgf_line.csv", ios::app);
+    char tgf_path[512];
+    util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
+    ofstream tgf_file(tgf_path, ios::app);
     tgf_file << fixed << setprecision(10);
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
@@ -1992,33 +1995,33 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     int in = 0;
     int Number = 0;
     for (int iz = 0; iz < nz; iz++) {
-      char patchassign[50] = "output/patchassign";
-      char cells[50] = "output/cells_read";
-      char cells_w[50] = "output/cells_write";
-      char initcollagen[50] = "output/initcollagen";
-      char initaggrecan[50] = "output/initaggrecan";
-      char initHA[50] = "output/initHA";
-      char damagezone[50] = "output/damagezone";
-      char initialdamage[50] = "output/initialdamage";
+      char patchassign[512];
+      char cells[512];
+      char cells_w[512];
+      char initcollagen[512];
+      char initaggrecan[512];
+      char initHA[512];
+      char damagezone[512];
+      char initialdamage[512];
       char extension[10] = ".csv";
-      char tempNumber[20] = "";
+      char tempNumber[32] = "";
       sprintf(tempNumber, "_t%3.0f_z%d", this->clock, Number);
-      strcat(patchassign, tempNumber);
-      strcat(patchassign, extension);
-      strcat(cells, tempNumber);
-      strcat(cells, extension);
-      strcat(cells_w, tempNumber);
-      strcat(cells_w, extension);
-      strcat(initHA, tempNumber);
-      strcat(initHA, extension);
-      strcat(initcollagen, tempNumber);
-      strcat(initcollagen, extension);
-      strcat(initaggrecan, tempNumber);
-      strcat(initaggrecan, extension);
-      strcat(damagezone, tempNumber);
-      strcat(damagezone, extension);
-      strcat(initialdamage, tempNumber);
-      strcat(initialdamage, extension);
+      snprintf(patchassign, sizeof(patchassign), "%s/patchassign%s%s",
+               util::getOutputDir(), tempNumber, extension);
+      snprintf(cells, sizeof(cells), "%s/cells_read%s%s", util::getOutputDir(),
+               tempNumber, extension);
+      snprintf(cells_w, sizeof(cells_w), "%s/cells_write%s%s",
+               util::getOutputDir(), tempNumber, extension);
+      snprintf(initHA, sizeof(initHA), "%s/initHA%s%s", util::getOutputDir(),
+               tempNumber, extension);
+      snprintf(initcollagen, sizeof(initcollagen), "%s/initcollagen%s%s",
+               util::getOutputDir(), tempNumber, extension);
+      snprintf(initaggrecan, sizeof(initaggrecan), "%s/initaggrecan%s%s",
+               util::getOutputDir(), tempNumber, extension);
+      snprintf(damagezone, sizeof(damagezone), "%s/damagezone%s%s",
+               util::getOutputDir(), tempNumber, extension);
+      snprintf(initialdamage, sizeof(initialdamage), "%s/initialdamage%s%s",
+               util::getOutputDir(), tempNumber, extension);
 
       // Patch Assign
       ofstream output_file(patchassign, ios::app);

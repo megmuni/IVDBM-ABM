@@ -23,3 +23,9 @@ set_target_properties(patch_field_diffusion_test PROPERTIES
 )
 
 add_test(NAME patch_field_diffusion COMMAND patch_field_diffusion_test)
+
+set_tests_properties(patch_field_diffusion
+    PROPERTIES
+        LABELS "world;cpu;fast"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)

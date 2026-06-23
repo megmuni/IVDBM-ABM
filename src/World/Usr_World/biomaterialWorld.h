@@ -334,6 +334,14 @@ public:
    */
   void updateMassLoss();
 
+#ifdef PEPTIDE_BM
+  /*
+   * Description: Update effective stiffness E from peptide stress-relaxation
+   * parameters (E_0, E_inf, t).
+   */
+  void updateE();
+#endif
+
   /*
    * Description:Degrade Ca-Alg Patches and replace with immature tissue patch
    * (no new ECM produced)
@@ -392,6 +400,12 @@ public:
   static int initialCaAlg; // The number of initial tissue patches
   
   static float E; // Effective stiffness
+
+#ifdef PEPTIDE_BM
+  static float E_0;   // Initial elastic modulus (peptide-conjugated BM)
+  static float E_inf; // Equilibrium modulus (peptide-conjugated BM)
+  static float t;     // Stress relaxation time (seconds)
+#endif
 
   // Crosslinked Ca-Alg Hydrogel Parameters
   //  Ca Crosslinker:

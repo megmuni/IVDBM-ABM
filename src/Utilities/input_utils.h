@@ -13,7 +13,13 @@
 
 #pragma once
 
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
 #include <string>
+#include <sys/stat.h>
 
 using namespace std;
 namespace util {
@@ -47,7 +53,57 @@ char inputFileName[200]; /* Path to input file containing these inputs:
                           * Macrophage (initial cell count),
                           * Neutrophil (initial cell count), 
 						              * Treatment_option */
-char outputFileName[200]; // Path to output file (output_biomarkers)
+char outputDir[200];       // Base directory for run artifacts
+char outputFileName[200];  // Primary biomarker CSV path
+
+inline const char *getOutputDir() { return outputDir; }
+
+inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
+  snprintf(dest, dest_size, "%s/%s", outputDir, filename);
+}
+
+inline void mkdir_p(const char *path) {
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  char buf[512];
+  strncpy(buf, path, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
+
+  for (char *p = buf + 1; *p != '\0'; ++p) {
+    if (*p == '/') {
+      *p = '\0';
+      mkdir(buf, 0755);
+      *p = '/';
+    }
+  }
+  mkdir(buf, 0755);
+}
+
+inline void ensureOutputDir() { mkdir_p(outputDir); }
+
+inline void ensureOutputSubpath(const char *subpath) {
+  char path[512];
+  makeOutputPath(path, sizeof(path), subpath);
+  mkdir_p(path);
+}
+
+inline void initOutputDirFromEnv() {
+  const char *env = getenv("IVDBM_OUTPUT_DIR");
+  if (env == nullptr || env[0] == '\0')
+    env = getenv("OUTPUT_DIR");
+  if (env != nullptr && env[0] != '\0')
+    strncpy(outputDir, env, sizeof(outputDir) - 1);
+  else
+    strncpy(outputDir, "output", sizeof(outputDir) - 1);
+  outputDir[sizeof(outputDir) - 1] = '\0';
+}
+
+inline void finalizeOutputPaths() {
+  if (outputFileName[0] == '\0')
+    snprintf(outputFileName, sizeof(outputFileName), "%s/Output_Biomarkers.csv",
+             outputDir);
+}
 
 /*
  * Description: Path to the chemical environment JSON config.
@@ -100,6 +156,9 @@ char *getInputFileName() { return inputFileName; }
  */
 void processOptions(int argc, char **argv) {
 
+  outputFileName[0] = '\0';
+  initOutputDirFromEnv();
+
 /* ------------------------- Setting default options ------------------------ */
 #ifdef MODEL_SCAFFOLD
   numTicks = 432;
@@ -147,8 +206,10 @@ void processOptions(int argc, char **argv) {
   strcpy(chemicalEnvironmentConfigFile,
          "configFiles/chemical_environment.json");
 
-  if (argc == 1)
+  if (argc == 1) {
+    finalizeOutputPaths();
     return;
+  }
 
   // Get options from command line arguments
   for (int i = 1; i < argc; i++) {
@@ -181,7 +242,9 @@ void processOptions(int argc, char **argv) {
     } else if (!strcmp(option_string, "--inputfile")) {
       strcpy(inputFileName, argv[++i]);
     } else if (!strcmp(option_string, "--outputfile")) {
-			strcpy(outputFileName, argv[++i]);
+      strcpy(outputFileName, argv[++i]);
+    } else if (!strcmp(option_string, "--output-dir")) {
+      strcpy(outputDir, argv[++i]);
     } else if (!strcmp(option_string, "--chem-config")) {
       strcpy(chemicalEnvironmentConfigFile, argv[++i]);
     } else if (!strcmp(option_string, "--help")) {
@@ -192,6 +255,8 @@ void processOptions(int argc, char **argv) {
       cout << "   --wyw:           World length   (mm)" << endl;
       cout << "   --wzw:           World height   (mm)" << endl;
       cout << "   --inputfile:     path/name of input file" << endl;
+      cout << "   --outputfile:    path to biomarker CSV (default: <output-dir>/Output_Biomarkers.csv)" << endl;
+      cout << "   --output-dir:    directory for run output (default: output, or $IVDBM_OUTPUT_DIR)" << endl;
       cout << "   --chem-config:   path to chemical_environment.json" << endl;
       cout << " Usage: " << endl;
       cout << "   For a 24.9mm x 17.4mm, with patch width 15 um," << endl;
@@ -207,6 +272,141 @@ void processOptions(int argc, char **argv) {
       exit(-1);
     }
   }
+
+  finalizeOutputPaths();
+}
+
+inline std::string jsonEscape(const char *s) {
+  if (s == nullptr)
+    return std::string();
+
+  std::string out;
+  out.reserve(strlen(s) + 8);
+  for (const char *p = s; *p != '\0'; ++p) {
+    switch (*p) {
+    case '"':
+      out += "\\\"";
+      break;
+    case '\\':
+      out += "\\\\";
+      break;
+    case '\n':
+      out += "\\n";
+      break;
+    case '\r':
+      out += "\\r";
+      break;
+    case '\t':
+      out += "\\t";
+      break;
+    default:
+      if (static_cast<unsigned char>(*p) < 0x20) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "\\u%04x", static_cast<unsigned char>(*p));
+        out += buf;
+      } else {
+        out += *p;
+      }
+    }
+  }
+  return out;
+}
+
+inline void writeJsonStringField(std::ofstream &out, const char *key,
+                                 const char *value, bool last = false) {
+  out << "    \"" << key << "\": ";
+  if (value != nullptr && value[0] != '\0')
+    out << "\"" << jsonEscape(value) << "\"";
+  else
+    out << "null";
+  if (!last)
+    out << ",";
+  out << "\n";
+}
+
+/*
+ * Description: Write resolved run parameters to JSON when IVDBM_RUN_PARAMS_JSON
+ *              is set (Slurm jobs via scripts/testrun.sbatch).
+ */
+inline void writeRunParamsJson(int argc, char **argv) {
+  const char *path = getenv("IVDBM_RUN_PARAMS_JSON");
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  std::ofstream out(path);
+  if (!out) {
+    fprintf(stderr, "Warning: cannot write run params to %s\n", path);
+    return;
+  }
+
+  out << "{\n";
+  out << "  \"slurm\": {\n";
+  writeJsonStringField(out, "job_id", getenv("SLURM_JOB_ID"));
+  writeJsonStringField(out, "array_task_id", getenv("SLURM_ARRAY_TASK_ID"));
+  writeJsonStringField(out, "job_name", getenv("SLURM_JOB_NAME"));
+  writeJsonStringField(out, "cpus_per_task", getenv("SLURM_CPUS_PER_TASK"));
+  writeJsonStringField(out, "mem_per_node", getenv("SLURM_MEM_PER_NODE"));
+  writeJsonStringField(out, "submit_dir", getenv("SLURM_SUBMIT_DIR"));
+  writeJsonStringField(out, "partition", getenv("SLURM_JOB_PARTITION"));
+  writeJsonStringField(out, "qos", getenv("SLURM_JOB_QOS"));
+  writeJsonStringField(out, "nodelist", getenv("SLURM_JOB_NODELIST"));
+  writeJsonStringField(out, "submit_host", getenv("SLURM_SUBMIT_HOST"));
+  writeJsonStringField(out, "gpus_on_node", getenv("SLURM_GPUS_ON_NODE"));
+  writeJsonStringField(out, "account", getenv("SLURM_JOB_ACCOUNT"));
+  writeJsonStringField(out, "profile", getenv("IVDBM_PROFILE"), true);
+  out << "  },\n";
+
+  out << "  \"simulation\": {\n";
+  out << "    \"num_ticks\": " << numTicks << ",\n";
+  out << "    \"patch_width_mm\": " << patchWidth << ",\n";
+  out << "    \"world_x_width_mm\": " << worldXwidth << ",\n";
+  out << "    \"world_y_width_mm\": " << worldYwidth << ",\n";
+  out << "    \"world_z_width_mm\": " << worldZwidth << ",\n";
+  writeJsonStringField(out, "input_file", inputFileName);
+  writeJsonStringField(out, "output_dir", outputDir);
+  writeJsonStringField(out, "output_file", outputFileName);
+  writeJsonStringField(out, "chemical_environment_config",
+                       chemicalEnvironmentConfigFile);
+  writeJsonStringField(out, "calibration_file", "Sample.txt", true);
+  out << "  },\n";
+
+  out << "  \"command\": {\n";
+  out << "    \"argv\": [";
+  for (int i = 0; i < argc; ++i) {
+    if (i > 0)
+      out << ", ";
+    out << "\"" << jsonEscape(argv[i]) << "\"";
+  }
+  out << "]\n";
+  out << "  }\n";
+  out << "}\n";
+}
+
+/*
+ * Description: Write per-tick simulation timing when IVDBM_RUN_TIMING_JSON is
+ *              set (merged into run_params.json after the job by sbatch).
+ */
+inline void writeRunTimingJson(long total_tick_ms, int num_ticks,
+                               double setup_wall_seconds) {
+  const char *path = getenv("IVDBM_RUN_TIMING_JSON");
+  if (path == nullptr || path[0] == '\0')
+    return;
+
+  std::ofstream out(path);
+  if (!out) {
+    fprintf(stderr, "Warning: cannot write run timing to %s\n", path);
+    return;
+  }
+
+  const double avg_ms =
+      num_ticks > 0 ? static_cast<double>(total_tick_ms) / num_ticks : 0.0;
+
+  out << "{\n";
+  out << "  \"num_ticks_completed\": " << num_ticks << ",\n";
+  out << "  \"setup_wall_seconds\": " << setup_wall_seconds << ",\n";
+  out << "  \"tick_execution_ms_total\": " << total_tick_ms << ",\n";
+  out << "  \"tick_execution_ms_avg\": " << avg_ms << "\n";
+  out << "}\n";
 }
 
 /*
@@ -223,6 +423,7 @@ void printOptions() {
   cout << "	worldYwidth:	" << worldYwidth << " mm" << endl;
   cout << "	worldZwidth:	" << worldZwidth << " mm" << endl;
   cout << "	inputFileName:	" << inputFileName << endl;
+  cout << "	outputDir:	" << outputDir << endl;
   cout << "	outputFileName:	" << outputFileName << endl;
   cout << "	chemicalEnvironmentConfig:	"
        << chemicalEnvironmentConfigFile << endl;

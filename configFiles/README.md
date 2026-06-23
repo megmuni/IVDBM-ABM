@@ -21,7 +21,7 @@ Biological values for the ABM chemistry system are read **only** from JSON. C++ 
 | Section                         | Purpose                                                                                                           |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `schema_version`                | Must be `1`                                                                                                       |
-| `tick_interval_minutes`         | Length of one ABM tick (minutes)                                                                                  |
+| `tick_interval_minutes`         | Length of one ABM tick (minutes); template default is **30** (matches ABM clock)                                  |
 | `channels.count`                | Number of float grids allocated                                                                                   |
 | `channels.chemotaxis`           | Channel index used for cell chemotaxis (`pcellgrad` = 6 in IVDBM)                                                 |
 | `channels.channel_names`        | Optional labels for documentation                                                                                 |
