@@ -78,8 +78,11 @@ finalize_run_params() {
   fi
 }
 
+TIME_CMD="$(command -v time)"
+[[ -n "${TIME_CMD}" ]] || fail "time not found on PATH"
+
 set +e
-/usr/bin/time -f 'wall_seconds=%e max_rss_kb=%M user_seconds=%U sys_seconds=%S' \
+"${TIME_CMD}" -f 'wall_seconds=%e max_rss_kb=%M user_seconds=%U sys_seconds=%S' \
   -o "${TIME_FILE}" \
   "${TESTRUN}" \
   --output-dir "${OUTPUT_DIR}" \
