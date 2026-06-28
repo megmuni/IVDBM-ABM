@@ -24,7 +24,10 @@ if [[ "${BUILD_DIR}" != /* ]]; then
 fi
 
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-output/tests_${SLURM_JOB_ID}}"
-FINALIZE_SCRIPT="${REPO_ROOT}/scripts/finalize_test_run.py"
+if [[ "${TEST_OUTPUT_DIR}" != /* ]]; then
+  TEST_OUTPUT_DIR="${REPO_ROOT}/${TEST_OUTPUT_DIR}"
+fi
+CTEST_LOG="${TEST_OUTPUT_DIR}/ctest.log"
 CTEST_ARGS="${CTEST_ARGS:-}"
 TEST_SUITE="${TEST_SUITE:-${IVDBM_TEST_DEFAULT_SUITE}}"
 
@@ -33,7 +36,6 @@ mkdir -p "${TEST_OUTPUT_DIR}" logs || fail "cannot create ${TEST_OUTPUT_DIR} or 
 [[ -d "${BUILD_DIR}" ]] || fail "build directory missing: ${BUILD_DIR}"
 [[ -f "${BUILD_DIR}/CTestTestfile.cmake" ]] || \
   fail "no CTest config in ${BUILD_DIR} — run ./scripts/build_drac.sh --tests"
-[[ -f "${FINALIZE_SCRIPT}" ]] || fail "missing ${FINALIZE_SCRIPT}"
 
 TEMPLATE="${REPO_ROOT}/configFiles/chemical_environment.template.json"
 [[ -f "${TEMPLATE}" ]] || \
@@ -58,28 +60,12 @@ echo "  TEST_SUITE=${TEST_SUITE}"
 echo "  IVDBM_PROFILE=${IVDBM_PROFILE:-cpu}"
 echo "  CTEST_ARGS=${CTEST_ARGS:-<none>}"
 
-finalize_tests() {
-  local status="$1"
-  if [[ -f "${FINALIZE_SCRIPT}" ]]; then
-    python3 "${FINALIZE_SCRIPT}" "${TEST_OUTPUT_DIR}" \
-      --junit "${TEST_OUTPUT_DIR}/test_results.xml" \
-      --suite "${TEST_SUITE}" \
-      --profile "${IVDBM_PROFILE:-cpu}" \
-      --build-dir "${BUILD_DIR}" \
-      --exit-code "${status}" \
-      --job-id "${SLURM_JOB_ID:-}" || \
-      echo "tests.sbatch: warning: could not write test_summary.json" >&2
-  fi
-}
-
 set +e
 export CTEST_OUTPUT_ON_FAILURE=1
 # shellcheck disable=SC2086
-ctest --test-dir "${BUILD_DIR}" ${CTEST_ARGS} \
-  --output-junit "${TEST_OUTPUT_DIR}/test_results.xml"
-status=$?
+ctest --test-dir "${BUILD_DIR}" ${CTEST_ARGS} 2>&1 | tee "${CTEST_LOG}"
+status=${PIPESTATUS[0]}
 set -e
 
 echo "ctest finished with exit code ${status}"
-finalize_tests "${status}"
 exit "${status}"

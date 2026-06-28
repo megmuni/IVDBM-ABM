@@ -246,11 +246,10 @@ Pass extra ctest flags after `--`:
 
 ### Test output
 
-| Artifact     | Location                                  |
-| ------------ | ----------------------------------------- |
-| Job log      | `logs/tests_<array>_<jobid>.out` / `.err` |
-| JUnit XML    | `output/tests_<jobid>/test_results.xml`   |
-| Summary JSON | `output/tests_<jobid>/test_summary.json`  |
+| Artifact  | Location                                                       |
+| --------- | -------------------------------------------------------------- |
+| Job log   | `logs/tests_<array>_<jobid>.out` / `.err` (batch + ctest output) |
+| CTest log | `output/tests_<jobid>/ctest.log` (ctest stdout from the job)   |
 
 Shared Slurm defaults: [`scripts/test_defaults.env`](scripts/test_defaults.env).
 
