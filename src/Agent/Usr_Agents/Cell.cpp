@@ -845,7 +845,6 @@ float Stem::get_prolif_prob(float meanTGF,
 #endif  
 	
 	return prolif;
-	}
 }
 
 int Stem::get_daughter_type() { return progen; }
@@ -1088,7 +1087,6 @@ float NP::get_prolif_prob(float meanTGF,
 #endif 
 
 	return prolif;
-	}
 }
 
 void NP::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
