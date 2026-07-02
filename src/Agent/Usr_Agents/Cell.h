@@ -259,6 +259,9 @@ class Cell: public Agent {
 
       // Death-related hook functions
       virtual float get_apoptosis_chance(); // calculates the chance of cell death 
+
+      // OCR-related hook functions
+      virtual float get_OCR(); // gets the cell-specific OCR 
 };
 
 /*
@@ -351,6 +354,9 @@ protected:
     // Death-related hook functions
     float get_apoptosis_chance() override;
 
+    // OCR-related hook functions
+    float get_OCR() override;
+
 };
 
 /*
@@ -437,6 +443,9 @@ protected:
 
     // Death-related hook functions
     float get_apoptosis_chance() override;
+
+    // OCR-related hook functions
+    float get_OCR() override;
 };
 
 /*
@@ -517,6 +526,9 @@ protected:
 
     // Death-related hook functions
     float get_apoptosis_chance() override;
+
+    // OCR-related hook functions
+    float get_OCR() override;
 };
 
 #endif
