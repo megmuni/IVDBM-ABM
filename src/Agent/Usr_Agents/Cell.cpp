@@ -257,8 +257,8 @@ void Cell::cellFunction() {
 	// Calls the individual cell stage functions
 	
 	//Measure mean & patch oxygen 
-	float meanO2 = this->meanNeighborChem(o2);
-	float patchO2 = this->agentWorldPtr->WHWorldChem.po2[in];
+	float meanO2 = this->meanNeighborConcentration(o2);
+	float patchO2 = this->patchChemConcentration(o2, in);
 
 	if (this->alive[read_t] == false) return;
 	if (this->alive[read_t] == true && (meanO2 + patchO2) > this->get_OCR()) {
