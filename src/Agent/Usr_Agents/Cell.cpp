@@ -490,10 +490,8 @@ void Cell::ecm_synthesis() {
 				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
 				if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
 			}
-			else {
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-			}
-			//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
+		}
+	}
 
 	// Calculate total volume of surrounding patches to check for cytokine thresholds
 	float patchVolume = BMWorld::totalVolumeML / (nx * ny * nz);
@@ -637,6 +635,7 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	//			#endif
 	//		}
 	//	}
+	}
 }
 
 void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
@@ -702,6 +701,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 		Agent::agentECMPtr[in].set_dirty();
 #endif
 	}
+}
 }
 
 void Cell::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {}
@@ -815,6 +815,7 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 		newcell->wiggle();
 	}
 }
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                    STEM                                    */
@@ -847,6 +848,7 @@ float Stem::get_prolif_prob(float meanTGF,
 #endif  
 	
 	return prolif;
+	}
 }
 
 int Stem::get_daughter_type() { return progen; }
@@ -1089,6 +1091,7 @@ float NP::get_prolif_prob(float meanTGF,
 #endif 
 
 	return prolif;
+	}
 }
 
 void NP::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
