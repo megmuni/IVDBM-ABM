@@ -724,6 +724,8 @@ float Cell::get_migration_speed() { return 0; }
 
 float Cell::get_apoptosis_chance() { return 1; }
 
+float Cell::get_OCR() { return 0; }
+
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
 	int lx = 0;
