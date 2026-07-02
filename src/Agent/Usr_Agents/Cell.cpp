@@ -255,7 +255,8 @@ NP::~NP() {}
 //CELL FUNCTIONS
 void Cell::cellFunction() {
 	// Calls the individual cell stage functions
-	
+	int in = this->index[read_t];
+
 	//Measure mean & patch oxygen 
 	float meanO2 = this->meanNeighborConcentration(o2);
 	float patchO2 = this->patchChemConcentration(o2, in);
@@ -270,6 +271,7 @@ void Cell::cellFunction() {
 		this->apoptose();
 
 		// Finally, subtract 'consumed' O2 from current and neighbor patches
+
 		// Location of agent in x,y,z dimensions of world.
 		int x = this->ix[read_t];
 		int y = this->iy[read_t];
@@ -293,9 +295,10 @@ void Cell::cellFunction() {
 			}
 		}
 
-	// last thing to do: increase age + 1 tick 
-	if (this->life[read_t] >= 0) {
-		this->life[write_t] = this->life[read_t] + 1;
+		// last thing to do: increase age + 1 tick 
+		if (this->life[read_t] >= 0) {
+			this->life[write_t] = this->life[read_t] + 1;
+		}
 	}
 }
 
