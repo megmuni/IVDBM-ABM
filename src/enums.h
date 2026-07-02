@@ -55,9 +55,10 @@ enum color_t {
   co2 = 195
 };
 
-// Types of chemicals:
+/** Species ids and matching grid channel indices (see ChemicalEnvironment). */
 enum chemical_t {
 // p: patch, d: delta (change during the tick)
+  /** Species identifiers for agent/world API. */
   TNF = 0,
   TGF = 1,
   IL1beta = 2,
@@ -89,5 +90,12 @@ enum readwrite_t {
   read_t = 0,  // Start of a tick
   write_t = 1  // End of a tick
 }; 
+
+//enum peptides {
+//	MAL,
+//	CHAD,
+//	hA5G26,
+//	IKVAV
+//};
 
 #endif	/* ENUMS_H */

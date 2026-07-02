@@ -11,7 +11,8 @@
  */
 
 #include "Agent.h"
-#include "../World/Usr_World/woundHealingWorld.h"
+#include "../Chemistry/chemical_environment.h"
+#include "../World/Usr_World/biomaterialWorld.h"
 #include "../enums.h"
 #include <iostream>
 #include <vector>
@@ -19,9 +20,16 @@
 #include <iomanip> // Include for setprecision and fixed
 
 
-WHWorld* Agent::agentWorldPtr = NULL;
+BMWorld* Agent::agentWorldPtr = NULL;
 Patch* Agent::agentPatchPtr = NULL;
-ECM* Agent::agentECMPtr = NULL; 
+ECM* Agent::agentECMPtr = NULL;
+
+ChemicalEnvironment* Agent::chemicalEnvironment()
+{
+	if (Agent::agentWorldPtr)
+		return Agent::agentWorldPtr->chemical_environment();
+	return nullptr;
+}
 
 int Agent::nx = 0;
 int Agent::ny = 0;
@@ -36,8 +44,6 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 	int Agent::neighbor[8] = {9, 10, 11, 12, 14, 15, 16, 17}; // We do not include neighbor 13 (no movement to self (0,0,0))
 #endif
 
-float Agent::viabilityRate = 97; // %
-float Agent::proliferationRate = 27;
 float Agent::HASynthRate = 0;
 bool  Agent::CaAlgFlag = false; 
 
@@ -58,40 +64,6 @@ bool Agent::isAlive() {
 
 bool Agent::isRealDead() {
 	return this->realDeath[read_t];
-}
-
-bool Agent::isProliferative(int agentType) {
-	switch (agentType) {
-	case stem: {
-		if (this->doublings[read_t] <= 100) {
-			return true;
-		}
-		else if (this->doublings[read_t] > 100) {
-			return false;
-		}
-		break;
-	}
-	case progen: {
-		if (this->doublings[read_t] <= 65) {
-			return true;
-		}
-		else if (this->doublings[read_t] > 65) {
-			return false;
-		}
-		break;
-	}
-
-	case np: {
-		if (this->doublings[read_t] <= 27) {
-			return true;
-		}
-		else if (this->doublings[read_t] > 27) {
-			return false;
-		}
-		break;
-	}
-	}
-	return false;
 }
 
 void Agent::cellFunction() {}
@@ -123,263 +95,6 @@ bool Agent::rollDice(float percent) {
 	if (randNum < percent) return 1;
 	else return 0;
 }
-
-#ifdef MODEL_SCAFFOLD
-
-	/* ----------------------------- 		MIGRATION SPEED 		 ---------------------------- */
-	void Agent::calculateMigrationSpeed(int agentType){
-		/* Calculate migration speed (patch/tick) of Chondrocyte in Ca-Alg Gel given elastic modulus (E)
-		*        
-		*        Cells move through gel in brownian motion and along chemical gradients
-		*        Cells favor attachment and move faster in hydrogels with high elastic modulus
-		*/
-		switch (agentType) {
-		case stem: {
-			#ifdef CALIBRATION
-				float migration_ummin = Stem::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Stem::CaAlgMigration[1]; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#else
-				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#endif
-			cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
-			break;
-		}
-		case progen: {
-			#ifdef CALIBRATION
-				float migration_ummin = Progen::CaAlgMigration[0] * log(Agent::agentWorldPtr->E) + Progen::CaAlgMigration[1]; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#else
-				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + ((NP::migrationSpeed - Stem::migrationSpeed)/2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#endif
-			cout << "        Progenitor cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
-			break;
-
-		}
-		case np: {
-			#ifdef CALIBRATION
-				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#else
-				float migration_ummin = 0.1096 * log(Agent::agentWorldPtr->E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-				if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-					NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-				else {
-					NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-				}
-			#endif
-			cout << "        NP cell migration Speed (patch/tick) = " << NP::migrationSpeed << endl;
-			break;
-		}
-		}
-		return; 
-	}
-
-	/* --------------------------- PROLIFERATION RATE --------------------------- */
-	/* NOTE: this function will not be used in IVDBM-ABM (stem cell version)      */
-	void Agent::calculateProliferationRate(){
-		/* Change in cell population (% of initial population) for gel with given %Alg(w/w) at time t (hours)
-		 * 		   Cell population = (-a*Alg(w/w) + b)*ln(t_hours) + (c * Alg(w/w) + d)
-		 *
-		 *         Finite cell lines undergo linear then logarithmic cell growth. 
-		 *         High Alg content and elastic moudlus hydrogels are favorable to cell attachment and proliferation  
-		 */
-					
-		// Calculate population as percent of initial population at current (tick = t) and previous call (tick =t-1)
-		float t = (WHWorld::reportHour());              // hours elapsed at tick t
-		float tMinusOne = (WHWorld::clock-1)*0.5;       // hours elapsed at tick t-1
-			
-		#ifdef CALIBRATION
-			float cellPopulation_t = 		 Agent::CaAlgProlif[0] - Agent::CaAlgProlif[1]*(Agent::agentWorldPtr->Alg_wv) - Agent::CaAlgProlif[2]*(Agent::agentWorldPtr->pXL) + Agent::CaAlgProlif[3]*(t)*(Agent::agentWorldPtr->Alg_wv) 		 + Agent::CaAlgProlif[4]*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-			float cellPopulation_tMinusOne = Agent::CaAlgProlif[0] - Agent::CaAlgProlif[1]*(Agent::agentWorldPtr->Alg_wv) - Agent::CaAlgProlif[2]*(Agent::agentWorldPtr->pXL) + Agent::CaAlgProlif[3]*(tMinusOne)*(Agent::agentWorldPtr->Alg_wv) + Agent::CaAlgProlif[4]*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-
-		#else 
-			float cellPopulation_t =13.06 - 3.69*(Agent::agentWorldPtr->Alg_wv) - 101.18*(Agent::agentWorldPtr->pXL) + 0.056*(t)*(Agent::agentWorldPtr->Alg_wv) + 30.44*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); //14.635 + 6.95*(t) - 1.04*(t)*(Agent::agentWorldPtr->pXL) - 2.65*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); 
-			float cellPopulation_tMinusOne = 13.06 - 3.69*(Agent::agentWorldPtr->Alg_wv) - 101.18*(Agent::agentWorldPtr->pXL) + 0.056*(tMinusOne)*(Agent::agentWorldPtr->Alg_wv) + 30.44*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL); //14.635 + 6.95*(tMinusOne) - 1.04*(tMinusOne)*(Agent::agentWorldPtr->pXL) - 2.65*(Agent::agentWorldPtr->Alg_wv)*(Agent::agentWorldPtr->pXL);
-
-		#endif
-
-		// Change in cell population between current and previous time point, as percent of initial population:
-		float deltaCellPopulation = (cellPopulation_t < 0 || cellPopulation_t - cellPopulation_tMinusOne < 0)? 0: cellPopulation_t - cellPopulation_tMinusOne; 
-
-		// Calculate % of current chondrocytes that need to proliferate during current tick:
-		Agent::proliferationRate = 100*(deltaCellPopulation*Agent::agentWorldPtr->initialCells[0])/(Agent::agentWorldPtr->cells.size()); 
-		cout << " Proliferation Rate (%) = " << Agent::proliferationRate << endl;         
-		return; 
-	}
-
-	/* ----------------------------- VIABILITY RATE ----------------------------- */
-	void Agent::calculateViabilityRate(){
-		/* Calculate viability Rate (%) given current time (day)
-		 * 		  Viability Rate (%) = a * ln(t_day) + b
-		 *
-		 *        Ca-Alg crosslinked cells are non-toxic and maintain cell viability and phenotype over time       
-		 *        Ratio of Live to dead cells remains relatively constant over time       
-		 */
-
-		#ifdef CALIBRATION
-			float viability = Agent::CaAlgViability[0]*log(WHWorld::reportDay()) + Agent::CaAlgViability[1];		
-		#else
-			float viability = 0.7321*log(WHWorld::reportDay()) + 97.452; 
-		#endif
-
-		if (viability < 0) viability = 0; 
-		else if (viability > 100) viability = 100; 
-		Agent::viabilityRate = viability; 
-
-		cout << " Viability Rate (%)= " << Agent::viabilityRate << endl; 
-		return; 
-	}
-
-	/* --------------------------- ECM SYNTHESIS RATE --------------------------- */
-	void Agent::calculateECMSynthesisRate(int agentType){
-		/* Cellular Activity and ECM synthesis dependent on Elastic Modulus (E) and pore size (poreWidth)
-		 * 		  Collagen per cell = a*(b*E + c) + d*(-e*poreWidth + f)
-		 * 		  Aggrecan per cell = g*(h*E + i) + j*(-k*poreWidth + l)
-		 * 		  sGAG per cell = m*(n*E + o) + p*(-q*poreWidth + r)
-		 *        
-		 *        sGAG (HA) production increased with Elastic modulus 
-		 *        Aggrecan production decreased with Elastic modulus 
-		 *        Collagen production depends on pore size and not Elastic modulus 
-		 */
-		
-		float meanTNF = this->meanNeighborChem(TNF);
-		float meanTGF = this->meanNeighborChem(TGF);
-		float meanIL1 = this->meanNeighborChem(IL1beta);
-
-		#ifdef CALIBRATION
-
-		switch (agentType) {
-		case stem: {
-
-			// Location of agent in x,y,z dimensions of world.
-			int x = this->ix[read_t];
-			int y = this->iy[read_t];
-			int z = this->iz[read_t];
-
-			// Number of patches in x,y,z dimensions of world
-			int nx = Agent::nx;
-			int ny = Agent::ny;
-			int nz = Agent::nz;
-
-			int neighborCount = 0;
-			// Count number of patches of neighbors inside world dimensions:
-			for (int dZ = -1; dZ <= 1; dZ++) {
-				for (int dY = -1; dY <= 1; dY++) {
-					for (int dX = -1; dX <= 1; dX++) {
-						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) neighborCount++;
-					}
-				}
-			}
-
-			// Calculate total volume of surrounding patches to check for cytokine thresholds
-			float patchVolume = WHWorld::totalVolumeML / (nx * ny * nz);
-			//int neighbors = WHWorld::countNeighborPatchType(x, y, z, CaAlg);
-			float patchesVolume = patchVolume * neighborCount;
-
-			Stem::collagenSynthRate = Stem::CollagenSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			//cout << " collagen synth rate = " << Stem::collagenSynthRate << endl; //debug
-
-			if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {// pg/ml
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-
-			}
-			else {
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-				break;
-			}
-			//cout << " aggrecan synth rate = " << Stem::aggrecanSynthRate << endl; //debug
-		}
-		case progen: {
-			Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			break;
-		}
-		case np: {
-			NP::collagenSynthRate = NP::CollagenSynth[0] * (NP::CollagenSynth[1] * WHWorld::reportDay() + NP::CollagenSynth[2]);
-			NP::aggrecanSynthRate = NP::AggrecanSynth[0] * (NP::AggrecanSynth[1] * WHWorld::reportDay() + NP::AggrecanSynth[2]);
-		}
-		}
-		#else
-		switch (agentType) {
-		case stem: {
-			Stem::collagenSynthRate = 10 + (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
-			if (meanTGF < 100000) {// pg/ml
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
-			}
-			else {
-				Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
-				break;
-			}
-		} case np: {
-			NP::collagenSynthRate = 10 * (6.45 * WHWorld::reportDay() + 3.6);//10*(6.45*WHWorld::reportDay() + 3.6); // Agent::collagenSynthRate = 8922 - 255.4*mesh - 0.02429*Agent::agentWorldPtr->E; //Metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate 
-			NP::aggrecanSynthRate = 20 * (38 * WHWorld::reportDay() + 16.6);//10*(38*WHWorld::reportDay() + 16.6);  // Agent::aggrecanSynthRate = 183.4 - 4.702*mesh - 0.0009759*Agent::agentWorldPtr->E;//metabolism of the extracellular matrix formed by intervertebral disc cells cultured in alginate		
-		}
-		}
-		#endif
-		cout << "        Collagen Synthesis Rate = " << NP::collagenSynthRate << endl; 
-		cout << "        Agggrecan Synthesis Rate = " << NP::aggrecanSynthRate << endl; 
-		return; 
-	}
-
-	void Agent::cellCaAlgBehavior() {
-		enum Agent::agenttype_t agentType;
-		switch (this->type[read_t]) {
-			case stem: {
-				agentType = stem;
-			}
-			case progen: {
-				agentType = progen;
-			}
-			case np: {
-				agentType = np;
-			}
-		}
-		if (WHWorld::clock == 0){
-			Agent::calculateMigrationSpeed(agentType);
-			Agent::calculateECMSynthesisRate(agentType);
-
-		} else if (WHWorld::clock > 0) {
-			Agent::calculateProliferationRate();
-			Agent::calculateViabilityRate();
-		}
-	return; 
-	}
-#endif // MODEL_SCAFFOLD
 
 bool Agent::move(int dX, int dY, int dZ, int read_index) {
   // Location of agent in x,y,z dimensions of world.
@@ -517,33 +232,51 @@ void Agent::wiggle() {
 
 } // End Agent::wiggle()
 
-float Agent::meanNeighborChem(int chemIndex) {
-	int totalchemical = 0, numberofpatches = 0;
-  	
-	// Location of agent in x,y,z dimensions of world.
+float Agent::patchChemConcentration(SpeciesId species, int patch_index) {
+	const ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		return env->concentration_at(patch_index, species);
+	return 0.f;
+}
+
+void Agent::addPatchChemSecretion(SpeciesId species, int patch_index, float delta) {
+	ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		env->accumulate_secretion(patch_index, species, delta);
+}
+
+float Agent::patchChemotaxis(int patch_index) {
+	const ChemicalEnvironment* env = Agent::chemicalEnvironment();
+	if (env)
+		return env->chemotaxis_at(patch_index);
+	return 0.f;
+}
+
+float Agent::meanNeighborConcentration(SpeciesId species) {
+	float totalchemical = 0.f;
+	int numberofpatches = 0;
+
 	int x = this->ix[read_t];
 	int y = this->iy[read_t];
 	int z = this->iz[read_t];
-  	
-	// Number of patches in x,y,z dimensions of world
+
 	int nx = Agent::nx;
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 
-	// Count number of chemicals of type chemIndex in all neighbors inside world dimensions:
 	for (int dZ = -1; dZ <= 1; dZ++) {
 		for (int dY = -1; dY <= 1; dY++) {
 			for (int dX = -1; dX <= 1; dX++) {
-				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-				int in = (x + dX) + (y + dY)*nx + (z + dZ)*nx*ny;
-				totalchemical += Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny ||
+				    z + dZ < 0 || z + dZ >= nz)
+					continue;
+				int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+				totalchemical += this->patchChemConcentration(species, in);
 				numberofpatches++;
 			}
 		}
 	}
-	//cout << "totalchemical = " << totalchemical << endl;
-	//cout << "nuumberofpatches = " << numberofpatches << endl;
-	return totalchemical/numberofpatches;
+	return totalchemical / numberofpatches;
 }
 
 int Agent::countNeighborECM(int ECMIndex) {
@@ -623,25 +356,24 @@ int Agent::countNeighborCells(int cellIndex) {
 	return numberofcells;
 }
 
-bool Agent::moveToHighestChem(int chemIndex) {
+bool Agent::moveTowardChemotaxis() {
 	int read_index;
-	
-	// Check if the location has been modified in this tick
-	if (isModified(this->index)) read_index = write_t;	// If it has, work off of the intermediate value
-	else read_index = read_t;							// If it has NOT, work off of the original value
 
-    // Location of agent in x,y,z dimensions of world.
+	if (isModified(this->index))
+		read_index = write_t;
+	else
+		read_index = read_t;
+
 	int ix = this->ix[read_index];
 	int iy = this->iy[read_index];
 	int iz = this->iz[read_index];
 	int index = this->index[read_index];
-    
-	// Number of patches in x,y,z dimensions of world.
+
 	int nx = Agent::nx;
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 
-	double highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][index];
+	double highestchem = this->patchChemotaxis(index);
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
@@ -649,28 +381,24 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		switch (this->type[read_t]) {
 			case stem: {
 				int radius = Stem::migrationSpeed;
-				//agentType = stem;
 			}
 			case progen: {
 				int radius = Progen::migrationSpeed;
-				//agentType = progen;
 			}
 			case np: {
 				int radius = NP::migrationSpeed;
-				//agentType = np;
 			}
 		}
-        //int radius = Agent::migrationSpeed; // Cells in Ca-Alg can move up to 'migrationSpeed' patches radius per tick 
 
-        // Find the neighbor inside world dimensions with the highest concentration of chemical of type chemIndex:
 		for (int deltaz = -radius; deltaz <= radius; deltaz++) {
 			for (int deltay = -radius; deltay <= radius; deltay++) {
 				for (int deltax = -radius; deltax <= radius; deltax++) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
-					
+
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					if (Agent::agentWorldPtr->chemAllocation[chemIndex][in] > highestchem) {
-						highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+					const float neighbor = this->patchChemotaxis(in);
+					if (neighbor > highestchem) {
+						highestchem = neighbor;
 						dx = deltax;
 						dy = deltay;
 						dz = deltaz;
@@ -680,15 +408,15 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		}
 
 	#else
-		// Find the neighbor inside world dimensions with the highest concentration of chemical of type chemIndex:
 		for (int deltaz = -1; deltaz <= 1; deltaz++) {
 			for (int deltay = -1; deltay <= 1; deltay++) {
 				for (int deltax = -1; deltax <= 1; deltax++) {
 					if (ix + deltax < 0 || ix + deltax >= nx || iy + deltay < 0 || iy + deltay >= ny || iz + deltaz < 0 || iz + deltaz >= nz) continue;
-					
+
 					int in = (ix + deltax) + (iy + deltay)*nx + (iz + deltaz)*nx*ny;
-					if (Agent::agentWorldPtr->chemAllocation[chemIndex][in] > highestchem) {
-						highestchem = Agent::agentWorldPtr->chemAllocation[chemIndex][in];
+					const float neighbor = this->patchChemotaxis(in);
+					if (neighbor > highestchem) {
+						highestchem = neighbor;
 						dx = deltax;
 						dy = deltay;
 						dz = deltaz;
@@ -698,7 +426,6 @@ bool Agent::moveToHighestChem(int chemIndex) {
 		}
 	#endif
 
-	// Move to the neighbor with the highest concentration of chemical of type chemIndex if it is not the agent's current patch:
 	if (dx == 0 && dy == 0 && dz == 0) return false;
 	int newIndex = (ix + dx) + (iy + dy)*nx + (iz + dz)*nx*ny;
 	return this->move(dx, dy, dz, read_index);

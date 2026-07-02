@@ -15,7 +15,7 @@
 
 #include "../Agent.h"
 #include "../../Patch/Patch.h"
-#include "../../World/Usr_World/woundHealingWorld.h"
+#include "../../World/Usr_World/biomaterialWorld.h"
 
 class ECM; 
 
@@ -96,12 +96,12 @@ class Cell: public Agent {
     /*void achond_cellFunction();                         
 
     /*
-     * Description:	Moves a cell along its preferred chemical gradient.
+     * Description:	Moves a cell along its preferred chemical gradient. Template method.
      *
      * Return: void
      * Parameters: void
      */
-    void cellSniff();
+    virtual void cellSniff() final;
 
     /*
      * Description:	Performs cell death. Updates the cell class members. 
@@ -110,7 +110,16 @@ class Cell: public Agent {
      * Return: void
      * Parameters: void
      */
-    void die();						
+    void die();					
+
+    /*
+     * Description:	Spefically carries out cell apoptosis based on apoptosis chances for cell types
+     * 
+     *
+     * Return: void
+     * Parameters: void
+     */
+    virtual void apoptose() final;
 
     /*
      * Description:	Activates an unactivated chondrocyte. Updates the chondrocyte class members.
@@ -140,7 +149,27 @@ class Cell: public Agent {
      *             dz        -- Difference in z-coordinate of the cell's location relative to original's location.
      *                          NOTE: dz = 0 because it is only 2D for now.
      */
-    void copyAndInitialize(Agent* original, int dx, int dy, int dz = 0);  
+    void copyAndInitialize(Agent* original, int dx, int dy, int dz = 0);
+
+    /*
+     * Description: template method for cell proliferation
+     * 
+     */
+    virtual void proliferate() final;
+
+    /*
+     * Description: template method for cell differentiation. Called once per simulation
+     * tick for each cell. Checks all conditions before attempting cell division, then creates
+     * a daughter cell and increments that cell's number of divisions.
+     *
+     */
+    virtual void differentiate() final;
+
+    /*
+     * Description: template method for ECM synthesis by cells
+     *
+     */
+    virtual void ecm_synthesis() final;
 
     /*
      * Description:	Sprouts original collagen on one of the activated cell's damaged neighbor patches.
@@ -166,15 +195,10 @@ class Cell: public Agent {
     void makeOAggrecan(float meanTNF, float meanTGF, float meanIL1);
 
     /*
-     * Description:	Sprouts new hyaluronan on one of the activated chondrocyte's damaged neighbor patches.
+     * Description: template method for cytokine synthesis by cells
      *
-     * Return: void
-     *
-     * Parameters: meanTNF  -- Average TNF concentration of the activated chondrocyte's neighbors
-     * 				     meanTGF  -- Average TGF concentration of the activated chondrocyte's neighbors
-     * 				     meanIL1  -- Average IL1 concentration of the activated chondrocyte's neighbors
      */
-    //void makeHyaluronan(float meanTNF, float meanTGF, float meanIL1); /*NOTE: not used in stem cell biomaterial ABM
+    virtual void cytokine_synthesis() final;
 
     /*
     * Description:	Hatches a new cell on 'number' unoccupied neighbors.
@@ -188,16 +212,53 @@ class Cell: public Agent {
     */
     virtual void hatchnewcell(int number, int agentType, int here = 0);
 
-  /* -------------------------------------------------------------------------- */
-  /*                              STATIC VARIABLES                              */
-  /* -------------------------------------------------------------------------- */
-  static int numOfCells;  // Keeps track of the quantitiy of living cells.
 
-  /* -------------------------- Calibration variables ------------------------- */
-  static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
-  static float activation[5];           // Parameters involved in cell activation and deactivation
-  static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
-  static float proliferation[6];        // Parameters invloved in cell proliferation
+    /* -------------------------------------------------------------------------- */
+    /*                              STATIC VARIABLES                              */
+    /* -------------------------------------------------------------------------- */
+    static int numOfCells;  // Keeps track of the quantitiy of living cells.
+
+    /* -------------------------- Calibration variables ------------------------- */
+    static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
+    static float activation[5];           // Parameters involved in cell activation and deactivation
+    static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
+    static float proliferation[6];        // Parameters invloved in cell proliferation
+
+  protected:
+
+      // Proliferation-related hook functions
+      /*
+      * Description:	Determines whether an agent is still proliferative (i.e. has it reached the max number of doublings).
+      * Added by MM, 2025.
+      * 
+      * Return: True if the agent is proliferative, false otherwise.
+      * Parameters: agentType
+      */
+      virtual bool isProliferative(); // checks if a cell can proliferate based on its current number of doublings
+      virtual float get_prolif_prob(float meanTGF,
+          float meanIL1,
+          float meanTNF); // calculates probability of dividing based on local chemical
+      virtual int get_max_doublings(); // gets maximum number of cell divisions depending on cell type
+
+      // Differentiation-related hook functions
+      virtual int get_daughter_type(); // determines what cell type is produced
+      virtual float get_diff_prob(float meanTGF,
+          float meanIL1,
+          float meanTNF); // calculates probability of differentiating based on local chemical
+
+      // ECM synthesis-related hook functions
+      virtual void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume); // calculates the ECM synthesis rates for each cell
+      virtual void create_ecm(float meanTGF, float meanIL1, float meanTNF); // actually creates/produces the ECM on the patch
+
+      // Cytokine-related hook functions
+      virtual void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF); // actually creates/produces the cytokines on the patch
+
+      // Movement-related hook functions
+      virtual float get_migration_speed(); // calculates the migration speed for each cell type and passes it to the [celltype]::migrationSpeed variable
+      virtual bool can_tgf_excite() { return false; } // used only for NP cell to check if TGF can excite the cell into moving
+
+      // Death-related hook functions
+      virtual float get_apoptosis_chance(); // calculates the chance of cell death 
 };
 
 /*
@@ -244,24 +305,6 @@ class Stem: public Cell {
      */
     ~Stem();
   
-    /*
-       * Description:	Performs biological function of a stem cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void stem_cellFunction(); 
-  
-    /*
-       * Description:	Differentiates the stem cell to the next stage (progenitor).
-       *              Does not update numOfStem; this must be done elsewhere.
-       *
-       * Return: void
-       *
-       * Parameters: void
-       */
-    void differentiateStem(int number, int agentType);
-  
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
@@ -282,6 +325,32 @@ class Stem: public Cell {
   static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   static float proliferation[5]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[5]; // Parameters involved in stem cell differentiation
+
+protected:
+    int get_max_doublings() override;
+    float get_prolif_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // Differentiation-related hook functions
+    int get_daughter_type() override;
+    float get_diff_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
+    // Movement-related hook functions
+    float get_migration_speed() override;
+    
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
+
 };
 
 /*
@@ -325,24 +394,6 @@ class Progen: public Cell {
      * Parameters: void
      */
     ~Progen();
-
-    /*
-       * Description:	Performs biological function of an NP progenitor cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void progen_cellFunction(); 
-  
-    /*
-       * Description:	Differentiates the progenitor cell to the next stage (progenitor).
-       *              Does not update numOfProgen; this must be done elsewhere.
-       *
-       * Return: void
-       *
-       * Parameters: void
-       */
-    void differentiateProgen(int number, int agentType);
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
@@ -362,6 +413,30 @@ class Progen: public Cell {
   static float proliferation[1]; // Parameters involved in pre-NP cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[3]; // Parameters involved in pre-NP cell differentiation
 
+protected:
+    int get_max_doublings() override;
+    float get_prolif_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // Differentiation-related hook functions
+    int get_daughter_type() override;
+    float get_diff_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
+    // Movement-related hook functions
+    float get_migration_speed() override;
+
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
 };
 
 /*
@@ -405,20 +480,13 @@ class NP: public Cell {
      * Parameters: void
      */
     ~NP();
-
-    /*
-       * Description:	Performs biological function of an NP cell.
-       *
-       * Return: void
-       * Parameters: void
-       */                                                                                                
-    void NP_cellFunction();
   
   /* -------------------------------------------------------------------------- */
   /*                              STATIC VARIABLES                              */
   /* -------------------------------------------------------------------------- */
   static int numOfNP; // Keeps track of the quantity of living NP cells
   static float migrationSpeed;    // Speed (patch/tick) NP cells move in world
+  static float apoptosisChance;
   static float divisionNum; // number of cell divisions the cell has undertaken
 
   static float OCR; // NP cell oxygen consumption rate in fmol/h/cell
@@ -429,6 +497,26 @@ class NP: public Cell {
   static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
   static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
   static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
+
+protected:
+    int get_max_doublings() override;
+    float get_prolif_prob(float meanTGF,
+        float meanIL1,
+        float meanTNF) override;
+
+    // ECM synthesis-related hook functions
+    void calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) override;
+    void create_ecm(float meanTGF, float meanIL1, float meanTNF) override;
+
+    // Cytokine-related hook functions
+    void create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) override;
+
+    // Movement-related hook functions
+    float get_migration_speed() override;
+    bool can_tgf_excite() override;
+
+    // Death-related hook functions
+    float get_apoptosis_chance() override;
 };
 
 #endif

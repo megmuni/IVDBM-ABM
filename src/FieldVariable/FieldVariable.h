@@ -17,7 +17,7 @@
 class World;
 
 /*
- * FIELDVARIABLE CLASS DESCRIPTION:          FieldVariable is a parent class of WHChemical. 
+ * FIELDVARIABLE CLASS DESCRIPTION:          FieldVariable is a parent class of Chemical. 
  */
 class FieldVariable {
  public:

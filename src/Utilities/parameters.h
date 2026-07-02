@@ -285,7 +285,7 @@ void processParameters(string filename) {
         }
     }
 
-  /* // Set WHWorld cytokine decay parameters
+  /* // Set BMWorld cytokine decay parameters
     for (int i = 0; i < 8; ++i) {
      if((i!=3) && (i!=4) && (i!=7)){
        if (getline(lineStream, value, '\t')) {
@@ -294,41 +294,41 @@ void processParameters(string filename) {
           // Convert half-life to decay rate
           if (value_as_float > 0) {
           float decay_rate = pow(0.5, 30/value_as_float);
-          WHWorld::cytokineDecay[i] = decay_rate;
-          WHWorld::halfLifes_static[i] = value_as_float;
+          BMWorld::cytokineDecay[i] = decay_rate;
+          BMWorld::halfLifes_static[i] = value_as_float;
           #ifdef PRINT_PARAMETER_VALUES
-            cout << "WHWorld::halfLifes_static[" << i << "] = " << value_as_float << ", WHWorld::cytokineDecay["<< i << "] = " << WHWorld::cytokineDecay[i] << endl;
+            cout << "BMWorld::halfLifes_static[" << i << "] = " << value_as_float << ", BMWorld::cytokineDecay["<< i << "] = " << BMWorld::cytokineDecay[i] << endl;
           #endif
          } else {
-           cerr << "Error in assigning value to WHWorld half life parameter and cytokine decay parameter #" << i << " (Half-life <= 0)" << endl;
+           cerr << "Error in assigning value to BMWorld half life parameter and cytokine decay parameter #" << i << " (Half-life <= 0)" << endl;
          }
        } else {
-         cerr << "Error in assigning value to WHWorld half life parameter and cytokine decay parameter #" << i << endl;
+         cerr << "Error in assigning value to BMWorld half life parameter and cytokine decay parameter #" << i << endl;
        }
      }
    } 
   */
 
-  // Set WHWorld elastic modulus parameters c1-c7
+  // Set BMWorld elastic modulus parameters c1-c7
   for (int i = 0; i < 7; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-     WHWorld::ElasticMod[i] = value_as_float;
+     BMWorld::ElasticMod[i] = value_as_float;
     #ifdef PRINT_PARAMETER_VALUES
-      cout << "WHWorld::ElasticMod[" << i << "] = " << WHWorld::ElasticMod[i] << endl;
+      cout << "BMWorld::ElasticMod[" << i << "] = " << BMWorld::ElasticMod[i] << endl;
     #endif
     } else {
       cerr << "Error in assigning value to elastic modulus parameter #"<< i << endl;
     }
   }
 
-  // Set WHWorld pore size parameters c8-c9
+  // Set BMWorld pore size parameters c8-c9
   for (int i = 0; i < 2; ++i) {
       if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
-          WHWorld::PoreSize[i] = value_as_float;
+          BMWorld::PoreSize[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
-          cout << "WHWorld::PoreSize[" << i << "] = " << WHWorld::PoreSize[i] << endl;
+          cout << "BMWorld::PoreSize[" << i << "] = " << BMWorld::PoreSize[i] << endl;
 #endif
       }
       else {
@@ -336,13 +336,13 @@ void processParameters(string filename) {
       }
   }
 
-  // Set WHWorld mass loss parameters c10-c13
+  // Set BMWorld mass loss parameters c10-c13
   for (int i = 0; i < 4; ++i) {
       if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
-          WHWorld::MassLoss[i] = value_as_float;
+          BMWorld::MassLoss[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
-          cout << "WHWorld::MassLoss[" << i << "] = " << WHWorld::MassLoss[i] << endl;
+          cout << "BMWorld::MassLoss[" << i << "] = " << BMWorld::MassLoss[i] << endl;
 #endif
       }
       else {
@@ -350,13 +350,13 @@ void processParameters(string filename) {
       }
   }
 
-  // Set WHWorld swelling ratio parameters c14-c18
+  // Set BMWorld swelling ratio parameters c14-c18
   for (int i = 0; i < 5; ++i) {
       if (getline(lineStream, value, '\t')) {
           float value_as_float = atof(value.c_str());
-          WHWorld::SwellRatio[i] = value_as_float;
+          BMWorld::SwellRatio[i] = value_as_float;
 #ifdef PRINT_PARAMETER_VALUES
-          cout << "WHWorld::SwellRatio[" << i << "] = " << WHWorld::SwellRatio[i] << endl;
+          cout << "BMWorld::SwellRatio[" << i << "] = " << BMWorld::SwellRatio[i] << endl;
 #endif
       }
       else {
@@ -365,13 +365,13 @@ void processParameters(string filename) {
   }
 
 /*
-  // Set WHWorld XL density parameters
+  // Set BMWorld XL density parameters
   for (int i = 0; i < 2; ++i) {
     if (getline(lineStream, value, '\t')) {
       float value_as_float = atof(value.c_str());
-      WHWorld::XLDensity[i] = value_as_float;
+      BMWorld::XLDensity[i] = value_as_float;
       #ifdef PRINT_PARAMETER_VALUES
-        cout << "WHWorld::XLDensity[" << i << "] = " << WHWorld::XLDensity[i] << endl;
+        cout << "BMWorld::XLDensity[" << i << "] = " << BMWorld::XLDensity[i] << endl;
       #endif
     } else {
       cerr << "Error in assigning value to XL density parameter #"<< i << endl;
@@ -457,7 +457,7 @@ input_file.close();
 return;
 }
 
-void outputTotalChem(WHWorld* myWorld, string filename) {
+void outputTotalChem(BMWorld* myWorld, string filename) {
 #ifdef CALIBRATION
   cout << "Outputting total chem to: " << filename << endl;
 	//ofstream output_file(filename, ios::app);
@@ -491,9 +491,9 @@ void outputTotalChem(WHWorld* myWorld, string filename) {
 		tp += myWorld->worldECM[in].faggrecan[read_t];
   }
 
-  tp += myWorld->WHWorldChem.totalTNF;
-  tp += myWorld->WHWorldChem.totalTGF;
-  tp += myWorld->WHWorldChem.totalIL1beta;
+  tp += myWorld->world_total_tnf();
+  tp += myWorld->world_total_tgf();
+  tp += myWorld->world_total_il1beta();
 
   //Output:
   output_file << fixed << myWorld->cells.actualSize() << "\t";
@@ -501,9 +501,9 @@ void outputTotalChem(WHWorld* myWorld, string filename) {
   output_file << agg << "\t";
   output_file << tp << "\t";
 
-  output_file << fixed << myWorld->WHWorldChem.totalTNF << "\t";
-  output_file << myWorld->WHWorldChem.totalTGF << "\t";
-  output_file << myWorld->WHWorldChem.totalIL1beta << "\t";
+  output_file << fixed << myWorld->world_total_tnf() << "\t";
+  output_file << myWorld->world_total_tgf() << "\t";
+  output_file << myWorld->world_total_il1beta() << "\t";
   
   output_file << endl;
   

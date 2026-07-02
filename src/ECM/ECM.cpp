@@ -10,7 +10,7 @@
  */
 
 #include "ECM.h"
-#include "../World/Usr_World/woundHealingWorld.h"
+#include "../World/Usr_World/biomaterialWorld.h"
 #include "../enums.h"
 #include <iostream>
 #include <vector>
@@ -23,7 +23,7 @@ using namespace std;
 
 //FIXME: Update max num of ECM on each patch 
 Patch* ECM::ECMPatchPtr = NULL; 
-WHWorld* ECM::ECMWorldPtr = NULL;
+BMWorld* ECM::ECMWorldPtr = NULL;
 int ECM::maxcollagen = 620*10^9;  
 int ECM::maxaggrecan = 500*10^9;  
 int ECM::maxHA = 0;

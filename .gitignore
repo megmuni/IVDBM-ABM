@@ -1,3 +1,14 @@
 ####### IVDBM-ABM #######
 
 .vs/
+
+
+.github/
+.vscode/
+.cursor/
+
+build*/
+output*/
+
+## CMake
+CMakefiles/

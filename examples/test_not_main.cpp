@@ -24,14 +24,14 @@
 //Include local libraries
 #include "../src/ArrayChain/ArrayChain.h"
 #include "../src/World/World.h"
-#include "../src/World/Usr_World/woundHealingWorld.h"
+#include "../src/World/Usr_World/biomaterialWorld.h"
 #include "../src/Agent/Agent.h"
 #include "../src/Agent/Usr_Agents/Cell.h"
 #include "../src/FieldVariable/FieldVariable.h"
 #include "../src/Patch/Patch.h"
 #include "../src/ECM/ECM.h"
 #include "../src/enums.h"
-#include "../src/FieldVariable/Usr_FieldVariables/WHChemical.h"
+#include "../src/FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../src/Utilities/input_utils.h"
 #include "../src/Utilities/parameters.h"
 
@@ -44,10 +44,10 @@ using namespace std;
  *
  * Return: 0 if succesful
  *
- * Parameters: WHWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
+ * Parameters: BMWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             char*     -- Output file name
  */
-int outputColor(WHWorld*,char*);
+int outputColor(BMWorld*,char*);
 
 /*
  * Description:	Outputs the color of each patch to the given file.
@@ -58,18 +58,18 @@ int outputColor(WHWorld*,char*);
  * Parameters: myWorld   -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             fileName  -- Output file name
  */
-int outputECM(WHWorld* myWorld, char* fileName);
+int outputECM(BMWorld* myWorld, char* fileName);
 
 /*
  * Description:	Outputs the chemical concentration of the given chemical on each patch to the given file.
  *
  * Return: 0 if succesful
  *
- * Parameters: WHWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
+ * Parameters: BMWorld*  -- Pointer to the wound healing world whose patches' colors should be outputted.
  *             char*     -- Output file name
  *             int       -- Enumic value of the chemical type to output
  */
-int outputChem(WHWorld*, char*, int);
+int outputChem(BMWorld*, char*, int);
 
 /*
  * Description:	Main method for model simulation. Sets up the world and executes each tick of the simulation. 
@@ -87,10 +87,12 @@ int main(int argc, char** argv) {
 /* -------------------------------------------------------------------------- */
 	// Get baseline cell and chemical values that user specified:
 	util::processOptions(argc, argv);
+	util::ensureOutputDir();
+	util::writeRunParamsJson(argc, argv);
 	util::printOptions();
 	util::processParameters("Sample.txt");
 	clock_t tStart = clock();
-	WHWorld myWorld = WHWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
+	BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
 	myWorld.outputWorld_csv();
 	//printf("Setup Execution time: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
@@ -105,12 +107,17 @@ int main(int argc, char** argv) {
 		//myWorld.debugInfo(); // debug function
 #ifdef PARAVIEW_RENDERING
 		if (tick % 12 == 0) {
+			util::ensureOutputSubpath("Simulation");
 			// Prepare output filenames and output current state of wound healing world:
-			char simulation[50] = "output/Simulation/Simulation_";
-			char ECMsim[50] = "output/Simulation/ECM_";
-			char chem0Sim[50] = "output/Simulation/chem0_";
+			char simulation[512];
+			char ECMsim[512];
+			char chem0Sim[512];
 			char extension[10] = ".vtk";
 			char tempNumber[20] = "";
+
+			util::makeOutputPath(simulation, sizeof(simulation), "Simulation/Simulation_");
+			util::makeOutputPath(ECMsim, sizeof(ECMsim), "Simulation/ECM_");
+			util::makeOutputPath(chem0Sim, sizeof(chem0Sim), "Simulation/chem0_");
 
 			sprintf(tempNumber, "%d", tick); // %d makes the result be a signed decimal integer
 			strcat(simulation, tempNumber);
@@ -119,11 +126,16 @@ int main(int argc, char** argv) {
 			strcat(ECMsim, extension);
 
 			// Ouput the cytokine values:
-			char ptnf[50] = "output/Simulation/tnf_";
-			char ptgf[50] = "output/Simulation/tgf_";
-			char pil1[50] = "output/Simulation/il1_";
-			char po2[50] = "output/Simulation/o2_";
-			char pcell[50] = "output/Simulation/pcellgrad_";
+			char ptnf[512];
+			char ptgf[512];
+			char pil1[512];
+			char po2[512];
+			char pcell[512];
+			util::makeOutputPath(ptnf, sizeof(ptnf), "Simulation/tnf_");
+			util::makeOutputPath(ptgf, sizeof(ptgf), "Simulation/tgf_");
+			util::makeOutputPath(pil1, sizeof(pil1), "Simulation/il1_");
+			util::makeOutputPath(po2, sizeof(po2), "Simulation/o2_");
+			util::makeOutputPath(pcell, sizeof(pcell), "Simulation/pcellgrad_");
 
 			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
 			strcat(ptnf, tempNumber);
@@ -168,7 +180,11 @@ int main(int argc, char** argv) {
 	}
 
 	#ifdef CALIBRATION // Used for sensitivity analysis
-		util::outputTotalChem(&myWorld, "output/SensitivityAnalysis/FinalTotalChemVR.dat");
+		char calib_path[512];
+		util::ensureOutputSubpath("SensitivityAnalysis");
+		util::makeOutputPath(calib_path, sizeof(calib_path),
+		                     "SensitivityAnalysis/FinalTotalChemVR.dat");
+		util::outputTotalChem(&myWorld, calib_path);
 	#endif
 
 #ifdef COLLECT_CELL_INS_DEL_STATS
@@ -231,10 +247,13 @@ int main(int argc, char** argv) {
 	}
 	//cout << "Average time:	" << acc/numTicks << " ms" << endl;
 
+	util::writeRunTimingJson(
+	    acc, numTicks, (double)(clock() - tStart) / CLOCKS_PER_SEC);
+
 	return 0;
 } // End Main
 
-int outputColor(WHWorld* myWorld, char* fileName) {
+int outputColor(BMWorld* myWorld, char* fileName) {
 	int dam = 0, tissue = 0, numCaAlg = 0, cells = 0, newCell = 0, stems = 0, progens = 0, nps = 0, total = 0, black = 0, actDam = 0;
 	ofstream outfile(fileName);
 
@@ -304,7 +323,7 @@ int outputColor(WHWorld* myWorld, char* fileName) {
 
 } // End outputColor
 
-int outputECM(WHWorld* myWorld, char* fileName) {
+int outputECM(BMWorld* myWorld, char* fileName) {
   /* Prepare legacy VTK file format for for visualization with Paraview 3.0 */
 	ofstream outfile(fileName);
 	outfile << "# vtk DataFile Version 2.0" << endl;
@@ -347,7 +366,7 @@ int outputECM(WHWorld* myWorld, char* fileName) {
 
 } // End outputECM
 
-int outputChem(WHWorld* myWorld, char* fileName, int chemIndex) {
+int outputChem(BMWorld* myWorld, char* fileName, int chemIndex) {
 
   /* Prepare legacy VTK file format for for visualization with Paraview 3.0 */
     ofstream outfile(fileName);
@@ -367,7 +386,9 @@ int outputChem(WHWorld* myWorld, char* fileName, int chemIndex) {
 		for (int iy = 0; iy < myWorld->ny; iy++) {
 			for (int ix = 0; ix < myWorld->nx; ix++) {
 				int in = ix + iy*myWorld->nx + iz*myWorld->nx*myWorld->ny;
-				outfile << (myWorld->chemAllocation[chemIndex][in]) << " ";
+				const float *grid =
+				    myWorld->chemical_environment()->channel_grid(chemIndex);
+				outfile << grid[in] << " ";
 			}
 			outfile << endl;
 		}

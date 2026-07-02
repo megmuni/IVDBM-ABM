@@ -19,7 +19,7 @@
 #include "../enums.h"
 
 class World;
-class WHWorld;
+class BMWorld;
 class Patch;
 
 /*
@@ -264,7 +264,7 @@ class ECM {
      * STATIC VARIABLES                                                      *
      *************************************************************************/
     static Patch* ECMPatchPtr;     // Pointer to array of all patches in the world
-    static WHWorld* ECMWorldPtr;   // Pointer to the wound healing world
+    static BMWorld* ECMWorldPtr;   // Pointer to the wound healing world
     static int maxcollagen;    // The maximum amount of collagen (of all types) allowed
     static int maxaggrecan;     // The maximum amount of aggrecan (of all types) allowed
     static int maxHA;     // The maximum amount of hyaluronan (of all types) allowed

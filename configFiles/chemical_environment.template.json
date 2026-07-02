@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "model": "IVDBM",
+  "description": "Copy this file to chemical_environment.json and edit values. Do not hard-code biology in C++.",
+  "tick_interval_minutes": 30,
+  "channels": {
+    "count": 7,
+    "chemotaxis": 6,
+    "channel_names": {
+      "0": "pTNF",
+      "1": "pTGF",
+      "2": "pIL1beta",
+      "3": "dTNF",
+      "4": "dTGF",
+      "5": "dIL1beta",
+      "6": "pcellgrad"
+    }
+  },
+  "merge": {
+    "chemotaxis_from_species": "TGF"
+  },
+  "baseline_total_mass": {
+    "TNF": 0,
+    "TGF": 0,
+    "IL1beta": 0
+  },
+  "species": [
+    {
+      "id": 0,
+      "name": "TNF",
+      "base_diffusivity_mm2_per_min": 0.00018,
+      "concentration_channel": 0,
+      "diffused_channel": 3
+    },
+    {
+      "id": 1,
+      "name": "TGF",
+      "base_diffusivity_mm2_per_min": 0.000156,
+      "concentration_channel": 1,
+      "diffused_channel": 4
+    },
+    {
+      "id": 2,
+      "name": "IL1beta",
+      "base_diffusivity_mm2_per_min": 0.00018,
+      "concentration_channel": 2,
+      "diffused_channel": 5
+    }
+  ]
+}
