@@ -270,6 +270,16 @@ void Cell::cellFunction() {
 		this->apoptose();
 
 		// Finally, subtract 'consumed' O2 from current and neighbor patches
+		// Location of agent in x,y,z dimensions of world.
+		int x = this->ix[read_t];
+		int y = this->iy[read_t];
+		int z = this->iz[read_t];
+
+		// Number of patches in x,y,z dimensions of world
+		int nx = Agent::nx;
+		int ny = Agent::ny;
+		int nz = Agent::nz;
+
 		float oxDecrease = this->get_OCR()/ 27; // divide OCR across 27 patches (current + neighbors)
 		this->addPatchChemSecretion(o2, in, -1 * oxDecrease);
 		// Count number of patches of neighbors inside world dimensions:
