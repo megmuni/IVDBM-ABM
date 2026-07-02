@@ -547,11 +547,11 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	//vector <int> damagedneighbors;
 
 	// Make a list of neighboring patches
-	#ifndef MODEL_3D
+#ifndef MODEL_3D
 	for (int i = 9; i < 18; i++) {
-	#else
+#else
 	for (int i = 0; i < 27; i++) {
-	#endif
+#endif
 		dx = Agent::dX[i];
 		dy = Agent::dY[i];
 		dz = Agent::dZ[i];
@@ -567,9 +567,9 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	// Target a random damaged neighboring patch, if there are any.
 	if (neighbors.size() > 0) {
 		int tid = 0;
-	#ifdef _OMP
+#ifdef _OMP
 		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-	#endif
+#endif
 
 		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
 		target = neighbors[randInt];
@@ -582,9 +582,9 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 		this->move(dx, dy, dz, read_index);
 
 		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
-	#ifdef OPT_ECM
+#ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
-	#endif
+#endif
 	}
 
 	//// Make a list of damaged neighboring patches
@@ -635,7 +635,6 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	//			#endif
 	//		}
 	//	}
-	}
 }
 
 void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
@@ -701,7 +700,6 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 		Agent::agentECMPtr[in].set_dirty();
 #endif
 	}
-}
 }
 
 void Cell::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {}
@@ -814,7 +812,6 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 #endif
 		newcell->wiggle();
 	}
-}
 }
 
 /* -------------------------------------------------------------------------- */
