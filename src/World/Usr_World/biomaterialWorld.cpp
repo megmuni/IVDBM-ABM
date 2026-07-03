@@ -1907,7 +1907,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 
     // biomaterial world-specific chemicals
     file << this->WorldChem.totalTNF << "," << this->WorldChem.totalIL1beta
-         << "," << this->WorldChem.totalTGF << ",";
+         << "," << this->WorldChem.totalTGF 
+         << "," << this->WorldChem.totalo2 << ",";
 
     // ecm types
     file << fixed << setprecision(5) << env_counts["ncollagen"] << ","
@@ -1950,6 +1951,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
          << "Total TNF (pg)" << "," // everything below written by this hook
          << "Total IL1b (pg)" << ","
          << "Total TGF (pg)" << ","
+         << "Total O2" << ","
          << "Collagen (ug)" << ","
          << "Aggrecan (ug)" << ","
          << "Total Cells" << ","
