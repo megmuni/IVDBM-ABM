@@ -269,6 +269,9 @@ public:
   float world_total_tgf() const;
   float world_total_il1beta() const;
 
+  /** Integrated O2 mass */
+  float world_total_o2() const;
+
   float chem_concentration(SpeciesId species, int patch_index) const;
   void chem_add_secretion(SpeciesId species, int patch_index,
                           float delta) const;
