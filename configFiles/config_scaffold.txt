@@ -5,6 +5,8 @@ Baseline_IL1beta: 0
 Number_of_cell_to_be_inputed: 3
 Immortalized_Chondrocyte_Cells: 0
 1%Alg_(mL): 0.0275
+highMW_Ratio: 0
+lowMW_Ratio: 1
 Ca_(mL): 0.005
 D: 20.0
 HL: 3600
