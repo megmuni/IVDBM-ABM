@@ -753,8 +753,10 @@ int BMWorld::go() {
    */
   this->updateSwellingRatio();
   this->updateMassLoss();
+#ifdef PEPTIDE_BM
   this->updateE();
-#endif
+#endif // PEPTIDE_BM
+#endif // MODEL_SCAFFOLD
 
   /* ----------------------- ATTRIBUTES SYNCHRONIZATION -----------------------
    */
@@ -1727,9 +1729,11 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
       infile >> this->pXL;
       cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
       
+#ifdef PEPTIDE_BM
       infile >> garbage;
-		  infile >> this->peptide;
-		  cout << "Type of peptide conjugation = " << this->peptide << endl;
+	  infile >> this->peptide;
+	  cout << "Type of peptide conjugation = " << this->peptide << endl;
+#endif // PEPTIDE_BM
 
       /* --------------------------- CYTOKINE PROPERTIES
        * -------------------------- */
