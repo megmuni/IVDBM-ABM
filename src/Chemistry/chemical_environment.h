@@ -43,7 +43,7 @@ public:
    * @param swelling_ratio_Q Hydrogel swelling ratio applied to diffusivity.
    */
   void load_from_config(const std::string &config_path,
-                        double swelling_ratio_Q);
+                        double swelling_ratio_Q, double stiffness_E);
 
   /** Update effective diffusivity when hydrogel swelling ratio @p Q changes. */
   void set_swelling_ratio(double Q);

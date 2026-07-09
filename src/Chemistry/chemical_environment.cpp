@@ -32,9 +32,9 @@ void ChemicalEnvironment::sync_diffusion_registry() {
 }
 
 void ChemicalEnvironment::load_from_config(const std::string &config_path,
-                                           double swelling_ratio_Q) {
+                                           double swelling_ratio_Q, double stiffness_E) {
   config_ = load_chemical_environment_config(config_path);
-  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q);
+  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q, stiffness_E);
   merge_chemotaxis_species_ =
       species_id_by_name(config_.merge_chemotaxis_from_species);
   sync_diffusion_registry();
