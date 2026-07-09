@@ -495,6 +495,7 @@ void BMWorld::initializeChemBaseline() {
   this->WorldChem.totalTNF = 0;
   this->WorldChem.totalTGF = 0;
   this->WorldChem.totalIL1beta = 0;
+  this->WorldChem.totalo2 = 0;
 
   if (this->baselineChem.size() != 4) {
     if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__, __LINE__))
@@ -507,19 +508,38 @@ void BMWorld::initializeChemBaseline() {
   const float tgf0 = this->baselineChem[TGF] / countCaAlg;
   const float il10 = this->baselineChem[IL1beta] / countCaAlg;
 
+  const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
+  const float volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+  const float molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+
+  // TO-DO: move setting of O2 baseline to chem config
+  this->baselineChem[o2] = molO2; // manually set baseline O2
+
+  const float o20 = this->baselineChem[o2] / countBoundary;
+
   for (int iz = 0; iz < this->nz; iz++) {
 #pragma omp parallel for
     for (int iy = 0; iy < this->ny; iy++) {
       for (int ix = 0; ix < this->nx; ix++) {
         const int in = ix + iy * nx + iz * nx * ny;
         if (this->worldPatch[in].type[read_t] == CaAlg) {
-          chemical_environment_->set_concentration(in, TNF, tnf0);
-          chemical_environment_->set_concentration(in, TGF, tgf0);
-          chemical_environment_->set_concentration(in, IL1beta, il10);
+            chemical_environment_->set_concentration(in, TNF, tnf0);
+            chemical_environment_->set_concentration(in, TGF, tgf0);
+            chemical_environment_->set_concentration(in, IL1beta, il10);
         } else {
-          chemical_environment_->set_concentration(in, TNF, 0.f);
-          chemical_environment_->set_concentration(in, TGF, 0.f);
-          chemical_environment_->set_concentration(in, IL1beta, 0.f);
+            chemical_environment_->set_concentration(in, TNF, 0.f);
+            chemical_environment_->set_concentration(in, TGF, 0.f);
+            chemical_environment_->set_concentration(in, IL1beta, 0.f);
+        }
+
+        // set O2 separately only on boundary patches
+        bool isBoundary = (ix == 0 || ix == nx - 1 ||
+            iy == 0 || iy == ny - 1 ||
+            iz == 0 || iz == nz - 1);
+        if (isBoundary) {
+            chemical_environment_->set_concentration(in, o2, o20);
+        } else {
+            chemical_environment_->set_concentration(in, o2, 0.f);
         }
       }
     }
@@ -532,7 +552,8 @@ void BMWorld::initializeChemBaseline() {
   cout << "		Initial cytokine concentrations: totalTNF = "
        << this->WorldChem.totalTNF
        << ", totalTGF = " << this->WorldChem.totalTGF
-       << ", totalIL1beta = " << this->WorldChem.totalIL1beta << endl;
+       << ", totalIL1beta = " << this->WorldChem.totalIL1beta 
+       << ", totalO2 = " << this->WorldChem.totalo2 << endl;
 }
 
 void BMWorld::initializeCells() {
