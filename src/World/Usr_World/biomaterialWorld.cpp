@@ -306,6 +306,7 @@ void BMWorld::initializePatches() {
 void BMWorld::initializeCaAlg() {
   cout << "Begin Calculating Ca-Alg Properties..." << endl;
 
+  double scaffoldVolume = (nx * ny * nz) * pow(this->patchlength, 3); // mm^3
   /* ---------------------- Parameters of Ca-Alg Scaffold ---------------------
    */
   float Alg_ww = this->Alg_wv / (this->Alg_wv);
@@ -561,8 +562,6 @@ void BMWorld::initializeCells() {
        << 1.0 * pow(10, 6) << " cells/mL)" << endl;
   cout << " 		Seeding " << initialScaffoldCells
        << " cells in scaffold " << endl;
-
-  BMWorld::totalVolumeML = hydrogelVolume;
 
   // Sprout cell seeded hydrogel with mesenchymal stem cells at density 10^6
   // cells/mL
