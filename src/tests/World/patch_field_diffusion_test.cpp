@@ -27,7 +27,7 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick", "[world][patch
                                     "/chemical_environment.template.json";
     const ChemicalEnvironmentConfig cfg =
         load_chemical_environment_config(config_path);
-    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0);
+    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0, 1.0);
     PatchFieldDiffusion pfd(nx, ny, nz, h);
     pfd.set_registry(registry);
 
