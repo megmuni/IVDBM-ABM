@@ -47,6 +47,7 @@ float BMWorld::liveCells = 0;
 float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
+float BMWorld::initialO2 = 200; // Initial concentration of oxygen (umol/L)
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
 float BMWorld::E = 0;     // Effective stiffness
