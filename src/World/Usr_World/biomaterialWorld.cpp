@@ -460,6 +460,8 @@ void BMWorld::sync_baseline_chem_from_config() {
       chemical_environment_->baseline_total_mass_for("TGF");
   this->baselineChem[IL1beta] =
       chemical_environment_->baseline_total_mass_for("IL1beta");
+  this->baselineChem[o2] =
+      chemical_environment_->baseline_total_mass_for("o2");
 
   cout << "Chemical environment config: " << cfg.model << " (schema "
        << cfg.schema_version << ")" << endl;
