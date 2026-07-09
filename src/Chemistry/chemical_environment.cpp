@@ -161,7 +161,7 @@ void ChemicalEnvironment::recompute_world_totals() {
     total_tnf_ += channel_row(tnf_ch)[i];
     total_tgf_ += channel_row(tgf_ch)[i];
     total_il1beta_ += channel_row(il1_ch)[i];
-    total_o2_ += channel_row(o2_ch)[in];
+    total_o2_ += channel_row(o2_ch)[i];
   }
 }
 
