@@ -352,11 +352,13 @@ void BMWorld::initializeCaAlg() {
  * constant polymer concentration
  */
 #ifdef CALIBRATION
-  this->E = -BMWorld::ElasticMod[0] +
-            BMWorld::ElasticMod[1] * (Alg_wv)-BMWorld::ElasticMod[2] * (pXL) +
-            BMWorld::ElasticMod[3] * (Alg_Mn) +
-            BMWorld::ElasticMod[4] * (Alg_wv) * (pXL)-BMWorld::ElasticMod[5] *
-                (Alg_wv) * (Alg_Mn)-BMWorld::ElasticMod[6] * (pXL) * (Alg_Mn);
+  this->E = -BMWorld::ElasticMod[0] 
+      +BMWorld::ElasticMod[1] * (this->Alg_wv) 
+      -BMWorld::ElasticMod[2] * (this->pXL) 
+      +BMWorld::ElasticMod[3] * (this->Alg_Mn) 
+      +BMWorld::ElasticMod[4] * (this->Alg_wv) * (this->pXL) 
+      -BMWorld::ElasticMod[5] * (this->Alg_wv) * (this->Alg_Mn) 
+      -BMWorld::ElasticMod[6] * (this->pXL) * (this->Alg_Mn);
 #else
   this->E = -125 + 58 * (Alg_wv)-971 * (pXL) + 1.037 * (Alg_Mn) +
             756 * (Alg_wv * pXL) - 0.516 * (Alg_wv * Alg_Mn) -
