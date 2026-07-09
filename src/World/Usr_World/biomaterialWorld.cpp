@@ -514,6 +514,11 @@ void BMWorld::initializeChemBaseline() {
   const float volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
   const float molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
 
+  // debug
+  cout << " Number of boundary patches = " << countBoundary << endl;
+  cout << " Total volume of boundary patches = " << volumeBoundary << endl;
+  cout << " Total fmol of O2 for boundary patches = " << molO2 << endl;
+
   // TO-DO: move setting of O2 baseline to chem config
   this->baselineChem[o2] = molO2; // manually set baseline O2
 
