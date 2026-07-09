@@ -11,6 +11,13 @@ void SpeciesRegistry::set_swelling_ratio(double Q)
     Q_ = Q;
 }
 
+void SpeciesRegistry::set_stiffness(double E)
+{
+    if (E <= 0.0)
+        throw std::invalid_argument("SpeciesRegistry: stiffness E must be > 0");
+    E_ = E;
+}
+
 void SpeciesRegistry::register_species(const SpeciesDescriptor &desc)
 {
     if (desc.id < 0)
@@ -42,6 +49,9 @@ const SpeciesDescriptor &SpeciesRegistry::descriptor(SpeciesId id) const
 double SpeciesRegistry::diffusivity(SpeciesId id) const
 {
     return descriptor(id).base_diffusivity * Q_;
+    //TO-DO: modify to check for which type of effective D calculation (i.e., using Q or using E)
+    //is desired for each chemical. For the 3 current cytokines, Q should be used. For O2, E should
+    //be used.
 }
 
 std::vector<SpeciesId> SpeciesRegistry::diffusing_species() const
@@ -50,10 +60,11 @@ std::vector<SpeciesId> SpeciesRegistry::diffusing_species() const
 }
 
 SpeciesRegistry SpeciesRegistry::from_config(const ChemicalEnvironmentConfig &cfg,
-                                             double swelling_ratio_Q)
+                                             double swelling_ratio_Q, double stiffness_E)
 {
     SpeciesRegistry registry;
     registry.set_swelling_ratio(swelling_ratio_Q);
+    registry.set_stiffness(stiffness_E);
 
     for (const SpeciesConfigEntry &s : cfg.species)
     {
