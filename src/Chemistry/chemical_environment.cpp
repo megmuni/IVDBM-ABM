@@ -235,11 +235,13 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   total_tnf_ = 0.f;
   total_tgf_ = 0.f;
   total_il1beta_ = 0.f;
+  total_o2_ = 0.f;
 
   const std::vector<SpeciesId> diffusing = registry_.diffusing_species();
   const int tnf_ch = concentration_channel_for("TNF");
   const int tgf_ch = concentration_channel_for("TGF");
   const int il1_ch = concentration_channel_for("IL1beta");
+  const int o2_ch = concentration_channel_for("o2");
   const int chemo_src =
       registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
 
@@ -269,6 +271,7 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
         total_tnf_ += channel_row(tnf_ch)[in];
         total_tgf_ += channel_row(tgf_ch)[in];
         total_il1beta_ += channel_row(il1_ch)[in];
+        total_o2_ += channel_row(o2_ch)[in];
       }
     }
   }
