@@ -404,6 +404,8 @@ public:
   
   static float E; // Effective stiffness
 
+  static float initialO2; // Initial concentration of oxygen (umol/L)
+
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)
   static float E_inf; // Equilibrium modulus (peptide-conjugated BM)
@@ -441,8 +443,6 @@ public:
 
   /** World-level cytokine totals (grid owned by chemical_environment_). */
   Chemical WorldChem;
-
-  float initialO2; // Initial concentration of oxygen (umol/L)
 
   float pXL;       // Crosslink Density (mmol/mL)
   float Q;         // Swelling Ratio (%)
