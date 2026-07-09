@@ -199,10 +199,12 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
   {
     const double swelling_Q =
         (this->Q > 0.0f) ? static_cast<double>(this->Q) : 1.0;
+    const double stiffness_E =
+        (this->E > 0.0f) ? static_cast<double>(this->E) : 1.0;
     chemical_environment_.reset(
         new ChemicalEnvironment(nx, ny, nz, this->patchlength));
     chemical_environment_->load_from_config(
-        util::getChemicalEnvironmentConfigPath(), swelling_Q);
+        util::getChemicalEnvironmentConfigPath(), swelling_Q, stiffness_E);
     chemical_environment_->allocate_channels_from_config();
     this->sync_baseline_chem_from_config();
     this->initializeChemBaseline();
