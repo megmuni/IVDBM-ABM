@@ -26,7 +26,7 @@ TEST_CASE("SpeciesRegistry from_config diffusivity scales with Q",
     const double Q = 0.85;
     const ChemicalEnvironmentConfig cfg =
         load_chemical_environment_config(test_chem_config_path());
-    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, Q);
+    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, Q, 1.0);
 
     REQUIRE(registry.diffusing_species().size() == 3);
 

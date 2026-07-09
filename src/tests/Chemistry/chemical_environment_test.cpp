@@ -20,7 +20,7 @@ std::string test_chem_config_path()
 
 void load_test_env(ChemicalEnvironment &env)
 {
-    env.load_from_config(test_chem_config_path(), 1.0);
+    env.load_from_config(test_chem_config_path(), 1.0, 1.0);
     env.allocate_channels_from_config();
 }
 
