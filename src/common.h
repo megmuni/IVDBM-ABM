@@ -77,7 +77,7 @@
 // #define PARAVIEW_RENDERING // Enable Paraview rendering of Patches and Cells
 // #define PARAVIEW_ECM_CHEM // Enable Paraview rendering of ECM and Chem
 #define MODEL_3D // Run in 3D
-#define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
+//#define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
 
 // Initialize Alg/Ca Scaffold (for in vitro case define MODEL_SCAFFOLD, in vivo
 // case define MODEL_VOCALFOLD && MODEL_SCAFFOLD)
