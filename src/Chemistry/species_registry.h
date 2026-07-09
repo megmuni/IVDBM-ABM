@@ -36,6 +36,7 @@ class SpeciesRegistry
 {
 public:
     void set_swelling_ratio(double Q);
+    void set_stiffness(double E);
     void register_species(const SpeciesDescriptor &desc);
     void clear();
 
@@ -46,10 +47,11 @@ public:
 
     /** Build registry from a validated @ref ChemicalEnvironmentConfig. */
     static SpeciesRegistry from_config(const ChemicalEnvironmentConfig &cfg,
-                                       double swelling_ratio_Q);
+                                       double swelling_ratio_Q, double stiffness_E);
 
 private:
     double Q_ = 1.0;
+    double E_ = 1.0;
     std::map<SpeciesId, SpeciesDescriptor> species_;
     std::vector<SpeciesId> order_;
 };
