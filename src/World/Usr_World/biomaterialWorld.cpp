@@ -563,6 +563,8 @@ void BMWorld::initializeCells() {
   cout << " 		Seeding " << initialScaffoldCells
        << " cells in scaffold " << endl;
 
+  BMWorld::totalVolumeML = hydrogelVolume;
+
   // Sprout cell seeded hydrogel with mesenchymal stem cells at density 10^6
   // cells/mL
   sproutAgent(initialScaffoldCells, // Number of cells to sprout
