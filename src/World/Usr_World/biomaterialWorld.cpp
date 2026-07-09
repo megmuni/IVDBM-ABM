@@ -307,6 +307,10 @@ void BMWorld::initializeCaAlg() {
   cout << "Begin Calculating Ca-Alg Properties..." << endl;
 
   double scaffoldVolume = (nx * ny * nz) * pow(this->patchlength, 3); // mm^3
+  double hydrogelVolume = scaffoldVolume * pow(10, -3);               // mL
+
+  BMWorld::totalVolumeML = hydrogelVolume;
+
   /* ---------------------- Parameters of Ca-Alg Scaffold ---------------------
    */
   float Alg_ww = this->Alg_wv / (this->Alg_wv);
