@@ -44,6 +44,10 @@ void ChemicalEnvironment::set_swelling_ratio(double Q) {
   registry_.set_swelling_ratio(Q);
 }
 
+void ChemicalEnvironment::set_stiffness(double E) {
+    registry_.set_stiffness(E);
+}
+
 float ChemicalEnvironment::baseline_total_mass_for(
     const std::string &species_name) const {
   return config_.baseline_total_mass_for(species_name);
