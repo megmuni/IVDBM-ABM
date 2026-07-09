@@ -901,6 +901,12 @@ void BMWorld::updateChemCPU() {
     return;
   chemical_environment_->merge_and_reset_secretion();
   chemical_environment_->copy_totals_to(this->WorldChem);
+
+  // temp for TGF output for diffusion debugging
+  for (int xi = 0; xi < nx / 2; xi++) {
+      int in = xi + lineY * nx + lineZ * nx * ny;
+      tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
+  }
 }
 
 void BMWorld::updateChem() { updateChemCPU(); }
