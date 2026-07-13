@@ -307,7 +307,7 @@ The `.out` log typically contains:
 
 1. **Job startup** - host, paths, tick count, profile, `OMP_NUM_THREADS`
 2. **`testRun` stdout** - resolved CLI options, world setup, hydrogel properties, per-tick agent/ECM counts (when `BIOMARKER_OUTPUT` is enabled), calibration parameter dumps (when `CALIBRATION` is enabled)
-3. **Job finish** - `testRun` exit code and a **Job summary** block (wall time, max memory, average tick time, Slurm accounting when available)
+3. **Job finish** - `testRun` exit code in the job log
 
 Slurm also sends email notifications to the address passed to the submit script (`--mail-type=ALL`).
 
@@ -327,19 +327,15 @@ Optional compile-time outputs (off by default): ParaView VTK dumps under `Simula
 
 ### Run manifest (`run_params.json`)
 
-**Slurm jobs only** (unless you export `IVDBM_RUN_PARAMS_JSON` yourself). Written to `<output-dir>/run_params.json`.
+**Slurm jobs only** (unless you export `IVDBM_RUN_PARAMS_JSON` yourself). Written at **`testRun` startup** to `<output-dir>/run_params.json`:
 
-| Phase                                                                            | Sections written                                                                    |
-| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| **Job start** (`testRun` startup)                                                | `slurm` - job id, partition, CPUs, memory, account, profile, …                      |
-|                                                                                  | `simulation` - resolved ticks, world size, config paths, calibration file           |
-|                                                                                  | `command` - full `argv`                                                             |
-| **Job end** ([`scripts/finalize_run_params.py`](scripts/finalize_run_params.py)) | `runtime` - start/finish timestamps, hostname, exit code, profile                   |
-|                                                                                  | `runtime.testrun` - wall time and max RSS from `/usr/bin/time`                      |
-|                                                                                  | `runtime.tick_timing` - setup time and per-tick execution stats from C++            |
-|                                                                                  | `runtime.slurm_accounting` - elapsed time, CPU time, max memory, state from `sacct` |
+| Section       | Contents                                                      |
+| ------------- | ------------------------------------------------------------- |
+| `slurm`       | job id, partition, CPUs, memory, account, profile, …          |
+| `simulation`  | resolved ticks, world size, config paths, calibration file    |
+| `command`     | full `argv`                                                   |
 
-After a job finishes, check **`run_params.json`** for a machine-readable record of what ran and how long it took. The same summary is printed at the bottom of the `.out` log.
+Job-end timing and Slurm accounting are not merged into this file for now; use the Slurm job log (`.out`) for wall time and exit status.
 
 ### Quick reference after a DRAC job
 
