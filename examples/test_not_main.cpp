@@ -129,21 +129,25 @@ int main(int argc, char** argv) {
 			char ptnf[512];
 			char ptgf[512];
 			char pil1[512];
+			char po2[512];
 			char pcell[512];
 			util::makeOutputPath(ptnf, sizeof(ptnf), "Simulation/tnf_");
 			util::makeOutputPath(ptgf, sizeof(ptgf), "Simulation/tgf_");
 			util::makeOutputPath(pil1, sizeof(pil1), "Simulation/il1_");
+			util::makeOutputPath(po2, sizeof(po2), "Simulation/o2_");
 			util::makeOutputPath(pcell, sizeof(pcell), "Simulation/pcellgrad_");
 
 			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
 			strcat(ptnf, tempNumber);
 			strcat(ptgf, tempNumber);
 			strcat(pil1, tempNumber);
+			strcat(po2, tempNumber);
 			strcat(pcell, tempNumber);
 
 			strcat(ptnf, extension);
 			strcat(ptgf, extension);
 			strcat(pil1, extension);
+			strcat(po2, extension);
 			strcat(pcell, extension);
 
 			outputColor(&myWorld, simulation);
@@ -153,6 +157,7 @@ int main(int argc, char** argv) {
 			outputChem(&myWorld, ptnf, TNF);
 			outputChem(&myWorld, ptgf, TGF);
 			outputChem(&myWorld, pil1, IL1beta);
+			outputChem(&myWorld, po2, o2);
 			outputChem(&myWorld, pcell, pcellgrad);
 #endif
 		}
@@ -270,7 +275,7 @@ int outputColor(BMWorld* myWorld, char* fileName) {
 			for (int ix = 0; ix < myWorld->nx; ix++) {
 
 				if (ix == (myWorld->nx - 1) && iy == (myWorld->ny - 1)) {
-					outfile << "139";  // Visualization color legend upper bound
+					outfile << "195";  // Visualization color legend upper bound
 
 				} else if (ix == (myWorld->nx - 2) && iy == (myWorld->ny - 1)) {
 					outfile << "0 ";  // Visualization color legend lower bound

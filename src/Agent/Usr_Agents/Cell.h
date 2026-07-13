@@ -259,6 +259,9 @@ class Cell: public Agent {
 
       // Death-related hook functions
       virtual float get_apoptosis_chance(); // calculates the chance of cell death 
+
+      // OCR-related hook functions
+      virtual float get_OCR(); // gets the cell-specific OCR 
 };
 
 /*
@@ -311,6 +314,7 @@ class Stem: public Cell {
   static int numOfStem; // Keeps track of the quantity of living stem cells
   static float migrationSpeed;    // Speed (patch/tick) stem cells move in world
 
+  static float OCR; // Stem cell oxygen consumption rate in fmol/h/cell
   static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
   static float apoptosisChance;
@@ -349,6 +353,9 @@ protected:
     
     // Death-related hook functions
     float get_apoptosis_chance() override;
+
+    // OCR-related hook functions
+    float get_OCR() override;
 
 };
 
@@ -401,7 +408,7 @@ class Progen: public Cell {
   static float migrationSpeed;    // Speed (patch/tick) pre-NP cells move in world
   static float apoptosisChance;
   static float divisionNum; // number of cell divisions the cell has undertaken
-
+  static float OCR; // Pre-NP cell oxygen consumption rate in fmol/h/cell
   //static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug) // may not be applicable to Pre-NP
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
 
@@ -436,6 +443,9 @@ protected:
 
     // Death-related hook functions
     float get_apoptosis_chance() override;
+
+    // OCR-related hook functions
+    float get_OCR() override;
 };
 
 /*
@@ -488,6 +498,7 @@ class NP: public Cell {
   static float apoptosisChance;
   static float divisionNum; // number of cell divisions the cell has undertaken
 
+  static float OCR; // NP cell oxygen consumption rate in fmol/h/cell
   static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
 
@@ -515,6 +526,9 @@ protected:
 
     // Death-related hook functions
     float get_apoptosis_chance() override;
+
+    // OCR-related hook functions
+    float get_OCR() override;
 };
 
 #endif

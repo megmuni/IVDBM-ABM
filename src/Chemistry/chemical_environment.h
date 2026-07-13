@@ -43,10 +43,13 @@ public:
    * @param swelling_ratio_Q Hydrogel swelling ratio applied to diffusivity.
    */
   void load_from_config(const std::string &config_path,
-                        double swelling_ratio_Q);
+                        double swelling_ratio_Q, double stiffness_E);
 
   /** Update effective diffusivity when hydrogel swelling ratio @p Q changes. */
   void set_swelling_ratio(double Q);
+
+  /** Update effective diffusivity based on hydrogel stiffness. */
+  void set_stiffness(double E);
 
   /** Settings last passed to load_from_config. */
   const ChemicalEnvironmentConfig &configuration() const { return config_; }
@@ -133,6 +136,7 @@ public:
   float total_tnf() const { return total_tnf_; }
   float total_tgf() const { return total_tgf_; }
   float total_il1beta() const { return total_il1beta_; }
+  float total_o2() const { return total_o2_; }
 
 private:
   void sync_diffusion_registry();
@@ -160,6 +164,7 @@ private:
   float total_tnf_ = 0.f;
   float total_tgf_ = 0.f;
   float total_il1beta_ = 0.f;
+  float total_o2_ = 0.f;
 };
 
 #endif

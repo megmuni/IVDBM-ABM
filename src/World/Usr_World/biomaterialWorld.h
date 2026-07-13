@@ -269,6 +269,9 @@ public:
   float world_total_tgf() const;
   float world_total_il1beta() const;
 
+  /** Integrated O2 mass */
+  float world_total_o2() const;
+
   float chem_concentration(SpeciesId species, int patch_index) const;
   void chem_add_secretion(SpeciesId species, int patch_index,
                           float delta) const;
@@ -400,6 +403,8 @@ public:
   static int initialCaAlg; // The number of initial tissue patches
   
   static float E; // Effective stiffness
+
+  static float initialO2; // Initial concentration of oxygen (umol/L)
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)

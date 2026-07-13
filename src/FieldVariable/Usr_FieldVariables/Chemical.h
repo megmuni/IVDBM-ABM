@@ -60,8 +60,10 @@ class Chemical: public FieldVariable {
     float* pTNF, *dTNF;
     float* pTGF, *dTGF;
     float* pIL1beta, *dIL1beta;
+    float* po2, *do2;
     float *pcellgrad;    // Keep track of the strength of the gradients that attract cells,
     float totalTNF, totalTGF, totalIL1beta;     // Keep track of the total cytokine levels in the world
+    float totalo2; // Keep track of total oxygen in the world
 };
 
 #endif	/* Chemical_H */

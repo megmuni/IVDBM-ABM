@@ -51,24 +51,30 @@ enum color_t {
   cdamage = 0,
   cunidentifiable = 0, 
 
-  cCaAlg = 119 
+  cCaAlg = 119, 
+  co2 = 195
 };
 
 /** Species ids and matching grid channel indices (see ChemicalEnvironment). */
 enum chemical_t {
+// p: patch, d: delta (change during the tick)
   /** Species identifiers for agent/world API. */
   TNF = 0,
   TGF = 1,
   IL1beta = 2,
+  o2 = 3,
 
   pTNF = 0,
   pTGF = 1,
   pIL1beta = 2,
+  po2 = 3,
 
-  dTNF = 3,
-  dTGF = 4,
-  dIL1beta = 5,
-  pcellgrad = 6,
+
+  dTNF = 4,
+  dTGF = 5,
+  dIL1beta = 6,
+  do2 = 7,
+  pcellgrad = 8
 };
 
 // Types of patches:

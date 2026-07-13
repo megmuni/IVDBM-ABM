@@ -25,7 +25,8 @@ float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // th
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick
-float Stem::apoptosisChance = 1;
+float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
+float Stem::apoptosisChance = 0.1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
@@ -39,7 +40,8 @@ float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
-float Progen::apoptosisChance = 5;
+float Progen::OCR = 30.46 / 2; // fmol/h/cell divided by 2 for /tick
+float Progen::apoptosisChance = 0.1;
 float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
@@ -50,6 +52,7 @@ float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick
+float NP::OCR = 15.31 / 2; // fmol/h/cell divided by 2 for /tick
 float NP::apoptosisChance = 5;
 float NP::collagenSynthRate = 1;
 float NP::aggrecanSynthRate = 1.5;
@@ -252,14 +255,45 @@ NP::~NP() {}
 //CELL FUNCTIONS
 void Cell::cellFunction() {
 	// Calls the individual cell stage functions
+	int in = this->index[read_t];
+
+	//Measure mean & patch oxygen 
+	float meanO2 = this->meanNeighborConcentration(o2);
+	float patchO2 = this->patchChemConcentration(o2, in);
+
 	if (this->alive[read_t] == false) return;
-	if (this->alive[read_t] == true) {
+	if (this->alive[read_t] == true && (meanO2 + patchO2) > this->get_OCR()) {
 		this->proliferate();
 		this->differentiate();
 		this->cellSniff();
 		this->ecm_synthesis();
 		this->cytokine_synthesis();
 		this->apoptose();
+
+		// Finally, subtract 'consumed' O2 from current and neighbor patches
+
+		// Location of agent in x,y,z dimensions of world.
+		int x = this->ix[read_t];
+		int y = this->iy[read_t];
+		int z = this->iz[read_t];
+
+		// Number of patches in x,y,z dimensions of world
+		int nx = Agent::nx;
+		int ny = Agent::ny;
+		int nz = Agent::nz;
+
+		float oxDecrease = this->get_OCR()/ 27; // divide OCR across 27 patches (current + neighbors)
+		this->addPatchChemSecretion(o2, in, -1 * oxDecrease);
+		// Count number of patches of neighbors inside world dimensions:
+		for (int dZ = -1; dZ <= 1; dZ++) {
+			for (int dY = -1; dY <= 1; dY++) {
+				for (int dX = -1; dX <= 1; dX++) {
+					if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+					int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+					if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->addPatchChemSecretion(o2, in, -1 * oxDecrease));
+				}
+			}
+		}
 
 		// last thing to do: increase age + 1 tick 
 		if (this->life[read_t] >= 0) {
@@ -513,11 +547,11 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	//vector <int> damagedneighbors;
 
 	// Make a list of neighboring patches
-	#ifndef MODEL_3D
+#ifndef MODEL_3D
 	for (int i = 9; i < 18; i++) {
-	#else
+#else
 	for (int i = 0; i < 27; i++) {
-	#endif
+#endif
 		dx = Agent::dX[i];
 		dy = Agent::dY[i];
 		dz = Agent::dZ[i];
@@ -533,9 +567,9 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	// Target a random damaged neighboring patch, if there are any.
 	if (neighbors.size() > 0) {
 		int tid = 0;
-	#ifdef _OMP
+#ifdef _OMP
 		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-	#endif
+#endif
 
 		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
 		target = neighbors[randInt];
@@ -548,9 +582,9 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 		this->move(dx, dy, dz, read_index);
 
 		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
-	#ifdef OPT_ECM
+#ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
-	#endif
+#endif
 	}
 
 	//// Make a list of damaged neighboring patches
@@ -689,6 +723,8 @@ float Cell::get_diff_prob(float meanTGF,
 float Cell::get_migration_speed() { return 0; }
 
 float Cell::get_apoptosis_chance() { return 1; }
+
+float Cell::get_OCR() { return 0; }
 
 void Cell::hatchnewcell(int number, int agentType, int here) {
 	int newcells = 0;
@@ -914,6 +950,10 @@ float Stem::get_apoptosis_chance() {
 	return Stem::apoptosisChance;
 }
 
+float Stem::get_OCR() {
+	return Stem::OCR;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                PROGENITOR                                  */
 /* -------------------------------------------------------------------------- */
@@ -1014,6 +1054,10 @@ float Progen::get_migration_speed() {
 
 float Progen::get_apoptosis_chance() {
 	return Progen::apoptosisChance;
+}
+
+float Progen::get_OCR() {
+	return Progen::OCR;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1122,4 +1166,8 @@ bool NP::can_tgf_excite() {
 
 float NP::get_apoptosis_chance() {
 	return NP::apoptosisChance;
+}
+
+float NP::get_OCR() {
+	return NP::OCR;
 }

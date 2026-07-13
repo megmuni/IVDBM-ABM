@@ -32,9 +32,9 @@ void ChemicalEnvironment::sync_diffusion_registry() {
 }
 
 void ChemicalEnvironment::load_from_config(const std::string &config_path,
-                                           double swelling_ratio_Q) {
+                                           double swelling_ratio_Q, double stiffness_E) {
   config_ = load_chemical_environment_config(config_path);
-  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q);
+  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q, stiffness_E);
   merge_chemotaxis_species_ =
       species_id_by_name(config_.merge_chemotaxis_from_species);
   sync_diffusion_registry();
@@ -42,6 +42,10 @@ void ChemicalEnvironment::load_from_config(const std::string &config_path,
 
 void ChemicalEnvironment::set_swelling_ratio(double Q) {
   registry_.set_swelling_ratio(Q);
+}
+
+void ChemicalEnvironment::set_stiffness(double E) {
+    registry_.set_stiffness(E);
 }
 
 float ChemicalEnvironment::baseline_total_mass_for(
@@ -143,6 +147,7 @@ void ChemicalEnvironment::recompute_world_totals() {
   total_tnf_ = 0.f;
   total_tgf_ = 0.f;
   total_il1beta_ = 0.f;
+  total_o2_ = 0.f;
 
   if (channel_data_.empty() || registry_.empty())
     return;
@@ -150,11 +155,13 @@ void ChemicalEnvironment::recompute_world_totals() {
   const int tnf_ch = concentration_channel_for("TNF");
   const int tgf_ch = concentration_channel_for("TGF");
   const int il1_ch = concentration_channel_for("IL1beta");
+  const int o2_ch = concentration_channel_for("o2");
 
   for (int i = 0; i < grid_size_; ++i) {
     total_tnf_ += channel_row(tnf_ch)[i];
     total_tgf_ += channel_row(tgf_ch)[i];
     total_il1beta_ += channel_row(il1_ch)[i];
+    total_o2_ += channel_row(o2_ch)[i];
   }
 }
 
@@ -235,11 +242,13 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   total_tnf_ = 0.f;
   total_tgf_ = 0.f;
   total_il1beta_ = 0.f;
+  total_o2_ = 0.f;
 
   const std::vector<SpeciesId> diffusing = registry_.diffusing_species();
   const int tnf_ch = concentration_channel_for("TNF");
   const int tgf_ch = concentration_channel_for("TGF");
   const int il1_ch = concentration_channel_for("IL1beta");
+  const int o2_ch = concentration_channel_for("o2");
   const int chemo_src =
       registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
 
@@ -269,6 +278,7 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
         total_tnf_ += channel_row(tnf_ch)[in];
         total_tgf_ += channel_row(tgf_ch)[in];
         total_il1beta_ += channel_row(il1_ch)[in];
+        total_o2_ += channel_row(o2_ch)[in];
       }
     }
   }
