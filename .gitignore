@@ -9,6 +9,7 @@
 
 build*/
 output*/
+logs*/
 
 ## CMake
 CMakefiles/

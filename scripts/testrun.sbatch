@@ -19,9 +19,6 @@ source "${JOB_DEFAULTS}"
 
 OUTPUT_DIR="${OUTPUT_DIR:-output/job_${SLURM_JOB_ID}}"
 OUTPUTFILE="${OUTPUTFILE:-${OUTPUT_DIR}/Output_Biomarkers.csv}"
-FINALIZE_SCRIPT="${REPO_ROOT}/scripts/finalize_run_params.py"
-RUN_TIMING_JSON="${OUTPUT_DIR}/.run_timing.json"
-TIME_FILE="${OUTPUT_DIR}/.testrun.time"
 
 mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
 
@@ -30,13 +27,11 @@ mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
 [[ -f "${INPUTFILE}" ]] || fail "input file missing: ${REPO_ROOT}/${INPUTFILE}"
 [[ -f "${CHEM_CONFIG}" ]] \
   || fail "chemical config missing: ${REPO_ROOT}/${CHEM_CONFIG} (copy configFiles/chemical_environment.template.json)"
-[[ -f "${FINALIZE_SCRIPT}" ]] || fail "missing ${FINALIZE_SCRIPT}"
 
 export LD_LIBRARY_PATH="${REPO_ROOT}/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-${SLURM_CPUS_PER_TASK:-1}}"
 export IVDBM_OUTPUT_DIR="${OUTPUT_DIR}"
 export IVDBM_RUN_PARAMS_JSON="${OUTPUT_DIR}/run_params.json"
-export IVDBM_RUN_TIMING_JSON="${RUN_TIMING_JSON}"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then
   # shellcheck disable=SC1091
@@ -47,10 +42,7 @@ if [[ "${IVDBM_PROFILE:-cpu}" == "gpu" ]]; then
   module load cuda 2>&1 || module load cuda/12.2 2>&1 || true
 fi
 
-JOB_STARTED_AT="$(date -Iseconds)"
-JOB_HOST="$(hostname)"
-
-echo "Job ${SLURM_JOB_ID:-?} starting on ${JOB_HOST} at ${JOB_STARTED_AT}"
+echo "Job ${SLURM_JOB_ID:-?} starting on $(hostname) at $(date -Iseconds)"
 echo "  REPO_ROOT=${REPO_ROOT}"
 echo "  TESTRUN=${TESTRUN}"
 echo "  OUTPUT_DIR=${OUTPUT_DIR}"
@@ -59,32 +51,8 @@ echo "  CHEM_CONFIG=${CHEM_CONFIG}"
 echo "  OUTPUTFILE=${OUTPUTFILE}"
 echo "  NUMTICKS=${NUMTICKS}  OMP_NUM_THREADS=${OMP_NUM_THREADS}  PROFILE=${IVDBM_PROFILE:-cpu}"
 
-finalize_run_params() {
-  local status="$1"
-  local finished_at
-  finished_at="$(date -Iseconds)"
-
-  if [[ -f "${FINALIZE_SCRIPT}" && -f "${IVDBM_RUN_PARAMS_JSON}" ]]; then
-    python3 "${FINALIZE_SCRIPT}" "${IVDBM_RUN_PARAMS_JSON}" \
-      --timing "${RUN_TIMING_JSON}" \
-      --time-file "${TIME_FILE}" \
-      --sacct-job-id "${SLURM_JOB_ID:-}" \
-      --started "${JOB_STARTED_AT}" \
-      --finished "${finished_at}" \
-      --hostname "${JOB_HOST}" \
-      --profile "${IVDBM_PROFILE:-cpu}" \
-      --exit-code "${status}" || \
-      echo "testrun.sbatch: warning: could not update ${IVDBM_RUN_PARAMS_JSON}" >&2
-  fi
-}
-
-TIME_CMD="$(command -v time)"
-[[ -n "${TIME_CMD}" ]] || fail "time not found on PATH"
-
 set +e
-"${TIME_CMD}" -f 'wall_seconds=%e max_rss_kb=%M user_seconds=%U sys_seconds=%S' \
-  -o "${TIME_FILE}" \
-  "${TESTRUN}" \
+"${TESTRUN}" \
   --output-dir "${OUTPUT_DIR}" \
   --numticks "${NUMTICKS}" \
   --inputfile "${INPUTFILE}" \
@@ -97,5 +65,4 @@ status=$?
 set -e
 
 echo "testRun finished with exit code ${status}"
-finalize_run_params "${status}"
 exit "${status}"
