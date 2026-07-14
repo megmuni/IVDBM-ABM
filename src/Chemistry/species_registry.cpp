@@ -2,6 +2,7 @@
 
 #include "../enums.h"
 
+#include <cmath>
 #include <stdexcept>
 
 void SpeciesRegistry::set_swelling_ratio(double Q)
@@ -48,10 +49,22 @@ const SpeciesDescriptor &SpeciesRegistry::descriptor(SpeciesId id) const
 
 double SpeciesRegistry::diffusivity(SpeciesId id) const
 {
-    return descriptor(id).base_diffusivity * Q_;
-    //TO-DO: modify to check for which type of effective D calculation (i.e., using Q or using E)
-    //is desired for each chemical. For the 3 current cytokines, Q should be used. For O2, E should
-    //be used.
+    const SpeciesDescriptor &desc = descriptor(id);
+    switch (desc.diffusivity_model.type)
+    {
+    case DiffusivityModelType::SwellingRatio:
+        return desc.base_diffusivity * Q_;
+    case DiffusivityModelType::LogarithmicStiffness: {
+        const DiffusivityModelConfig &m = desc.diffusivity_model;
+        const double d = m.slope * std::log(E_) + m.intercept;
+        if (d <= 0.0)
+            throw std::runtime_error(
+                "SpeciesRegistry: non-positive diffusivity for " + desc.name);
+        return d;
+    }
+    }
+    throw std::runtime_error("SpeciesRegistry: unknown diffusivity model for " +
+                             desc.name);
 }
 
 std::vector<SpeciesId> SpeciesRegistry::diffusing_species() const
@@ -74,6 +87,7 @@ SpeciesRegistry SpeciesRegistry::from_config(const ChemicalEnvironmentConfig &cf
         desc.base_diffusivity = s.base_diffusivity_mm2_per_min;
         desc.concentration_channel = s.concentration_channel;
         desc.diffused_channel = s.diffused_channel;
+        desc.diffusivity_model = s.diffusivity_model;
         registry.register_species(desc);
     }
 

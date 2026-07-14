@@ -10,6 +10,47 @@ namespace
 
 using json = nlohmann::json;
 
+DiffusivityModelConfig parse_diffusivity_model(const json &entry,
+                                               const std::string &species_name)
+{
+    DiffusivityModelConfig model;
+    if (!entry.contains("diffusivity_model"))
+        return model;
+
+    const json &dm = entry.at("diffusivity_model");
+    if (dm.is_string())
+    {
+        const std::string type = dm.get<std::string>();
+        if (type != "swelling_ratio")
+            throw std::invalid_argument(
+                "chemical environment config: unknown diffusivity_model for " +
+                species_name);
+        return model;
+    }
+
+    if (!dm.is_object())
+        throw std::invalid_argument(
+            "chemical environment config: diffusivity_model must be string or "
+            "object for " +
+            species_name);
+
+    const std::string type = dm.at("type").get<std::string>();
+    if (type == "swelling_ratio")
+        return model;
+
+    if (type == "logarithmic_stiffness")
+    {
+        model.type = DiffusivityModelType::LogarithmicStiffness;
+        model.slope = dm.at("slope").get<double>();
+        model.intercept = dm.at("intercept").get<double>();
+        return model;
+    }
+
+    throw std::invalid_argument(
+        "chemical environment config: unknown diffusivity_model type for " +
+        species_name);
+}
+
 } // namespace
 
 float ChemicalEnvironmentConfig::baseline_total_mass_for(
@@ -112,6 +153,8 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
             throw std::invalid_argument(
                 "chemical environment config: channel index out of range for " +
                 s.name);
+
+        s.diffusivity_model = parse_diffusivity_model(entry, s.name);
 
         cfg.species.push_back(s);
     }

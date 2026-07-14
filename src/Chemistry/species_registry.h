@@ -27,6 +27,7 @@ struct SpeciesDescriptor
     int concentration_channel = -1;
     /** Grid channel for per-tick delta / diffusion output (e.g. dTNF). */
     int diffused_channel = -1;
+    DiffusivityModelConfig diffusivity_model;
 };
 
 /**

@@ -54,7 +54,12 @@
       "name": "o2",
       "base_diffusivity_mm2_per_min": 0.02172,
       "concentration_channel": 3,
-      "diffused_channel": 7
+      "diffused_channel": 7,
+      "diffusivity_model": {
+        "type": "logarithmic_stiffness",
+        "slope": -0.002,
+        "intercept": 0.0218
+      }
     }
   ]
 }

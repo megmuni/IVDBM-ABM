@@ -27,9 +27,14 @@ Biological values for the ABM chemistry system are read **only** from JSON. C++ 
 | `channels.channel_names`        | Optional labels for documentation                                                                                 |
 | `merge.chemotaxis_from_species` | Species name copied into the chemotaxis field each merge (default `"TGF"`)                                        |
 | `baseline_total_mass`           | Initial total mass per species; divided over CaAlg patches at startup                                             |
-| `species[]`                     | Each diffusing species: `id`, `name`, `base_diffusivity_mm2_per_min`, `concentration_channel`, `diffused_channel` |
+| `species[]`                     | Each diffusing species: `id`, `name`, `base_diffusivity_mm2_per_min`, `concentration_channel`, `diffused_channel`, optional `diffusivity_model` |
 
-Effective diffusivity at runtime: `base_diffusivity_mm2_per_min × Q` (swelling ratio from the hydrogel model).
+Effective diffusivity at runtime is **per species** (optional `diffusivity_model`; default `swelling_ratio`):
+
+| Model | Formula |
+| ----- | ------- |
+| `swelling_ratio` (default) | `base_diffusivity_mm2_per_min × Q` |
+| `logarithmic_stiffness` | `slope × ln(E) + intercept` (E in kPa; O₂ uses slope −0.002, intercept 0.0218) |
 
 ### IVDBM template defaults
 
@@ -38,6 +43,7 @@ Effective diffusivity at runtime: `base_diffusivity_mm2_per_min × Q` (swelling 
 | TNF     | 0.00018          | 0    | 3    |
 | TGF     | 0.000156         | 1    | 4    |
 | IL-1β   | 0.00018          | 2    | 5    |
+| O₂      | 0.02172          | 3    | 7    |
 
 ---
 
