@@ -1437,6 +1437,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
      * SpeciesRegistry. */
     if (this->Q > 0.0f && chemical_environment_)
       chemical_environment_->set_swelling_ratio(static_cast<double>(this->Q));
+    if (this->E > 0.0f && chemical_environment_)
+      chemical_environment_->set_stiffness(static_cast<double>(this->E));
     // this->Q=0;
     // cout << " this->Q =" << (this->SwellRatio[0]<<"*"<<Alg_ww<< " + "<<
     // this->SwellRatio[1])<<"*log("<<tmin<<") +
@@ -1487,6 +1489,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 #ifdef PEPTIDE_BM
   void BMWorld::updateE() {
       BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+      if (BMWorld::E > 0.0f && chemical_environment_)
+          chemical_environment_->set_stiffness(static_cast<double>(BMWorld::E));
   }
 #endif // PEPTIDE_BM
 #endif // MODEL_SCAFFOLD

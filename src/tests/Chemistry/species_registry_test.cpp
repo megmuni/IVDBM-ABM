@@ -26,9 +26,9 @@ TEST_CASE("SpeciesRegistry from_config diffusivity scales with Q",
     const double Q = 0.85;
     const ChemicalEnvironmentConfig cfg =
         load_chemical_environment_config(test_chem_config_path());
-    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, Q, 1.0);
+    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, Q, 10.0);
 
-    REQUIRE(registry.diffusing_species().size() == 3);
+    REQUIRE(registry.diffusing_species().size() == 4);
 
     const double d_tnf = registry.diffusivity(0);
     const double d_tgf = registry.diffusivity(1);
@@ -40,7 +40,19 @@ TEST_CASE("SpeciesRegistry from_config diffusivity scales with Q",
 
     const SpeciesDescriptor &tnf = registry.descriptor(0);
     CHECK(tnf.concentration_channel == 0);
-    CHECK(tnf.diffused_channel == 3);
+    CHECK(tnf.diffused_channel == 4);
+}
+
+TEST_CASE("SpeciesRegistry O2 diffusivity uses logarithmic stiffness model",
+          "[chemistry][registry]")
+{
+    const double E = 5.0;
+    const ChemicalEnvironmentConfig cfg =
+        load_chemical_environment_config(test_chem_config_path());
+    SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0, E);
+
+    const double d_o2 = registry.diffusivity(3);
+    CHECK(d_o2 == Approx(-0.002 * std::log(E) + 0.0218));
 }
 
 TEST_CASE("SpeciesRegistry rejects invalid swelling ratio", "[chemistry][registry]")
