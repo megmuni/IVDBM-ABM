@@ -905,6 +905,43 @@ void BMWorld::updateO2() {
     const double incrO2 = 0.01 * (molO2 / countBoundary); // oxygen increment for each patch
 
     // update boundary O2 across Z faces
+    for (int zi : {0, nz - 1}) {
+#pragma omp parallel for
+        for (int yi = 0; yi < ny; yi++) {
+#pragma omp simd
+            for (int xi = 0; xi < nx; xi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+
+    // update boundary O2 across Y faces
+    for (int yi : {0, ny - 1}) {
+#pragma omp parallel for
+        for (int zi = 1; zi < nz - 1; zi++) {
+            // zi starts at 1 and ends at nz-2 to exclude patches
+            // already counted by the Z face loops above
+#pragma omp simd
+            for (int xi = 0; xi < nx; xi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+
+    // update boundary O2 across X faces
+    for (int xi : {0, nx - 1}) {
+#pragma omp parallel for
+        for (int zi = 1; zi < nz - 1; zi++) {
+            for (int yi = 1; yi < ny - 1; yi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+}
+
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
