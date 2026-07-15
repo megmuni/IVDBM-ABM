@@ -294,6 +294,7 @@ void BMWorld::initializePatches() {
 #endif
 
   tgfLine.resize(nx / 2 + 1, 0.0f);
+  o2Line.resize(nx / 2 + 1, 0.0f);
   lineY = ny / 2;
   lineZ = nz / 2;
 
@@ -906,6 +907,12 @@ void BMWorld::updateChemCPU() {
   for (int xi = 0; xi < nx / 2; xi++) {
       int in = xi + lineY * nx + lineZ * nx * ny;
       tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
+  }
+
+  // temp for O2 output for diffusion debugging
+  for (int xi = 0; xi < nx / 2; xi++) {
+      int in = xi + lineY * nx + lineZ * nx * ny;
+      o2Line[xi] = chemical_environment_->concentration_at(in, o2);
   }
 }
 
@@ -2024,8 +2031,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   }
 
   // extra output - for IVDBM-ABM,
-  // a TGF line for measuring TGF for
-  // diffusion debugging purposes
+  // lines measuring TGF and O2 for
+  // debugging purposes
   void BMWorld::write_auxiliary_header() {
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
@@ -2034,6 +2041,14 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     tgf_file.close();
+
+    char o2_path[512];
+    util::makeOutputPath(o2_path, sizeof(o2_path), "o2_line.csv");
+    remove(o2_path);
+    ofstream o2_file(o2_path, ios::app);
+    for (int xi = 0; xi <= nx / 2; xi++)
+        o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+    o2_file.close();
   }
 
   void BMWorld::write_auxiliary_outputs() {
@@ -2044,6 +2059,14 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
     tgf_file.close();
+
+    char o2_path[512];
+    util::makeOutputPath(o2_path, sizeof(o2_path), "o2_line.csv");
+    remove(o2_path);
+    ofstream o2_file(o2_path, ios::app);
+    for (int xi = 0; xi <= nx / 2; xi++)
+        o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
+    o2_file.close();
   }
 
   void BMWorld::patchassign_csv() {

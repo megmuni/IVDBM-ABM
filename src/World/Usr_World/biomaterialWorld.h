@@ -470,6 +470,8 @@ public:
 
   vector<float> tgfLine; // Vector to store TGF values along an x-face line from
                          // boundary to center of ABM grid
+  vector<float> o2Line; // Vector to store O2 values along an x-face line from
+  // boundary to center of ABM grid
 
   int lineY;
   int lineZ;
