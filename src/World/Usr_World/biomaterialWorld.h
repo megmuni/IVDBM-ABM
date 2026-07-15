@@ -598,6 +598,18 @@ private:
   void updateChemCPU();
 
   /*
+   * Description: Update O2 across boundary patches (coming in from external environment).
+   * Gets called in updateChem(). 
+   *
+   * TO-DO: move this to within updateChem() using a generic
+   * "apply external source" option or something
+   *
+   * Return: void
+   * Parameters: void
+   */
+  void updateO2();
+
+  /*
    * Description:	Helper function for ECM updates. Execute updates for ALL
    * ECM managers.
    *

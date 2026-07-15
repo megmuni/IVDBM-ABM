@@ -897,6 +897,14 @@ void BMWorld::requestECMfragments() {
   }
 }
 
+void BMWorld::updateO2() {
+    // TO-DO: move this O2 boundary update to somewhere within the chem environment, not directly in BMWorld
+    const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
+    const double volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+    const double molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+    const double incrO2 = 0.01 * (molO2 / countBoundary); // oxygen increment for each patch
+
+    // update boundary O2 across Z faces
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
