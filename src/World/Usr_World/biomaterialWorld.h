@@ -405,6 +405,7 @@ public:
   static float E; // Effective stiffness
 
   static float initialO2; // Initial concentration of oxygen (umol/L)
+  static float incrementO2; // Percentage of initial patch O2 to add every tick as replenishment from external source
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)

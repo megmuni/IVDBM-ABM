@@ -48,6 +48,7 @@ float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 float BMWorld::initialO2 = 200; // Initial concentration of oxygen (umol/L)
+float BMWorld::incrementO2 = 0.1; // Percentage of initial patch O2 to add every tick as replenishment from external source
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
 float BMWorld::E = 0;     // Effective stiffness
@@ -902,7 +903,7 @@ void BMWorld::updateO2() {
     const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
     const double volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
     const double molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
-    const double incrO2 = 0.01 * (molO2 / countBoundary); // oxygen increment for each patch
+    const double incrO2 = this->incrementO2 * (molO2 / countBoundary); // oxygen increment for each patch
 
     // update boundary O2 across Z faces
     for (int zi : {0, nz - 1}) {
