@@ -288,4 +288,5 @@ void ChemicalEnvironment::copy_totals_to(Chemical &world_chem) const {
   world_chem.totalTNF = total_tnf_;
   world_chem.totalTGF = total_tgf_;
   world_chem.totalIL1beta = total_il1beta_;
+  world_chem.totalo2 = total_o2_;
 }
