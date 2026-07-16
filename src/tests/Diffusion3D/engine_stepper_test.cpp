@@ -40,7 +40,7 @@ void fill_ramp(MultiSpeciesFieldGrid &grid, SpeciesId id)
 }
 
 MultiSpeciesDiffusionSettings make_settings(SpeciesId id, double D, DiffusionAlgorithm algo,
-                                            double safety = 1.0)
+                                            double safety = 0.5)
 {
     MultiSpeciesDiffusionSettings settings;
     settings.species_diffusivities[id] = D;
@@ -56,7 +56,7 @@ TEST_CASE("ExplicitMultiSpeciesHeatStepper splits tick into stable substeps", "[
     const int nx = 5, ny = 4, nz = 3;
     const double h = 1.0;
     const double D = 1.0;
-    const double safety = 1.0;
+    const double safety = 0.5;
     const double tick_dt = 0.5;
     const SpeciesId species = 0;
 

@@ -36,12 +36,22 @@ struct MultiSpeciesDiffusionSettings
     std::vector<std::string> species_names;
 
     /**
-     * @brief CFL safety factor: 0 < safety <= 1.0
+     * @brief CFL safety factor: 0 < safety < 1.0
      *
      * Scales the explicit-Euler stability bound.
      * Lower = more conservative (smaller steps, more substeps).
+     *
+     * Must be strictly < 1. At safety == 1 the substep lands exactly on the
+     * stability edge (s = D*dt_sub/h^2 = 1/6), so the 6-point stencil's centre
+     * weight 1 - 6s is exactly 0: a cell is replaced by the average of its
+     * neighbours, decoupling the even/odd sublattices into a checkerboard that
+     * is never damped (Nyquist gain |1 - 12s| = 1). Requiring safety < 1 keeps
+     * the centre weight >= 1 - safety > 0 for every D, h and tick.
+     *
+     * 0.5 is the default because it puts the Nyquist gain 1 - 2*safety at 0,
+     * damping the checkerboard mode in a single substep.
      */
-    double safety = 1.0;
+    double safety = 0.5;
 
     /**
      * @brief Algorithm / hardware backend selection.
@@ -61,7 +71,7 @@ struct MultiSpeciesDiffusionSettings
      * @throws std::runtime_error if:
      *   - species_diffusivities is empty
      *   - any diffusivity <= 0
-     *   - safety not in (0, 1]
+     *   - safety not in (0, 1)
      */
     void validate() const
     {
@@ -76,8 +86,8 @@ struct MultiSpeciesDiffusionSettings
                                          "] = " + std::to_string(D) + " but must be > 0");
         }
 
-        if (safety <= 0.0 || safety > 1.0)
-            throw std::runtime_error("safety = " + std::to_string(safety) + " but must be in (0, 1]");
+        if (safety <= 0.0 || safety >= 1.0)
+            throw std::runtime_error("safety = " + std::to_string(safety) + " but must be in (0, 1)");
     }
 };
 

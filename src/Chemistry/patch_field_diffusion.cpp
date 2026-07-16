@@ -18,7 +18,6 @@ MultiSpeciesDiffusionSettings make_settings(const SpeciesRegistry &registry,
 {
     MultiSpeciesDiffusionSettings settings;
     settings.algorithm = algorithm;
-    settings.safety = 1.0;
     for (SpeciesId id : registry.diffusing_species())
         settings.species_diffusivities[id] = registry.diffusivity(id);
     return settings;

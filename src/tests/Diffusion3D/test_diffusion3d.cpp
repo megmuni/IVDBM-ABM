@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 
+#include "analytic_diffusion3d.h"
 #include "diffusion3d_timestep.h"
 #include "diffusion3d_step_euler_cpu.h"
 #include "explicit_multi_species_heat_stepper.h"
@@ -40,7 +41,7 @@ void fill_ramp(MultiSpeciesFieldGrid &grid, SpeciesId id)
                 g.at(x, y, z) = 0.01 * static_cast<double>(x + y * g.nx_ + z * g.nx_ * g.ny_);
 }
 
-MultiSpeciesDiffusionSettings make_settings(SpeciesId id, double D, double safety = 1.0)
+MultiSpeciesDiffusionSettings make_settings(SpeciesId id, double D, double safety = 0.5)
 {
     MultiSpeciesDiffusionSettings settings;
     settings.species_diffusivities[id] = D;
@@ -76,7 +77,7 @@ TEST_CASE("Single-species stepper matches explicit scalar euler micro-steps", "[
     const double tick_dt = 0.5;
     const SpeciesId species = 0;
 
-    const SubstepPlan plan = plan_substeps(tick_dt, compute_stability_constraint(h, D, 1.0));
+    const SubstepPlan plan = plan_substeps(tick_dt, compute_stability_constraint(h, D, 0.5));
 
     ScalarFieldGrid ref(nx, ny, nz);
     MultiSpeciesFieldGrid grid({species}, nx, ny, nz, h);
@@ -112,7 +113,7 @@ TEST_CASE("Multi-species fields evolve independently", "[core][engine][multi]")
     MultiSpeciesDiffusionSettings settings;
     settings.species_diffusivities[slow] = 0.1;
     settings.species_diffusivities[fast] = 1.0;
-    settings.safety = 1.0;
+    settings.safety = 0.5;
     settings.algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
 
     ExplicitMultiSpeciesHeatStepper stepper;
@@ -123,6 +124,58 @@ TEST_CASE("Multi-species fields evolve independently", "[core][engine][multi]")
     CHECK_FALSE(nearly_equal_vec(initial_slow, grid.grid(slow).data_, 1e-15));
     CHECK_FALSE(nearly_equal_vec(initial_fast, grid.grid(fast).data_, 1e-15));
     CHECK_FALSE(nearly_equal_vec(grid.grid(slow).data_, grid.grid(fast).data_, 1e-12));
+}
+
+TEST_CASE("validate rejects safety on or past the stability edge", "[core][settings]")
+{
+    MultiSpeciesDiffusionSettings settings = make_settings(0, 0.1);
+
+    settings.safety = 1.0;
+    CHECK_THROWS_AS(settings.validate(), std::runtime_error);
+    settings.safety = 1.5;
+    CHECK_THROWS_AS(settings.validate(), std::runtime_error);
+    settings.safety = 0.0;
+    CHECK_THROWS_AS(settings.validate(), std::runtime_error);
+
+    settings.safety = 0.999;
+    CHECK_NOTHROW(settings.validate());
+    settings.safety = 0.5;
+    CHECK_NOTHROW(settings.validate());
+}
+
+TEST_CASE("Engine tracks the analytic Gaussian at biological scale", "[core][engine][analytic]")
+{
+    // Biological units: TNF in the scaffold. This is the configuration that put
+    // dt_sub exactly on dt_max under the old safety = 1.0 default, decoupling the
+    // sublattices; the field then held ~2x the analytic peak with rel L2 ~1.0.
+    // Unlike the early-time Gaussian check, this runs through the engine, so it
+    // sees safety and plan_substeps and would fail if either regressed.
+    const int n = 81;
+    const double h = 0.01;
+    const double D = 0.00018;
+    const double tick_dt = 30.0;
+    const SpeciesId species = 0;
+
+    MultiSpeciesFieldGrid grid({species}, n, n, n, h);
+    const int c = n / 2;
+    grid.grid(species).at(c, c, c) = 1.0;
+
+    // Default settings: no explicit safety, so this pins the shipped default.
+    MultiSpeciesDiffusionSettings settings;
+    settings.species_diffusivities[species] = D;
+    settings.algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
+
+    auto engine = MakeMultiSpeciesDiffusionEngine(settings);
+    engine->configure_species_interval(grid, settings, tick_dt);
+    engine->advance_species_interval(grid);
+
+    // The grid stores concentration, so a single cell at 1.0 carries mass h^3;
+    // analytic_gaussian_impulse_3d takes that mass and returns a density.
+    const std::vector<double> ref =
+        analytic_gaussian_impulse_3d(n, n, n, h, D, tick_dt, c, c, c, h * h * h);
+    const double err = rel_l2_error(grid.grid(species).data_, ref);
+    INFO("rel_l2=" << err);
+    CHECK(err < 1e-2);
 }
 
 TEST_CASE("MakeMultiSpeciesDiffusionEngine creates CPU stepper", "[core][factory]")

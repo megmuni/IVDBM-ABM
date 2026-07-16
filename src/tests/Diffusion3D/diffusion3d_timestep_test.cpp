@@ -65,3 +65,32 @@ TEST_CASE("plan_substeps exact division yields integer ratio", "[timestep]")
     CHECK(p.n_sub == 4);
     CHECK(p.dt_sub == Approx(0.25));
 }
+
+TEST_CASE("stencil centre weight stays positive for every D at safety < 1", "[timestep]")
+{
+    // The 6-point update weights the centre cell by 1 - 6s, s = D*dt_sub/h^2.
+    // safety < 1 must keep that weight >= 1 - safety > 0 regardless of D, h or
+    // tick_dt; at safety == 1 it collapses to 0 and the cell is replaced by the
+    // mean of its neighbours (even/odd sublattices decouple -> checkerboard).
+    //
+    // The biological D/h/tick below are the dangerous case: 6*D*tick/h^2 is an
+    // exact integer (324 for TNF, 39096 for O2), so plan_substeps divides evenly
+    // and dt_sub lands exactly on dt_max rather than safely under it.
+    const double h = 0.01;
+    const double tick_dt = 30.0;
+    const double safety = 0.5;
+
+    for (const double D : {0.00018, 0.02172, 0.1, 1.0, 1e-6})
+    {
+        const double dt_max = compute_stability_constraint(h, D, safety);
+        const SubstepPlan plan = plan_substeps(tick_dt, dt_max);
+        const double s = D * plan.dt_sub / (h * h);
+        const double centre_weight = 1.0 - 6.0 * s;
+
+        INFO("D=" << D << " n_sub=" << plan.n_sub << " s=" << s
+                  << " centre_weight=" << centre_weight);
+        CHECK(s <= safety / 6.0 + 1e-12);
+        CHECK(centre_weight >= 1.0 - safety - 1e-12);
+        CHECK(centre_weight > 0.0);
+    }
+}
