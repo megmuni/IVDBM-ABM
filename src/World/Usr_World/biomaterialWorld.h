@@ -405,6 +405,7 @@ public:
   static float E; // Effective stiffness
 
   static float initialO2; // Initial concentration of oxygen (umol/L)
+  static float incrementO2; // Percentage of initial patch O2 to add every tick as replenishment from external source
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)
@@ -470,6 +471,8 @@ public:
 
   vector<float> tgfLine; // Vector to store TGF values along an x-face line from
                          // boundary to center of ABM grid
+  vector<float> o2Line; // Vector to store O2 values along an x-face line from
+  // boundary to center of ABM grid
 
   int lineY;
   int lineZ;
@@ -594,6 +597,18 @@ private:
    * Parameters: void
    */
   void updateChemCPU();
+
+  /*
+   * Description: Update O2 across boundary patches (coming in from external environment).
+   * Gets called in updateChem(). 
+   *
+   * TO-DO: move this to within updateChem() using a generic
+   * "apply external source" option or something
+   *
+   * Return: void
+   * Parameters: void
+   */
+  void updateO2();
 
   /*
    * Description:	Helper function for ECM updates. Execute updates for ALL

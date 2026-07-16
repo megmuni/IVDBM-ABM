@@ -48,6 +48,7 @@ float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 float BMWorld::initialO2 = 200; // Initial concentration of oxygen (umol/L)
+float BMWorld::incrementO2 = 0.1; // Percentage of initial patch O2 to add every tick as replenishment from external source
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
 float BMWorld::E = 0;     // Effective stiffness
@@ -294,6 +295,7 @@ void BMWorld::initializePatches() {
 #endif
 
   tgfLine.resize(nx / 2 + 1, 0.0f);
+  o2Line.resize(nx / 2 + 1, 0.0f);
   lineY = ny / 2;
   lineZ = nz / 2;
 
@@ -896,6 +898,51 @@ void BMWorld::requestECMfragments() {
   }
 }
 
+void BMWorld::updateO2() {
+    // TO-DO: move this O2 boundary update to somewhere within the chem environment, not directly in BMWorld
+    const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
+    const double volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
+    const double molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+    const double incrO2 = this->incrementO2 * (molO2 / countBoundary); // oxygen increment for each patch
+
+    // update boundary O2 across Z faces
+    for (int zi : {0, nz - 1}) {
+#pragma omp parallel for
+        for (int yi = 0; yi < ny; yi++) {
+#pragma omp simd
+            for (int xi = 0; xi < nx; xi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+
+    // update boundary O2 across Y faces
+    for (int yi : {0, ny - 1}) {
+#pragma omp parallel for
+        for (int zi = 1; zi < nz - 1; zi++) {
+            // zi starts at 1 and ends at nz-2 to exclude patches
+            // already counted by the Z face loops above
+#pragma omp simd
+            for (int xi = 0; xi < nx; xi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+
+    // update boundary O2 across X faces
+    for (int xi : {0, nx - 1}) {
+#pragma omp parallel for
+        for (int zi = 1; zi < nz - 1; zi++) {
+            for (int yi = 1; yi < ny - 1; yi++) {
+                int in = xi + yi * nx + zi * nx * ny;
+                chemical_environment_->accumulate_secretion(in, o2, incrO2);
+            }
+        }
+    }
+}
+
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
@@ -906,6 +953,12 @@ void BMWorld::updateChemCPU() {
   for (int xi = 0; xi < nx / 2; xi++) {
       int in = xi + lineY * nx + lineZ * nx * ny;
       tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
+  }
+
+  // temp for O2 output for diffusion debugging
+  for (int xi = 0; xi < nx / 2; xi++) {
+      int in = xi + lineY * nx + lineZ * nx * ny;
+      o2Line[xi] = chemical_environment_->concentration_at(in, o2);
   }
 }
 
@@ -2024,8 +2077,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   }
 
   // extra output - for IVDBM-ABM,
-  // a TGF line for measuring TGF for
-  // diffusion debugging purposes
+  // lines measuring TGF and O2 for
+  // debugging purposes
   void BMWorld::write_auxiliary_header() {
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
@@ -2034,6 +2087,14 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     tgf_file.close();
+
+    char o2_path[512];
+    util::makeOutputPath(o2_path, sizeof(o2_path), "o2_line.csv");
+    remove(o2_path);
+    ofstream o2_file(o2_path, ios::app);
+    for (int xi = 0; xi <= nx / 2; xi++)
+        o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+    o2_file.close();
   }
 
   void BMWorld::write_auxiliary_outputs() {
@@ -2044,6 +2105,14 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       tgf_file << tgfLine[xi] << (xi < nx / 2 ? "," : "\n");
     tgf_file.close();
+
+    char o2_path[512];
+    util::makeOutputPath(o2_path, sizeof(o2_path), "o2_line.csv");
+    remove(o2_path);
+    ofstream o2_file(o2_path, ios::app);
+    for (int xi = 0; xi <= nx / 2; xi++)
+        o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
+    o2_file.close();
   }
 
   void BMWorld::patchassign_csv() {
