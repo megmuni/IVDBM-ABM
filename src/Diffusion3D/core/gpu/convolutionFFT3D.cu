@@ -265,16 +265,10 @@ extern "C" void padDataClampToBorder3D(float *d_PaddedData,
 //   dz = 2*dZ - 1 - z for z >= dZ
 //
 // Under the FFT's periodic wrap this reproduces the infinite train of mirror
-// images that the method of images places behind a reflecting wall, so the
-// circular convolution equals the reflecting-BC result on the first d cells:
+// images that the method of images places behind a reflecting wall.
 //
-//   v[-1]  == v[2*dZ - 1] == u[0]      (ghost below the low face)
-//   v[dZ]              == u[dZ - 1]    (ghost above the high face)
-//
-// which is exactly the ghost value a zero-flux boundary wants. Because the
-// extension is the true image train and not a finite skirt, this holds at ANY
-// kernel radius -- unlike padDataClampToBorder3D, whose border region is only
-// c* voxels wide and is therefore correct only for a radius-1 kernel.
+// Holds for ANY kernel radius.
+// Reference: https://en.wikipedia.org/wiki/Method_of_images
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void padDataMirror3D_kernel(float *d_Dst,
                                        const float *d_Src,

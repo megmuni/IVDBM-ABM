@@ -189,10 +189,6 @@ void diffusion3d_fft_scratch_apply(DiffusionFftScratch *s, std::vector<double> &
             "H2D field");
 
     cuda_ok(cudaMemset(s->d_data_pad, 0, static_cast<size_t>(fft_n) * sizeof(float)), "memset data_pad");
-    // Mirror, not clamp-to-border: the composed operator has radius n_sub, but the
-    // clamp's border region is only one voxel wide, so every ghost layer past the
-    // first read slice 0 and corrupted the boundary. The mirror is the method-of-
-    // images extension and is exact at any radius.
     padDataMirror3D(s->d_data_pad, s->d_data,
                     fft_z, fft_y, fft_x,
                     s->nz, s->ny, s->nx);

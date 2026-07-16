@@ -25,9 +25,6 @@ void ExplicitGpuFftStepper::destroy_fft_scratch(SpeciesId id) {
   }
 }
 
-// The FFT box holds the mirror image of the domain, so it is exactly twice the
-// domain per axis -- not a tunable pad. Any other extent leaves a gap between the
-// domain and its reflection and stops being a reflecting boundary.
 static int derive_fft_axis_len(int domain_len) { return 2 * domain_len; }
 
 void ExplicitGpuFftStepper::configure_species_interval(
