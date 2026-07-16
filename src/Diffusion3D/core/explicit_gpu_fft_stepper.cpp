@@ -25,18 +25,10 @@ void ExplicitGpuFftStepper::destroy_fft_scratch(SpeciesId id) {
   }
 }
 
-static int derive_fft_axis_len(int domain_len, int user_real_extent) {
-  if (user_real_extent > 0) {
-    return user_real_extent;
-  }
-  const int need = domain_len + 2;
-  int v = (need % 16 != 0) ? (need - need % 16 + 16) : need;
-  if (v < 32)
-    v = 32;
-  if (v % 2 != 0)
-    ++v;
-  return v;
-}
+// The FFT box holds the mirror image of the domain, so it is exactly twice the
+// domain per axis -- not a tunable pad. Any other extent leaves a gap between the
+// domain and its reflection and stops being a reflecting boundary.
+static int derive_fft_axis_len(int domain_len) { return 2 * domain_len; }
 
 void ExplicitGpuFftStepper::configure_species_interval(
     const MultiSpeciesFieldGrid &grid,
@@ -56,9 +48,9 @@ void ExplicitGpuFftStepper::configure_species_interval(
   cfg_nz_ = grid.nz_;
   cfg_h_ = grid.h_;
 
-  const int fx = derive_fft_axis_len(cfg_nx_, settings.fft_real_extent_x);
-  const int fy = derive_fft_axis_len(cfg_ny_, settings.fft_real_extent_y);
-  const int fz = derive_fft_axis_len(cfg_nz_, settings.fft_real_extent_z);
+  const int fx = derive_fft_axis_len(cfg_nx_);
+  const int fy = derive_fft_axis_len(cfg_ny_);
+  const int fz = derive_fft_axis_len(cfg_nz_);
 
   for (auto id : species_ids_) {
     destroy_fft_scratch(id);

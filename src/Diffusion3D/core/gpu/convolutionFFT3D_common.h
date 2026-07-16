@@ -70,6 +70,24 @@ extern "C"
                                 int cZ, int cY, int cX);
 
     /**
+     * @brief Pad 3D data by mirroring, for reflecting (zero-flux Neumann) boundaries.
+     *
+     * The padded box must be exactly twice the domain on every axis; it then holds
+     * the even reflection of the domain about its outer faces, which under the FFT's
+     * periodic wrap is the method-of-images extension for a reflecting wall. Correct
+     * at any kernel radius, so unlike padDataClampToBorder3D it needs no kernel dims.
+     *
+     * @param d_PaddedData dst, size fftZ*fftY*fftX (real)
+     * @param d_Data       src, size dZ*dY*dX (real)
+     * @param fftZ,fftY,fftX padded FFT dimensions; must equal 2*dZ, 2*dY, 2*dX
+     * @param dZ,dY,dX       data dimensions
+     */
+    void padDataMirror3D(float *d_PaddedData,
+                         const float *d_Data,
+                         int fftZ, int fftY, int fftX,
+                         int dZ, int dY, int dX);
+
+    /**
      * @brief Extract the physical domain from the padded inverse-transform result.
      *
      * @param d_Dst dst, size dZ*dY*dX (real)

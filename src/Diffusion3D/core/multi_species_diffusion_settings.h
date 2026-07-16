@@ -59,13 +59,6 @@ struct MultiSpeciesDiffusionSettings
     DiffusionAlgorithm algorithm = DiffusionAlgorithm::ExplicitHeatEquation;
 
     /**
-     * @brief FFT padding extents (for GPU FFT backend).
-     */
-    int fft_real_extent_x = 0;
-    int fft_real_extent_y = 0;
-    int fft_real_extent_z = 0;
-
-    /**
      * @brief Validate all parameters for consistency.
      *
      * @throws std::runtime_error if:

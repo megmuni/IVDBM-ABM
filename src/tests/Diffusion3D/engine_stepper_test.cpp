@@ -94,7 +94,7 @@ TEST_CASE("MakeMultiSpeciesDiffusionEngine resolves algorithm per CUDA build", "
 
 #ifdef DIFFUSION3D_CUDA
 
-TEST_CASE("ExplicitGpuFftStepper matches CPU stepper in interior (small tick)", "[engine][gpu][fft]")
+TEST_CASE("ExplicitGpuFftStepper matches CPU stepper including boundaries", "[engine][gpu][fft]")
 {
     const int nx = 6, ny = 6, nz = 6;
     const double tick_dt = 1e-3;
@@ -121,9 +121,6 @@ TEST_CASE("ExplicitGpuFftStepper matches CPU stepper in interior (small tick)", 
 
     MultiSpeciesDiffusionSettings cpu_settings = make_settings(species, D, DiffusionAlgorithm::ExplicitHeatEquation);
     MultiSpeciesDiffusionSettings fft_settings = make_settings(species, D, DiffusionAlgorithm::GpuFftPrecomputed);
-    fft_settings.fft_real_extent_x = 8;
-    fft_settings.fft_real_extent_y = 8;
-    fft_settings.fft_real_extent_z = 8;
 
     ExplicitMultiSpeciesHeatStepper cpu_stepper;
     ExplicitGpuFftStepper fft_stepper;
@@ -135,14 +132,17 @@ TEST_CASE("ExplicitGpuFftStepper matches CPU stepper in interior (small tick)", 
     const ScalarFieldGrid &cpu = cpu_grid.grid(species);
     const ScalarFieldGrid &fft = fft_grid.grid(species);
 
+    // Whole domain, walls included. The mirror pad makes the FFT's boundary
+    // condition the same reflecting one the CPU stencil uses, so the two agree
+    // everywhere; before it, this test only passed because it skipped the walls.
     double max_abs = 0.0;
     double num = 0.0;
     double den = 0.0;
-    for (int z = 1; z < nz - 1; ++z)
+    for (int z = 0; z < nz; ++z)
     {
-        for (int y = 1; y < ny - 1; ++y)
+        for (int y = 0; y < ny; ++y)
         {
-            for (int x = 1; x < nx - 1; ++x)
+            for (int x = 0; x < nx; ++x)
             {
                 const double cu = cpu.at(x, y, z);
                 const double fu = fft.at(x, y, z);
