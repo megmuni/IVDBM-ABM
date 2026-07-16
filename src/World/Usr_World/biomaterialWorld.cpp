@@ -2108,8 +2108,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 
     char o2_path[512];
     util::makeOutputPath(o2_path, sizeof(o2_path), "o2_line.csv");
-    remove(o2_path);
     ofstream o2_file(o2_path, ios::app);
+    o2_file << fixed << setprecision(10);
     for (int xi = 0; xi <= nx / 2; xi++)
         o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
