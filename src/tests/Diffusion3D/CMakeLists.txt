@@ -49,6 +49,8 @@ add_test(NAME diffusion3d_padKernel3D
          COMMAND diffusion3d_tests "padKernel3D performs ifftshift-on-write")
 add_test(NAME diffusion3d_padDataClampToBorder3D
          COMMAND diffusion3d_tests "padDataClampToBorder3D matches CUDA-sample border semantics")
+add_test(NAME diffusion3d_padDataMirror3D
+         COMMAND diffusion3d_tests "padDataMirror3D reflects the domain into the second half")
 add_test(NAME diffusion3d_fft3d_convolution_matches_cpu
          COMMAND diffusion3d_tests "3D FFT convolution matches CPU circular convolution (padded domain)")
 add_test(NAME diffusion3d_fft3d_matches_cpu_laplacian
@@ -70,6 +72,7 @@ set(DIFFUSION3D_CPU_TESTS
     diffusion3d_unpadResult3D
     diffusion3d_padKernel3D
     diffusion3d_padDataClampToBorder3D
+    diffusion3d_padDataMirror3D
     diffusion3d_fft3d_convolution_matches_cpu
     diffusion3d_fft3d_matches_cpu_laplacian
     diffusion3d_step_euler_cpu_determinism

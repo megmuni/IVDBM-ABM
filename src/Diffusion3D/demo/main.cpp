@@ -49,13 +49,7 @@ MultiSpeciesFieldGrid make_initial_grid(int nx, int ny, int nz, double h) {
 MultiSpeciesDiffusionSettings make_settings(DiffusionAlgorithm algo, double D) {
   MultiSpeciesDiffusionSettings settings;
   settings.species_diffusivities[kSpecies] = D;
-  settings.safety = 1.0;
   settings.algorithm = algo;
-  if (algo == DiffusionAlgorithm::GpuFftPrecomputed) {
-    settings.fft_real_extent_x = 32;
-    settings.fft_real_extent_y = 32;
-    settings.fft_real_extent_z = 32;
-  }
   return settings;
 }
 

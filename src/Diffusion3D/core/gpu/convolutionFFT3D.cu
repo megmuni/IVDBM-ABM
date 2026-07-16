@@ -253,6 +253,72 @@ extern "C" void padDataClampToBorder3D(float *d_PaddedData,
     cudaCheckLastError("padDataClampToBorder3D_kernel<<<>>>");
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Pad data by mirroring, for reflecting (zero-flux Neumann) boundaries.
+//
+// Thread mapping: 1 thread -> 1 padded voxel.
+//
+// The padded box is exactly 2*d per axis and holds the even reflection of the
+// domain about its outer faces (half-sample symmetric):
+//
+//   dz = z            for z <  dZ
+//   dz = 2*dZ - 1 - z for z >= dZ
+//
+// Under the FFT's periodic wrap this reproduces the infinite train of mirror
+// images that the method of images places behind a reflecting wall.
+//
+// Holds for ANY kernel radius.
+// Reference: https://en.wikipedia.org/wiki/Method_of_images
+////////////////////////////////////////////////////////////////////////////////
+__global__ void padDataMirror3D_kernel(float *d_Dst,
+                                       const float *d_Src,
+                                       int fftZ,
+                                       int fftY,
+                                       int fftX,
+                                       int dZ,
+                                       int dY,
+                                       int dX)
+{
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
+    const int z = blockDim.z * blockIdx.z + threadIdx.z;
+
+    if (x >= fftX || y >= fftY || z >= fftZ) return;
+
+    const int dz = (z < dZ) ? z : (2 * dZ - 1 - z);
+    const int dy = (y < dY) ? y : (2 * dY - 1 - y);
+    const int dx = (x < dX) ? x : (2 * dX - 1 - x);
+
+    const int src_idx = (dz * dY + dy) * dX + dx;
+    const int dst_idx = (z * fftY + y) * fftX + x;
+    d_Dst[dst_idx] = d_Src[src_idx];
+}
+
+extern "C" void padDataMirror3D(float *d_PaddedData,
+                                const float *d_Data,
+                                int fftZ, int fftY, int fftX,
+                                int dZ, int dY, int dX)
+{
+    assert(d_PaddedData != nullptr);
+    assert(d_Data != nullptr);
+    assert(dZ >= 0 && dY >= 0 && dX >= 0);
+    // The mirror is only a mirror when the box is exactly twice the domain; any
+    // other extent would leave a gap that reintroduces a wrong boundary.
+    assert(fftZ == 2 * dZ);
+    assert(fftY == 2 * dY);
+    assert(fftX == 2 * dX);
+
+    if (dZ == 0 || dY == 0 || dX == 0) return;
+
+    dim3 threads(8, 8, 8);
+    dim3 grid(iDivUp(fftX, threads.x), iDivUp(fftY, threads.y), iDivUp(fftZ, threads.z));
+    padDataMirror3D_kernel<<<grid, threads>>>(d_PaddedData,
+                                              d_Data,
+                                              fftZ, fftY, fftX,
+                                              dZ, dY, dX);
+    cudaCheckLastError("padDataMirror3D_kernel<<<>>>");
+}
+
 extern "C" void modulateAndNormalize3D(fComplex *d_DataSpectrum,
                                        fComplex *d_KernelSpectrum,
                                        int fftZ,

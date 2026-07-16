@@ -443,7 +443,7 @@ int main(int argc, char **argv)
     try
     {
         ChemicalEnvironment env(opt.nx, opt.ny, opt.nz, opt.h_mm);
-        env.load_from_config(opt.config_path, opt.diffusivity_scale);
+        env.load_from_config(opt.config_path, opt.diffusivity_scale, 1.0);
         env.allocate_channels_from_config();
         if (opt.algorithm_choice >= 0)
             env.set_diffusion_algorithm(

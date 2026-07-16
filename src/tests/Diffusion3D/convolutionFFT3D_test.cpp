@@ -491,6 +491,61 @@ TEST_CASE("padDataClampToBorder3D matches CUDA-sample border semantics", "[fft][
 #endif
 }
 
+TEST_CASE("padDataMirror3D reflects the domain into the second half", "[fft][helpers][padDataMirror3d]")
+{
+#ifndef DIFFUSION3D_CUDA
+    SUCCEED("DIFFUSION3D_CUDA is OFF; skipping CUDA helper test.");
+#else
+    const int dX = 3, dY = 3, dZ = 3;
+    const int fftX = 6, fftY = 6, fftZ = 6; // exactly 2*d per axis
+
+    std::vector<float> h_data(dX * dY * dZ, 0.0f);
+    for (int z = 0; z < dZ; z++)
+        for (int y = 0; y < dY; y++)
+            for (int x = 0; x < dX; x++)
+                h_data[(z * dY + y) * dX + x] = float((z + 1) * 100 + (y + 1) * 10 + (x + 1));
+
+    const int fftN = fftX * fftY * fftZ;
+    std::vector<float> h_padded(fftN, -1.0f);
+
+    float *d_data = nullptr;
+    float *d_padded = nullptr;
+    cudaMalloc(&d_data, sizeof(float) * h_data.size());
+    cudaMalloc(&d_padded, sizeof(float) * fftN);
+    cudaMemcpy(d_data, h_data.data(), sizeof(float) * h_data.size(), cudaMemcpyHostToDevice);
+    cudaMemset(d_padded, 0, sizeof(float) * fftN);
+
+    padDataMirror3D(d_padded, d_data, fftZ, fftY, fftX, dZ, dY, dX);
+    cudaDeviceSynchronize();
+
+    cudaMemcpy(h_padded.data(), d_padded, sizeof(float) * fftN, cudaMemcpyDeviceToHost);
+    cudaFree(d_data);
+    cudaFree(d_padded);
+
+    auto at = [&](int z, int y, int x) -> float {
+        return h_padded[(z * fftY + y) * fftX + x];
+    };
+    auto src = [&](int z, int y, int x) -> float {
+        return h_data[(z * dY + y) * dX + x];
+    };
+
+    // Domain half: identity.
+    CHECK(at(0, 0, 0) == Approx(src(0, 0, 0)));
+    CHECK(at(2, 2, 2) == Approx(src(2, 2, 2)));
+
+    // Mirror half: index i >= d reflects to 2*d-1-i.
+    CHECK(at(3, 0, 0) == Approx(src(2, 0, 0))); // z reflected
+    CHECK(at(0, 3, 1) == Approx(src(0, 2, 1))); // y reflected
+    CHECK(at(1, 1, 5) == Approx(src(1, 1, 0))); // x reflected, far edge
+    CHECK(at(5, 5, 5) == Approx(src(0, 0, 0))); // all three reflected
+
+    // The whole point: the wrap-around neighbour of the low face is the ghost a
+    // zero-flux boundary wants, i.e. v[-1] == v[fft-1] == u[0], and v[d] == u[d-1].
+    CHECK(at(fftZ - 1, 0, 0) == Approx(src(0, 0, 0)));
+    CHECK(at(dZ, 0, 0) == Approx(src(dZ - 1, 0, 0)));
+#endif
+}
+
 TEST_CASE("3D FFT convolution matches CPU 6-point Laplacian update (interior voxels)", "[fft][e2e][cufft][laplacian]")
 {
 #ifndef DIFFUSION3D_CUDA
