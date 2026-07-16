@@ -34,17 +34,22 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick", "[world][patch
     std::vector<float> conc_tnf(n, 0.f);
     std::vector<float> conc_tgf(n, 0.f);
     std::vector<float> conc_il1(n, 0.f);
+    std::vector<float> conc_o2(n, 0.f);
     std::vector<float> diffused_tnf(n, 0.f);
     std::vector<float> diffused_tgf(n, 0.f);
     std::vector<float> diffused_il1(n, 0.f);
+    std::vector<float> diffused_o2(n, 0.f);
 
     const int cx = nx / 2, cy = ny / 2, cz = nz / 2;
     conc_tnf[static_cast<std::size_t>(cx + nx * (cy + ny * cz))] = 1.f;
 
+    // The template config declares four species; diffuse_all_species requires a
+    // buffer for every one the registry reports, o2 included.
     std::map<SpeciesId, SpeciesDiffusionBuffers> buffers;
     buffers[TNF] = {conc_tnf.data(), diffused_tnf.data()};
     buffers[TGF] = {conc_tgf.data(), diffused_tgf.data()};
     buffers[IL1beta] = {conc_il1.data(), diffused_il1.data()};
+    buffers[o2] = {conc_o2.data(), diffused_o2.data()};
 
     pfd.diffuse_all_species(buffers, 30.0);
 
