@@ -253,14 +253,6 @@ public:
   static int neighbor[8]; // Array of neighboring patches in 2D model
 #endif
 
-/* -------------------------- Calibration Variables ------------------------- */
-#ifdef MODEL_SCAFFOLD
-  static float CaAlgProlif[5];    // Parameters invloved in Chondrocyte
-                                  // proliferation in CaAlg Gel
-  static float CaAlgViability[3]; // Parameters invloved in Chondrocyte
-                                  // viability in CaAlg Gel
-#endif
-
   /* --------------------------- PROTECTED VARIABLES --------------------------
    */
 protected:
