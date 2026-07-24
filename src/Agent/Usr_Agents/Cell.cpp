@@ -584,55 +584,6 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 		Agent::agentECMPtr[in].set_dirty();
 #endif
 	}
-
-	//// Make a list of damaged neighboring patches
-	//#ifndef MODEL_3D
-	//	for (int i = 9; i < 18; i++) {
-	//#else
-	//	for (int i = 0; i < 27; i++) {
-	//#endif
-	//		dx = Agent::dX[i];
-	//		dy = Agent::dY[i];
-	//		dz = Agent::dZ[i];
-	//		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
- //   
-	//		// Try a new neighboring patch if this one is outside the world dimensions:
-	//		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-	//		
-	//		// Add the valid damaged neighboring patch to the list:
-	//		if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
-	//	}
-
-	//// Target a random damaged neighboring patch, if there are any.
-	//if (damagedneighbors.size() > 0) {
-	//	int tid = 0;
-	//	#ifdef _OMP
-	//		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-	//	#endif
-
-	//	randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
-	//	target = damagedneighbors[randInt];
-	//	dx = Agent::dX[target];
-	//	dy = Agent::dY[target];
-	//	dz = Agent::dZ[target];
-
-	//	// Based on chance, chemical concentrations, move to new patch and sprout ocollagen
-	//	#ifndef CALIBRATION
-	//		int stimulation = (Cell::ECMsynthesis[0]*(log10(meanTGF + Cell::ECMsynthesis[1])/(Cell::ECMsynthesis[2] + meanIL1*Cell::ECMsynthesis[2]));
-	//		if ((rollDice(Cell::ECMsynthesis[3] + stimulation)) || (rollDice(Cell::ECMsynthesis[4] + stimulation/Cell::ECMsynthesis[5])) || (rollDice(Cell::ECMsynthesis[6] + stimulation/Cell::ECMsynthesis[7]))) {
-	//	#else 
-	//		int stimulation = ((log10(1 + (meanTGF)))/(1+ meanIL1)); 
-	//		if ((rollDice(50 + stimulation)) || (rollDice(25 + stimulation/2)) || (rollDice(10+stimulation/5))) {
-	//	#endif 
-	//			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-	//			this->move(dx, dy, dz, read_index);
-	//			
-	//			Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand()%2;
-	//			#ifdef OPT_ECM
-	//				Agent::agentECMPtr[in].set_dirty(); 
-	//			#endif
-	//		}
-	//	}
 }
 
 void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
