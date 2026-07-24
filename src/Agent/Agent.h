@@ -256,7 +256,6 @@ public:
 /* -------- Parameters related to chondrocyte behavior in Ca-Alg Gel -------- */
 #ifdef MODEL_SCAFFOLD
   static bool CaAlgFlag; // Flag indicating if static parameters have been set
-  static float HASynthRate; // Amount of HA synthesized in Ca-Alg(10^-4 ug)
 #endif
 
 /* -------------------------- Calibration Variables ------------------------- */
@@ -265,7 +264,6 @@ public:
                                   // proliferation in CaAlg Gel
   static float CaAlgViability[3]; // Parameters invloved in Chondrocyte
                                   // viability in CaAlg Gel
-  static float HASynth[3]; // Parameters invloved in HA synthesis in CaAlg Gel
 #endif
 
   /* --------------------------- PROTECTED VARIABLES --------------------------
