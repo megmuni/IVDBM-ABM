@@ -410,7 +410,7 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 void Cell::proliferate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % 24 == 0)) return; // check for 24-hour mark (of the cell's life) to try division
+	if (!(this->life[read_t] > 0 && this->life[read_t] % Cell::proliferation[0] == 0)) return; // check for 24-hour mark (of the cell's life) to try division
 	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
 
 	// calculating local cytokines
