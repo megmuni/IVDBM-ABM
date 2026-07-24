@@ -20,11 +20,10 @@ using namespace std;
 int Cell::numOfCells = 0;
 float Cell::proliferation[6] = { 24, 10, 1, 0, 25, 2 };
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
-float Cell::activation[5] = {500, 50, 0, 25, 2.5}; // these are in sample.txt, but unutilized in new version
 float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // these are in sample.txt, but unutilized in new version
 
 int Stem::numOfStem = 0;
-float Stem::migrationSpeed = 1; // patch/tick
+float Stem::migrationSpeed = 1; // patch/tick // not an input parameter
 float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
 float Stem::apoptosisChance = 0.1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
