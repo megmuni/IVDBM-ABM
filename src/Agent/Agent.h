@@ -253,11 +253,6 @@ public:
   static int neighbor[8]; // Array of neighboring patches in 2D model
 #endif
 
-/* -------- Parameters related to chondrocyte behavior in Ca-Alg Gel -------- */
-#ifdef MODEL_SCAFFOLD
-  static bool CaAlgFlag; // Flag indicating if static parameters have been set
-#endif
-
 /* -------------------------- Calibration Variables ------------------------- */
 #ifdef MODEL_SCAFFOLD
   static float CaAlgProlif[5];    // Parameters invloved in Chondrocyte
