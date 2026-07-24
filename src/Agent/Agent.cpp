@@ -44,13 +44,6 @@ int Agent::dZ[27] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
 	int Agent::neighbor[8] = {9, 10, 11, 12, 14, 15, 16, 17}; // We do not include neighbor 13 (no movement to self (0,0,0))
 #endif
 
-float Agent::HASynthRate = 0;
-bool  Agent::CaAlgFlag = false; 
-
-float Agent::CaAlgViability[3] = {0.7321, 97.452, 6};
-float Agent::CaAlgProlif[5] = {13.06, 3.69, 101.18, 0.056, 30.44}; //{12, 11.8, 21.5, 20};
-float Agent::HASynth[3] = {0,0,0};
-
 using namespace std;
 
 Agent::Agent() {}
