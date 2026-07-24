@@ -393,64 +393,6 @@ void processParameters(string filename) {
     } 
   */
 
-/*
-  // Set Agent CaAlg proliferation parameters 
-  for (int i = 0; i < 5; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      Agent::CaAlgProlif[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "Agent::CaAlgProlif[" << i << "] = " << Agent::CaAlgProlif[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to agent CaAlg proliferation parameter #"<< i << endl;
-    }
-  }
-*/
-
-/*
-  // Set Agent CaAlg viability parameters 
-  for (int i = 0; i < 3; ++i) {
-    if (getline(lineStream, value, '\t')) {
-      float value_as_float = atof(value.c_str());
-      Agent::CaAlgViability[i] = value_as_float;
-      #ifdef PRINT_PARAMETER_VALUES
-        cout << "Agent::CaAlgViability[" << i << "] = " << Agent::CaAlgViability[i] << endl;
-      #endif
-    } else {
-      cerr << "Error in assigning value to agent CaAlg viability parameter #"<< i << endl;
-    }
-  }
-*/
-
-  /* // Set Agent viability rate parameters 
-    for (int i = 0; i < 1; ++i) {
-      if (getline(lineStream, value, '\t')) {
-       float value_as_float = atof(value.c_str());
-       Agent::viabilityRate = value_as_float;
-       #ifdef PRINT_PARAMETER_VALUES
-         cout << "Agent::viabilityRate = " << Agent::viabilityRate << endl;
-       #endif
-     } else {
-       cerr << "Error in assigning value to agent viability rate parameter #"<< i << endl;
-     }
-   } 
-  */
-
-/* // Set Agent proliferation rate parameters 
-   for (int i = 0; i < 1; ++i) {
-    if (getline(lineStream, value, '\t')) {
-       float value_as_float = atof(value.c_str());
-       Agent::proliferationRate = value_as_float;
-        #ifdef PRINT_PARAMETER_VALUES
-              cout << "Agent::proliferationRate = " << Agent::proliferationRate << endl;
-        #endif
-     } else {
-       cerr << "Error in assigning value to agent proliferation rate parameter #"<< i << endl;
-    }
-   } 
-*/
-
 input_file.close();
 #endif  // ifdef CALIBRATION
 
