@@ -18,7 +18,7 @@
 
 using namespace std;
 int Cell::numOfCells = 0;
-float Cell::proliferation[6] = { 24, 10, 1, 0, 25, 2 };
+float Cell::proliferation[4] = { 24, 10, 1, 0 };
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
 
 int Stem::numOfStem = 0;

@@ -230,7 +230,7 @@ void processParameters(string filename) {
     }
 
     // Set NP proliferation parameters k2-k7
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 4; ++i) {
         if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Cell::proliferation[i] = value_as_float;

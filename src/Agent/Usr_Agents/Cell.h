@@ -220,7 +220,7 @@ class Cell: public Agent {
 
     /* -------------------------- Calibration variables ------------------------- */
     static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
-    static float proliferation[6];        // Parameters invloved in cell proliferation
+    static float proliferation[4];        // Parameters invloved in cell proliferation
 
   protected:
 
