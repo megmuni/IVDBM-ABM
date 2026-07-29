@@ -55,8 +55,11 @@ char inputFileName[200]; /* Path to input file containing these inputs:
 						              * Treatment_option */
 char outputDir[200];       // Base directory for run artifacts
 char outputFileName[200];  // Primary biomarker CSV path
+bool paraviewExportEnabled = false;
 
 inline const char *getOutputDir() { return outputDir; }
+
+inline bool paraviewEnabled() { return paraviewExportEnabled; }
 
 inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
   snprintf(dest, dest_size, "%s/%s", outputDir, filename);
@@ -247,6 +250,8 @@ void processOptions(int argc, char **argv) {
       strcpy(outputDir, argv[++i]);
     } else if (!strcmp(option_string, "--chem-config")) {
       strcpy(chemicalEnvironmentConfigFile, argv[++i]);
+    } else if (!strcmp(option_string, "--paraview")) {
+      paraviewExportEnabled = true;
     } else if (!strcmp(option_string, "--help")) {
       cout << "Options: " << endl;
       cout << "   --numticks:      Number of ticks" << endl;
@@ -258,6 +263,7 @@ void processOptions(int argc, char **argv) {
       cout << "   --outputfile:    path to biomarker CSV (default: <output-dir>/Output_Biomarkers.csv)" << endl;
       cout << "   --output-dir:    directory for run output (default: output, or $IVDBM_OUTPUT_DIR)" << endl;
       cout << "   --chem-config:   path to chemical_environment.json" << endl;
+      cout << "   --paraview:      export patch/chemistry .vti time series under <output-dir>/paraview/" << endl;
       cout << " Usage: " << endl;
       cout << "   For a 24.9mm x 17.4mm, with patch width 15 um," << endl;
       cout << "   running for 240 ticks, and input parameters from "
@@ -367,6 +373,8 @@ inline void writeRunParamsJson(int argc, char **argv) {
   writeJsonStringField(out, "output_file", outputFileName);
   writeJsonStringField(out, "chemical_environment_config",
                        chemicalEnvironmentConfigFile);
+  out << "    \"paraview_enabled\": "
+      << (paraviewExportEnabled ? "true" : "false") << ",\n";
   writeJsonStringField(out, "calibration_file", "Sample.txt", true);
   out << "  },\n";
 
@@ -427,6 +435,8 @@ void printOptions() {
   cout << "	outputFileName:	" << outputFileName << endl;
   cout << "	chemicalEnvironmentConfig:	"
        << chemicalEnvironmentConfigFile << endl;
+  cout << "	paraviewEnabled:	"
+       << (paraviewExportEnabled ? "true" : "false") << endl;
 }
 
 } // namespace util

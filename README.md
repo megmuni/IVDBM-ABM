@@ -25,16 +25,16 @@ Chemistry field details are in [configFiles/README.md](configFiles/README.md).
 
 ## What to change
 
-| What you want to change | Where to set it | When |
-| --- | --- | --- |
-| Cytokine diffusivities, baselines, tick length | `configFiles/chemical_environment.json` | Before a run |
-| Cell seeding, alginate, scaffold layout | `configFiles/config_scaffold.txt` | Before a run |
-| Calibration coefficients | `Sample.txt` (repo root) | Before a run; not a command-line flag |
-| Tick count, world size, paths, output | `testRun` flags or `submit_testrun.sh` flags | Each run |
-| Shared DRAC simulation defaults | `scripts/job_defaults.env` | Optional |
-| Model type, 3D, GPU diffusion, biomarker output | `src/common.h` | Rebuild after editing |
-| Job time limit, CPUs, GPU choice | `submit_testrun.sh` flags | Each DRAC job |
-| Unit test job defaults | `scripts/test_defaults.env` or `submit_tests.sh` | Test jobs only |
+| What you want to change                         | Where to set it                                  | When                                  |
+| ----------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
+| Cytokine diffusivities, baselines, tick length  | `configFiles/chemical_environment.json`          | Before a run                          |
+| Cell seeding, alginate, scaffold layout         | `configFiles/config_scaffold.txt`                | Before a run                          |
+| Calibration coefficients                        | `Sample.txt` (repo root)                         | Before a run; not a command-line flag |
+| Tick count, world size, paths, output           | `testRun` flags or `submit_testrun.sh` flags     | Each run                              |
+| Shared DRAC simulation defaults                 | `scripts/job_defaults.env`                       | Optional                              |
+| Model type, 3D, GPU diffusion, biomarker output | `src/common.h`                                   | Rebuild after editing                 |
+| Job time limit, CPUs, GPU choice                | `submit_testrun.sh` flags                        | Each DRAC job                         |
+| Unit test job defaults                          | `scripts/test_defaults.env` or `submit_tests.sh` | Test jobs only                        |
 
 Command-line flags override `job_defaults.env`, which overrides the built-in defaults. With no flags on your own machine: 432 ticks, 3.1 mm cube. On DRAC with no extra flags: 24 ticks, 1 mm cube.
 
@@ -68,15 +68,16 @@ For GPU builds you must load a CUDA module before running the script, or CMake w
 
 Edit the variables at the top of each block, then run from the repository root. One tick is 30 minutes of simulated time.
 
-| Parameter | Flag or file | Notes |
-| --- | --- | --- |
-| Tick count | `--numticks` | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days |
-| World size (mm) | `--wxw`, `--wyw`, `--wzw` | Local default 3.1 mm; DRAC default 1 mm. GPU: 3.1 mm needs an H100 (~5 GB); use 1 mm or smaller on other GPUs |
-| Cells / scaffold | `--inputfile` | e.g. `configFiles/config_scaffold.txt` |
-| Chemistry | `--chem-config` | `configFiles/chemical_environment.json` |
-| Calibration | `Sample.txt` | Repo root; not a command-line flag |
-| Output directory | `--output-dir` | All CSVs; on DRAC also `run_params.json` |
-| Biomarker CSV | `--outputfile` | Default `<output-dir>/Output_Biomarkers.csv` |
+| Parameter        | Flag or file              | Notes                                                                                                         |
+| ---------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tick count       | `--numticks`              | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days                                                                           |
+| World size (mm)  | `--wxw`, `--wyw`, `--wzw` | Local default 3.1 mm; DRAC default 1 mm. GPU: 3.1 mm needs an H100 (~5 GB); use 1 mm or smaller on other GPUs |
+| Cells / scaffold | `--inputfile`             | e.g. `configFiles/config_scaffold.txt`                                                                        |
+| Chemistry        | `--chem-config`           | `configFiles/chemical_environment.json`                                                                       |
+| Calibration      | `Sample.txt`              | Repo root; not a command-line flag                                                                            |
+| Output directory | `--output-dir`            | All CSVs; on DRAC also `run_params.json`                                                                      |
+| Biomarker CSV    | `--outputfile`            | Default `<output-dir>/Output_Biomarkers.csv`                                                                  |
+| ParaView export  | `--paraview`              | Writes `<output-dir>/paraview/patches_t*.vti` and `chem_t*.vti` every 12 ticks                                |
 
 Local:
 
@@ -140,21 +141,45 @@ Append `--dry-run` to preview without submitting.
 
 To change shared DRAC simulation defaults, edit `scripts/job_defaults.env`. To change biology, edit files under `configFiles/` and `Sample.txt`.
 
+## ParaView visualization
+
+Pass `--paraview` to `testRun` to export VTK ImageData (`.vti`) time series under `<output-dir>/paraview/`:
+
+| File                  | Contents                                       |
+| --------------------- | ---------------------------------------------- |
+| `patches_t<tick>.vti` | Patch occupancy (`occupied`: 0/1)              |
+| `chem_t<tick>.vti`    | Species concentrations (TNF, TGF, IL1beta, o2) |
+
+Exports occur every 12 ticks (tick 0, 12, 24, …). In ParaView: **File --> Open** --> select `chem_t*.vti` or `patches_t*.vti` --> enable **Group files as time series**.
+
+Example:
+
+```bash
+./build/bin/testRun \
+  --numticks 24 \
+  --paraview \
+  --wxw 1 --wyw 1 --wzw 1 \
+  --chem-config configFiles/chemical_environment.template.json \
+  --output-dir output/paraview_smoke
+```
+
+Diffusion3D-only ParaView demos are documented in [src/Diffusion3D/README.md](src/Diffusion3D/README.md).
+
 ## Results
 
-| What | Local run | DRAC job |
-| --- | --- | --- |
-| Progress and errors | Terminal | `logs/testrun_<array>_<jobid>.out` and `.err` |
-| CSVs and calibration data | `<output-dir>/` (default `output/`) | `output/job_<jobid>/` |
-| Run settings snapshot | Only if `$IVDBM_RUN_PARAMS_JSON` is set | `<output-dir>/run_params.json` |
+| What                      | Local run                               | DRAC job                                      |
+| ------------------------- | --------------------------------------- | --------------------------------------------- |
+| Progress and errors       | Terminal                                | `logs/testrun_<array>_<jobid>.out` and `.err` |
+| CSVs and calibration data | `<output-dir>/` (default `output/`)     | `output/job_<jobid>/`                         |
+| Run settings snapshot     | Only if `$IVDBM_RUN_PARAMS_JSON` is set | `<output-dir>/run_params.json`                |
 
 Main output files (default scaffold build):
 
-| File | When | Contents |
-| --- | --- | --- |
-| `Output_Biomarkers.csv` | Each tick | Cell counts, cytokines, ECM, scaffold mechanics |
-| `tgf_line.csv` | Each tick | TGF concentration along the x-axis |
-| `SensitivityAnalysis/FinalTotalChemVR.dat` | End of run | Chemical totals for calibration |
+| File                                       | When       | Contents                                        |
+| ------------------------------------------ | ---------- | ----------------------------------------------- |
+| `Output_Biomarkers.csv`                    | Each tick  | Cell counts, cytokines, ECM, scaffold mechanics |
+| `tgf_line.csv`                             | Each tick  | TGF concentration along the x-axis              |
+| `SensitivityAnalysis/FinalTotalChemVR.dat` | End of run | Chemical totals for calibration                 |
 
 After a DRAC job:
 
@@ -185,14 +210,14 @@ EMAIL="$EMAIL"
 ./scripts/submit_tests.sh "${EMAIL}" --suite cpu --dry-run
 ```
 
-| `--suite` | What it runs | GPU needed |
-| --- | --- | --- |
-| `chemistry` | Chemistry tests | No |
-| `diffusion3d` | Diffusion3D tests | Mixed |
-| `world` | World tests | No |
-| `cpu` | All CPU-labelled tests | No |
-| `gpu` | GPU-labelled tests | Yes |
-| `all` | Full suite | Use CUDA build and `--profile gpu` for GPU coverage |
+| `--suite`     | What it runs           | GPU needed                                          |
+| ------------- | ---------------------- | --------------------------------------------------- |
+| `chemistry`   | Chemistry tests        | No                                                  |
+| `diffusion3d` | Diffusion3D tests      | Mixed                                               |
+| `world`       | World tests            | No                                                  |
+| `cpu`         | All CPU-labelled tests | No                                                  |
+| `gpu`         | GPU-labelled tests     | Yes                                                 |
+| `all`         | Full suite             | Use CUDA build and `--profile gpu` for GPU coverage |
 
 Test job logs: `logs/tests_<array>_<jobid>.out` / `.err`. CTest output: `output/tests_<jobid>/ctest.log`.
 

@@ -74,8 +74,6 @@
  * OPTION FLAGS                                                              *
  *****************************************************************************/
 #define BIOMARKER_OUTPUT // Enable Biomarker Output
-// #define PARAVIEW_RENDERING // Enable Paraview rendering of Patches and Cells
-// #define PARAVIEW_ECM_CHEM // Enable Paraview rendering of ECM and Chem
 #define MODEL_3D // Run in 3D
 //#define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
 

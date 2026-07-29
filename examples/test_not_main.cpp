@@ -34,6 +34,7 @@
 #include "../src/FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../src/Utilities/input_utils.h"
 #include "../src/Utilities/parameters.h"
+#include "../src/World/world_vtk_export.h"
 
 using namespace std;
 
@@ -105,63 +106,12 @@ int main(int argc, char** argv) {
 
 	for (int tick = 0; tick < numTicks; tick++) {
 		//myWorld.debugInfo(); // debug function
-#ifdef PARAVIEW_RENDERING
-		if (tick % 12 == 0) {
-			util::ensureOutputSubpath("Simulation");
-			// Prepare output filenames and output current state of wound healing world:
-			char simulation[512];
-			char ECMsim[512];
-			char chem0Sim[512];
-			char extension[10] = ".vtk";
-			char tempNumber[20] = "";
-
-			util::makeOutputPath(simulation, sizeof(simulation), "Simulation/Simulation_");
-			util::makeOutputPath(ECMsim, sizeof(ECMsim), "Simulation/ECM_");
-			util::makeOutputPath(chem0Sim, sizeof(chem0Sim), "Simulation/chem0_");
-
-			sprintf(tempNumber, "%d", tick); // %d makes the result be a signed decimal integer
-			strcat(simulation, tempNumber);
-			strcat(simulation, extension);
-			strcat(ECMsim, tempNumber);
-			strcat(ECMsim, extension);
-
-			// Ouput the cytokine values:
-			char ptnf[512];
-			char ptgf[512];
-			char pil1[512];
-			char po2[512];
-			char pcell[512];
-			util::makeOutputPath(ptnf, sizeof(ptnf), "Simulation/tnf_");
-			util::makeOutputPath(ptgf, sizeof(ptgf), "Simulation/tgf_");
-			util::makeOutputPath(pil1, sizeof(pil1), "Simulation/il1_");
-			util::makeOutputPath(po2, sizeof(po2), "Simulation/o2_");
-			util::makeOutputPath(pcell, sizeof(pcell), "Simulation/pcellgrad_");
-
-			sprintf(tempNumber, "%d", tick); 	// %d makes the result be a decimal integer 
-			strcat(ptnf, tempNumber);
-			strcat(ptgf, tempNumber);
-			strcat(pil1, tempNumber);
-			strcat(po2, tempNumber);
-			strcat(pcell, tempNumber);
-
-			strcat(ptnf, extension);
-			strcat(ptgf, extension);
-			strcat(pil1, extension);
-			strcat(po2, extension);
-			strcat(pcell, extension);
-
-			outputColor(&myWorld, simulation);
-
-#ifdef PARAVIEW_ECM_CHEM
-			outputECM(&myWorld, ECMsim);
-			outputChem(&myWorld, ptnf, TNF);
-			outputChem(&myWorld, ptgf, TGF);
-			outputChem(&myWorld, pil1, IL1beta);
-			outputChem(&myWorld, po2, o2);
-			outputChem(&myWorld, pcell, pcellgrad);
-#endif
+		if (util::paraviewEnabled() && tick % 12 == 0) {
+			char paraview_dir[512];
+			util::ensureOutputSubpath("paraview");
+			util::makeOutputPath(paraview_dir, sizeof(paraview_dir), "paraview");
+			export_world_timestep(myWorld, tick, paraview_dir);
 		}
-#endif
 
 		// Run the simulation for 1 tick (30 min):
 		clock_t t1 = clock();

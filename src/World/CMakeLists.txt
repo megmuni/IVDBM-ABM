@@ -1,8 +1,12 @@
-set(WORLD_SRC World.cpp)
+set(WORLD_SRC World.cpp world_vtk_export.cpp)
 file( GLOB USR_WORLD_SRC Usr_World/*.cpp)
 
 set(world_lib_type SHARED)
 add_library(World ${world_lib_type} ${WORLD_SRC} ${USR_WORLD_SRC})
+
+set_target_properties(World PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON)
 
 target_include_directories(World PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
