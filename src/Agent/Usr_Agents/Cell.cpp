@@ -34,7 +34,7 @@ float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
 float Stem::CollagenSynth[1] = { 10 };
 float Stem::AggrecanSynth[1] = { 100000 };
 float Stem::proliferation[4] = {10, 0.8, 0.001, 0.5};
-float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
+float Stem::differentiation[5] = { 0.7, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick
@@ -430,7 +430,7 @@ void Cell::proliferate() {
 void Cell::differentiate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % 48 == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
+	if (!(this->life[read_t] > 0 && this->life[read_t] % Stem::differentiation[3] == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
 	if (!isProliferative()) return;
 
 	// calculating local cytokines
@@ -443,7 +443,7 @@ void Cell::differentiate() {
 	if (daughterType == -1) return; // base Cell has no daughter type; skip 
 
 	if (rollDice(prob)) {
-		if (rollDice(70)) { // check for asymmetric differentiation; more likely
+		if (rollDice(Stem::differentiation[0]*100)) { // check for asymmetric differentiation; more likely
 			this->hatchnewcell(1, daughterType);
 		}
 		else { // check for symmetric differentiation; less likely
@@ -804,7 +804,7 @@ float Stem::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	//return 0.5 + (Stem::differentiation[3] * meanTGF);
+	//return (Stem::differentiation[1]*100) + (Stem::differentiation[2] * meanTGF);
 	return 20;
 }
 
