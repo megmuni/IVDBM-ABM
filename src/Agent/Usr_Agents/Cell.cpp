@@ -1087,7 +1087,7 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 
 float NP::get_migration_speed() {
 #ifdef CALIBRATION
-	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.2431; // um/min
+	float migration_ummin = NP::CaAlgMigration[0] * log(BMWorld::E) + NP::CaAlgMigration[1]; // um/min
 
 	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
