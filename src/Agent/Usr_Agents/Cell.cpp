@@ -22,7 +22,7 @@ float Cell::proliferation[4] = { 24, 10, 1, 0 };
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
 
 int Stem::numOfStem = 0;
-float Stem::migrationSpeed = 1; // patch/tick // not an input parameter
+float Stem::migrationSpeed = 1; // patch/tick. Not an input parameter
 float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
 float Stem::apoptosisChance = 0.1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
@@ -37,7 +37,7 @@ float Stem::proliferation[4] = {10, 0.8, 0.001, 0.5};
 float Stem::differentiation[5] = { 0.7, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
-float Progen::migrationSpeed = 1;    // patch/tick
+float Progen::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float Progen::OCR = 30.46 / 2; // fmol/h/cell divided by 2 for /tick
 float Progen::apoptosisChance = 0.1;
 float Progen::aggrecanSynthRate = 1;
@@ -49,7 +49,7 @@ float Progen::proliferation[1] = {24};
 float Progen::differentiation[3] = {0.7, 0.3, 48};
 
 int NP::numOfNP = 0;
-float NP::migrationSpeed = 1;    // patch/tick
+float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float NP::OCR = 15.31 / 2; // fmol/h/cell divided by 2 for /tick
 float NP::apoptosisChance = 5;
 float NP::collagenSynthRate = 1;
