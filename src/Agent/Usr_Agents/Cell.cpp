@@ -18,13 +18,11 @@
 
 using namespace std;
 int Cell::numOfCells = 0;
-float Cell::proliferation[6] = { 24, 10, 1, 0, 25, 2 };
+float Cell::proliferation[4] = { 24, 10, 1, 0 };
 float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
-float Cell::activation[5] = {500, 50, 0, 25, 2.5}; // these are in sample.txt, but unutilized in new version
-float Cell::ECMsynthesis[12] = { 1, 1, 1, 50, 25, 2, 10, 5, 1, 1, 25, 2 }; // these are in sample.txt, but unutilized in new version
 
 int Stem::numOfStem = 0;
-float Stem::migrationSpeed = 1; // patch/tick
+float Stem::migrationSpeed = 1; // patch/tick. Not an input parameter
 float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
 float Stem::apoptosisChance = 0.1;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
@@ -32,14 +30,13 @@ float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalcu
 
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
-//float Stem::ECMsynthesis[4] = {};
 float Stem::CollagenSynth[1] = { 10 };
 float Stem::AggrecanSynth[1] = { 100000 };
-float Stem::proliferation[5] = {10, 24, 0.8, 0.001, 0.5};
-float Stem::differentiation[5] = { 0.7, 0.3, 0.5, 0.001, 48 };
+float Stem::proliferation[4] = {10, 0.8, 0.001, 0.5};
+float Stem::differentiation[5] = { 0.7, 0.5, 0.001, 48 };
 
 int Progen::numOfProgen = 0; 
-float Progen::migrationSpeed = 1;    // patch/tick
+float Progen::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float Progen::OCR = 30.46 / 2; // fmol/h/cell divided by 2 for /tick
 float Progen::apoptosisChance = 0.1;
 float Progen::aggrecanSynthRate = 1;
@@ -47,11 +44,11 @@ float Progen::aggrecanSynthRate = 1;
 float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
 float Progen::cytokineSynthesis[3] = { 1, 2.58, 0 };
 float Progen::AggrecanSynth[1] = { 1 };
-float Progen::proliferation[1] = {24};
-float Progen::differentiation[3] = {0.7, 0.3, 48};
+//float Progen::proliferation[1] = {24}; // values are the same as Cell/Stem; can just use the equivalent params defined in Stem
+//float Progen::differentiation[3] = {0.7, 0.3, 48}; // values are the same as Stem; can just use the equivalent params defined in Stem
 
 int NP::numOfNP = 0;
-float NP::migrationSpeed = 1;    // patch/tick
+float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float NP::OCR = 15.31 / 2; // fmol/h/cell divided by 2 for /tick
 float NP::apoptosisChance = 5;
 float NP::collagenSynthRate = 1;
@@ -412,7 +409,7 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 void Cell::proliferate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % 24 == 0)) return; // check for 24-hour mark (of the cell's life) to try division
+	if (!(this->life[read_t] > 0 && this->life[read_t] % Cell::proliferation[0] == 0)) return; // check for 24-hour mark (of the cell's life) to try division
 	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
 
 	// calculating local cytokines
@@ -432,7 +429,7 @@ void Cell::proliferate() {
 void Cell::differentiate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % 48 == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
+	if (!(this->life[read_t] > 0 && this->life[read_t] % Stem::differentiation[3] == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
 	if (!isProliferative()) return;
 
 	// calculating local cytokines
@@ -445,7 +442,7 @@ void Cell::differentiate() {
 	if (daughterType == -1) return; // base Cell has no daughter type; skip 
 
 	if (rollDice(prob)) {
-		if (rollDice(70)) { // check for asymmetric differentiation; more likely
+		if (rollDice(Stem::differentiation[0]*100)) { // check for asymmetric differentiation; more likely
 			this->hatchnewcell(1, daughterType);
 		}
 		else { // check for symmetric differentiation; less likely
@@ -586,55 +583,6 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 		Agent::agentECMPtr[in].set_dirty();
 #endif
 	}
-
-	//// Make a list of damaged neighboring patches
-	//#ifndef MODEL_3D
-	//	for (int i = 9; i < 18; i++) {
-	//#else
-	//	for (int i = 0; i < 27; i++) {
-	//#endif
-	//		dx = Agent::dX[i];
-	//		dy = Agent::dY[i];
-	//		dz = Agent::dZ[i];
-	//		in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
- //   
-	//		// Try a new neighboring patch if this one is outside the world dimensions:
-	//		if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-	//		
-	//		// Add the valid damaged neighboring patch to the list:
-	//		if (Agent::agentPatchPtr[in].damage[read_t] != 0) damagedneighbors.push_back(i);
-	//	}
-
-	//// Target a random damaged neighboring patch, if there are any.
-	//if (damagedneighbors.size() > 0) {
-	//	int tid = 0;
-	//	#ifdef _OMP
-	//		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-	//	#endif
-
-	//	randInt = rand_r(&(agentWorldPtr->seeds[tid])) % damagedneighbors.size();
-	//	target = damagedneighbors[randInt];
-	//	dx = Agent::dX[target];
-	//	dy = Agent::dY[target];
-	//	dz = Agent::dZ[target];
-
-	//	// Based on chance, chemical concentrations, move to new patch and sprout ocollagen
-	//	#ifndef CALIBRATION
-	//		int stimulation = (Cell::ECMsynthesis[0]*(log10(meanTGF + Cell::ECMsynthesis[1])/(Cell::ECMsynthesis[2] + meanIL1*Cell::ECMsynthesis[2]));
-	//		if ((rollDice(Cell::ECMsynthesis[3] + stimulation)) || (rollDice(Cell::ECMsynthesis[4] + stimulation/Cell::ECMsynthesis[5])) || (rollDice(Cell::ECMsynthesis[6] + stimulation/Cell::ECMsynthesis[7]))) {
-	//	#else 
-	//		int stimulation = ((log10(1 + (meanTGF)))/(1+ meanIL1)); 
-	//		if ((rollDice(50 + stimulation)) || (rollDice(25 + stimulation/2)) || (rollDice(10+stimulation/5))) {
-	//	#endif 
-	//			in = (x + dx) + (y + dy)*nx + (z + dz)*nx*ny;
-	//			this->move(dx, dy, dz, read_index);
-	//			
-	//			Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand()%2;
-	//			#ifdef OPT_ECM
-	//				Agent::agentECMPtr[in].set_dirty(); 
-	//			#endif
-	//		}
-	//	}
 }
 
 void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
@@ -840,7 +788,7 @@ float Stem::get_prolif_prob(float meanTGF,
 	}
 
 #ifdef CALIBRATION
-	//float prolif = log10(1 - Stem::proliferation[2] * meanTNF - Stem::proliferation[3] * meanIL1 + TGFrelated * meanTGF);
+	//float prolif = log10(1 - Stem::proliferation[1] * meanTNF - Stem::proliferation[2] * meanIL1 + TGFrelated * meanTGF - Stem::proliferation[3] * BMWorld::E);
 	float prolif = 40; //testing
 #else  
 	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
@@ -855,7 +803,7 @@ float Stem::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	//return 0.5 + (Stem::differentiation[3] * meanTGF);
+	//return (Stem::differentiation[1]*100) + (Stem::differentiation[2] * meanTGF);
 	return 20;
 }
 
@@ -1138,7 +1086,7 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 
 float NP::get_migration_speed() {
 #ifdef CALIBRATION
-	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.2431; // um/min
+	float migration_ummin = NP::CaAlgMigration[0] * log(BMWorld::E) + NP::CaAlgMigration[1]; // um/min
 
 	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 

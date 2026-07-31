@@ -220,9 +220,7 @@ class Cell: public Agent {
 
     /* -------------------------- Calibration variables ------------------------- */
     static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
-    static float activation[5];           // Parameters involved in cell activation and deactivation
-    static float ECMsynthesis[12];        // Parameters involved in ECM synthesis
-    static float proliferation[6];        // Parameters invloved in cell proliferation
+    static float proliferation[4];        // Parameters invloved in cell proliferation
 
   protected:
 
@@ -325,9 +323,8 @@ class Stem: public Cell {
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
   static float CollagenSynth[1];   // Parameters invloved in collagen synthesis in CaAlg Gel
   static float AggrecanSynth[1];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
-  static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
-  static float proliferation[5]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
-  static float differentiation[5]; // Parameters involved in stem cell differentiation
+  static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
+  static float differentiation[4]; // Parameters involved in stem cell differentiation
 
 protected:
     int get_max_doublings() override;
@@ -416,8 +413,8 @@ class Progen: public Cell {
   static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
   static float AggrecanSynth[1]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
-  static float proliferation[1]; // Parameters involved in pre-NP cell proliferation (coefficients for probabilistic differentiation
-  static float differentiation[3]; // Parameters involved in pre-NP cell differentiation
+  //static float proliferation[1]; // Parameters involved in pre-NP cell proliferation. Values are the same as Cell/Stem; can just use the equivalent params defined in Stem
+  //static float differentiation[3]; // Parameters involved in pre-NP cell differentiation. Values are the same as Stem; can just use the equivalent params defined in Stem
 
 protected:
     int get_max_doublings() override;
