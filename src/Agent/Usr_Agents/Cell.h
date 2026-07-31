@@ -414,8 +414,8 @@ class Progen: public Cell {
   static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
   static float AggrecanSynth[1]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
-  static float proliferation[1]; // Parameters involved in pre-NP cell proliferation (coefficients for probabilistic differentiation
-  static float differentiation[3]; // Parameters involved in pre-NP cell differentiation
+  //static float proliferation[1]; // Parameters involved in pre-NP cell proliferation. Values are the same as Cell/Stem; can just use the equivalent params defined in Stem
+  //static float differentiation[3]; // Parameters involved in pre-NP cell differentiation. Values are the same as Stem; can just use the equivalent params defined in Stem
 
 protected:
     int get_max_doublings() override;
