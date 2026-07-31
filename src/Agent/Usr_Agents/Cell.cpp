@@ -30,7 +30,6 @@ float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalcu
 
 float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
 float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
-//float Stem::ECMsynthesis[4] = {};
 float Stem::CollagenSynth[1] = { 10 };
 float Stem::AggrecanSynth[1] = { 100000 };
 float Stem::proliferation[4] = {10, 0.8, 0.001, 0.5};

@@ -323,7 +323,6 @@ class Stem: public Cell {
   static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
   static float CollagenSynth[1];   // Parameters invloved in collagen synthesis in CaAlg Gel
   static float AggrecanSynth[1];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
-  static float ECMsynthesis[4]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
   static float differentiation[4]; // Parameters involved in stem cell differentiation
 
