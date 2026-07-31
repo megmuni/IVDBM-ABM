@@ -70,8 +70,7 @@ float poreWidth = 200.00; // (um)
 
 #ifdef MODEL_SCAFFOLD
 float BMWorld::Ca_Mw = 3400; // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
-float BMWorld::Alg_Mn =
-    1500; // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
+float BMWorld::Alg_Mn = 1500; // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
 float BMWorld::totalVolumeML;
 // float BMWorld::Alg_Mn = 90;
 // float BMWorld::Alg_Mn = 200; //143;
