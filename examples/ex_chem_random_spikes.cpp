@@ -29,8 +29,8 @@
 #include <string>
 #include <vector>
 
-#ifndef IVDBM_CHEM_CONFIG_DIR
-#define IVDBM_CHEM_CONFIG_DIR "configFiles"
+#ifndef IVDBM_CONFIG_DIR
+#define IVDBM_CONFIG_DIR "configFiles"
 #endif
 
 namespace {
@@ -48,7 +48,7 @@ struct Options {
   bool random_seed = true;
   int species = -1; // -1 = random species per spike
   std::string config_path =
-      std::string(IVDBM_CHEM_CONFIG_DIR) + "/chemical_environment.json";
+      std::string(IVDBM_CONFIG_DIR) + "/simulation_config.json";
   std::string output_dir = "output/chem_spikes";
   bool write_paraview = true;
   double viz_multiplier = 1.0;
@@ -78,7 +78,7 @@ void usage(const char *prog) {
       << "  --seed N            RNG seed (default: random_device)\n"
       << "  --species NAME      TNF | TGF | IL1beta (default: random per "
          "spike)\n"
-      << "  --chem-config PATH  chemical_environment.json\n"
+      << "  --config PATH       simulation_config.json (chemistry section)\n"
       << "  --out-dir PATH      VTK output directory (default "
          "output/chem_spikes)\n"
       << "  --no-paraview       Skip VTK (.vti) export\n"
@@ -187,8 +187,8 @@ bool parse_args(int argc, char **argv, Options &opt) {
         std::cerr << "Unknown species: " << name << "\n";
         return false;
       }
-    } else if (arg == "--chem-config") {
-      const char *v = need("--chem-config");
+    } else if (arg == "--config") {
+      const char *v = need("--config");
       if (!v)
         return false;
       opt.config_path = v;

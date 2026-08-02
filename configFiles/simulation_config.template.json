@@ -1,0 +1,199 @@
+{
+  "description": "Combined IVDBM simulation config (chemistry + biology). Copy to simulation_config.json and edit.",
+  "world_init": {
+    "description": "Scaffold seeding and alginate hydrogel composition.",
+    "msc_count": 0, // MSCs; 0 = seed at default density (1e6 cells/mL)
+    "alginate": {
+      "wv_percent": 2, // wv_Alg_(%)
+      "high_mw_ratio": 1, // highMW_Ratio
+      "low_mw_ratio": 0, // lowMW_Ratio
+      "ca_mm": 15 // Ca_(mM)
+    },
+    "peptide": "" // Only used when compiled with PEPTIDE_BM
+  },
+  "chemistry": {
+    "model": "IVDBM",
+    "description": "Diffusion, baselines, and tick length.",
+    "tick_interval_minutes": 30,
+    "channels": {
+      "count": 9,
+      "chemotaxis": 6,
+      "channel_names": {
+        "0": "pTNF",
+        "1": "pTGF",
+        "2": "pIL1beta",
+        "3": "po2",
+        "4": "dTNF",
+        "5": "dTGF",
+        "6": "dIL1beta",
+        "7": "do2",
+        "8": "pcellgrad"
+      }
+    },
+    "merge": {
+      "chemotaxis_from_species": "TGF"
+    },
+    "baseline_total_mass": {
+      "TNF": 0,
+      "TGF": 0,
+      "IL1beta": 0,
+      "o2": 0
+    },
+    "species": [
+      {
+        "id": 0,
+        "name": "TNF",
+        "base_diffusivity_mm2_per_min": 0.00018,
+        "concentration_channel": 0,
+        "diffused_channel": 4
+      },
+      {
+        "id": 1,
+        "name": "TGF",
+        "base_diffusivity_mm2_per_min": 0.000156,
+        "concentration_channel": 1,
+        "diffused_channel": 5
+      },
+      {
+        "id": 2,
+        "name": "IL1beta",
+        "base_diffusivity_mm2_per_min": 0.00018,
+        "concentration_channel": 2,
+        "diffused_channel": 6
+      },
+      {
+        "id": 3,
+        "name": "o2",
+        "base_diffusivity_mm2_per_min": 0.02172,
+        "concentration_channel": 3,
+        "diffused_channel": 7,
+        "diffusivity_model": {
+          "type": "logarithmic_stiffness",
+          "slope": -0.002,
+          "intercept": 0.0218
+        }
+      }
+    ]
+  },
+  "biology": {
+    "description": "Cell rule and hydrogel calibration coefficients.",
+    "cell": {
+      "proliferation": {
+        "description": "Shared proliferation timing and NP proliferation probability terms",
+        "hours_between_proliferation": 24, // k2
+        "tgf_threshold": 10, // k3
+        "log_scale": 1, // k4
+        "log_offset": 0 // k5
+      },
+      "cytokine_synthesis": {
+        "description": "Shared cytokine synthesis feedback coefficients (Stem/Progen/NP create_cytokines)",
+        "tgf_baseline": 10, // k8
+        "tgf_feedback_tgf": 0.05, // k9
+        "tgf_feedback_il1beta": 10, // k10
+        "tgf_feedback_tnf": 5, // k11
+        "tnf_baseline": 2.4, // k12
+        "tnf_feedback_il1beta": 4, // k13
+        "tnf_feedback_tgf_denom": 2, // k14
+        "il1beta_baseline": 5, // k15
+        "il1beta_feedback_tnf": 1, // k16
+        "il1beta_feedback_tgf_denom": 3.2 // k17
+      }
+    },
+    "stem": {
+      "ocr_fmol_per_hour_per_cell": 104.65, // N/A
+      "apoptosis_chance": 0.1, // N/A
+      "migration": {
+        "description": "MSC migration speed vs hydrogel elasticity (CaAlg)",
+        "elasticity_effect": 0.11, // m1
+        "baseline_speed": 0.35 // m2
+      },
+      "cytokine_synthesis": {
+        "description": "MSC baseline cytokine secretion rates",
+        "tgf_baseline": 5, // m8
+        "tnf_baseline": 0, // m9
+        "il1beta_baseline": 0 // m10
+      },
+      "collagen_synthesis": {
+        "baseline_rate": 10 // m11
+      },
+      "aggrecan_synthesis": {
+        "tgf_threshold": 100000 // m12
+      },
+      "proliferation": {
+        "tgf_threshold": 10, // m3
+        "tnf_effect": 0.8, // m5
+        "il1beta_effect": 0.001, // m6
+        "elasticity_effect": 0.5 // m7
+      },
+      "differentiation": {
+        "asymmetric_probability": 0.7, // m13
+        "baseline_probability": 0.5, // m15
+        "tgf_effect": 0.001, // m16
+        "hours_between_attempts": 48 // m17
+      }
+    },
+    "progen": {
+      "ocr_fmol_per_hour_per_cell": 30.46, // N/A
+      "apoptosis_chance": 0.1, // N/A
+      "migration": {
+        "elasticity_effect": 0.11, // p1
+        "baseline_speed": 0.83 // p2
+      },
+      "cytokine_synthesis": {
+        "tgf_baseline": 1, // p4
+        "tnf_baseline": 2.58, // p5
+        "il1beta_baseline": 0 // p6
+      },
+      "aggrecan_synthesis": {
+        "baseline_rate": 1 // p7
+      }
+    },
+    "np": {
+      "ocr_fmol_per_hour_per_cell": 15.31, // N/A
+      "apoptosis_chance": 5, // N/A
+      "migration": {
+        "elasticity_effect": 0.11, // k0
+        "baseline_speed": 1.3 // k1
+      },
+      "collagen_synthesis": {
+        "scaling_factor": 10, // k18
+        "time_effect": 6.45, // k19
+        "baseline_rate": 3.6 // k20
+      },
+      "aggrecan_synthesis": {
+        "scaling_factor": 20, // k21
+        "time_effect": 38, // k22
+        "baseline_rate": 16.6 // k23
+      }
+    },
+    "biomaterial": {
+      "elastic_modulus": {
+        "description": "Ca-Alg hydrogel elastic modulus regression (initializeCaAlg)",
+        "intercept": 125, // c1
+        "alginate_concentration": 58, // c2
+        "crosslinker_density": 971, // c3
+        "alginate_molecular_weight": 1.037, // c4
+        "alginate_crosslinker_interaction": 756, // c5
+        "alginate_mw_interaction": 0.516, // c6
+        "mw_crosslinker_interaction": 0.165 // c7
+      },
+      "pore_size": {
+        "crosslinker_effect": 1769.8, // c8
+        "baseline": 258.5 // c9
+      },
+      "mass_loss": {
+        "baseline": 0.234, // c10
+        "crosslinker_effect": 7.785, // c11
+        "time_effect": 0.15, // c12
+        "crosslinker_time_interaction": 1.36 // c13
+      },
+      "swell_ratio": {
+        "baseline": 72.478, // c14
+        "time_effect": 0.131, // c15
+        "alginate_concentration_effect": 22.034, // c16
+        "time_crosslinker_interaction": 3.284, // c17
+        "alginate_crosslinker_interaction": 35.752 // c18
+      }
+    }
+  }
+}

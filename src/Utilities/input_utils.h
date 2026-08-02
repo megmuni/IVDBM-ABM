@@ -32,29 +32,11 @@ float patchWidth;  // Desired width of each patch in millimeters
 float worldXwidth; // Desired x-dimension width of the world in millimeters
 float worldYwidth; // Desired y-dimension width of the world in millimeters
 float worldZwidth; // Desired z-dimension width of the world in millimeters
-/** Path to chemical_environment.json (copy from
- * chemical_environment.template.json). */
-char chemicalEnvironmentConfigFile[200];
-char inputFileName[200]; /* Path to input file containing these inputs:
-                          * Number_of_baseline_chemicals_to_be_inputed,
-                          * Baseline_TNF,
-                          * Baseline_TGF,
-                          * Baseline_FGF,
-                          * Baseline_MMP8,
-                          * Baseline_IL1beta,
-                          * Baseline_IL6,
-                          * Baseline_IL8,
-                          * Baseline_IL10,
-                          * Wound_Half_Length
-                          * Wound_Depth,
-                          * Wound_Severity,
-                          * Number_of_cell_to_be_inputed,
-                          * Chondrocyte (initial cell count),
-                          * Macrophage (initial cell count),
-                          * Neutrophil (initial cell count), 
-						              * Treatment_option */
-char outputDir[200];       // Base directory for run artifacts
-char outputFileName[200];  // Primary biomarker CSV path
+/** Path to simulation_config.json (copy from simulation_config.template.json).
+ */
+char simulationConfigFile[200];
+char outputDir[200];      // Base directory for run artifacts
+char outputFileName[200]; // Primary biomarker CSV path
 bool paraviewExportEnabled = false;
 
 inline const char *getOutputDir() { return outputDir; }
@@ -63,6 +45,11 @@ inline bool paraviewEnabled() { return paraviewExportEnabled; }
 
 inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
   snprintf(dest, dest_size, "%s/%s", outputDir, filename);
+}
+
+inline void copyArgToBuffer(char *dest, size_t dest_size, const char *arg) {
+  strncpy(dest, arg, dest_size - 1);
+  dest[dest_size - 1] = '\0';
 }
 
 inline void mkdir_p(const char *path) {
@@ -109,11 +96,10 @@ inline void finalizeOutputPaths() {
 }
 
 /*
- * Description: Path to the chemical environment JSON config.
+ * Description: Path to the simulation JSON config (world_init + chemistry +
+ * biology sections).
  */
-inline const char *getChemicalEnvironmentConfigPath() {
-  return chemicalEnvironmentConfigFile;
-}
+inline const char *getSimulationConfigPath() { return simulationConfigFile; }
 
 /*
  * Description:	Function for getting the number of ticks that the user inputted
@@ -141,14 +127,6 @@ float getPatchWidth() { return patchWidth; }
 float getWorldXWidth() { return worldXwidth; }
 float getWorldYWidth() { return worldYwidth; }
 float getWorldZWidth() { return worldZwidth; }
-
-/*
- * Description:	Function for getting the file name containing more model inputs
- *
- * Return: The file name specified by the user that contains more model inputs
- * Parameters: void
- */
-char *getInputFileName() { return inputFileName; }
 
 /*
  * Description:	Function for turning command line arguments into model options
@@ -190,24 +168,7 @@ void processOptions(int argc, char **argv) {
 #endif
 #endif // MODEL_VOCALFOLD
 
-/* config_VocalFold.txt contains initial conditions (baseline chem, initial
- * agent population). Config cell counts correspond to cellularity of entire
- * vocal fold (1 g ww). NOTE: Model initial cell counts scale with volume
- * fraction of world to entire vocal fold (24.9mm x 1.6mm x 17.4mm)
- */
-#if defined(MODEL_SCAFFOLD) && defined(MODEL_VOCALFOLD)
-  strcpy(inputFileName, "configFiles/config_VocalFold_Scaffold.txt");
-  cout << " config NP scaffold " << endl;
-#elif defined(MODEL_VOCALFOLD)
-  strcpy(inputFileName, "configFiles/config_VocalFold.txt");
-#elif defined(MODEL_SCAFFOLD)
-  strcpy(inputFileName, "configFiles/config_scaffold.txt");
-#else
-  strcpy(inputFileName, "configFiles/config.txt");
-#endif
-
-  strcpy(chemicalEnvironmentConfigFile,
-         "configFiles/chemical_environment.json");
+  strcpy(simulationConfigFile, "configFiles/simulation_config.json");
 
   if (argc == 1) {
     finalizeOutputPaths();
@@ -242,14 +203,13 @@ void processOptions(int argc, char **argv) {
       exit(1);
 #endif
 
-    } else if (!strcmp(option_string, "--inputfile")) {
-      strcpy(inputFileName, argv[++i]);
     } else if (!strcmp(option_string, "--outputfile")) {
-      strcpy(outputFileName, argv[++i]);
+      copyArgToBuffer(outputFileName, sizeof(outputFileName), argv[++i]);
     } else if (!strcmp(option_string, "--output-dir")) {
-      strcpy(outputDir, argv[++i]);
-    } else if (!strcmp(option_string, "--chem-config")) {
-      strcpy(chemicalEnvironmentConfigFile, argv[++i]);
+      copyArgToBuffer(outputDir, sizeof(outputDir), argv[++i]);
+    } else if (!strcmp(option_string, "--config")) {
+      copyArgToBuffer(simulationConfigFile, sizeof(simulationConfigFile),
+                      argv[++i]);
     } else if (!strcmp(option_string, "--paraview")) {
       paraviewExportEnabled = true;
     } else if (!strcmp(option_string, "--help")) {
@@ -259,18 +219,20 @@ void processOptions(int argc, char **argv) {
       cout << "   --wxw:           World width    (mm)" << endl;
       cout << "   --wyw:           World length   (mm)" << endl;
       cout << "   --wzw:           World height   (mm)" << endl;
-      cout << "   --inputfile:     path/name of input file" << endl;
-      cout << "   --outputfile:    path to biomarker CSV (default: <output-dir>/Output_Biomarkers.csv)" << endl;
-      cout << "   --output-dir:    directory for run output (default: output, or $IVDBM_OUTPUT_DIR)" << endl;
-      cout << "   --chem-config:   path to chemical_environment.json" << endl;
-      cout << "   --paraview:      export patch/chemistry .vti time series under <output-dir>/paraview/" << endl;
-      cout << " Usage: " << endl;
-      cout << "   For a 24.9mm x 17.4mm, with patch width 15 um," << endl;
-      cout << "   running for 240 ticks, and input parameters from "
-              "/<path_to_file>/config_large.txt:"
+      cout << "   --outputfile:    path to biomarker CSV (default: "
+              "<output-dir>/Output_Biomarkers.csv)"
            << endl;
-      cout << "      ./bin/testRun --wxw 17.4 --wyw 24.9 --numticks 240 "
-              "--inputfile /<path_to_file>/config_large.txt>"
+      cout << "   --output-dir:    directory for run output (default: output, "
+              "or $IVDBM_OUTPUT_DIR)"
+           << endl;
+      cout << "   --config:        path to simulation_config.json (world_init + "
+              "chemistry + biology)"
+           << endl;
+      cout << "   --paraview:      export patch/chemistry .vti time series "
+              "under <output-dir>/paraview/"
+           << endl;
+      cout << " Usage: " << endl;
+      cout << "      ./bin/testRun --wxw 3.1 --wyw 3.1 --wzw 3.1 --numticks 48"
            << endl;
       exit(-1);
     } else {
@@ -368,14 +330,11 @@ inline void writeRunParamsJson(int argc, char **argv) {
   out << "    \"world_x_width_mm\": " << worldXwidth << ",\n";
   out << "    \"world_y_width_mm\": " << worldYwidth << ",\n";
   out << "    \"world_z_width_mm\": " << worldZwidth << ",\n";
-  writeJsonStringField(out, "input_file", inputFileName);
   writeJsonStringField(out, "output_dir", outputDir);
   writeJsonStringField(out, "output_file", outputFileName);
-  writeJsonStringField(out, "chemical_environment_config",
-                       chemicalEnvironmentConfigFile);
+  writeJsonStringField(out, "simulation_config", simulationConfigFile);
   out << "    \"paraview_enabled\": "
-      << (paraviewExportEnabled ? "true" : "false") << ",\n";
-  writeJsonStringField(out, "calibration_file", "Sample.txt", true);
+      << (paraviewExportEnabled ? "true" : "false") << "\n";
   out << "  },\n";
 
   out << "  \"command\": {\n";
@@ -430,11 +389,9 @@ void printOptions() {
   cout << "	worldXwidth:	" << worldXwidth << " mm" << endl;
   cout << "	worldYwidth:	" << worldYwidth << " mm" << endl;
   cout << "	worldZwidth:	" << worldZwidth << " mm" << endl;
-  cout << "	inputFileName:	" << inputFileName << endl;
   cout << "	outputDir:	" << outputDir << endl;
   cout << "	outputFileName:	" << outputFileName << endl;
-  cout << "	chemicalEnvironmentConfig:	"
-       << chemicalEnvironmentConfigFile << endl;
+  cout << "	simulationConfig:	" << simulationConfigFile << endl;
   cout << "	paraviewEnabled:	"
        << (paraviewExportEnabled ? "true" : "false") << endl;
 }

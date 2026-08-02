@@ -13,6 +13,7 @@
 #define BMWORLD_H
 
 #include "../../Agent/Usr_Agents/Cell.h"
+#include "../../Agent/biology_parameters_config.h"
 #include "../../ArrayChain/ArrayChain.h"
 #include "../../Chemistry/chemical_environment.h"
 #include "../../ECM/ECM.h"
@@ -102,7 +103,8 @@ public:
    */
   void initializePatches();
 
-  /** Copy baseline_total_mass from chemical_environment.json into baselineChem.
+  /** Copy baseline_total_mass from simulation_config.json (chemistry section)
+   * into baselineChem.
    */
   void sync_baseline_chem_from_config();
 
@@ -299,15 +301,7 @@ public:
    */
   int countNeighborPatchType(int ix, int iy, int iz, int patchType);
 
-  /*
-   * Description:	Reads user input from config file (default: config.txt)
-   * to initialize chemicals, wound, cells.
-   *
-   * Return: Returns 0 if function proceeded to completion, for testing. Can be
-   * removed later.
-   *
-   * Parameters: void
-   */
+  /** Load scaffold seeding and alginate composition from simulation_config.json. */
   int userInput();
 
   // #ifdef MODEL_SCAFFOLD
@@ -427,11 +421,48 @@ public:
       halfLifes_static[6]; // The half lifes of the cytokines in minutes
 
   /* Calibration Variables */
-  static float ElasticMod[7]; // Elastic Modulus of Ca-Alg Hydrogel
+  enum ElasticModIdx {
+    ELASTIC_INTERCEPT = 0,
+    ELASTIC_ALGINATE_CONCENTRATION,
+    ELASTIC_CROSSLINKER_DENSITY,
+    ELASTIC_ALGINATE_MOLECULAR_WEIGHT,
+    ELASTIC_ALGINATE_CROSSLINKER_INTERACTION,
+    ELASTIC_ALGINATE_MW_INTERACTION,
+    ELASTIC_MW_CROSSLINKER_INTERACTION,
+    ELASTIC_MOD_COUNT
+  };
+  static_assert(sizeof(ElasticModulusParams) / sizeof(double) == ELASTIC_MOD_COUNT,
+                "ElasticModulusParams field count must match BMWorld::ElasticModIdx");
+  static float ElasticMod[ELASTIC_MOD_COUNT]; // Elastic Modulus of Ca-Alg Hydrogel
   static float XLDensity[2];  // Crosslink density of Ca-Alg Hydrogel
-  static float SwellRatio[5]; // Swell Ratio of Ca-Alg Hydrogel
-  static float MassLoss[4];   // Mass loss of Ca-Alg Hydrogel
-  static float PoreSize[2];   // PoreSize of Ca-Alg Hydrogel
+
+  enum SwellRatioIdx {
+    SWELL_BASELINE = 0,
+    SWELL_TIME_EFFECT,
+    SWELL_ALGINATE_CONCENTRATION_EFFECT,
+    SWELL_TIME_CROSSLINKER_INTERACTION,
+    SWELL_ALGINATE_CROSSLINKER_INTERACTION,
+    SWELL_RATIO_COUNT
+  };
+  static_assert(sizeof(SwellRatioParams) / sizeof(double) == SWELL_RATIO_COUNT,
+                "SwellRatioParams field count must match BMWorld::SwellRatioIdx");
+  static float SwellRatio[SWELL_RATIO_COUNT]; // Swell Ratio of Ca-Alg Hydrogel
+
+  enum MassLossIdx {
+    MASSLOSS_BASELINE = 0,
+    MASSLOSS_CROSSLINKER_EFFECT,
+    MASSLOSS_TIME_EFFECT,
+    MASSLOSS_CROSSLINKER_TIME_INTERACTION,
+    MASS_LOSS_COUNT
+  };
+  static_assert(sizeof(MassLossParams) / sizeof(double) == MASS_LOSS_COUNT,
+                "MassLossParams field count must match BMWorld::MassLossIdx");
+  static float MassLoss[MASS_LOSS_COUNT];   // Mass loss of Ca-Alg Hydrogel
+
+  enum PoreSizeIdx { PORE_CROSSLINKER_EFFECT = 0, PORE_BASELINE, PORE_SIZE_COUNT };
+  static_assert(sizeof(PoreSizeParams) / sizeof(double) == PORE_SIZE_COUNT,
+                "PoreSizeParams field count must match BMWorld::PoreSizeIdx");
+  static float PoreSize[PORE_SIZE_COUNT];   // PoreSize of Ca-Alg Hydrogel
 
   /****************************************************************
    * CONSTANT VARIABLES                                           *

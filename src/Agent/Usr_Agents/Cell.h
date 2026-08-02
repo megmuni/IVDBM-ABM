@@ -16,6 +16,7 @@
 #include "../Agent.h"
 #include "../../Patch/Patch.h"
 #include "../../World/Usr_World/biomaterialWorld.h"
+#include "../biology_parameters_config.h"
 
 class ECM; 
 
@@ -219,8 +220,32 @@ class Cell: public Agent {
     static int numOfCells;  // Keeps track of the quantitiy of living cells.
 
     /* -------------------------- Calibration variables ------------------------- */
-    static float cytokineSynthesis[10];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
-    static float proliferation[4];        // Parameters invloved in cell proliferation
+    enum ProliferationIdx {
+      PROLIFERATION_HOURS_BETWEEN = 0,
+      PROLIFERATION_TGF_THRESHOLD,
+      PROLIFERATION_LOG_SCALE,
+      PROLIFERATION_LOG_OFFSET,
+      PROLIFERATION_COUNT
+    };
+    static_assert(sizeof(CellProliferationParams) / sizeof(double) == PROLIFERATION_COUNT,
+                  "CellProliferationParams field count must match Cell::ProliferationIdx");
+    enum CytokineSynthesisIdx {
+      CYTOKINE_TGF_BASELINE = 0,
+      CYTOKINE_TGF_FEEDBACK_TGF,
+      CYTOKINE_TGF_FEEDBACK_IL1BETA,
+      CYTOKINE_TGF_FEEDBACK_TNF,
+      CYTOKINE_TNF_BASELINE,
+      CYTOKINE_TNF_FEEDBACK_IL1BETA,
+      CYTOKINE_TNF_FEEDBACK_TGF_DENOM,
+      CYTOKINE_IL1BETA_BASELINE,
+      CYTOKINE_IL1BETA_FEEDBACK_TNF,
+      CYTOKINE_IL1BETA_FEEDBACK_TGF_DENOM,
+      CYTOKINE_SYNTHESIS_COUNT
+    };
+    static_assert(sizeof(CellCytokineSynthesisParams) / sizeof(double) == CYTOKINE_SYNTHESIS_COUNT,
+                  "CellCytokineSynthesisParams field count must match Cell::CytokineSynthesisIdx");
+    static float cytokineSynthesis[CYTOKINE_SYNTHESIS_COUNT];   // Parameters involved in synthesis of TNF, TGF, IL1beta by cells
+    static float proliferation[PROLIFERATION_COUNT];        // Parameters invloved in cell proliferation
 
   protected:
 
@@ -319,12 +344,44 @@ class Stem: public Cell {
   static float divisionNum; // number of cell divisions the cell has undertaken
 
   /* -------------------------- Calibration variables ------------------------- */
-  static float CaAlgMigration[2];  // Parameters invloved in stem cell migration speed in CaAlg Gel
-  static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
+  enum MigrationIdx { MIGRATION_ELASTICITY_EFFECT = 0, MIGRATION_BASELINE_SPEED, MIGRATION_COUNT };
+  static_assert(sizeof(MigrationParams) / sizeof(double) == MIGRATION_COUNT,
+                "MigrationParams field count must match Stem::MigrationIdx");
+  static float CaAlgMigration[MIGRATION_COUNT];  // Parameters invloved in stem cell migration speed in CaAlg Gel
+
+  enum CytokineSynthesisIdx { CYTOKINE_TGF_BASELINE = 0, CYTOKINE_TNF_BASELINE, CYTOKINE_IL1BETA_BASELINE, CYTOKINE_SYNTHESIS_COUNT };
+  static_assert(sizeof(StemCytokineSynthesisParams) / sizeof(double) == CYTOKINE_SYNTHESIS_COUNT,
+                "StemCytokineSynthesisParams field count must match Stem::CytokineSynthesisIdx");
+  static float cytokineSynthesis[CYTOKINE_SYNTHESIS_COUNT]; // Parameters involved in cytokine synthesis by stem cells (baseline rates)
+
+  static_assert(sizeof(StemCollagenSynthesisParams) / sizeof(double) == 1,
+                "StemCollagenSynthesisParams field count must match Stem::CollagenSynth size");
   static float CollagenSynth[1];   // Parameters invloved in collagen synthesis in CaAlg Gel
+  static_assert(sizeof(StemAggrecanSynthesisParams) / sizeof(double) == 1,
+                "StemAggrecanSynthesisParams field count must match Stem::AggrecanSynth size");
   static float AggrecanSynth[1];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
-  static float proliferation[4]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
-  static float differentiation[4]; // Parameters involved in stem cell differentiation
+
+  enum ProliferationIdx {
+    PROLIFERATION_TGF_THRESHOLD = 0,
+    PROLIFERATION_TNF_EFFECT,
+    PROLIFERATION_IL1BETA_EFFECT,
+    PROLIFERATION_ELASTICITY_EFFECT,
+    PROLIFERATION_COUNT
+  };
+  static_assert(sizeof(StemProliferationParams) / sizeof(double) == PROLIFERATION_COUNT,
+                "StemProliferationParams field count must match Stem::ProliferationIdx");
+  static float proliferation[PROLIFERATION_COUNT]; // Parameters involved in stem cell proliferation (coefficients for probabilistic differentiation
+
+  enum DifferentiationIdx {
+    DIFFERENTIATION_ASYMMETRIC_PROBABILITY = 0,
+    DIFFERENTIATION_BASELINE_PROBABILITY,
+    DIFFERENTIATION_TGF_EFFECT,
+    DIFFERENTIATION_HOURS_BETWEEN_ATTEMPTS,
+    DIFFERENTIATION_COUNT
+  };
+  static_assert(sizeof(StemDifferentiationParams) / sizeof(double) == DIFFERENTIATION_COUNT,
+                "StemDifferentiationParams field count must match Stem::DifferentiationIdx");
+  static float differentiation[DIFFERENTIATION_COUNT]; // Parameters involved in stem cell differentiation
 
 protected:
     int get_max_doublings() override;
@@ -410,8 +467,18 @@ class Progen: public Cell {
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
 
   /* -------------------------- Calibration variables ------------------------- */
-  static float CaAlgMigration[2];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
-  static float cytokineSynthesis[3]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
+  enum MigrationIdx { MIGRATION_ELASTICITY_EFFECT = 0, MIGRATION_BASELINE_SPEED, MIGRATION_COUNT };
+  static_assert(sizeof(MigrationParams) / sizeof(double) == MIGRATION_COUNT,
+                "MigrationParams field count must match Progen::MigrationIdx");
+  static float CaAlgMigration[MIGRATION_COUNT];  // Parameters invloved in pre-NP cell migration speed in CaAlg Gel
+
+  enum CytokineSynthesisIdx { CYTOKINE_TGF_BASELINE = 0, CYTOKINE_TNF_BASELINE, CYTOKINE_IL1BETA_BASELINE, CYTOKINE_SYNTHESIS_COUNT };
+  static_assert(sizeof(ProgenCytokineSynthesisParams) / sizeof(double) == CYTOKINE_SYNTHESIS_COUNT,
+                "ProgenCytokineSynthesisParams field count must match Progen::CytokineSynthesisIdx");
+  static float cytokineSynthesis[CYTOKINE_SYNTHESIS_COUNT]; // Parameters involved in cytokine synthesis by pre-NP cells (baseline rates)
+
+  static_assert(sizeof(ProgenAggrecanSynthesisParams) / sizeof(double) == 1,
+                "ProgenAggrecanSynthesisParams field count must match Progen::AggrecanSynth size");
   static float AggrecanSynth[1]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
   //static float proliferation[1]; // Parameters involved in pre-NP cell proliferation. Values are the same as Cell/Stem; can just use the equivalent params defined in Stem
   //static float differentiation[3]; // Parameters involved in pre-NP cell differentiation. Values are the same as Stem; can just use the equivalent params defined in Stem
@@ -500,9 +567,20 @@ class NP: public Cell {
   static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
 
   /* -------------------------- Calibration variables ------------------------- */
-  static float CaAlgMigration[2];  // Parameters invloved in NP cell migration speed in CaAlg Gel
-  static float CollagenSynth[3];   // Parameters invloved in collagen synthesis in CaAlg Gel
-  static float AggrecanSynth[3];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
+  enum MigrationIdx { MIGRATION_ELASTICITY_EFFECT = 0, MIGRATION_BASELINE_SPEED, MIGRATION_COUNT };
+  static_assert(sizeof(MigrationParams) / sizeof(double) == MIGRATION_COUNT,
+                "MigrationParams field count must match NP::MigrationIdx");
+  static float CaAlgMigration[MIGRATION_COUNT];  // Parameters invloved in NP cell migration speed in CaAlg Gel
+
+  enum CollagenSynthIdx { COLLAGEN_SCALING_FACTOR = 0, COLLAGEN_TIME_EFFECT, COLLAGEN_BASELINE_RATE, COLLAGEN_SYNTH_COUNT };
+  static_assert(sizeof(NpCollagenSynthesisParams) / sizeof(double) == COLLAGEN_SYNTH_COUNT,
+                "NpCollagenSynthesisParams field count must match NP::CollagenSynthIdx");
+  static float CollagenSynth[COLLAGEN_SYNTH_COUNT];   // Parameters invloved in collagen synthesis in CaAlg Gel
+
+  enum AggrecanSynthIdx { AGGRECAN_SCALING_FACTOR = 0, AGGRECAN_TIME_EFFECT, AGGRECAN_BASELINE_RATE, AGGRECAN_SYNTH_COUNT };
+  static_assert(sizeof(NpAggrecanSynthesisParams) / sizeof(double) == AGGRECAN_SYNTH_COUNT,
+                "NpAggrecanSynthesisParams field count must match NP::AggrecanSynthIdx");
+  static float AggrecanSynth[AGGRECAN_SYNTH_COUNT];   // Parameters invloved in aggrecan synthesis in CaAlg Gel
 
 protected:
     int get_max_doublings() override;

@@ -32,6 +32,7 @@
 #include "../src/Utilities/parameters.h"
 #include "../src/World/Usr_World/biomaterialWorld.h"
 #include "../src/World/World.h"
+#include "../src/Agent/biology_parameters_config.h"
 #include "../src/World/world_vtk_export.h"
 #include "../src/enums.h"
 
@@ -87,23 +88,26 @@ int outputChem(BMWorld *, char *, int);
  */
 int main(int argc, char **argv) {
 
-  /* --------------------------------------------------------------------------
-   */
-  /*                        SET UP A WOUND HEALING WORLD */
-  /* --------------------------------------------------------------------------
-   */
-  // Get baseline cell and chemical values that user specified:
-  util::processOptions(argc, argv);
-  util::ensureOutputDir();
-  util::writeRunParamsJson(argc, argv);
-  util::printOptions();
-  util::processParameters("Sample.txt");
-  clock_t tStart = clock();
-  BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(),
-                  util::getWorldZWidth(), util::getPatchWidth());
-  myWorld.outputWorld_csv();
-  // printf("Setup Execution time: %.2fs\n", (double)(clock() -
-  // tStart)/CLOCKS_PER_SEC);
+/* -------------------------------------------------------------------------- */
+/*                        SET UP A WOUND HEALING WORLD                        */
+/* -------------------------------------------------------------------------- */
+	// Get baseline cell and chemical values that user specified:
+	util::processOptions(argc, argv);
+	util::ensureOutputDir();
+	util::writeRunParamsJson(argc, argv);
+	util::printOptions();
+	{
+		const std::string config_path = util::getSimulationConfigPath();
+		const BiologyParametersConfig biology_cfg =
+		    load_biology_parameters_config(config_path);
+		apply_biology_parameters(biology_cfg);
+		log_biology_parameters(biology_cfg, config_path);
+		record_biology_parameters_in_run_params(biology_cfg, config_path);
+	}
+	clock_t tStart = clock();
+	BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
+	myWorld.outputWorld_csv();
+	//printf("Setup Execution time: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
   /* --------------------------------------------------------------------------
    */

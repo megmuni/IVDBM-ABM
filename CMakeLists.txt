@@ -36,7 +36,7 @@ endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/examples/ex_chem_random_spikes.cpp")
   add_executable(ex_chem_random_spikes examples/ex_chem_random_spikes.cpp)
   target_compile_definitions(ex_chem_random_spikes PRIVATE
-    IVDBM_CHEM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
+    IVDBM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
   set_target_properties(ex_chem_random_spikes PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON)

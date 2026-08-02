@@ -9,7 +9,7 @@ target_include_directories(patch_field_diffusion_test PRIVATE
 )
 
 target_compile_definitions(patch_field_diffusion_test PRIVATE
-    IVDBM_CHEM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
+    IVDBM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
 
 target_link_libraries(patch_field_diffusion_test PRIVATE
     Catch2::Catch2

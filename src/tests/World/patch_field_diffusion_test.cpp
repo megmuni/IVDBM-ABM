@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 
-#ifndef IVDBM_CHEM_CONFIG_DIR
-#define IVDBM_CHEM_CONFIG_DIR "configFiles"
+#ifndef IVDBM_CONFIG_DIR
+#define IVDBM_CONFIG_DIR "configFiles"
 #endif
 
 TEST_CASE("PatchFieldDiffusion advances one species over a tick",
@@ -23,8 +23,8 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick",
   const double h = 0.01;
   const std::size_t n = static_cast<std::size_t>(nx) * ny * nz;
 
-  const std::string config_path = std::string(IVDBM_CHEM_CONFIG_DIR) +
-                                  "/chemical_environment.template.json";
+  const std::string config_path = std::string(IVDBM_CONFIG_DIR) +
+                                  "/simulation_config.template.json";
   const ChemicalEnvironmentConfig cfg =
       load_chemical_environment_config(config_path);
   SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0, 1.0);

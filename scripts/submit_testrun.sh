@@ -32,8 +32,7 @@ NUMTICKS="${NUMTICKS}"
 WXW="${WXW}"
 WYW="${WYW}"
 WZW="${WZW}"
-INPUTFILE="${INPUTFILE}"
-CHEM_CONFIG="${CHEM_CONFIG}"
+SIMULATION_CONFIG="${SIMULATION_CONFIG}"
 TESTRUN_REL="${IVDBM_DEFAULT_TESTRUN}"
 OUTPUT_DIR=""
 OUTPUTFILE=""
@@ -66,12 +65,11 @@ Options:
   --testrun PATH        Path to testRun (default: build/bin/testRun, relative to repo root)
   --output-dir PATH     Override run output directory (default: output/job_<SLURM_JOB_ID> on compute node)
   --outputfile PATH     Biomarker CSV path (default: <output-dir>/Output_Biomarkers.csv on compute node)
-  --chem-config PATH    Chemical environment JSON (default: configFiles/chemical_environment.json)
+  --config PATH         Simulation JSON (default: configFiles/simulation_config.json)
   --numticks N          Simulation ticks (default: 24, ~12 h at 30 min/tick)
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)
-  --inputfile PATH      Input config relative to repo root
   --dry-run             Print sbatch command without submitting
   -h, --help            Show this help
 
@@ -82,7 +80,7 @@ Examples:
   ./scripts/submit_testrun.sh $EMAIL
   ./scripts/submit_testrun.sh $EMAIL 48
   ./scripts/submit_testrun.sh $EMAIL --profile gpu --numticks 24
-  ./scripts/submit_testrun.sh $EMAIL --chem-config configFiles/chemical_environment.json
+  ./scripts/submit_testrun.sh $EMAIL --config configFiles/simulation_config.json
 EOF
 }
 
@@ -214,14 +212,9 @@ while [[ $# -gt 0 ]]; do
       WZW="$2"
       shift 2
       ;;
-    --inputfile)
-      [[ $# -ge 2 ]] || die "missing value for $1"
-      INPUTFILE="$2"
-      shift 2
-      ;;
-    --chem-config)
-      [[ $# -ge 2 ]] || die "missing value for $1"
-      CHEM_CONFIG="$2"
+    --config)
+      [[ $# -ge 2 ]] || die "--config requires a path"
+      SIMULATION_CONFIG="$2"
       shift 2
       ;;
     --outputfile)
@@ -272,17 +265,15 @@ fi
 
 TESTRUN="$(resolve_testrun "${TESTRUN_REL}")"
 
-[[ -f "${REPO_ROOT}/${INPUTFILE}" ]] || die "input file not found: ${REPO_ROOT}/${INPUTFILE}"
-
-if [[ ! -f "${REPO_ROOT}/${CHEM_CONFIG}" ]]; then
-  die "missing ${CHEM_CONFIG} — run: cp configFiles/chemical_environment.template.json configFiles/chemical_environment.json"
+if [[ ! -f "${REPO_ROOT}/${SIMULATION_CONFIG}" ]]; then
+  die "missing ${SIMULATION_CONFIG} — run: cp configFiles/simulation_config.template.json configFiles/simulation_config.json"
 fi
 
 warn_profile_binary_mismatch
 
 mkdir -p "${REPO_ROOT}/logs"
 
-EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},INPUTFILE=${INPUTFILE},CHEM_CONFIG=${CHEM_CONFIG},IVDBM_PROFILE=${PROFILE}"
+EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},SIMULATION_CONFIG=${SIMULATION_CONFIG},IVDBM_PROFILE=${PROFILE}"
 if [[ -n "${OUTPUT_DIR}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUT_DIR=${OUTPUT_DIR}"
 fi

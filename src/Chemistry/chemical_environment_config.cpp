@@ -74,7 +74,8 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
     json root;
     try
     {
-        in >> root;
+        root = json::parse(in, /*callback=*/nullptr, /*allow_exceptions=*/true,
+                           /*ignore_comments=*/true);
     }
     catch (const json::parse_error &e)
     {
@@ -82,29 +83,29 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
                                  e.what());
     }
 
+    if (!root.contains("chemistry"))
+        throw std::runtime_error(
+            "chemical environment config: missing 'chemistry' section in " +
+            path);
+
+    const json &section = root.at("chemistry");
+
     ChemicalEnvironmentConfig cfg;
 
-    if (!root.contains("schema_version"))
-        throw std::runtime_error("chemical environment config: schema_version required");
-    cfg.schema_version = root.at("schema_version").get<int>();
-    if (cfg.schema_version != 1)
-        throw std::runtime_error(
-            "chemical environment config: unsupported schema_version");
+    if (section.contains("model"))
+        cfg.model = section.at("model").get<std::string>();
 
-    if (root.contains("model"))
-        cfg.model = root.at("model").get<std::string>();
-
-    if (!root.contains("tick_interval_minutes"))
+    if (!section.contains("tick_interval_minutes"))
         throw std::runtime_error(
             "chemical environment config: tick_interval_minutes required");
-    cfg.tick_interval_minutes = root.at("tick_interval_minutes").get<double>();
+    cfg.tick_interval_minutes = section.at("tick_interval_minutes").get<double>();
     if (cfg.tick_interval_minutes <= 0.0)
         throw std::invalid_argument(
             "chemical environment config: tick_interval_minutes must be > 0");
 
-    if (!root.contains("channels"))
+    if (!section.contains("channels"))
         throw std::runtime_error("chemical environment config: channels required");
-    const json &channels = root.at("channels");
+    const json &channels = section.at("channels");
     cfg.channel_count = channels.at("count").get<int>();
     cfg.chemotaxis_channel = channels.at("chemotaxis").get<int>();
     if (cfg.channel_count <= 0)
@@ -115,22 +116,22 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
         throw std::invalid_argument(
             "chemical environment config: invalid channels.chemotaxis index");
 
-    if (!root.contains("merge"))
+    if (!section.contains("merge"))
         throw std::runtime_error("chemical environment config: merge required");
     cfg.merge_chemotaxis_from_species =
-        root.at("merge").at("chemotaxis_from_species").get<std::string>();
+        section.at("merge").at("chemotaxis_from_species").get<std::string>();
 
-    if (root.contains("baseline_total_mass"))
+    if (section.contains("baseline_total_mass"))
     {
-        for (auto it = root.at("baseline_total_mass").begin();
-             it != root.at("baseline_total_mass").end(); ++it)
+        for (auto it = section.at("baseline_total_mass").begin();
+             it != section.at("baseline_total_mass").end(); ++it)
             cfg.baseline_total_mass[it.key()] = it.value().get<float>();
     }
 
-    if (!root.contains("species") || !root.at("species").is_array())
+    if (!section.contains("species") || !section.at("species").is_array())
         throw std::runtime_error("chemical environment config: species array required");
 
-    for (const json &entry : root.at("species"))
+    for (const json &entry : section.at("species"))
     {
         SpeciesConfigEntry s;
         s.id = entry.at("id").get<SpeciesId>();
