@@ -1,7 +1,7 @@
 #!/bin/bash
 # Slurm batch script for testRun — submit via scripts/submit_testrun.sh, not directly.
 # Required env (set by submit_testrun.sh): REPO_ROOT, TESTRUN
-# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, INPUTFILE, OUTPUTFILE, CHEM_CONFIG, IVDBM_PROFILE
+# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, OUTPUTFILE, SIMULATION_CONFIG, IVDBM_PROFILE
 
 set -uo pipefail
 
@@ -24,9 +24,8 @@ mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
 
 [[ -x "${TESTRUN:?Set TESTRUN when submitting this job.}" ]] \
   || fail "testRun not executable: ${TESTRUN}"
-[[ -f "${INPUTFILE}" ]] || fail "input file missing: ${REPO_ROOT}/${INPUTFILE}"
-[[ -f "${CHEM_CONFIG}" ]] \
-  || fail "chemical config missing: ${REPO_ROOT}/${CHEM_CONFIG} (copy configFiles/chemical_environment.template.json)"
+[[ -f "${SIMULATION_CONFIG}" ]] \
+  || fail "simulation config missing: ${REPO_ROOT}/${SIMULATION_CONFIG} (copy configFiles/simulation_config.template.json)"
 
 export LD_LIBRARY_PATH="${REPO_ROOT}/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-${SLURM_CPUS_PER_TASK:-1}}"
@@ -46,8 +45,7 @@ echo "Job ${SLURM_JOB_ID:-?} starting on $(hostname) at $(date -Iseconds)"
 echo "  REPO_ROOT=${REPO_ROOT}"
 echo "  TESTRUN=${TESTRUN}"
 echo "  OUTPUT_DIR=${OUTPUT_DIR}"
-echo "  INPUTFILE=${INPUTFILE}"
-echo "  CHEM_CONFIG=${CHEM_CONFIG}"
+echo "  SIMULATION_CONFIG=${SIMULATION_CONFIG}"
 echo "  OUTPUTFILE=${OUTPUTFILE}"
 echo "  NUMTICKS=${NUMTICKS}  OMP_NUM_THREADS=${OMP_NUM_THREADS}  PROFILE=${IVDBM_PROFILE:-cpu}"
 
@@ -55,8 +53,7 @@ set +e
 "${TESTRUN}" \
   --output-dir "${OUTPUT_DIR}" \
   --numticks "${NUMTICKS}" \
-  --inputfile "${INPUTFILE}" \
-  --chem-config "${CHEM_CONFIG}" \
+  --config "${SIMULATION_CONFIG}" \
   --outputfile "${OUTPUTFILE}" \
   --wxw "${WXW}" \
   --wyw "${WYW}" \

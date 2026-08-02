@@ -29,6 +29,7 @@
 #include "../../Utilities/timer.h"
 #include "../../enums.h"
 #include "biomaterialWorld.h"
+#include "world_init_config.h"
 #include <omp.h>
 #include <sstream>
 #include <string>
@@ -81,17 +82,12 @@ float BMWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5};  // 0.2, 0.2,
 float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 
 #ifdef MODEL_SCAFFOLD
-float BMWorld::ElasticMod[7] = {125, 58, 971, 1.037, 756, 0.516, 0.165};
+float BMWorld::ElasticMod[7] = {};
 float BMWorld::XLDensity[2] = {
     2.3, 10.1}; // IN IVDBM-ABM (stem cell version) THESE ARE NOT USED ANYWHERE
-float BMWorld::SwellRatio[5] = {
-    72.478, 0.131, 22.034, 3.284,
-    35.752}; // float BMWorld::SwellRatio[5] = {0.4, 0.4, 3, 7.9, 1400};
-float BMWorld::MassLoss[4] = {
-    0.234, 7.785, 0.15,
-    1.36}; // float BMWorld::MassLoss[4] = {17.6, 0.9, 60, 5.3};
-float BMWorld::PoreSize[2] = {
-    1769.8, 258.5}; // float BMWorld::PoreSize[3] = {345.2, 309.9, 138.1};
+float BMWorld::SwellRatio[5] = {};
+float BMWorld::MassLoss[4] = {};
+float BMWorld::PoreSize[2] = {};
 #endif
 
 #ifdef PEPTIDE_BM
@@ -205,7 +201,7 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
     chemical_environment_.reset(
         new ChemicalEnvironment(nx, ny, nz, this->patchlength));
     chemical_environment_->load_from_config(
-        util::getChemicalEnvironmentConfigPath(), swelling_Q, stiffness_E);
+        util::getSimulationConfigPath(), swelling_Q, stiffness_E);
     chemical_environment_->allocate_channels_from_config();
     this->sync_baseline_chem_from_config();
     this->initializeChemBaseline();
@@ -472,8 +468,7 @@ void BMWorld::sync_baseline_chem_from_config() {
   this->baselineChem[o2] =
       chemical_environment_->baseline_total_mass_for("o2");
 
-  cout << "Chemical environment config: " << cfg.model << " (schema "
-       << cfg.schema_version << ")" << endl;
+  cout << "Chemical environment config: " << cfg.model << endl;
   cout << "  tick_interval_minutes = " << cfg.tick_interval_minutes << endl;
   cout << "  channel_count = " << cfg.channel_count << endl;
   cout << "  diffusion algorithm: "
@@ -1701,132 +1696,37 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   }
 
   int BMWorld::userInput() {
-    // Read input parameters from user-specified file
-    ifstream infile(util::getInputFileName());
+    // Scaffold seeding and alginate hydrogel composition come from the
+    // world_init section of simulation_config.json (see
+    // configFiles/README.md). Baseline chemical amounts and per-species
+    // baselines/diffusivity come from the chemistry section instead (see
+    // sync_baseline_chem_from_config()).
+    const std::string config_path = util::getSimulationConfigPath();
+    const WorldInitParams cfg = load_world_init_config(config_path);
 
-    int numChem = -1;
-    // TODO: Make this check for specific tag (field name)
+    this->initialCells.assign(1, cfg.msc_count);
+    cout << "Initial MSC seed count: " << this->initialCells[0] << endl;
 
-    if (infile.is_open()) {
-      char garbage[100];
-      /* -------------------------------- CHEMICALS
-       * ------------------------------- */
-      // cout << "Reading the number of baseline chemicals..." << endl;
-      float temp;
-      infile >> garbage;
-      infile >> temp;
-      // cout << garbage;
-      // cin >> garbage;
+    this->Alg_wv = static_cast<float>(cfg.alginate.wv_percent);
+    cout << "Concentration of Alg w/v (%) = " << this->Alg_wv << endl;
 
-      numChem = temp;
-      this->baselineChem.resize(temp);
-      cout << "The number of baseline chemicals are: "
-           << this->baselineChem.size() << endl;
-      for (int ichem = 0; ichem < baselineChem.size(); ichem++) {
-        // cout << "Reading the baselineChemical " << ichem << endl;
-        infile >> garbage;
-        infile >> this->baselineChem[ichem];
-        // cout << garbage;
-        // cin >> garbage;
-        cout << "baselineChem " << ichem << " is " << this->baselineChem[ichem]
-             << endl;
-      }
+    this->highMW_alg = static_cast<float>(cfg.alginate.high_mw_ratio);
+    cout << "Ratio component of high MW alginate (integer) = "
+         << this->highMW_alg << endl;
 
-      /* ---------------------------------- CELLS
-       * --------------------------------- */
-      // cout << "Reading the initial number of types of cells..." << endl;
-      int tempCells;
-      infile >> garbage;
-      infile >> tempCells;
-      // cout << garbage;
-      // cin >> garbage;
-      this->initialCells.resize(tempCells);
-      cout << "The number of types of cells is: " << this->initialCells.size()
-           << endl;
-      for (int icell = 0; icell < initialCells.size(); icell++) {
-        // cout << "Reading the initial # of cell type " << icell + 1 << endl;
-        infile >> garbage;
-        infile >> this->initialCells[icell];
-        // cout << garbage;
-        // cin >> garbage;
-        cout << "# of cell " << icell << " is " << this->initialCells[icell]
-             << endl;
-      }
+    this->lowMW_alg = static_cast<float>(cfg.alginate.low_mw_ratio);
+    cout << "Ratio component of low MW alginate (integer) = "
+         << this->lowMW_alg << endl;
 
-      /* -------------------------- Ca-Alg PROPERTIES --------------------------
-       */
-      /* NOTE FOR STEM CELL IVDBM-ABM: none of this is being used anywhere */
-      /* currently. Commented out and replaced with the important params that go
-       */
-      /* into the elasticity equation: alginate kDas and calcium concentration
-       */
-      /* in mM. */
+    this->pXL = static_cast<float>(cfg.alginate.ca_mm);
+    cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
 
-      ////cout << "Reading 1% (w/v) Alg volume (mL)" << endl;
-      // infile >> garbage;
-      // infile >> this->Alg_v;
-      // cout << "Volume of Alg (mL) = " << this->Alg_v << endl;
-
-      ////cout << "Reading 1.67% (w/v) Ca volume (mL)" << endl;
-      // infile >> garbage;
-      // infile >> this->Ca_v;
-      // cout << "Volume of Ca (mL) = " << this->Ca_v << endl;
-      //
-      // float totalVolume = this->Alg_v + this->Ca_v;
-
-      // this->Alg_wv = 2;
-      // this->Alg_wv = 1.95;
-
-      // cout << "Total Volume from file (mL): " << totalVolume << endl;
-
-      infile >> garbage;
-      infile >> this->Alg_wv;
-      cout << "Concentration of Alg w/v (%) = " << this->Alg_wv << endl;
-
-      infile >> garbage;
-      infile >> this->highMW_alg;
-      cout << "Ratio component of high MW alginate (integer) = "
-           << this->highMW_alg << endl;
-
-      infile >> garbage;
-      infile >> this->lowMW_alg;
-      cout << "Ratio component of low MW alginate (integer) = "
-           << this->lowMW_alg << endl;
-
-      infile >> garbage;
-      infile >> this->pXL;
-      cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
-      
 #ifdef PEPTIDE_BM
-      infile >> garbage;
-	  infile >> this->peptide;
-	  cout << "Type of peptide conjugation = " << this->peptide << endl;
+    this->peptide = cfg.peptide;
+    cout << "Type of peptide conjugation = " << this->peptide << endl;
 #endif // PEPTIDE_BM
 
-      /* --------------------------- CYTOKINE PROPERTIES
-       * -------------------------- */
-      /* Species diffusivity and baselines come from chemical_environment.json.
-       */
-      infile.close();
-      cout << "-------------------------------------------" << endl;
-    } // end of if file opens properly
-    else
-      cout << "Cannot open file!" << endl;
-
-    // this->baselineChem[3]; //added manually for testing
-    // cout << "The number of baseline chemicals are: " <<
-    // this->baselineChem.size() << endl;
-
-    // this->initialCells[3]; //added manually for testing
-    // cout << "The number of types of cells is: " << this->initialCells.size()
-    // << endl;
-
-    // this->Alg_v = 0.0275; //added manually for testing
-    // this->Ca_v = 0.005;
-
-    // float totalVolume = this->Alg_v + this->Ca_v;
-
-    // cout << "Total Volume (mL): " << totalVolume << endl;
+    cout << "-------------------------------------------" << endl;
 
     return 0;
   }

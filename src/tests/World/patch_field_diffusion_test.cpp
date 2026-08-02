@@ -24,7 +24,7 @@ TEST_CASE("PatchFieldDiffusion advances one species over a tick",
   const std::size_t n = static_cast<std::size_t>(nx) * ny * nz;
 
   const std::string config_path = std::string(IVDBM_CHEM_CONFIG_DIR) +
-                                  "/chemical_environment.template.json";
+                                  "/simulation_config.template.json";
   const ChemicalEnvironmentConfig cfg =
       load_chemical_environment_config(config_path);
   SpeciesRegistry registry = SpeciesRegistry::from_config(cfg, 1.0, 1.0);

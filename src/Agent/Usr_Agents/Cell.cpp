@@ -18,45 +18,45 @@
 
 using namespace std;
 int Cell::numOfCells = 0;
-float Cell::proliferation[4] = { 24, 10, 1, 0 };
-float Cell::cytokineSynthesis[10] = {10, 0.05, 10, 5, 2.4, 4, 2, 5, 1, 3.2}; //calibration variables
+float Cell::proliferation[4] = {};
+float Cell::cytokineSynthesis[10] = {};
 
 int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick. Not an input parameter
-float Stem::OCR = 104.65 / 2; // fmol/h/cell divided by 2 for /tick
-float Stem::apoptosisChance = 0.1;
+float Stem::OCR = 0;
+float Stem::apoptosisChance = 0;
 float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
 float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
 
-float Stem::CaAlgMigration[2] = { 0.11, 0.35 };
-float Stem::cytokineSynthesis[3] = { 5, 0, 0 };
-float Stem::CollagenSynth[1] = { 10 };
-float Stem::AggrecanSynth[1] = { 100000 };
-float Stem::proliferation[4] = {10, 0.8, 0.001, 0.5};
-float Stem::differentiation[5] = { 0.7, 0.5, 0.001, 48 };
+float Stem::CaAlgMigration[2] = {};
+float Stem::cytokineSynthesis[3] = {};
+float Stem::CollagenSynth[1] = {};
+float Stem::AggrecanSynth[1] = {};
+float Stem::proliferation[4] = {};
+float Stem::differentiation[4] = {};
 
 int Progen::numOfProgen = 0; 
 float Progen::migrationSpeed = 1;    // patch/tick. Not an input parameter
-float Progen::OCR = 30.46 / 2; // fmol/h/cell divided by 2 for /tick
-float Progen::apoptosisChance = 0.1;
+float Progen::OCR = 0;
+float Progen::apoptosisChance = 0;
 float Progen::aggrecanSynthRate = 1;
 
-float Progen::CaAlgMigration[2] = { 0.11, 0.83 };
-float Progen::cytokineSynthesis[3] = { 1, 2.58, 0 };
-float Progen::AggrecanSynth[1] = { 1 };
+float Progen::CaAlgMigration[2] = {};
+float Progen::cytokineSynthesis[3] = {};
+float Progen::AggrecanSynth[1] = {};
 //float Progen::proliferation[1] = {24}; // values are the same as Cell/Stem; can just use the equivalent params defined in Stem
 //float Progen::differentiation[3] = {0.7, 0.3, 48}; // values are the same as Stem; can just use the equivalent params defined in Stem
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
-float NP::OCR = 15.31 / 2; // fmol/h/cell divided by 2 for /tick
-float NP::apoptosisChance = 5;
+float NP::OCR = 0;
+float NP::apoptosisChance = 0;
 float NP::collagenSynthRate = 1;
 float NP::aggrecanSynthRate = 1.5;
 
-float NP::CaAlgMigration[2] = { 0.11, 1.30 };
-float NP::CollagenSynth[3] = { 10, 6.45, 3.6 };
-float NP::AggrecanSynth[3] = { 20, 38, 16.6 };
+float NP::CaAlgMigration[2] = {};
+float NP::CollagenSynth[3] = {};
+float NP::AggrecanSynth[3] = {};
 
 //DEFAULT CONSTRUCTORS
 Cell::Cell() {
@@ -409,7 +409,7 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 void Cell::proliferate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % Cell::proliferation[0] == 0)) return; // check for 24-hour mark (of the cell's life) to try division
+	if (!(this->life[read_t] > 0 && this->life[read_t] % static_cast<int>(Cell::proliferation[0]) == 0)) return; // check for 24-hour mark (of the cell's life) to try division
 	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
 
 	// calculating local cytokines
@@ -429,7 +429,7 @@ void Cell::proliferate() {
 void Cell::differentiate() {
 	int in = this->index[read_t];
 	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
-	if (!(this->life[read_t] > 0 && this->life[read_t] % Stem::differentiation[3] == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
+	if (!(this->life[read_t] > 0 && this->life[read_t] % static_cast<int>(Stem::differentiation[3]) == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
 	if (!isProliferative()) return;
 
 	// calculating local cytokines

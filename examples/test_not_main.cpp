@@ -34,6 +34,7 @@
 #include "../src/FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../src/Utilities/input_utils.h"
 #include "../src/Utilities/parameters.h"
+#include "../src/Agent/biology_parameters_config.h"
 #include "../src/World/world_vtk_export.h"
 
 using namespace std;
@@ -91,7 +92,14 @@ int main(int argc, char** argv) {
 	util::ensureOutputDir();
 	util::writeRunParamsJson(argc, argv);
 	util::printOptions();
-	util::processParameters("Sample.txt");
+	{
+		const std::string config_path = util::getSimulationConfigPath();
+		const BiologyParametersConfig biology_cfg =
+		    load_biology_parameters_config(config_path);
+		apply_biology_parameters(biology_cfg);
+		log_biology_parameters(biology_cfg, config_path);
+		record_biology_parameters_in_run_params(biology_cfg, config_path);
+	}
 	clock_t tStart = clock();
 	BMWorld myWorld(util::getWorldXWidth(), util::getWorldYWidth(), util::getWorldZWidth(), util::getPatchWidth());
 	myWorld.outputWorld_csv();

@@ -6,7 +6,8 @@
  * @brief Coordinates cytokine storage and per-tick updates on the patch grid.
  *
  * Biological parameters (species, diffusivity, baselines, tick length) are
- * loaded from JSON - see configFiles/chemical_environment.template.json.
+ * loaded from JSON - see configFiles/simulation_config.template.json
+ * (@c chemistry section).
  */
 
 #include "../Diffusion3D/core/diffusion_algorithm.h"
@@ -39,7 +40,7 @@ public:
 
   /**
    * @brief Load species, channels, and baselines from JSON.
-   * @param config_path Path to chemical_environment.json (copy from template).
+   * @param config_path Path to simulation_config.json (@c chemistry section).
    * @param swelling_ratio_Q Hydrogel swelling ratio applied to diffusivity.
    */
   void load_from_config(const std::string &config_path,

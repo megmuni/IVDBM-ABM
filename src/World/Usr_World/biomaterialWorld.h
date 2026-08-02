@@ -103,7 +103,8 @@ public:
    */
   void initializePatches();
 
-  /** Copy baseline_total_mass from chemical_environment.json into baselineChem.
+  /** Copy baseline_total_mass from simulation_config.json (chemistry section)
+   * into baselineChem.
    */
   void sync_baseline_chem_from_config();
 
@@ -301,8 +302,8 @@ public:
   int countNeighborPatchType(int ix, int iy, int iz, int patchType);
 
   /*
-   * Description:	Reads user input from config file (default: config.txt)
-   * to initialize chemicals, wound, cells.
+   * Description: Load scaffold seeding and alginate composition from
+   * simulation_config.json (world_init section).
    *
    * Return: Returns 0 if function proceeded to completion, for testing. Can be
    * removed later.

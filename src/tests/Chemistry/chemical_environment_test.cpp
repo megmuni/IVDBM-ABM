@@ -1,3 +1,4 @@
+#define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
 #include "chemical_environment.h"
@@ -15,7 +16,7 @@ namespace
 
 std::string test_chem_config_path()
 {
-    return std::string(IVDBM_CHEM_CONFIG_DIR) + "/chemical_environment.template.json";
+    return std::string(IVDBM_CHEM_CONFIG_DIR) + "/simulation_config.template.json";
 }
 
 void load_test_env(ChemicalEnvironment &env)
