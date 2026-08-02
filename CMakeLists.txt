@@ -54,7 +54,7 @@ if(TARGET testRun)
   target_link_libraries(testRun ${allLIBS})
 endif()
 if(TARGET ex_chem_random_spikes)
-  target_link_libraries(ex_chem_random_spikes Chemistry FieldVariable)
+  target_link_libraries(ex_chem_random_spikes Chemistry)
 endif()
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lGL -lGLU -lglut")

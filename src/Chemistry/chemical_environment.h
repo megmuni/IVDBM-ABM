@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-class Chemical;
-
 /**
  * @brief Per-tick chemistry for BMWorld: storage, diffusion, merge, totals.
  */

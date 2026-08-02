@@ -135,8 +135,8 @@ void processParameters(string filename) {
         cerr << "Error in assigning value to stem aggrecan synthesis parameter" << endl;
     }
 
-    // Set stem differentiation parameters m13-m17
-    for (int i = 0; i < 5; ++i) {
+    // Set stem differentiation parameters m13-m16
+    for (int i = 0; i < 4; ++i) {
         if (getline(lineStream, value, '\t')) {
             float value_as_float = atof(value.c_str());
             Stem::differentiation[i] = value_as_float;
@@ -163,13 +163,8 @@ void processParameters(string filename) {
         }
     }
 
-    // Set pre-NP proliferation parameter p3
+    // Set pre-NP proliferation parameter p3 (unused; Progen uses Stem params)
     if (getline(lineStream, value, '\t')) {
-        float value_as_float = atof(value.c_str());
-        Progen::proliferation[0] = value_as_float;
-#ifdef PRINT_PARAMETER_VALUES
-        cout << "Progen::proliferation" << " = " << Progen::proliferation[0] << endl;
-#endif
     }
     else {
         cerr << "Error in assigning value to pre-NP proliferation parameter" << endl;
@@ -201,14 +196,9 @@ void processParameters(string filename) {
         cerr << "Error in assigning value to pre-NP aggrecan synthesis parameter" << endl;
     }
 
-    // Set pre-NP differentiation parameters p8-p10
+    // Set pre-NP differentiation parameters p8-p10 (unused; Progen uses Stem params)
     for (int i = 0; i < 3; ++i) {
         if (getline(lineStream, value, '\t')) {
-            float value_as_float = atof(value.c_str());
-            Progen::differentiation[i] = value_as_float;
-#ifdef PRINT_PARAMETER_VALUES
-            cout << "Progen::differentiation[" << i << "] = " << Progen::differentiation[i] << endl;
-#endif
         }
         else {
             cerr << "Error in assigning value to pre-np differentiation parameter #" << i << endl;

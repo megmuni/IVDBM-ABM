@@ -47,8 +47,9 @@ float BMWorld::liveCells = 0;
 float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
-float BMWorld::initialO2 = 200; // Initial concentration of oxygen (umol/L)
-float BMWorld::incrementO2 = 0.1; // Percentage of initial patch O2 to add every tick as replenishment from external source
+float BMWorld::initialO2 = 200;   // Initial concentration of oxygen (umol/L)
+float BMWorld::incrementO2 = 0.1; // Percentage of initial patch O2 to add every
+                                  // tick as replenishment from external source
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
 float BMWorld::E = 0;     // Effective stiffness
@@ -63,14 +64,15 @@ float poreWidth = 200.00; // (um)
 #endif
 
 #ifdef PEPTIDE_BM
-	float BMWorld::E_0 = 0;
-	float BMWorld::E_inf = 0;
-	float BMWorld::t = 0;
+float BMWorld::E_0 = 0;
+float BMWorld::E_inf = 0;
+float BMWorld::t = 0;
 #endif
 
 #ifdef MODEL_SCAFFOLD
 float BMWorld::Ca_Mw = 3400; // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
-float BMWorld::Alg_Mn = 1500; // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
+float BMWorld::Alg_Mn =
+    1500; // Average molecular weight (Mw = 1 kDa = 1000 g/mol)
 float BMWorld::totalVolumeML;
 // float BMWorld::Alg_Mn = 90;
 // float BMWorld::Alg_Mn = 200; //143;
@@ -95,11 +97,11 @@ float BMWorld::PoreSize[2] = {
 #endif
 
 #ifdef PEPTIDE_BM
-	/* Experimental values for peptide biomaterial */
-	peptideCondition MAL = { 2.0031, 3.8757, 44.00 };
-	peptideCondition CHAD = { 3.0180, 5.0709, 37.87 };
-	peptideCondition hA5G26 = { 2.9628, 4.6913, 35.35 };
-	peptideCondition IKVAV = { 2.9067, 5.4795, 42.56 };
+/* Experimental values for peptide biomaterial */
+peptideCondition MAL = {2.0031, 3.8757, 44.00};
+peptideCondition CHAD = {3.0180, 5.0709, 37.87};
+peptideCondition hA5G26 = {2.9628, 4.6913, 35.35};
+peptideCondition IKVAV = {2.9067, 5.4795, 42.56};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
@@ -353,13 +355,12 @@ void BMWorld::initializeCaAlg() {
  * constant polymer concentration
  */
 #ifdef CALIBRATION
-  this->E = -BMWorld::ElasticMod[0] 
-      +BMWorld::ElasticMod[1] * (this->Alg_wv) 
-      -BMWorld::ElasticMod[2] * (this->pXL) 
-      +BMWorld::ElasticMod[3] * (this->Alg_Mn) 
-      +BMWorld::ElasticMod[4] * (this->Alg_wv) * (this->pXL) 
-      -BMWorld::ElasticMod[5] * (this->Alg_wv) * (this->Alg_Mn) 
-      -BMWorld::ElasticMod[6] * (this->pXL) * (this->Alg_Mn);
+  this->E = -BMWorld::ElasticMod[0] + BMWorld::ElasticMod[1] * (this->Alg_wv) -
+            BMWorld::ElasticMod[2] * (this->pXL) +
+            BMWorld::ElasticMod[3] * (this->Alg_Mn) +
+            BMWorld::ElasticMod[4] * (this->Alg_wv) * (this->pXL) -
+            BMWorld::ElasticMod[5] * (this->Alg_wv) * (this->Alg_Mn) -
+            BMWorld::ElasticMod[6] * (this->pXL) * (this->Alg_Mn);
 #else
   this->E = -125 + 58 * (Alg_wv)-971 * (pXL) + 1.037 * (Alg_Mn) +
             756 * (Alg_wv * pXL) - 0.516 * (Alg_wv * Alg_Mn) -
@@ -367,28 +368,29 @@ void BMWorld::initializeCaAlg() {
 #endif
 
 #ifdef PEPTIDE_BM
-	if (this->peptide.compare("MAL") == 0) {
-		BMWorld::E_0 = MAL.E_init;
-		BMWorld::E_inf = MAL.E_eq;
-		BMWorld::t = MAL.t_stress;
-	}
-	else if (this->peptide.compare("CHAD") == 0) {
-	  BMWorld::E_0 = CHAD.E_init;
-		BMWorld::E_inf = CHAD.E_eq;
-		BMWorld::t = CHAD.t_stress;
-	}
-	else if (this->peptide.compare("hA5G26") == 0) {
-		BMWorld::E_0 = hA5G26.E_init;
-		BMWorld::E_inf = hA5G26.E_eq;
-		BMWorld::t = hA5G26.t_stress;
-	}
-	else if (this->peptide.compare("IKVAV") == 0) {
-		BMWorld::E_0 = IKVAV.E_init;
-		BMWorld::E_inf = IKVAV.E_eq;
-		BMWorld::t = IKVAV.t_stress;
-	}
-	cout << "Peptide: " << this->peptide << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf << BMWorld::t << endl;
-	BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
+  if (this->peptide.compare("MAL") == 0) {
+    BMWorld::E_0 = MAL.E_init;
+    BMWorld::E_inf = MAL.E_eq;
+    BMWorld::t = MAL.t_stress;
+  } else if (this->peptide.compare("CHAD") == 0) {
+    BMWorld::E_0 = CHAD.E_init;
+    BMWorld::E_inf = CHAD.E_eq;
+    BMWorld::t = CHAD.t_stress;
+  } else if (this->peptide.compare("hA5G26") == 0) {
+    BMWorld::E_0 = hA5G26.E_init;
+    BMWorld::E_inf = hA5G26.E_eq;
+    BMWorld::t = hA5G26.t_stress;
+  } else if (this->peptide.compare("IKVAV") == 0) {
+    BMWorld::E_0 = IKVAV.E_init;
+    BMWorld::E_inf = IKVAV.E_eq;
+    BMWorld::t = IKVAV.t_stress;
+  }
+  cout << "Peptide: " << this->peptide
+       << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf
+       << BMWorld::t << endl;
+  BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) *
+                                    exp(-(BMWorld::clock * 30 * 60) /
+                                        BMWorld::t); // converts tick to seconds
 #endif
 
   cout << "       Elastic Modulus (kPa) = " << this->E << endl;
@@ -469,8 +471,7 @@ void BMWorld::sync_baseline_chem_from_config() {
       chemical_environment_->baseline_total_mass_for("TGF");
   this->baselineChem[IL1beta] =
       chemical_environment_->baseline_total_mass_for("IL1beta");
-  this->baselineChem[o2] =
-      chemical_environment_->baseline_total_mass_for("o2");
+  this->baselineChem[o2] = chemical_environment_->baseline_total_mass_for("o2");
 
   cout << "Chemical environment config: " << cfg.model << " (schema "
        << cfg.schema_version << ")" << endl;
@@ -482,8 +483,8 @@ void BMWorld::sync_baseline_chem_from_config() {
       chemical_environment_->diffusion_algorithm();
   if (std::string(chemical_environment_->diffusion_algorithm_label()) !=
       diffusion_algorithm_label(requested)) {
-    cout << "  diffusion requested: "
-         << diffusion_algorithm_label(requested) << endl;
+    cout << "  diffusion requested: " << diffusion_algorithm_label(requested)
+         << endl;
   }
 }
 
@@ -495,10 +496,6 @@ void BMWorld::initializeChemBaseline() {
   }
 
   chemical_environment_->clear_delta_channels();
-  this->WorldChem.totalTNF = 0;
-  this->WorldChem.totalTGF = 0;
-  this->WorldChem.totalIL1beta = 0;
-  this->WorldChem.totalo2 = 0;
 
   if (this->baselineChem.size() != 4) {
     if (util::ABMerror(1, "Error initializing chemicals!!", __FILE__, __LINE__))
@@ -511,9 +508,16 @@ void BMWorld::initializeChemBaseline() {
   const float tgf0 = this->baselineChem[TGF] / countCaAlg;
   const float il10 = this->baselineChem[IL1beta] / countCaAlg;
 
-  const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
-  const double volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
-  const double molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
+  const int countBoundary =
+      nx * ny * nz -
+      (nx - 2) * (ny - 2) *
+          (nz - 2); // boundary patches = all patches - interior patches
+  const double volumeBoundary =
+      (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 *
+      countBoundary; // volume of all boundary patches in L
+  const double molO2 = this->initialO2 * pow(10, 9) *
+                       volumeBoundary; // total fmol of O2 needed to distribute
+                                       // across all boundary patches
 
   // debug
   cout << " Number of boundary patches = " << countBoundary << endl;
@@ -531,23 +535,22 @@ void BMWorld::initializeChemBaseline() {
       for (int ix = 0; ix < this->nx; ix++) {
         const int in = ix + iy * nx + iz * nx * ny;
         if (this->worldPatch[in].type[read_t] == CaAlg) {
-            chemical_environment_->set_concentration(in, TNF, tnf0);
-            chemical_environment_->set_concentration(in, TGF, tgf0);
-            chemical_environment_->set_concentration(in, IL1beta, il10);
+          chemical_environment_->set_concentration(in, TNF, tnf0);
+          chemical_environment_->set_concentration(in, TGF, tgf0);
+          chemical_environment_->set_concentration(in, IL1beta, il10);
         } else {
-            chemical_environment_->set_concentration(in, TNF, 0.f);
-            chemical_environment_->set_concentration(in, TGF, 0.f);
-            chemical_environment_->set_concentration(in, IL1beta, 0.f);
+          chemical_environment_->set_concentration(in, TNF, 0.f);
+          chemical_environment_->set_concentration(in, TGF, 0.f);
+          chemical_environment_->set_concentration(in, IL1beta, 0.f);
         }
 
         // set O2 separately only on boundary patches
-        bool isBoundary = (ix == 0 || ix == nx - 1 ||
-            iy == 0 || iy == ny - 1 ||
-            iz == 0 || iz == nz - 1);
+        bool isBoundary = (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1 ||
+                           iz == 0 || iz == nz - 1);
         if (isBoundary) {
-            chemical_environment_->set_concentration(in, o2, o20);
+          chemical_environment_->set_concentration(in, o2, o20);
         } else {
-            chemical_environment_->set_concentration(in, o2, 0.f);
+          chemical_environment_->set_concentration(in, o2, 0.f);
         }
       }
     }
@@ -555,13 +558,11 @@ void BMWorld::initializeChemBaseline() {
 
   chemical_environment_->update_chemotaxis_from_species(TGF);
   chemical_environment_->recompute_world_totals();
-  chemical_environment_->copy_totals_to(this->WorldChem);
 
   cout << "		Initial cytokine concentrations: totalTNF = "
-       << this->WorldChem.totalTNF
-       << ", totalTGF = " << this->WorldChem.totalTGF
-       << ", totalIL1beta = " << this->WorldChem.totalIL1beta 
-       << ", totalO2 = " << this->WorldChem.totalo2 << endl;
+       << this->world_total_tnf() << ", totalTGF = " << this->world_total_tgf()
+       << ", totalIL1beta = " << this->world_total_il1beta()
+       << ", totalO2 = " << this->world_total_o2() << endl;
 }
 
 void BMWorld::initializeCells() {
@@ -795,19 +796,25 @@ const ChemicalEnvironment *BMWorld::chemical_environment() const {
 float BMWorld::world_total_tnf() const {
   if (chemical_environment_)
     return chemical_environment_->total_tnf();
-  return WorldChem.totalTNF;
+  return 0.f;
 }
 
 float BMWorld::world_total_tgf() const {
   if (chemical_environment_)
     return chemical_environment_->total_tgf();
-  return WorldChem.totalTGF;
+  return 0.f;
 }
 
 float BMWorld::world_total_il1beta() const {
   if (chemical_environment_)
     return chemical_environment_->total_il1beta();
-  return WorldChem.totalIL1beta;
+  return 0.f;
+}
+
+float BMWorld::world_total_o2() const {
+  if (chemical_environment_)
+    return chemical_environment_->total_o2();
+  return 0.f;
 }
 
 double BMWorld::tick_interval_minutes() const {
@@ -898,66 +905,75 @@ void BMWorld::requestECMfragments() {
 }
 
 void BMWorld::updateO2() {
-    // TO-DO: move this O2 boundary update to somewhere within the chem environment, not directly in BMWorld
-    const int countBoundary = nx * ny * nz - (nx - 2) * (ny - 2) * (nz - 2); // boundary patches = all patches - interior patches
-    const double volumeBoundary = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 * countBoundary; // volume of all boundary patches in L
-    const double molO2 = this->initialO2 * pow(10, 9) * volumeBoundary; // total fmol of O2 needed to distribute across all boundary patches
-    const double incrO2 = this->incrementO2 * (molO2 / countBoundary); // oxygen increment for each patch
+  // TO-DO: move this O2 boundary update to somewhere within the chem
+  // environment, not directly in BMWorld
+  const int countBoundary =
+      nx * ny * nz -
+      (nx - 2) * (ny - 2) *
+          (nz - 2); // boundary patches = all patches - interior patches
+  const double volumeBoundary =
+      (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 *
+      countBoundary; // volume of all boundary patches in L
+  const double molO2 = this->initialO2 * pow(10, 9) *
+                       volumeBoundary; // total fmol of O2 needed to distribute
+                                       // across all boundary patches
+  const double incrO2 =
+      this->incrementO2 *
+      (molO2 / countBoundary); // oxygen increment for each patch
 
-    // update boundary O2 across Z faces
-    for (int zi : {0, nz - 1}) {
+  // update boundary O2 across Z faces
+  for (int zi : {0, nz - 1}) {
 #pragma omp parallel for
-        for (int yi = 0; yi < ny; yi++) {
+    for (int yi = 0; yi < ny; yi++) {
 #pragma omp simd
-            for (int xi = 0; xi < nx; xi++) {
-                int in = xi + yi * nx + zi * nx * ny;
-                chemical_environment_->accumulate_secretion(in, o2, incrO2);
-            }
-        }
+      for (int xi = 0; xi < nx; xi++) {
+        int in = xi + yi * nx + zi * nx * ny;
+        chemical_environment_->accumulate_secretion(in, o2, incrO2);
+      }
     }
+  }
 
-    // update boundary O2 across Y faces
-    for (int yi : {0, ny - 1}) {
+  // update boundary O2 across Y faces
+  for (int yi : {0, ny - 1}) {
 #pragma omp parallel for
-        for (int zi = 1; zi < nz - 1; zi++) {
-            // zi starts at 1 and ends at nz-2 to exclude patches
-            // already counted by the Z face loops above
+    for (int zi = 1; zi < nz - 1; zi++) {
+      // zi starts at 1 and ends at nz-2 to exclude patches
+      // already counted by the Z face loops above
 #pragma omp simd
-            for (int xi = 0; xi < nx; xi++) {
-                int in = xi + yi * nx + zi * nx * ny;
-                chemical_environment_->accumulate_secretion(in, o2, incrO2);
-            }
-        }
+      for (int xi = 0; xi < nx; xi++) {
+        int in = xi + yi * nx + zi * nx * ny;
+        chemical_environment_->accumulate_secretion(in, o2, incrO2);
+      }
     }
+  }
 
-    // update boundary O2 across X faces
-    for (int xi : {0, nx - 1}) {
+  // update boundary O2 across X faces
+  for (int xi : {0, nx - 1}) {
 #pragma omp parallel for
-        for (int zi = 1; zi < nz - 1; zi++) {
-            for (int yi = 1; yi < ny - 1; yi++) {
-                int in = xi + yi * nx + zi * nx * ny;
-                chemical_environment_->accumulate_secretion(in, o2, incrO2);
-            }
-        }
+    for (int zi = 1; zi < nz - 1; zi++) {
+      for (int yi = 1; yi < ny - 1; yi++) {
+        int in = xi + yi * nx + zi * nx * ny;
+        chemical_environment_->accumulate_secretion(in, o2, incrO2);
+      }
     }
+  }
 }
 
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
   chemical_environment_->merge_and_reset_secretion();
-  chemical_environment_->copy_totals_to(this->WorldChem);
 
   // temp for TGF output for diffusion debugging
   for (int xi = 0; xi < nx / 2; xi++) {
-      int in = xi + lineY * nx + lineZ * nx * ny;
-      tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
+    int in = xi + lineY * nx + lineZ * nx * ny;
+    tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
   }
 
   // temp for O2 output for diffusion debugging
   for (int xi = 0; xi < nx / 2; xi++) {
-      int in = xi + lineY * nx + lineZ * nx * ny;
-      o2Line[xi] = chemical_environment_->concentration_at(in, o2);
+    int in = xi + lineY * nx + lineZ * nx * ny;
+    o2Line[xi] = chemical_environment_->concentration_at(in, o2);
   }
 }
 
@@ -990,7 +1006,8 @@ void BMWorld::executeAllECMResetRequests() {
 void BMWorld::updateECMManagers() {
 #ifdef PROFILE_ECM_UPDATE
   TIME_STAGE(this->executeAllECMUpdates(), "	updateECM()", "	");
-  TIME_STAGE(this->executeAllECMResetRequests(), "	resetrequests()", "	");
+  TIME_STAGE(this->executeAllECMResetRequests(), "	resetrequests()",
+             "	");
 #else
   this->executeAllECMUpdates();
   this->executeAllECMResetRequests();
@@ -1521,7 +1538,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
             (reportDay()); //(17.6*Alg_ww - 0.9)*log(tweek) + (60*Alg_ww + 5.3);
 #endif
     if (w_t < 0)
-    w_t = 0; // no negative mass loss
+      w_t = 0; // no negative mass loss
 
     // If there is % mass loss since last call, "degrade" % CaAlg patches and
     // replace with tissue
@@ -1540,9 +1557,12 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   }
 #ifdef PEPTIDE_BM
   void BMWorld::updateE() {
-      BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) * exp(-(BMWorld::clock * 30 * 60) / BMWorld::t); // converts tick to seconds
-      if (BMWorld::E > 0.0f && chemical_environment_)
-          chemical_environment_->set_stiffness(static_cast<double>(BMWorld::E));
+    BMWorld::E =
+        BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) *
+                             exp(-(BMWorld::clock * 30 * 60) /
+                                 BMWorld::t); // converts tick to seconds
+    if (BMWorld::E > 0.0f && chemical_environment_)
+      chemical_environment_->set_stiffness(static_cast<double>(BMWorld::E));
   }
 #endif // PEPTIDE_BM
 #endif // MODEL_SCAFFOLD
@@ -1796,11 +1816,11 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
       infile >> garbage;
       infile >> this->pXL;
       cout << "Concentration of Ca crosslinker (mM) = " << this->pXL << endl;
-      
+
 #ifdef PEPTIDE_BM
       infile >> garbage;
-	  infile >> this->peptide;
-	  cout << "Type of peptide conjugation = " << this->peptide << endl;
+      infile >> this->peptide;
+      cout << "Type of peptide conjugation = " << this->peptide << endl;
 #endif // PEPTIDE_BM
 
       /* --------------------------- CYTOKINE PROPERTIES
@@ -1831,9 +1851,9 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     return 0;
   }
 
-  char* BMWorld::get_output_filename() {
+  char *BMWorld::get_output_filename() {
     return util::outputFileName;
-    //return "output/Output_Biomarkers.csv";
+    // return "output/Output_Biomarkers.csv";
   }
 
   vector<string> BMWorld::get_agent_type_names() {
@@ -1873,9 +1893,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
                                std::map<std::string, float> & env_counts) {
 
     // biomaterial world-specific chemicals
-    file << this->WorldChem.totalTNF << "," << this->WorldChem.totalIL1beta
-         << "," << this->WorldChem.totalTGF 
-         << "," << this->WorldChem.totalo2 << ",";
+    file << this->world_total_tnf() << "," << this->world_total_il1beta() << ","
+         << this->world_total_tgf() << "," << this->world_total_o2() << ",";
 
     // ecm types
     file << fixed << setprecision(5) << env_counts["ncollagen"] << ","
@@ -1954,7 +1973,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     remove(o2_path);
     ofstream o2_file(o2_path, ios::app);
     for (int xi = 0; xi <= nx / 2; xi++)
-        o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
+      o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
   }
 
@@ -1972,7 +1991,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     ofstream o2_file(o2_path, ios::app);
     o2_file << fixed << setprecision(10);
     for (int xi = 0; xi <= nx / 2; xi++)
-        o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
+      o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
   }
 
