@@ -2,7 +2,7 @@ set(UTILITIES_SRC timer.cpp)
 file( GLOB USR_UTILITIES_SRC Usr_Utilities/*.cpp)
 
 set(lib_type SHARED)
-add_library(Utilities ${lib_type} ${UTILITIES_SRC} ${UTILITIES_SRC})
+add_library(Utilities ${lib_type} ${UTILITIES_SRC} ${USR_UTILITIES_SRC})
 
 target_link_libraries(Utilities World)
 

@@ -52,12 +52,12 @@ struct SpeciesConfigEntry {
 /**
  * @brief Full chemical environment definition loaded from JSON.
  *
- * Copy @c configFiles/chemical_environment.template.json to
- * @c configFiles/chemical_environment.json and edit; simulation code reads
- * only from the JSON path (see util::getChemicalEnvironmentConfigPath()).
+ * Copy @c configFiles/simulation_config.template.json to
+ * @c configFiles/simulation_config.json and edit; simulation code reads
+ * only from the JSON path, under the
+ * @c chemistry section.
  */
 struct ChemicalEnvironmentConfig {
-  int schema_version = 0;
   std::string model;
   double tick_interval_minutes = 30.0;
   int channel_count = 0;
@@ -73,10 +73,9 @@ struct ChemicalEnvironmentConfig {
 /**
  * @brief Load and validate a chemical environment JSON file.
  *
- * Reads @c schema_version, channels, species, baselines, and per-species
- * @c diffusivity_model entries. Copy
- * @c configFiles/chemical_environment.template.json to
- * @c configFiles/chemical_environment.json before running.
+ * Reads channels, species, baselines, and per-species
+ * @c diffusivity_model entries from the @c chemistry section of
+ * @c configFiles/simulation_config.template.json.
  *
  * @param path Path to the JSON config file.
  */

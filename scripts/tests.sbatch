@@ -37,7 +37,7 @@ mkdir -p "${TEST_OUTPUT_DIR}" logs || fail "cannot create ${TEST_OUTPUT_DIR} or 
 [[ -f "${BUILD_DIR}/CTestTestfile.cmake" ]] || \
   fail "no CTest config in ${BUILD_DIR} — run ./scripts/build_drac.sh --tests"
 
-TEMPLATE="${REPO_ROOT}/configFiles/chemical_environment.template.json"
+TEMPLATE="${REPO_ROOT}/configFiles/simulation_config.template.json"
 [[ -f "${TEMPLATE}" ]] || \
   fail "missing ${TEMPLATE} (required by chemistry/world tests)"
 

@@ -17,7 +17,7 @@ You need CMake, a C++ compiler (GCC or Clang), and OpenGL/GLUT development libra
 From the repository root:
 
 ```bash
-cp configFiles/chemical_environment.template.json configFiles/chemical_environment.json
+cp configFiles/simulation_config.template.json configFiles/simulation_config.json
 mkdir -p output
 ```
 
@@ -25,20 +25,79 @@ Chemistry field details are in [configFiles/README.md](configFiles/README.md).
 
 ## What to change
 
-| What you want to change                         | Where to set it                                  | When                                  |
-| ----------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
-| Cytokine diffusivities, baselines, tick length  | `configFiles/chemical_environment.json`          | Before a run                          |
-| Cell seeding, alginate, scaffold layout         | `configFiles/config_scaffold.txt`                | Before a run                          |
-| Calibration coefficients                        | `Sample.txt` (repo root)                         | Before a run; not a command-line flag |
-| Tick count, world size, paths, output           | `testRun` flags or `submit_testrun.sh` flags     | Each run                              |
-| Shared DRAC simulation defaults                 | `scripts/job_defaults.env`                       | Optional                              |
-| Model type, 3D, GPU diffusion, biomarker output | `src/common.h`                                   | Rebuild after editing                 |
-| Job time limit, CPUs, GPU choice                | `submit_testrun.sh` flags                        | Each DRAC job                         |
-| Unit test job defaults                          | `scripts/test_defaults.env` or `submit_tests.sh` | Test jobs only                        |
+| What you want to change                         | Where to set it                                     | When                  |
+| ----------------------------------------------- | --------------------------------------------------- | --------------------- |
+| Cytokine diffusivities, baselines, tick length  | `configFiles/simulation_config.json` → `chemistry`  | Before a run          |
+| Cell seeding, alginate, scaffold layout         | `configFiles/simulation_config.json` → `world_init` | Before a run          |
+| Cell rule and hydrogel calibration coefficients | `configFiles/simulation_config.json` → `biology`    | Before a run          |
+| Tick count, world size, paths, output           | `testRun` flags or `submit_testrun.sh` flags        | Each run              |
+| Shared DRAC simulation defaults                 | `scripts/job_defaults.env`                          | Optional              |
+| Model type, 3D, GPU diffusion, biomarker output | `src/common.h`                                      | Rebuild after editing |
+| Job time limit, CPUs, GPU choice                | `submit_testrun.sh` flags                           | Each DRAC job         |
+| Unit test job defaults                          | `scripts/test_defaults.env` or `submit_tests.sh`    | Test jobs only        |
 
 Command-line flags override `job_defaults.env`, which overrides the built-in defaults. With no flags on your own machine: 432 ticks, 3.1 mm cube. On DRAC with no extra flags: 24 ticks, 1 mm cube.
 
-Biology settings (JSON, text configs, `Sample.txt`) are read when the run starts and are not affected by that order.
+Biology settings are read from JSON when the run starts. Loaded biology parameter values are printed to stdout and recorded in `run_params.json` when `IVDBM_RUN_PARAMS_JSON` is set.
+
+### Changing a biology/hydrogel parameter value
+
+Most calibration work is just editing numbers. Open `configFiles/simulation_config.json`, find the field under `biology` (see [configFiles/README.md](configFiles/README.md) for the full field list), and change its value:
+
+```jsonc
+"stem": {
+  "proliferation": {
+    "tgf_threshold": 10   // <-- edit this
+  }
+}
+```
+
+No rebuild needed, just rerun `testRun`.
+
+### Adding a brand-new biology parameter
+
+If you need a parameter that doesn't exist yet (not just a new value for an existing one), it lives in two places that must stay in sync: a C++ struct that mirrors the JSON, and a small static array the cell/hydrogel formulas actually read from. Using "add a new stem cell proliferation coefficient" as an example:
+
+1. Add the field to the matching struct in `src/Agent/biology_parameters_config.h`:
+
+   ```cpp
+   struct StemProliferationParams {
+     double tgf_threshold = 0;
+     double tnf_effect = 0;
+     double il1beta_effect = 0;
+     double elasticity_effect = 0;
+     double my_new_effect = 0;   // <-- new field
+   };
+   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemProliferationParams, tgf_threshold,
+                                      tnf_effect, il1beta_effect,
+                                      elasticity_effect, my_new_effect)  // <-- add it here too
+   ```
+
+2. Add a matching named slot in `src/Agent/Usr_Agents/Cell.h` (the array resizes itself, and a compile-time check will fail loudly if this step and step 1 ever get out of sync):
+
+   ```cpp
+   enum ProliferationIdx {
+     PROLIFERATION_TGF_THRESHOLD = 0,
+     PROLIFERATION_TNF_EFFECT,
+     PROLIFERATION_IL1BETA_EFFECT,
+     PROLIFERATION_ELASTICITY_EFFECT,
+     PROLIFERATION_MY_NEW_EFFECT,   // <-- new slot
+     PROLIFERATION_COUNT
+   };
+   ```
+
+3. Wire the JSON value into that slot in `apply_biology_parameters()` in `src/Agent/biology_parameters_config.cpp`:
+
+   ```cpp
+   Stem::proliferation[Stem::PROLIFERATION_MY_NEW_EFFECT] =
+       static_cast<float>(st.proliferation.my_new_effect);
+   ```
+
+4. Add the key to `configFiles/simulation_config.template.json` (and your local `simulation_config.json`), under `biology.stem.proliferation.my_new_effect`.
+
+5. Use it in a formula, e.g. in `src/Agent/Usr_Agents/Cell.cpp`, via `Stem::proliferation[Stem::PROLIFERATION_MY_NEW_EFFECT]`.
+
+Rebuild after these changes. Reordering or renaming an existing slot works the same way - just edit the enum name/position in step 2 and its one reference in step 3; formulas elsewhere keep working since they refer to the name, not a position.
 
 ## Build
 
@@ -68,16 +127,14 @@ For GPU builds you must load a CUDA module before running the script, or CMake w
 
 Edit the variables at the top of each block, then run from the repository root. One tick is 30 minutes of simulated time.
 
-| Parameter        | Flag or file              | Notes                                                                                                         |
-| ---------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Tick count       | `--numticks`              | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days                                                                           |
-| World size (mm)  | `--wxw`, `--wyw`, `--wzw` | Local default 3.1 mm; DRAC default 1 mm. GPU: 3.1 mm needs an H100 (~5 GB); use 1 mm or smaller on other GPUs |
-| Cells / scaffold | `--inputfile`             | e.g. `configFiles/config_scaffold.txt`                                                                        |
-| Chemistry        | `--chem-config`           | `configFiles/chemical_environment.json`                                                                       |
-| Calibration      | `Sample.txt`              | Repo root; not a command-line flag                                                                            |
-| Output directory | `--output-dir`            | All CSVs; on DRAC also `run_params.json`                                                                      |
-| Biomarker CSV    | `--outputfile`            | Default `<output-dir>/Output_Biomarkers.csv`                                                                  |
-| ParaView export  | `--paraview`              | Writes `<output-dir>/paraview/patches_t*.vti` and `chem_t*.vti` every 12 ticks                                |
+| Parameter         | Flag or file              | Notes                                                                                                         |
+| ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tick count        | `--numticks`              | 24 ≈ 12 h, 48 ≈ 1 day, 432 ≈ 9 days                                                                           |
+| World size (mm)   | `--wxw`, `--wyw`, `--wzw` | Local default 3.1 mm; DRAC default 1 mm. GPU: 3.1 mm needs an H100 (~5 GB); use 1 mm or smaller on other GPUs |
+| Simulation config | `--config`                | `configFiles/simulation_config.json` — world_init + chemistry + biology sections                              |
+| Output directory  | `--output-dir`            | All CSVs; on DRAC also `run_params.json`                                                                      |
+| Biomarker CSV     | `--outputfile`            | Default `<output-dir>/Output_Biomarkers.csv`                                                                  |
+| ParaView export   | `--paraview`              | Writes `<output-dir>/paraview/patches_t*.vti` and `chem_t*.vti` every 12 ticks                                |
 
 Local:
 
@@ -87,8 +144,7 @@ NUMTICKS=48
 WXW=3.1
 WYW=3.1
 WZW=3.1
-INPUTFILE="configFiles/config_scaffold.txt"
-CHEM_CONFIG="configFiles/chemical_environment.json"
+SIMULATION_CONFIG="configFiles/simulation_config.json"
 OUTPUT_DIR="output/local_${NUMTICKS}ticks"
 OUTPUTFILE="${OUTPUT_DIR}/Output_Biomarkers.csv"
 
@@ -96,8 +152,7 @@ OUTPUTFILE="${OUTPUT_DIR}/Output_Biomarkers.csv"
   --output-dir "${OUTPUT_DIR}" \
   --numticks "${NUMTICKS}" \
   --wxw "${WXW}" --wyw "${WYW}" --wzw "${WZW}" \
-  --inputfile "${INPUTFILE}" \
-  --chem-config "${CHEM_CONFIG}" \
+  --config "${SIMULATION_CONFIG}" \
   --outputfile "${OUTPUTFILE}"
 ```
 
@@ -110,8 +165,7 @@ NUMTICKS=48
 WXW=3.1
 WYW=3.1
 WZW=3.1
-INPUTFILE="configFiles/config_scaffold.txt"
-CHEM_CONFIG="configFiles/chemical_environment.json"
+SIMULATION_CONFIG="configFiles/simulation_config.json"
 OUTPUTFILE=""   # leave empty for default: <output-dir>/Output_Biomarkers.csv
 
 # --- cluster ---
@@ -123,8 +177,7 @@ MEM="32000M"
 SUBMIT=(./scripts/submit_testrun.sh "${EMAIL}" \
   --numticks "${NUMTICKS}" \
   --wxw "${WXW}" --wyw "${WYW}" --wzw "${WZW}" \
-  --inputfile "${INPUTFILE}" \
-  --chem-config "${CHEM_CONFIG}" \
+  --config "${SIMULATION_CONFIG}" \
   --profile "${PROFILE}" \
   --time "${WALLTIME}" \
   --cpus "${CPUS}" \
@@ -139,7 +192,7 @@ Append `--dry-run` to preview without submitting.
 
 `./scripts/submit_testrun.sh "${EMAIL}" 12` is the same as `--numticks 12`.
 
-To change shared DRAC simulation defaults, edit `scripts/job_defaults.env`. To change biology, edit files under `configFiles/` and `Sample.txt`.
+To change shared DRAC simulation defaults, edit `scripts/job_defaults.env`. To change biology, edit files under `configFiles/` (see [configFiles/README.md](configFiles/README.md)).
 
 ## ParaView visualization
 
@@ -159,7 +212,7 @@ Example:
   --numticks 24 \
   --paraview \
   --wxw 1 --wyw 1 --wzw 1 \
-  --chem-config configFiles/chemical_environment.template.json \
+  --config configFiles/simulation_config.template.json \
   --output-dir output/paraview_smoke
 ```
 
