@@ -1,27 +1,24 @@
 #include <catch2/catch.hpp>
 
-#include "chemical_environment.h"
-#include "species_registry.h"
-#include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../../common.h"
 #include "../../enums.h"
+#include "chemical_environment.h"
+#include "species_registry.h"
 
 #ifndef IVDBM_CHEM_CONFIG_DIR
 #define IVDBM_CHEM_CONFIG_DIR "configFiles"
 #endif
 
-namespace
-{
+namespace {
 
-std::string test_chem_config_path()
-{
-    return std::string(IVDBM_CHEM_CONFIG_DIR) + "/chemical_environment.template.json";
+std::string test_chem_config_path() {
+  return std::string(IVDBM_CHEM_CONFIG_DIR) +
+         "/chemical_environment.template.json";
 }
 
-void load_test_env(ChemicalEnvironment &env)
-{
-    env.load_from_config(test_chem_config_path(), 1.0, 1.0);
-    env.allocate_channels_from_config();
+void load_test_env(ChemicalEnvironment &env) {
+  env.load_from_config(test_chem_config_path(), 1.0, 1.0);
+  env.allocate_channels_from_config();
 }
 
 } // namespace
@@ -34,9 +31,7 @@ TEST_CASE("ChemicalEnvironment merge updates concentration from delta channel",
   env.set_concentration(0, TNF, 10.f);
   env.accumulate_secretion(0, TNF, 2.f);
 
-  Chemical world_chem;
   env.merge_and_reset_secretion();
-  env.copy_totals_to(world_chem);
 
 #ifndef CALIBRATION
   REQUIRE(env.concentration_at(0, TNF) == Approx(12.f));
@@ -88,10 +83,6 @@ TEST_CASE("ChemicalEnvironment baseline helpers set concentration and totals",
 
   env.recompute_world_totals();
   REQUIRE(env.total_tgf() == Approx(5.f));
-
-  Chemical world_chem;
-  env.copy_totals_to(world_chem);
-  REQUIRE(world_chem.totalTGF == Approx(5.f));
 }
 
 TEST_CASE("ChemicalEnvironment loads tick interval from JSON",

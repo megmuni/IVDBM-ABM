@@ -6,17 +6,13 @@
 #include "chemical_environment.h"
 
 #include "../enums.h"
-#include "../FieldVariable/Usr_FieldVariables/Chemical.h"
 
 #include <algorithm>
 #include <stdexcept>
 
 ChemicalEnvironment::ChemicalEnvironment(int nx, int ny, int nz,
-                                           double grid_spacing_mm)
-    : nx_(nx),
-      ny_(ny),
-      nz_(nz),
-      grid_size_(nx * ny * nz),
+                                         double grid_spacing_mm)
+    : nx_(nx), ny_(ny), nz_(nz), grid_size_(nx * ny * nz),
       grid_spacing_mm_(grid_spacing_mm) {
   if (nx_ <= 0 || ny_ <= 0 || nz_ <= 0)
     throw std::invalid_argument(
@@ -32,9 +28,11 @@ void ChemicalEnvironment::sync_diffusion_registry() {
 }
 
 void ChemicalEnvironment::load_from_config(const std::string &config_path,
-                                           double swelling_ratio_Q, double stiffness_E) {
+                                           double swelling_ratio_Q,
+                                           double stiffness_E) {
   config_ = load_chemical_environment_config(config_path);
-  registry_ = SpeciesRegistry::from_config(config_, swelling_ratio_Q, stiffness_E);
+  registry_ =
+      SpeciesRegistry::from_config(config_, swelling_ratio_Q, stiffness_E);
   merge_chemotaxis_species_ =
       species_id_by_name(config_.merge_chemotaxis_from_species);
   sync_diffusion_registry();
@@ -45,7 +43,7 @@ void ChemicalEnvironment::set_swelling_ratio(double Q) {
 }
 
 void ChemicalEnvironment::set_stiffness(double E) {
-    registry_.set_stiffness(E);
+  registry_.set_stiffness(E);
 }
 
 float ChemicalEnvironment::baseline_total_mass_for(
@@ -74,12 +72,13 @@ void ChemicalEnvironment::set_diffusion_algorithm(DiffusionAlgorithm algo) {
 
 void ChemicalEnvironment::allocate_channels_from_config() {
   if (config_.channel_count <= 0)
-    throw std::runtime_error(
-        "ChemicalEnvironment: load_from_config before allocate_channels_from_config");
+    throw std::runtime_error("ChemicalEnvironment: load_from_config before "
+                             "allocate_channels_from_config");
   allocate_channel_storage(config_.channel_count, config_.chemotaxis_channel);
 }
 
-SpeciesId ChemicalEnvironment::species_id_by_name(const std::string &name) const {
+SpeciesId
+ChemicalEnvironment::species_id_by_name(const std::string &name) const {
   for (const SpeciesConfigEntry &s : config_.species) {
     if (s.name == name)
       return s.id;
@@ -93,7 +92,7 @@ int ChemicalEnvironment::concentration_channel_for(
 }
 
 void ChemicalEnvironment::allocate_channel_storage(int channel_count,
-                                                    int chemotaxis_channel) {
+                                                   int chemotaxis_channel) {
   if (channel_count <= 0)
     throw std::invalid_argument(
         "ChemicalEnvironment: channel_count must be positive");
@@ -171,7 +170,8 @@ ChemicalEnvironment::diffusion_buffers() const {
   for (SpeciesId id : registry_.diffusing_species()) {
     const SpeciesDescriptor &desc = registry_.descriptor(id);
     SpeciesDiffusionBuffers buf;
-    buf.concentration = const_cast<float *>(channel_row(desc.concentration_channel));
+    buf.concentration =
+        const_cast<float *>(channel_row(desc.concentration_channel));
     buf.diffused = const_cast<float *>(channel_row(desc.diffused_channel));
     buffers[id] = buf;
   }
@@ -196,7 +196,8 @@ SpeciesChannelViews ChemicalEnvironment::channels(SpeciesId id) const {
   SpeciesChannelViews views;
   views.concentration =
       const_cast<float *>(channel_row(desc.concentration_channel));
-  views.secretion_delta = const_cast<float *>(channel_row(desc.diffused_channel));
+  views.secretion_delta =
+      const_cast<float *>(channel_row(desc.diffused_channel));
   views.diffused = views.secretion_delta;
   return views;
 }
@@ -209,7 +210,7 @@ ChemotaxisSignal ChemicalEnvironment::chemotaxis_signal() const {
 }
 
 float ChemicalEnvironment::concentration_at(int patch_index,
-                                           SpeciesId species) const {
+                                            SpeciesId species) const {
   const SpeciesDescriptor &desc = registry_.descriptor(species);
   return channel_row(desc.concentration_channel)[patch_index];
 }
@@ -282,11 +283,4 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
       }
     }
   }
-}
-
-void ChemicalEnvironment::copy_totals_to(Chemical &world_chem) const {
-  world_chem.totalTNF = total_tnf_;
-  world_chem.totalTGF = total_tgf_;
-  world_chem.totalIL1beta = total_il1beta_;
-  world_chem.totalo2 = total_o2_;
 }

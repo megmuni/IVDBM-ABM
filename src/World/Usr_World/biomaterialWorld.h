@@ -16,7 +16,6 @@
 #include "../../ArrayChain/ArrayChain.h"
 #include "../../Chemistry/chemical_environment.h"
 #include "../../ECM/ECM.h"
-#include "../../FieldVariable/Usr_FieldVariables/Chemical.h"
 #include "../../common.h"
 #include "../World.h"
 
@@ -401,11 +400,12 @@ public:
   static float deletedCells;
   static float prevCells;
   static int initialCaAlg; // The number of initial tissue patches
-  
+
   static float E; // Effective stiffness
 
-  static float initialO2; // Initial concentration of oxygen (umol/L)
-  static float incrementO2; // Percentage of initial patch O2 to add every tick as replenishment from external source
+  static float initialO2;   // Initial concentration of oxygen (umol/L)
+  static float incrementO2; // Percentage of initial patch O2 to add every tick
+                            // as replenishment from external source
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)
@@ -421,9 +421,10 @@ public:
   static float totalVolumeML; //
 
   /* CALIBRATION Variables */
-  static float thresholdTNFdamage;    // The threshold for TNF damage
-  static float cytokineDecay[6];    // The decay rates of the cytokines
-  static float halfLifes_static[6]; // The half lifes of the cytokines in minutes
+  static float thresholdTNFdamage; // The threshold for TNF damage
+  static float cytokineDecay[6];   // The decay rates of the cytokines
+  static float
+      halfLifes_static[6]; // The half lifes of the cytokines in minutes
 
   /* Calibration Variables */
   static float ElasticMod[7]; // Elastic Modulus of Ca-Alg Hydrogel
@@ -437,14 +438,11 @@ public:
    ****************************************************************/
   double patchlength; // The length of each patch
 
-  /** World-level cytokine totals (grid owned by chemical_environment_). */
-  Chemical WorldChem;
-
   float pXL;       // Crosslink Density (mmol/mL)
   float Q;         // Swelling Ratio (%)
   float w;         // Mass Loss (%)
   float poreWidth; // Pore Size (um)
-  
+
 #ifdef PEPTIDE_BM
   string peptide; // Type of peptide used for biomaterial conjugation
 #endif
@@ -466,7 +464,7 @@ public:
 
   vector<float> tgfLine; // Vector to store TGF values along an x-face line from
                          // boundary to center of ABM grid
-  vector<float> o2Line; // Vector to store O2 values along an x-face line from
+  vector<float> o2Line;  // Vector to store O2 values along an x-face line from
   // boundary to center of ABM grid
 
   int lineY;
@@ -488,7 +486,7 @@ public:
 
 protected:
   // --- output file hooks ---
-  char* get_output_filename() override;
+  char *get_output_filename() override;
   void write_csv_header(std::ofstream &file) override;
   void write_data_row(std::ofstream &file,
                       std::map<std::string, int> &agent_counts,
@@ -594,8 +592,8 @@ private:
   void updateChemCPU();
 
   /*
-   * Description: Update O2 across boundary patches (coming in from external environment).
-   * Gets called in updateChem(). 
+   * Description: Update O2 across boundary patches (coming in from external
+   * environment). Gets called in updateChem().
    *
    * TO-DO: move this to within updateChem() using a generic
    * "apply external source" option or something
@@ -665,12 +663,14 @@ private:
 #ifdef PEPTIDE_BM
 /* Experimental values for peptide biomaterial */
 struct peptideCondition {
-    float E_init; // initial modulus, represents elastic portion of model
-    float E_eq; // 'equilibrium' modulus, represents viscous portion of model
-    float t_stress; // stress relaxation time (t = t_half/ln(2))
+  float E_init;   // initial modulus, represents elastic portion of model
+  float E_eq;     // 'equilibrium' modulus, represents viscous portion of model
+  float t_stress; // stress relaxation time (t = t_half/ln(2))
 };
-extern peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
-//struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide structs
-#endif //PEPTIDE_BM
+extern peptideCondition MAL, CHAD, hA5G26,
+    IKVAV; // names of the peptide structs
+// struct peptideCondition MAL, CHAD, hA5G26, IKVAV; // names of the peptide
+// structs
+#endif // PEPTIDE_BM
 
 #endif /* BMWorld_H */

@@ -6,7 +6,7 @@ add_executable(chemistry_tests
 target_compile_definitions(chemistry_tests PRIVATE
     IVDBM_CHEM_CONFIG_DIR="${CMAKE_SOURCE_DIR}/configFiles")
 
-target_link_libraries(chemistry_tests PRIVATE Catch2::Catch2 Chemistry FieldVariable)
+target_link_libraries(chemistry_tests PRIVATE Catch2::Catch2 Chemistry)
 
 add_test(NAME chemistry_species_registry COMMAND chemistry_tests "[chemistry][registry]")
 add_test(NAME chemistry_environment COMMAND chemistry_tests "[chemistry][environment]")
