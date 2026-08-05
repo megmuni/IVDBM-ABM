@@ -41,6 +41,11 @@ if [[ "${IVDBM_PROFILE:-cpu}" == "gpu" ]]; then
   module load cuda 2>&1 || module load cuda/12.2 2>&1 || true
 fi
 
+PARAVIEW_FLAG=()
+if [[ "${PARAVIEW:-0}" -eq 1 ]]; then
+  PARAVIEW_FLAG=(--paraview)
+fi
+
 echo "Job ${SLURM_JOB_ID:-?} starting on $(hostname) at $(date -Iseconds)"
 echo "  REPO_ROOT=${REPO_ROOT}"
 echo "  TESTRUN=${TESTRUN}"
@@ -57,7 +62,8 @@ set +e
   --outputfile "${OUTPUTFILE}" \
   --wxw "${WXW}" \
   --wyw "${WYW}" \
-  --wzw "${WZW}"
+  --wzw "${WZW}" \
+  "${PARAVIEW_FLAG[@]}"
 status=$?
 set -e
 
