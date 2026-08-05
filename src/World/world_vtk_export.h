@@ -37,6 +37,17 @@ bool export_world_patches_to_vti(const World &world, const std::string &filename
 class BMWorld;
 
 /**
+ * @brief Write one `.vti` with @c collagen and @c aggrecan point arrays.
+ * 
+ * Works for @ref BMWorld; reads @c worldECM, combining original and new ECM buffers
+ * (@c ocollagen + @c ncollagen, @c oaggrecan + @c naggrecan) at the
+ * current @c write_t index.
+ * 
+ */
+bool export_world_ecm_to_vti(const BMWorld& world, const std::string& filename,
+                             const WorldVtkExportOptions& options = {});
+
+/**
  * @brief Write @c patches_t<step>.vti and, when allocated, @c chem_t<step>.vti
  *        under @p directory.
  */
