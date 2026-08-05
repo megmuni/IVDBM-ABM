@@ -134,7 +134,7 @@ Edit the variables at the top of each block, then run from the repository root. 
 | Simulation config | `--config`                | `configFiles/simulation_config.json` — world_init + chemistry + biology sections                              |
 | Output directory  | `--output-dir`            | All CSVs; on DRAC also `run_params.json`                                                                      |
 | Biomarker CSV     | `--outputfile`            | Default `<output-dir>/Output_Biomarkers.csv`                                                                  |
-| ParaView export   | `--paraview`              | Writes `<output-dir>/paraview/patches_t*.vti` and `chem_t*.vti` every 12 ticks                                |
+| ParaView export   | `--paraview`              | Writes `<output-dir>/paraview/patches_t*.vti`, `chem_t*.vti`, and `ecm_t*.vti` every 12 ticks                                |
 
 Local:
 

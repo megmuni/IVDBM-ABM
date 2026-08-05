@@ -37,6 +37,7 @@ TESTRUN_REL="${IVDBM_DEFAULT_TESTRUN}"
 OUTPUT_DIR=""
 OUTPUTFILE=""
 DRY_RUN=0
+PARAVIEW=0
 GPUS_EXPLICIT=0
 TIME_EXPLICIT=0
 
@@ -70,6 +71,7 @@ Options:
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)
+  --paraview            Writes <output-dir>/paraview/patches_t*.vti, chem_t*.vti, and ecm_t*.vti every 12 ticks
   --dry-run             Print sbatch command without submitting
   -h, --help            Show this help
 
@@ -226,6 +228,10 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || die "missing value for $1"
       OUTPUT_DIR="$2"
       shift 2
+      ;;
+    --paraview)
+      PARAVIEW=1
+      shift
       ;;
     --dry-run)
       DRY_RUN=1
