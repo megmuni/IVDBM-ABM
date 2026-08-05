@@ -112,6 +112,81 @@ bool export_world_patches_to_vti(const World &world, const std::string &filename
     return true;
 }
 
+bool export_world_ecm_to_vti(const BMWorld& world, const std::string& filename,
+                                 const WorldVtkExportOptions& options)
+{
+    const int nx = world.nx;
+    const int ny = world.ny;
+    const int nz = world.nz;
+    if (nx <= 0 || ny <= 0 || nz <= 0 || world.worldECM == nullptr)
+        return false;
+
+    double sx = 0.0, sy = 0.0, sz = 0.0;
+    if (!resolve_spacing(world, options, sx, sy, sz))
+        return false;
+
+    std::ostringstream spacing;
+    write_spacing(spacing, sx, sy, sz);
+
+    std::ofstream f(filename);
+    if (!f)
+        return false;
+
+    f << "<?xml version=\"1.0\"?>\n";
+    f << "<VTKFile type=\"ImageData\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
+    f << "<ImageData WholeExtent=\"0 " << nx - 1 << " 0 " << ny - 1 << " 0 "
+        << nz - 1 << "\" "
+        << "Origin=\"0 0 0\" "
+        << "Spacing=\"" << spacing.str() << "\">\n";
+    f << "<Piece Extent=\"0 " << nx - 1 << " 0 " << ny - 1 << " 0 " << nz - 1
+        << "\">\n";
+    f << "<PointData>\n";
+
+    // --- Collagen (ocollagen + ncollagen) ---
+    f << "<DataArray type=\"Float64\" Name=\"collagen\" format=\"ascii\">\n";
+    for (int z = 0; z < nz; ++z)
+    {
+        for (int y = 0; y < ny; ++y)
+        {
+            for (int x = 0; x < nx; ++x)
+            {
+                const int idx = x + nx * (y + ny * z);
+                const double collagen_total =
+                    world.worldECM[idx].ocollagen[write_t] +
+                    world.worldECM[idx].ncollagen[write_t];
+                f << collagen_total << " ";
+            }
+            f << "\n";
+        }
+    }
+    f << "</DataArray>\n";
+
+    // --- Aggrecan (oaggrecan + naggrecan) ---
+    f << "<DataArray type=\"Float64\" Name=\"aggrecan\" format=\"ascii\">\n";
+    for (int z = 0; z < nz; ++z)
+    {
+        for (int y = 0; y < ny; ++y)
+        {
+            for (int x = 0; x < nx; ++x)
+            {
+                const int idx = x + nx * (y + ny * z);
+                const double aggrecan_total =
+                    world.worldECM[idx].oaggrecan[write_t] +
+                    world.worldECM[idx].naggrecan[write_t];
+                f << aggrecan_total << " ";
+            }
+            f << "\n";
+        }
+    }
+    f << "</DataArray>\n";
+
+    f << "</PointData>\n";
+    f << "</Piece>\n";
+    f << "</ImageData>\n";
+    f << "</VTKFile>\n";
+    return true;
+}
+
 bool export_world_timestep(const BMWorld &world, int step_index,
                            const std::string &directory,
                            const WorldVtkExportOptions &options)
@@ -122,6 +197,11 @@ bool export_world_timestep(const BMWorld &world, int step_index,
     const std::string patches_path =
         format_world_vti_path(directory, "patches", step_index);
     if (!export_world_patches_to_vti(world, patches_path, options))
+        return false;
+
+    const std::string ecm_path =
+        format_world_vti_path(directory, "ecm", step_index);
+    if (!export_world_ecm_to_vti(world, ecm_path, options))
         return false;
 
     const ChemicalEnvironment *chem_env = world.chemical_environment();
