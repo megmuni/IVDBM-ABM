@@ -40,6 +40,7 @@ DRY_RUN=0
 PARAVIEW=0
 GPUS_EXPLICIT=0
 TIME_EXPLICIT=0
+QUIET_MAIL=0
 
 usage() {
   cat <<'EOF'
@@ -72,6 +73,7 @@ Options:
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)
   --paraview            Writes <output-dir>/paraview/patches_t*.vti, chem_t*.vti, and ecm_t*.vti every 12 ticks
+  --quiet-mail          Suppresses slurm mail notifications for this job (e.g. for large batches)
   --dry-run             Print sbatch command without submitting
   -h, --help            Show this help
 
@@ -233,6 +235,10 @@ while [[ $# -gt 0 ]]; do
       PARAVIEW=1
       shift
       ;;
+    --quiet-mail)
+      QUIET_MAIL=1
+      shift
+      ;;
     --dry-run)
       DRY_RUN=1
       shift
@@ -287,11 +293,17 @@ if [[ -n "${OUTPUTFILE}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUTFILE=${OUTPUTFILE}"
 fi
 
+if [[ "${QUIET_MAIL}" -eq 1 ]]; then
+  MAIL_TYPE="NONE"
+else
+  MAIL_TYPE="ALL"
+fi
+
 SBATCH_ARGS=(
   --job-name=ivdbm-testrun
   --account="${ACCOUNT}"
   --mail-user="${EMAIL}"
-  --mail-type=ALL
+  --mail-type="${MAIL_TYPE}"
   --time="${TIME}"
   --nodes=1
   --cpus-per-task="${CPUS}"
@@ -328,4 +340,8 @@ if [[ -n "${OUTPUT_DIR}" ]]; then
 else
   echo "Output dir: output/job_<SLURM_JOB_ID> (set on compute node)"
 fi
-echo "Mail notifications for ${EMAIL} will be sent by Slurm for job ${JOB_ID}."
+if [[ "${QUIET_MAIL}" -eq 1 ]]; then
+  echo "Mail notifications suppressed (--quiet-mail) for job ${JOB_ID}."
+else
+  echo "Mail notifications for ${EMAIL} will be sent by Slurm for job ${JOB_ID}."
+fi
