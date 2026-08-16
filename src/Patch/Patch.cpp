@@ -103,7 +103,7 @@ Patch::Patch(const Patch& obj){
   occupied[read_t]->clear();
   if (obj.occupied_bool[read_t]) occupied[read_t]->test_and_set(); 
   occupied[write_t]->clear();
-  if (obj.occupied_bool[write_t]) occupied[read_t]->test_and_set(); 
+  if (obj.occupied_bool[write_t]) occupied[write_t]->test_and_set(); 
 }
 
 Patch::~Patch() {
@@ -136,7 +136,7 @@ Patch& Patch::operator=(const Patch& obj){
   occupied[read_t]->clear();
   if (obj.occupied_bool[read_t]) occupied[read_t]->test_and_set(); 
   occupied[write_t]->clear();
-  if (obj.occupied_bool[write_t]) occupied[read_t]->test_and_set(); 
+  if (obj.occupied_bool[write_t]) occupied[write_t]->test_and_set(); 
   return *this; 
 }
 
