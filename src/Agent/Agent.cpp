@@ -370,16 +370,19 @@ bool Agent::moveTowardChemotaxis() {
 	int dx = 0, dy = 0, dz = 0;
 
 	#ifdef MODEL_SCAFFOLD
-	int radius;
+	int radius = 0;
 		switch (this->type[read_t]) {
 			case stem: {
-				int radius = Stem::migrationSpeed;
+				radius = Stem::migrationSpeed;
+				break;
 			}
 			case progen: {
-				int radius = Progen::migrationSpeed;
+				radius = Progen::migrationSpeed;
+				break;
 			}
 			case np: {
-				int radius = NP::migrationSpeed;
+				radius = NP::migrationSpeed;
+				break;
 			}
 		}
 
