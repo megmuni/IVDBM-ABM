@@ -705,26 +705,28 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 			int dy = Agent::dY[neighbor[i]];
 			int dz = Agent::dZ[neighbor[i]];
 
+			// Try a new target neighboring patch if this one is not inside the world dimensions, or is occupied.
+			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
+
 			// Patch row major index of target neighboring patch:
 			in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 
 			// Hatching coordinates:
-			int lx = x + dx;
-			int ly = y + dy;
-			int lz = z + dz;
-
-			// Try a new target neighboring patch if this one is not inside the world dimensions, or is occupied.
-			if (x + dx < 0 || x + dx >= nx || y + dy < 0 || y + dy >= ny || z + dz < 0 || z + dz >= nz) continue;
-			int targetType = agentPatchPtr[in].type[read_t];
+			lx = x + dx;
+			ly = y + dy;
+			lz = z + dz;
 		}
 		else { // here == 1; option to hatch a new cell on current patch
 			in = this->getIndex();
 
 			// Hatching coordinates:
-			int lx = x;
-			int ly = y;
-			int lz = z;
+			lx = x;
+			ly = y;
+			lz = z;
 		}
+
+		if (Agent::agentPatchPtr[in].isOccupiedWrite()) continue;
+
 		// Create a new cell of agentType at the valid target neighboring patch:
 		Cell* newcell = nullptr;
 		switch (agentType) {
