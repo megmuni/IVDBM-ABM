@@ -265,8 +265,8 @@ class ECM {
      *************************************************************************/
     static Patch* ECMPatchPtr;     // Pointer to array of all patches in the world
     static BMWorld* ECMWorldPtr;   // Pointer to the wound healing world
-    static int maxcollagen;    // The maximum amount of collagen (of all types) allowed
-    static int maxaggrecan;     // The maximum amount of aggrecan (of all types) allowed
+    static long long maxcollagen;    // The maximum amount of collagen (of all types) allowed
+    static long long maxaggrecan;     // The maximum amount of aggrecan (of all types) allowed
     static int maxHA;     // The maximum amount of hyaluronan (of all types) allowed
     static int dx[27];    // x dimension displacement to each neighbor
     static int dy[27];    // y dimension displacement to each neighbor
