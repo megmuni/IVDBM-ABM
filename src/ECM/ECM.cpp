@@ -21,11 +21,10 @@
 
 using namespace std;
 
-//FIXME: Update max num of ECM on each patch 
 Patch* ECM::ECMPatchPtr = NULL; 
 BMWorld* ECM::ECMWorldPtr = NULL;
-int ECM::maxcollagen = 620*10^9;  
-int ECM::maxaggrecan = 500*10^9;  
+long long ECM::maxcollagen = 620000000000LL;
+long long ECM::maxaggrecan = 500000000000LL;  
 int ECM::maxHA = 0;
 int ECM::dx[27] = {-1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1};
 int ECM::dy[27] = {-1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1};
@@ -440,9 +439,9 @@ void ECM::updateECM() {
 #endif
 
 		// Fragmented ECM requests can only be accepted if there is enough space. // TODO(Kim): INSERT REF?
-		if (ocollagen[read_t] + ncollagen[read_t] + fcollagen[read_t] + fcollagenrequest > maxcollagen) {
+		if ((long long)ocollagen[read_t] + ncollagen[read_t] + fcollagen[read_t] + fcollagenrequest > maxcollagen) {
 			cout << "  Error fcollagen request" << endl;
-		} else if (oaggrecan[read_t] + naggrecan[read_t] + faggrecan[read_t] + faggrecanrequest > maxaggrecan) {
+		} else if ((long long)oaggrecan[read_t] + naggrecan[read_t] + faggrecan[read_t] + faggrecanrequest > maxaggrecan) {
 			cout << "  Error faggrecan request" << endl;
 		} else {
       		// Fragmented ECM proteins serve as danger signals once
