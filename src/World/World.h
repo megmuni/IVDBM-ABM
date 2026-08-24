@@ -95,7 +95,6 @@ class World {
         REAL z_min, z_max;    // Max and min coordinate in z 
         vector<REAL> x,y,z;    // Spatial coordinates of the grid
         vector<vector<REAL> > field_var;      // Two dimensional array of field variables 
-        unsigned seed;    // For generating random numbers
 
     /*
      * Description:	Outputs cell counts and cytokine levels from the current tick to the file "Output/Output_Biomarkers.csv".

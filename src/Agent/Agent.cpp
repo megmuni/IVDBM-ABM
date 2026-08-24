@@ -49,6 +49,11 @@ using namespace std;
 Agent::Agent() {}
 Agent::~Agent() {}
 
+void Agent::openRngStream(int birth_index) {
+	this->rng = abm::rng::Stream(static_cast<uint32_t>(birth_index),
+	                             static_cast<uint32_t>(World::clock));
+}
+
 bool Agent::isAlive() {
 	if (this->life[write_t] < 0) this->alive[write_t] = false;
 	else this->alive[write_t] = true;
@@ -80,13 +85,7 @@ int Agent::getIndex() {
 }
 
 bool Agent::rollDice(float percent) {
-	int tid = 0;
-		#ifdef _OMP
-			tid = omp_get_thread_num();	// Get thread id in order to access the seed that belongs to this thread
-		#endif
-	int randNum = rand_r(&(agentWorldPtr->seeds[tid]))%100;
-	if (randNum < percent) return 1;
-	else return 0;
+	return abm::rng::roll_percent(this->rng, percent);
 }
 
 bool Agent::move(int dX, int dY, int dZ, int read_index) {
@@ -153,18 +152,13 @@ void Agent::wiggle() {
 	int ny = Agent::ny;
 	int nz = Agent::nz;
 	
-	int tid = 0;
-	#ifdef _OMP
-		tid = omp_get_thread_num();	 // Get thread id in order to access the seed that belongs to this thread
-	#endif
-
 	int trial = 0;
 	do {
 		// Pick a neighbor to move to at random:
 		#ifndef MODEL_3D
-			int i = rand_r(&(agentWorldPtr->seeds[tid])) % 8;
+			int i = abm::rng::uniform_int(this->rng, 8);
 		#else
-			int i = rand_r(&(agentWorldPtr->seeds[tid])) % 27;
+			int i = abm::rng::uniform_int(this->rng, 27);
 		#endif
 			int dx = Agent::dX[neighbor[i]];
 			int dy = Agent::dY[neighbor[i]];
@@ -209,7 +203,7 @@ void Agent::wiggle() {
 			}
 
 			// Move to a random neighbor that is not capillary that is inside world dimensions:
-			int randInt = rand_r(&(agentWorldPtr->seeds[tid]))%(xtarget.size());
+			int randInt = abm::rng::uniform_int(this->rng, xtarget.size());
 			dx = xtarget[randInt];
 			dy = ytarget[randInt];
 			dz = ztarget[randInt];

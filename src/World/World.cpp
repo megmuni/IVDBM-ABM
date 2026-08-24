@@ -25,8 +25,6 @@ World::World() {
     this->nx = 0; 
     this->ny = 0; 
     this->nz = 0;
-    this->seed = 27000; //srand(seed);
-    srand(time(0));
 }
 
 World::World(const World& orig) {}

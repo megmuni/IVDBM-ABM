@@ -93,6 +93,7 @@ int main(int argc, char **argv) {
 /* -------------------------------------------------------------------------- */
 	// Get baseline cell and chemical values that user specified:
 	util::processOptions(argc, argv);
+	util::applyRngSeed();
 	util::ensureOutputDir();
 	util::writeRunParamsJson(argc, argv);
 	util::printOptions();
