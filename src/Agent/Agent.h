@@ -20,6 +20,7 @@
 #include "../World/World.h"
 #include "../common.h"
 #include "../enums.h"
+#include "../Utilities/rng.h"
 // #include "../ArrayChain/ArrayChain.h"
 
 class World;
@@ -105,7 +106,7 @@ public:
    * Parameters: percent  -- percentage that dictates the chance of a successful
    * roll
    */
-  static bool rollDice(float percent);
+  bool rollDice(float percent);
 
   /*
    * Description:	Moves the cell to the target patch if it is valid and
@@ -265,6 +266,19 @@ protected:
                      // replacement/differentiation of cell)
   int doublings[2]; // Tracking of cell doublings (cells reach senescence, i.e.,
                     // non-proliferation, after ~100 doublings)
+
+  abm::rng::Stream rng; // This agent's random stream
+
+  /*
+   * Description:	Opens this agent's random stream. The stream is keyed by the
+   *              patch the agent is born on and the tick it is born in, which
+   *              together identify it deterministically. Must be called from
+   *              every agent constructor.
+   *
+   * Return: void
+   * Parameters: birth_index -- Patch row major index the agent is born on
+   */
+  void openRngStream(int birth_index);
 };
 
 #endif /* AGENT_H */

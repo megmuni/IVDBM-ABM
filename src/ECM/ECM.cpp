@@ -42,6 +42,7 @@ ECM::ECM(int x, int y, int z, int index) {
 	this->indice[1] = y;
 	this->indice[2] = z;
 	this->index = index;
+	this->rng = abm::rng::Stream(static_cast<uint32_t>(index), 0);
 	this->empty[read_t] = true;
 	this->ocollagen[read_t] = 0;
 	this->ncollagen[read_t] = 0;
@@ -256,7 +257,9 @@ void ECM::fragmentNCollagen() {
 		newfragments = 0;
 
 		// Request one fragmented collagen at a random inbounds neighboring patch. //TODO(Caroline) Might want to make the radius = 2
-		std::random_shuffle(&d[0], &d[27]);
+		int d[27];
+		std::copy(&ECM::d[0], &ECM::d[27], &d[0]);
+		abm::rng::shuffle(this->rng, &d[0], &d[27]);
 		for (int i = 0; i < 27; i++) {
 			dX = dx[d[i]];
 			dY = dy[d[i]];
@@ -301,7 +304,9 @@ void ECM::fragmentNAggrecan() {
 		newfragments = 0;
 
 		// Request one fragmented aggrecan at a random inbounds neighboring patch. // TODO(Caroline) Might want to make the radius = 2
-		std::random_shuffle(&d[0], &d[27]);
+		int d[27];
+		std::copy(&ECM::d[0], &ECM::d[27], &d[0]);
+		abm::rng::shuffle(this->rng, &d[0], &d[27]);
 		for (int i = 0; i < 27; i++) {
 			dX = dx[d[i]];
 			dY = dy[d[i]];
@@ -347,15 +352,17 @@ void ECM::fragmentHA() {
 
    // Kills hyaluronan that is to be fragmented:
 	#ifdef OPT_ECM
-		int randomHA = rand()% HAlife.size();
+		int randomHA = abm::rng::uniform_int(this->rng, HAlife.size());
 		HAlife[randomHA] = 0;
 	#else
-		int randomHA = rand()% HAlife[write_t].size();
+		int randomHA = abm::rng::uniform_int(this->rng, HAlife[write_t].size());
 		HAlife[write_t][randomHA] = 0;
 	#endif
 
 	// Request one fragmented hyaluronan at a random inbounds neighboring patch. TODO(Caroline) Might want to make the radius = 2
-		std::random_shuffle(&d[0], &d[27]);
+		int d[27];
+		std::copy(&ECM::d[0], &ECM::d[27], &d[0]);
+		abm::rng::shuffle(this->rng, &d[0], &d[27]);
 		for (int i = 0; i < 27; i++) {
 			dX = dx[d[i]];
 			dY = dy[d[i]];

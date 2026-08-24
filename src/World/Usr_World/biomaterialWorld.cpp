@@ -101,9 +101,7 @@ peptideCondition IKVAV = {2.9067, 5.4795, 42.56};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
-  // Generate random seeds:
-  for (int i = 0; i < NUM_THREAD; i++)
-    seeds[i] = 25234 + 17 * i;
+  this->rng = abm::rng::Stream(0, 0);
 
   // Allocate memory for local lists of cell pointers to add:
   for (int i = 0; i < MAX_NUM_THREADS; i++)
@@ -1185,7 +1183,7 @@ void BMWorld::sproutAgentInArea(int num, int patchType, int agentType, int xmin,
       delete[] reservoir;
       return;
     }
-    int randnumber = rand() % patchlist.size();
+    int randnumber = abm::rng::uniform_int(this->rng, patchlist.size());
     reservoir[i] = patchlist[randnumber]; // Prepare 'num' random patches
   }
 
@@ -1604,7 +1602,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
         delete[] reservoir;
         return;
       }
-      int randnumber = rand() % patchlist.size();
+      int randnumber = abm::rng::uniform_int(this->rng, patchlist.size());
       reservoir[i] = patchlist[randnumber]; // Prepare 'num' random patches
     }
 

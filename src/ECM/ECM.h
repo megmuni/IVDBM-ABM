@@ -17,6 +17,7 @@
 #include "../Agent/Agent.h"
 #include "../FieldVariable/FieldVariable.h"
 #include "../enums.h"
+#include "../Utilities/rng.h"
 
 class World;
 class BMWorld;
@@ -272,6 +273,8 @@ class ECM {
     static int dy[27];    // y dimension displacement to each neighbor
     static int dz[27];    // z dimension displacement to each neighbor
     static int d[27];     // Index of each neighbor in dx, dy, dz arrays
+
+    abm::rng::Stream rng;  // This ECM manager's random stream
 };
 
 #endif	/* ECM_H */

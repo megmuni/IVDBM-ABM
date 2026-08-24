@@ -93,6 +93,7 @@ Cell::Cell(Patch* patchPtr) {
 	this->iy[write_t] = patchPtr->indice[1];
 	this->iz[write_t] = patchPtr->indice[2];
 	this->index[write_t] = patchPtr->index;
+	this->openRngStream(patchPtr->index);
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
 	this->doublings[write_t] = 0;
@@ -175,6 +176,7 @@ Cell::Cell(int x, int y, int z) {
 	this->iy[write_t] = y;
 	this->iz[write_t] = z;
 	this->index[write_t] = x + y*nx + z*nx*ny;
+	this->openRngStream(this->index[write_t]);
 	this->alive[write_t] = true;
 	this->realDeath[write_t] = false;
 	this->doublings[write_t] = 0;
@@ -380,6 +382,7 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 	this->iy[write_t] = original->getY() + dy;
 	this->iz[write_t] = original->getZ() + dz;
 	this->index[write_t] = this->ix[write_t] + this->iy[write_t]*Agent::nx + this->iz[write_t]*Agent::nx*Agent::ny;
+	this->openRngStream(this->index[write_t]);
   	
 	// Initializes new Cell:
 	this->alive[read_t] = true;
@@ -563,12 +566,7 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 
 	// Target a random damaged neighboring patch, if there are any.
 	if (neighbors.size() > 0) {
-		int tid = 0;
-#ifdef _OMP
-		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-#endif
-
-		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
+		randInt = abm::rng::uniform_int(this->rng, neighbors.size());
 		target = neighbors[randInt];
 		dx = Agent::dX[target];
 		dy = Agent::dY[target];
@@ -578,7 +576,7 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 		this->move(dx, dy, dz, read_index);
 
-		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
+		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + abm::rng::uniform_int(this->rng, 2);
 #ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
 #endif
@@ -628,12 +626,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 	
 	// Target a random neighboring patch, if there are any.
 	if (neighbors.size() > 0) {
-		int tid = 0;
-#ifdef _OMP
-		tid = omp_get_thread_num();     // Get thread id in order to access the seed that belongs to this thread
-#endif
-
-		randInt = rand_r(&(agentWorldPtr->seeds[tid])) % neighbors.size();
+		randInt = abm::rng::uniform_int(this->rng, neighbors.size());
 		target = neighbors[randInt];
 		dx = Agent::dX[target];
 		dy = Agent::dY[target];
@@ -643,7 +636,7 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
 		this->move(dx, dy, dz, read_index);
 
-		Agent::agentECMPtr[in].oaggrecan[write_t] = Agent::agentECMPtr[in].oaggrecan[read_t] + 1 + rand() % 2;
+		Agent::agentECMPtr[in].oaggrecan[write_t] = Agent::agentECMPtr[in].oaggrecan[read_t] + 1 + abm::rng::uniform_int(this->rng, 2);
 #ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
 #endif
@@ -693,10 +686,14 @@ void Cell::hatchnewcell(int number, int agentType, int here) {
 
 	// Shuffle neighboring patches and go through them in a random order:
 #ifdef MODEL_3D
-	random_shuffle(&Agent::neighbor[0], &Agent::neighbor[26]);
+	int neighbor[27];
+	std::copy(&Agent::neighbor[0], &Agent::neighbor[27], &neighbor[0]);
+	abm::rng::shuffle(this->rng, &neighbor[0], &neighbor[27]);
 	for (int i = 0; i < 27 && newcells < number; i++) {
 #else
-	random_shuffle(&Agent::neighbor[0], &Agent::neighbor[7]);
+	int neighbor[8];
+	std::copy(&Agent::neighbor[0], &Agent::neighbor[8], &neighbor[0]);
+	abm::rng::shuffle(this->rng, &neighbor[0], &neighbor[8]);
 	for (int i = 0; i < 8 && newcells < number; i++) {
 #endif
 		if (here == 0) { // Default option; hatching on number of neighboring patches
