@@ -37,7 +37,8 @@ public:
      * @brief Advance all species by their configured macro timestep.
      *
      * Executes per-species sub-stepping (CFL-stable dt_sub) for all species.
-     * Interior points updated via stencil kernel; boundary remains zero (Dirichlet).
+     * Stencil kernel excludes out-of-domain neighbors from the Laplacian sum,
+     * giving an open-box (zero-flux Neumann) boundary.
      *
      * @param grid MultiSpeciesFieldGrid (modified in-place)
      * @throws std::runtime_error on execution failure (GPU errors, etc.)
