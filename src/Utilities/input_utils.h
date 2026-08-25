@@ -21,6 +21,12 @@
 #include <string>
 #include <sys/stat.h>
 
+#ifdef _OMP
+#include <omp.h>
+#endif
+
+#include "rng.h"
+
 using namespace std;
 namespace util {
 
@@ -38,10 +44,23 @@ char simulationConfigFile[200];
 char outputDir[200];      // Base directory for run artifacts
 char outputFileName[200]; // Primary biomarker CSV path
 bool paraviewExportEnabled = false;
+unsigned int rngSeed = 27000; // World seed for all random decisions
 
 inline const char *getOutputDir() { return outputDir; }
 
 inline bool paraviewEnabled() { return paraviewExportEnabled; }
+
+/** Applies the world seed. Must run before any Agent or ECM is constructed. */
+inline void applyRngSeed() { abm::rng::set_global_seed(rngSeed); }
+
+/** Thread count the run actually used, recorded alongside the seed. */
+inline int ompNumThreads() {
+#ifdef _OMP
+  return omp_get_max_threads();
+#else
+  return 1;
+#endif
+}
 
 inline void makeOutputPath(char *dest, size_t dest_size, const char *filename) {
   snprintf(dest, dest_size, "%s/%s", outputDir, filename);
@@ -212,6 +231,8 @@ void processOptions(int argc, char **argv) {
                       argv[++i]);
     } else if (!strcmp(option_string, "--paraview")) {
       paraviewExportEnabled = true;
+    } else if (!strcmp(option_string, "--seed")) {
+      rngSeed = strtoul(argv[++i], NULL, 10);
     } else if (!strcmp(option_string, "--help")) {
       cout << "Options: " << endl;
       cout << "   --numticks:      Number of ticks" << endl;
@@ -230,6 +251,9 @@ void processOptions(int argc, char **argv) {
            << endl;
       cout << "   --paraview:      export patch/chemistry .vti time series "
               "under <output-dir>/paraview/"
+           << endl;
+      cout << "   --seed:          world seed for all random decisions "
+              "(default: 27000)"
            << endl;
       cout << " Usage: " << endl;
       cout << "      ./bin/testRun --wxw 3.1 --wyw 3.1 --wzw 3.1 --numticks 48"
@@ -334,7 +358,9 @@ inline void writeRunParamsJson(int argc, char **argv) {
   writeJsonStringField(out, "output_file", outputFileName);
   writeJsonStringField(out, "simulation_config", simulationConfigFile);
   out << "    \"paraview_enabled\": "
-      << (paraviewExportEnabled ? "true" : "false") << "\n";
+      << (paraviewExportEnabled ? "true" : "false") << ",\n";
+  out << "    \"rng_seed\": " << rngSeed << ",\n";
+  out << "    \"omp_num_threads\": " << ompNumThreads() << "\n";
   out << "  },\n";
 
   out << "  \"command\": {\n";
@@ -394,6 +420,8 @@ void printOptions() {
   cout << "	simulationConfig:	" << simulationConfigFile << endl;
   cout << "	paraviewEnabled:	"
        << (paraviewExportEnabled ? "true" : "false") << endl;
+  cout << "	rngSeed:	" << rngSeed << endl;
+  cout << "	ompNumThreads:	" << ompNumThreads() << endl;
 }
 
 } // namespace util

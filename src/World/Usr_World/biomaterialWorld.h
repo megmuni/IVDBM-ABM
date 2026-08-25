@@ -17,6 +17,7 @@
 #include "../../ArrayChain/ArrayChain.h"
 #include "../../Chemistry/chemical_environment.h"
 #include "../../ECM/ECM.h"
+#include "../../Utilities/rng.h"
 #include "../../common.h"
 #include "../World.h"
 
@@ -490,9 +491,7 @@ public:
                                        // cell pointers to add to global list
   vector<int> initHAcenters;       // Vector of patches which can be centers for
                                    // sprouting original hyaluronan
-  unsigned seeds[MAX_NUM_THREADS]; // Seeds used to generate random numbers for
-                                   // each thread
-
+  abm::rng::Stream rng;            // World-level random stream
   vector<float> tgfLine; // Vector to store TGF values along an x-face line from
                          // boundary to center of ABM grid
   vector<float> o2Line;  // Vector to store O2 values along an x-face line from

@@ -20,6 +20,8 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}; src)
 
+include_directories(${PROJECT_SOURCE_DIR}/third_party)
+
 message(" --->")
 message(" CXX is set to ${CXX}")
 message(" cxx_compiler is set to ${CMAKE_CXX_COMPILER}")
