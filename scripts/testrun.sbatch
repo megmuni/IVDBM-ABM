@@ -1,7 +1,7 @@
 #!/bin/bash
 # Slurm batch script for testRun — submit via scripts/submit_testrun.sh, not directly.
 # Required env (set by submit_testrun.sh): REPO_ROOT, TESTRUN
-# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, OUTPUTFILE, SIMULATION_CONFIG, IVDBM_PROFILE
+# Optional env: OUTPUT_DIR, NUMTICKS, WXW, WYW, WZW, OUTPUTFILE, SIMULATION_CONFIG, IVDBM_PROFILE, KEEP_NAME, KEEP_WHY, RUN_COMMIT
 
 set -uo pipefail
 
@@ -68,4 +68,30 @@ status=$?
 set -e
 
 echo "testRun finished with exit code ${status}"
+
+if [[ "${status}" -eq 0 && -n "${KEEP_NAME:-}" ]]; then
+  RUN_FOLDER="${IVDBM_RESULTS_DIR}/$(date +%F)_${SLURM_JOB_ID}_${KEEP_NAME}"
+  set +e
+  mkdir -p "${RUN_FOLDER}/summary" \
+    && cp -r "${OUTPUT_DIR}" "${RUN_FOLDER}/raw" \
+    && cp "${OUTPUTFILE}" "${RUN_FOLDER}/summary/" \
+    && cat > "${RUN_FOLDER}/manifest.txt" <<EOF
+date: $(date '+%Y-%m-%d %H:%M')
+cluster: ${CC_CLUSTER:-$(hostname)}
+job_id: ${SLURM_JOB_ID}
+commit: ${RUN_COMMIT:-unknown}
+config: ${SIMULATION_CONFIG}
+numticks: ${NUMTICKS}
+world_mm: ${WXW}x${WYW}x${WZW}
+why: ${KEEP_WHY:-}
+EOF
+  archive_status=$?
+  set -e
+  if [[ "${archive_status}" -eq 0 ]]; then
+    echo "Archived run to ${RUN_FOLDER}"
+  else
+    echo "testrun.sbatch: warning: archiving to ${RUN_FOLDER} failed; output is still in ${OUTPUT_DIR}" >&2
+  fi
+fi
+
 exit "${status}"
