@@ -935,7 +935,7 @@ void BMWorld::updateO2() {
       for (int iy = 0; iy < ny; iy++) {
           for (int ix = 0; ix < nx; ix++) {
               int in = ix + iy * nx + iz * nx * ny;
-              chemical_environment_->accumulate_secretion(in, o2, uni_incrO2);
+              this->chem_add_secretion(in, o2, uni_incrO2);
           }
       }
   }
@@ -981,6 +981,7 @@ void BMWorld::updateO2() {
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
+  updateO2(); // call O2 update
   chemical_environment_->merge_and_reset_secretion();
 
   // temp for TGF output for diffusion debugging
