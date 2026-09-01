@@ -35,11 +35,7 @@ TEST_CASE("ChemicalEnvironment merge updates concentration from delta channel",
 
   env.merge_and_reset_secretion();
 
-#ifndef CALIBRATION
   REQUIRE(env.concentration_at(0, TNF) == Approx(12.f));
-#else
-  REQUIRE(env.concentration_at(0, TNF) == Approx(2.2f));
-#endif
   REQUIRE(env.channels(TNF).secretion_delta[0] == Approx(0.f));
 }
 
