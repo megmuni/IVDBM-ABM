@@ -981,7 +981,7 @@ void BMWorld::updateO2() {
 void BMWorld::updateChemCPU() {
   if (!chemical_environment_)
     return;
-  updateO2(); // call O2 update
+  this->updateO2(); // call O2 update
   chemical_environment_->merge_and_reset_secretion();
 
   // temp for TGF output for diffusion debugging
