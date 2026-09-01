@@ -935,7 +935,7 @@ void BMWorld::updateO2() {
       for (int iy = 0; iy < ny; iy++) {
           for (int ix = 0; ix < nx; ix++) {
               int in = ix + iy * nx + iz * nx * ny;
-              this->chem_add_secretion(in, o2, uni_incrO2);
+              this->chem_add_secretion(o2, in, uni_incrO2);
           }
       }
   }
