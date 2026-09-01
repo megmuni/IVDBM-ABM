@@ -262,11 +262,7 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
           const SpeciesDescriptor &desc = registry_.descriptor(id);
           float *p = channel_row(desc.concentration_channel);
           float *d = channel_row(desc.diffused_channel);
-#ifndef CALIBRATION
           p[in] = d[in] + p[in];
-#else
-          p[in] = d[in] + p[in] * 0.02f;
-#endif
           p[in] = std::max(p[in], 0.f);
           d[in] = 0.f;
         }
