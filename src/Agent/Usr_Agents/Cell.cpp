@@ -253,13 +253,15 @@ NP::~NP() {}
 void Cell::cellFunction() {
 	// Calls the individual cell stage functions
 	int in = this->index[read_t];
+	bool random_act = false; // identifier to allow cells to sometimes 'act' by random chance, even if they don't meet the O2 condition
 
 	//Measure mean & patch oxygen 
 	float meanO2 = this->meanNeighborConcentration(o2);
 	float patchO2 = this->patchChemConcentration(o2, in);
 
 	if (this->alive[read_t] == false) return;
-	if (this->alive[read_t] == true && (meanO2 + patchO2) > this->get_OCR()) {
+	if (rollDice(40)) { random_act = true; }
+	if (this->alive[read_t] == true && (((meanO2 + patchO2) > this->get_OCR()) || random_act == true)) {
 		this->proliferate();
 		this->differentiate();
 		this->cellSniff();
@@ -267,27 +269,30 @@ void Cell::cellFunction() {
 		this->cytokine_synthesis();
 		this->apoptose();
 
-		// Finally, subtract 'consumed' O2 from current and neighbor patches
+		// Finally, subtract 'consumed' O2 from current and neighbor patches IF it 
+		// was an O2-driven cell activation
 
-		// Location of agent in x,y,z dimensions of world.
-		int x = this->ix[read_t];
-		int y = this->iy[read_t];
-		int z = this->iz[read_t];
+		if (!random_act) {
+			// Location of agent in x,y,z dimensions of world.
+			int x = this->ix[read_t];
+			int y = this->iy[read_t];
+			int z = this->iz[read_t];
 
-		// Number of patches in x,y,z dimensions of world
-		int nx = Agent::nx;
-		int ny = Agent::ny;
-		int nz = Agent::nz;
+			// Number of patches in x,y,z dimensions of world
+			int nx = Agent::nx;
+			int ny = Agent::ny;
+			int nz = Agent::nz;
 
-		float oxDecrease = this->get_OCR()/ 27; // divide OCR across 27 patches (current + neighbors)
-		this->addPatchChemSecretion(o2, in, -1 * oxDecrease);
-		// Count number of patches of neighbors inside world dimensions:
-		for (int dZ = -1; dZ <= 1; dZ++) {
-			for (int dY = -1; dY <= 1; dY++) {
-				for (int dX = -1; dX <= 1; dX++) {
-					if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-					int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-					if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->addPatchChemSecretion(o2, in, -1 * oxDecrease));
+			float oxDecrease = this->get_OCR() / 27; // divide OCR across 27 patches (current + neighbors)
+			this->addPatchChemSecretion(o2, in, -1 * oxDecrease);
+			// Count number of patches of neighbors inside world dimensions:
+			for (int dZ = -1; dZ <= 1; dZ++) {
+				for (int dY = -1; dY <= 1; dY++) {
+					for (int dX = -1; dX <= 1; dX++) {
+						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->addPatchChemSecretion(o2, in, -1 * oxDecrease));
+					}
 				}
 			}
 		}
