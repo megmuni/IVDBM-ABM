@@ -49,7 +49,7 @@ float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 float BMWorld::initialO2 = 200;   // Initial concentration of oxygen (umol/L)
-float BMWorld::incrementO2 = 0.1; // Fraction of initial patch O2 to add every
+float BMWorld::incrementO2 = 0.7; // Fraction of initial patch O2 to add every
                                   // tick as replenishment from external source
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
