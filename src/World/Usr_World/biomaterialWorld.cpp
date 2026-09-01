@@ -49,7 +49,7 @@ float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 float BMWorld::initialO2 = 200;   // Initial concentration of oxygen (umol/L)
-float BMWorld::incrementO2 = 0.5; // Fraction of initial patch O2 to add every
+float BMWorld::incrementO2 = 0.1; // Fraction of initial patch O2 to add every
                                   // tick as replenishment from external source
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
@@ -514,7 +514,7 @@ void BMWorld::initializeChemBaseline() {
   const double molO2 = this->initialO2 * pow(10, 9) *
                        volumeBoundary; // total fmol of O2 needed to distribute
                                        // across all boundary patches
-  const double uni_molO2 = this->initialO2 * pow(10, 9) * BMWorld::totalVolumeML * 1000; //total fmol of O2 for across all patches (uniform distribution)
+  const double uni_molO2 = this->initialO2 * pow(10, 9) * (BMWorld::totalVolumeML / 1000); //total fmol of O2 for across all patches (uniform distribution)
 
   // debug
   cout << " Number of boundary patches = " << countBoundary << endl;
@@ -537,20 +537,22 @@ void BMWorld::initializeChemBaseline() {
           chemical_environment_->set_concentration(in, TNF, tnf0);
           chemical_environment_->set_concentration(in, TGF, tgf0);
           chemical_environment_->set_concentration(in, IL1beta, il10);
+          chemical_environment_->set_concentration(in, o2, o20);
         } else {
           chemical_environment_->set_concentration(in, TNF, 0.f);
           chemical_environment_->set_concentration(in, TGF, 0.f);
           chemical_environment_->set_concentration(in, IL1beta, 0.f);
+          chemical_environment_->set_concentration(in, o2, 0.f);
         }
 
         // set O2 separately only on boundary patches
-        bool isBoundary = (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1 ||
-                           iz == 0 || iz == nz - 1);
-        if (isBoundary) {
-          chemical_environment_->set_concentration(in, o2, o20);
-        } else {
-          chemical_environment_->set_concentration(in, o2, 0.f);
-        }
+        //bool isBoundary = (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1 ||
+        //                   iz == 0 || iz == nz - 1);
+        //if (isBoundary) {
+        //  chemical_environment_->set_concentration(in, o2, o20);
+        //} else {
+        //  chemical_environment_->set_concentration(in, o2, 0.f);
+        //}
       }
     }
   }
@@ -917,12 +919,16 @@ void BMWorld::updateO2() {
   const double molO2 = this->initialO2 * pow(10, 9) *
                        volumeBoundary; // total fmol of O2 needed to distribute
                                        // across all boundary patches
+  
+  const double uni_molO2 = this->initialO2 * pow(10, 9) * (BMWorld::totalVolumeML / 1000); //total fmol of O2 for across all patches (uniform distribution)
+
+
   const double incrO2 =
       this->incrementO2 *
       (molO2 / countBoundary); // oxygen increment for each patch
 
   const double uni_incrO2 =
-      this->incrementO2 * (molO2 / countCaAlg); // oxygen increment for each patch - uniform method
+      this->incrementO2 * (uni_molO2 / countCaAlg); // oxygen increment for each patch - uniform method
 
   for (int iz = 0; iz < nz; iz++) {
 #pragma omp parallel for
