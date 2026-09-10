@@ -331,8 +331,8 @@ void BMWorld::initializeCaAlg() {
     float highMW_kDa = 1500;
     float lowMW_kDa = 50;
     this->Alg_Mn =
-        (pow(this->highMW_alg * highMW_kDa, 2) +
-         pow(this->lowMW_alg * lowMW_kDa, 2)) /
+        ((pow(highMW_kDa, 2) * this->highMW_alg) +
+         (pow(lowMW_kDa, 2) * this->lowMW_alg) /
         ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
   }
 
