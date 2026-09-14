@@ -72,7 +72,7 @@ struct StemProliferationParams {
   double elasticity_effect = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemProliferationParams, tgf_threshold,
-                                   static_proliferation,
+                                   static_probability,
                                    tnf_effect, il1beta_effect,
                                    elasticity_effect)
 
