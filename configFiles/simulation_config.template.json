@@ -176,7 +176,7 @@
         "description": "Ca-Alg hydrogel elastic modulus regression (initializeCaAlg)",
         "intercept": -1.619, // c1
         "crosslinker_density": 8592, // c2
-        "alginate_molecular_weight": 0.0015, // c3
+        "alginate_molecular_weight": 0.0015 // c3
       },
       "pore_size": {
         "crosslinker_effect": 1769.8, // c4
