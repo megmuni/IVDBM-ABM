@@ -190,10 +190,12 @@ struct ProgenParams {
   MigrationParams migration;
   ProgenCytokineSynthesisParams cytokine_synthesis;
   ProgenAggrecanSynthesisParams aggrecan_synthesis;
+  ProgenDifferentiationParams differentiation;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenParams, ocr_fmol_per_hour_per_cell,
                                    apoptosis_chance, migration,
-                                   cytokine_synthesis, aggrecan_synthesis)
+                                   cytokine_synthesis, aggrecan_synthesis,
+                                   differentiation)
 
 struct NpParams {
   double ocr_fmol_per_hour_per_cell = 0;
