@@ -121,12 +121,14 @@
       },
       "proliferation": {
         "tgf_threshold": 10, // m3
+        "static_probability": 40, // m4
         "tnf_effect": 0.8, // m5
         "il1beta_effect": 0.001, // m6
         "elasticity_effect": 0.5 // m7
       },
       "differentiation": {
         "asymmetric_probability": 0.7, // m13
+        "static_probability": 20, // m14
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
         "hours_between_attempts": 48 // m17
@@ -146,6 +148,9 @@
       },
       "aggrecan_synthesis": {
         "baseline_rate": 1 // p7
+      },
+      "differentiation": {
+        "static_probability": 20, // N/A
       }
     },
     "np": {

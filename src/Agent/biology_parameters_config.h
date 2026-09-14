@@ -66,24 +66,32 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenCytokineSynthesisParams, tgf_baseline,
 
 struct StemProliferationParams {
   double tgf_threshold = 0;
+  double static_probability = 0;
   double tnf_effect = 0;
   double il1beta_effect = 0;
   double elasticity_effect = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemProliferationParams, tgf_threshold,
+                                   static_proliferation,
                                    tnf_effect, il1beta_effect,
                                    elasticity_effect)
 
 struct StemDifferentiationParams {
   double asymmetric_probability = 0;
+  double static_probability = 0;
   double baseline_probability = 0;
   double tgf_effect = 0;
   /** Hours between differentiation attempts. */
   double hours_between_attempts = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemDifferentiationParams,
-                                   asymmetric_probability, baseline_probability,
+                                   asymmetric_probability, static_probability, baseline_probability,
                                    tgf_effect, hours_between_attempts)
+
+struct ProgenDifferentiationParams {
+  double static_probability = 0;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenDifferentiationParams, static_probability)
 
 struct StemCollagenSynthesisParams {
   double baseline_rate = 0;
