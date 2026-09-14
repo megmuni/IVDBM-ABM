@@ -45,7 +45,7 @@ float Progen::CaAlgMigration[Progen::MIGRATION_COUNT] = {};
 float Progen::cytokineSynthesis[Progen::CYTOKINE_SYNTHESIS_COUNT] = {};
 float Progen::AggrecanSynth[1] = {};
 //float Progen::proliferation[1] = {24}; // values are the same as Cell/Stem; can just use the equivalent params defined in Stem
-//float Progen::differentiation[3] = {0.7, 0.3, 48}; // values are the same as Stem; can just use the equivalent params defined in Stem
+float Progen::differentiation[1] = {};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
