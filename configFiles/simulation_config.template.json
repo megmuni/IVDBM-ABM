@@ -150,7 +150,7 @@
         "baseline_rate": 1 // p7
       },
       "differentiation": {
-        "static_probability": 20, // N/A
+        "static_probability": 20 // N/A
       }
     },
     "np": {
