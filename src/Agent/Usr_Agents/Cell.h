@@ -363,6 +363,7 @@ class Stem: public Cell {
 
   enum ProliferationIdx {
     PROLIFERATION_TGF_THRESHOLD = 0,
+    PROLIFERATION_STATIC_PROBABILITY,
     PROLIFERATION_TNF_EFFECT,
     PROLIFERATION_IL1BETA_EFFECT,
     PROLIFERATION_ELASTICITY_EFFECT,
@@ -374,6 +375,7 @@ class Stem: public Cell {
 
   enum DifferentiationIdx {
     DIFFERENTIATION_ASYMMETRIC_PROBABILITY = 0,
+    DIFFERENTIATION_STATIC_PROBABILITY,
     DIFFERENTIATION_BASELINE_PROBABILITY,
     DIFFERENTIATION_TGF_EFFECT,
     DIFFERENTIATION_HOURS_BETWEEN_ATTEMPTS,
@@ -480,8 +482,13 @@ class Progen: public Cell {
   static_assert(sizeof(ProgenAggrecanSynthesisParams) / sizeof(double) == 1,
                 "ProgenAggrecanSynthesisParams field count must match Progen::AggrecanSynth size");
   static float AggrecanSynth[1]; // Parameters involved in ECM synthesis (baseline rates, hours between synth)
+  
   //static float proliferation[1]; // Parameters involved in pre-NP cell proliferation. Values are the same as Cell/Stem; can just use the equivalent params defined in Stem
-  //static float differentiation[3]; // Parameters involved in pre-NP cell differentiation. Values are the same as Stem; can just use the equivalent params defined in Stem
+  
+  enum DifferentiationIdx { DIFFERENTIATION_STATIC_PROBABILITY = 0 };
+  static_assert(sizeof(ProgenDifferentiationParams) / sizeof(double) == 1,
+      "ProgenDifferentiationParams field count must match Progen::DifferentiationIdx");
+  static float differentiation[1]; // Parameters involved in pre-NP cell differentiation
 
 protected:
     int get_max_doublings() override;

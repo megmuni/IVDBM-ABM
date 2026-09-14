@@ -116,12 +116,15 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
   Stem::AggrecanSynth[0] =
       static_cast<float>(st.aggrecan_synthesis.tgf_threshold);
   Stem::proliferation[Stem::PROLIFERATION_TGF_THRESHOLD] = static_cast<float>(st.proliferation.tgf_threshold);
+  Stem::proliferation[Stem::PROLIFERATION_STATIC_PROBABILITY] = static_cast<float>(st.proliferation.static_probability);
   Stem::proliferation[Stem::PROLIFERATION_TNF_EFFECT] = static_cast<float>(st.proliferation.tnf_effect);
   Stem::proliferation[Stem::PROLIFERATION_IL1BETA_EFFECT] = static_cast<float>(st.proliferation.il1beta_effect);
   Stem::proliferation[Stem::PROLIFERATION_ELASTICITY_EFFECT] =
       static_cast<float>(st.proliferation.elasticity_effect);
   Stem::differentiation[Stem::DIFFERENTIATION_ASYMMETRIC_PROBABILITY] =
       static_cast<float>(st.differentiation.asymmetric_probability);
+  Stem::differentiation[Stem::DIFFERENTIATION_STATIC_PROBABILITY] =
+      static_cast<float>(st.differentiation.static_probability);
   Stem::differentiation[Stem::DIFFERENTIATION_BASELINE_PROBABILITY] =
       static_cast<float>(st.differentiation.baseline_probability);
   Stem::differentiation[Stem::DIFFERENTIATION_TGF_EFFECT] = static_cast<float>(st.differentiation.tgf_effect);
@@ -142,6 +145,8 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
       static_cast<float>(pg.cytokine_synthesis.il1beta_baseline);
   Progen::AggrecanSynth[0] =
       static_cast<float>(pg.aggrecan_synthesis.baseline_rate);
+  Progen::differentiation[Progen::DIFFERENTIATION_STATIC_PROBABILITY] =
+      static_cast<float>(pg.differentiation.static_probability);
 
   const auto &np = cfg.np;
   NP::OCR = static_cast<float>(np.ocr_fmol_per_hour_per_cell / 2.0);

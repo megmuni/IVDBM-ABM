@@ -45,7 +45,7 @@ float Progen::CaAlgMigration[Progen::MIGRATION_COUNT] = {};
 float Progen::cytokineSynthesis[Progen::CYTOKINE_SYNTHESIS_COUNT] = {};
 float Progen::AggrecanSynth[1] = {};
 //float Progen::proliferation[1] = {24}; // values are the same as Cell/Stem; can just use the equivalent params defined in Stem
-//float Progen::differentiation[3] = {0.7, 0.3, 48}; // values are the same as Stem; can just use the equivalent params defined in Stem
+float Progen::differentiation[1] = {};
 
 int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
@@ -793,8 +793,8 @@ float Stem::get_prolif_prob(float meanTGF,
 	}
 
 #ifdef CALIBRATION
+	float prolif = Stem::proliferation[Stem::PROLIFERATION_STATIC_PROBABILITY]; //testing
 	//float prolif = log10(1 - Stem::proliferation[Stem::PROLIFERATION_TNF_EFFECT] * meanTNF - Stem::proliferation[Stem::PROLIFERATION_IL1BETA_EFFECT] * meanIL1 + TGFrelated * meanTGF - Stem::proliferation[Stem::PROLIFERATION_ELASTICITY_EFFECT] * BMWorld::E);
-	float prolif = 40; //testing
 #else  
 	float prolif = log10(1 + meanTNF + meanIL1 + TGFrelated * meanTGF);
 #endif  
@@ -808,8 +808,9 @@ float Stem::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
+	return Stem::differentiation[Stem::DIFFERENTIATION_STATIC_PROBABILITY]; //testing
 	//return (Stem::differentiation[Stem::DIFFERENTIATION_BASELINE_PROBABILITY]*100) + (Stem::differentiation[Stem::DIFFERENTIATION_TGF_EFFECT] * meanTGF);
-	return 20;
+	
 }
 
 void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
@@ -917,8 +918,8 @@ float Progen::get_prolif_prob(float meanTGF,
 	float meanTNF) {
 
 #ifdef CALIBRATION
+	float prolif = Stem::proliferation[Stem::PROLIFERATION_STATIC_PROBABILITY]; //testing
 	//float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
-	float prolif = 40; //testing
 #else  
 	float prolif = log10(1 + meanTNF - meanIL1 + meanTGF);
 #endif 
@@ -932,7 +933,7 @@ float Progen::get_diff_prob(float meanTGF,
 	float meanIL1,
 	float meanTNF) {
 
-	return 20;
+	return Progen::differentiation[Progen::DIFFERENTIATION_STATIC_PROBABILITY]; //testing
 }
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {

@@ -66,24 +66,32 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenCytokineSynthesisParams, tgf_baseline,
 
 struct StemProliferationParams {
   double tgf_threshold = 0;
+  double static_probability = 0;
   double tnf_effect = 0;
   double il1beta_effect = 0;
   double elasticity_effect = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemProliferationParams, tgf_threshold,
+                                   static_probability,
                                    tnf_effect, il1beta_effect,
                                    elasticity_effect)
 
 struct StemDifferentiationParams {
   double asymmetric_probability = 0;
+  double static_probability = 0;
   double baseline_probability = 0;
   double tgf_effect = 0;
   /** Hours between differentiation attempts. */
   double hours_between_attempts = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemDifferentiationParams,
-                                   asymmetric_probability, baseline_probability,
+                                   asymmetric_probability, static_probability, baseline_probability,
                                    tgf_effect, hours_between_attempts)
+
+struct ProgenDifferentiationParams {
+  double static_probability = 0;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenDifferentiationParams, static_probability)
 
 struct StemCollagenSynthesisParams {
   double baseline_rate = 0;
@@ -182,10 +190,12 @@ struct ProgenParams {
   MigrationParams migration;
   ProgenCytokineSynthesisParams cytokine_synthesis;
   ProgenAggrecanSynthesisParams aggrecan_synthesis;
+  ProgenDifferentiationParams differentiation;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgenParams, ocr_fmol_per_hour_per_cell,
                                    apoptosis_chance, migration,
-                                   cytokine_synthesis, aggrecan_synthesis)
+                                   cytokine_synthesis, aggrecan_synthesis,
+                                   differentiation)
 
 struct NpParams {
   double ocr_fmol_per_hour_per_cell = 0;
