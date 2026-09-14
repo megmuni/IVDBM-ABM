@@ -169,30 +169,26 @@
     "biomaterial": {
       "elastic_modulus": {
         "description": "Ca-Alg hydrogel elastic modulus regression (initializeCaAlg)",
-        "intercept": 125, // c1
-        "alginate_concentration": 58, // c2
-        "crosslinker_density": 971, // c3
-        "alginate_molecular_weight": 1.037, // c4
-        "alginate_crosslinker_interaction": 756, // c5
-        "alginate_mw_interaction": 0.516, // c6
-        "mw_crosslinker_interaction": 0.165 // c7
+        "intercept": -1.619, // c1
+        "crosslinker_density": 8592, // c2
+        "alginate_molecular_weight": 0.0015, // c3
       },
       "pore_size": {
-        "crosslinker_effect": 1769.8, // c8
-        "baseline": 258.5 // c9
+        "crosslinker_effect": 1769.8, // c4
+        "baseline": 258.5 // c5
       },
       "mass_loss": {
-        "baseline": 0.234, // c10
-        "crosslinker_effect": 7.785, // c11
-        "time_effect": 0.15, // c12
-        "crosslinker_time_interaction": 1.36 // c13
+        "baseline": 0.234, // c6
+        "crosslinker_effect": 7.785, // c7
+        "time_effect": 0.15, // c8
+        "crosslinker_time_interaction": 1.36 // c9
       },
       "swell_ratio": {
-        "baseline": 72.478, // c14
-        "time_effect": 0.131, // c15
-        "alginate_concentration_effect": 22.034, // c16
-        "time_crosslinker_interaction": 3.284, // c17
-        "alginate_crosslinker_interaction": 35.752 // c18
+        "baseline": 72.478, // c10
+        "time_effect": 0.131, // c11
+        "alginate_concentration_effect": 22.034, // c12
+        "time_crosslinker_interaction": 3.284, // c13
+        "alginate_crosslinker_interaction": 35.752 // c14
       }
     }
   }
