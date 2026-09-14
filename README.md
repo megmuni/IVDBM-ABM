@@ -85,6 +85,7 @@ If you need a parameter that doesn't exist yet (not just a new value for an exis
      PROLIFERATION_COUNT
    };
    ```
+   (For biomaterial paraemters, instead of `Cell.h`, edit in `biomaterialWorld.h`.)
 
 3. Wire the JSON value into that slot in `apply_biology_parameters()` in `src/Agent/biology_parameters_config.cpp`:
 

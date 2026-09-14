@@ -327,13 +327,13 @@ void BMWorld::initializeCaAlg() {
     this->Alg_Mn = 1500;
   } else if (this->highMW_alg == 0 && this->lowMW_alg == 1) { // 'low' condition
     this->Alg_Mn = 95;
-  } else { // 'mix' condition: calculates a weighted avg molecular weight
+  } else { // 'mix' condition: calculates a weighted avg molecular weight based on a supplied volume ratio
     float highMW_kDa = 1500;
     float lowMW_kDa = 50;
     this->Alg_Mn =
-        ((pow(highMW_kDa, 2) * this->highMW_alg) +
-         (pow(lowMW_kDa, 2) * this->lowMW_alg) /
-        ((this->highMW_alg * highMW_kDa) + (this->lowMW_alg * lowMW_kDa));
+        ((highMW_kDa * this->highMW_alg) +
+         (lowMW_kDa * this->lowMW_alg)) /
+        (this->highMW_alg + this->lowMW_alg);
   }
 
   cout << "		Final Alginate concentration (%w/v): " << this->Alg_wv
@@ -343,25 +343,18 @@ void BMWorld::initializeCaAlg() {
        << endl;
 
 /* Calculate Initial Elastic Modulus E (kPa)
- *  E = a (( b*TotalProtein(w/v) + c)* Alg(w/w) + d*TP(w/v)) + e*(f*Alg(w/v) +
- * g)*XL(w/w)
+ * E = c1 + c2(pXL)^2 + c3(MW)
  *
- *       Follows rule of mixtures where stiffness of mixture is weight average
- * of components. Linear dependence of modulus on cross-link concentration for
- * constant polymer concentration
+ * Molecular weight (MW above; Alg_Mn below) calculated using either the given kDa (if the gel is made
+ * of only one MW polymer, like all 1500) or uses a weighted average given a volume ratio of differently-weighted
+ * alginate polymers.
  */
 #ifdef CALIBRATION
-  this->E = -BMWorld::ElasticMod[BMWorld::ELASTIC_INTERCEPT]
-      +BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_CONCENTRATION] * (this->Alg_wv)
-      -BMWorld::ElasticMod[BMWorld::ELASTIC_CROSSLINKER_DENSITY] * (this->pXL)
-      +BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_MOLECULAR_WEIGHT] * (this->Alg_Mn)
-      +BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_CROSSLINKER_INTERACTION] * (this->Alg_wv) * (this->pXL)
-      -BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_MW_INTERACTION] * (this->Alg_wv) * (this->Alg_Mn)
-      -BMWorld::ElasticMod[BMWorld::ELASTIC_MW_CROSSLINKER_INTERACTION] * (this->pXL) * (this->Alg_Mn);
+  this->E = BMWorld::ElasticMod[BMWorld::ELASTIC_INTERCEPT]
+      +BMWorld::ElasticMod[BMWorld::ELASTIC_CROSSLINKER_DENSITY] * pow(this->pXL, 2)
+      +BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_MOLECULAR_WEIGHT] * (this->Alg_Mn);
 #else
-  this->E = -125 + 58 * (Alg_wv)-971 * (pXL) + 1.037 * (Alg_Mn) +
-            756 * (Alg_wv * pXL) - 0.516 * (Alg_wv * Alg_Mn) -
-            0.165 * (pXL * Alg_Mn);
+  this->E = -1.619 + 8592 * pow(this->pXL, 2) + 0.0015 * (this->Alg_Mn);
 #endif
 
 #ifdef PEPTIDE_BM

@@ -118,19 +118,12 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(NpAggrecanSynthesisParams, scaling_factor,
 
 struct ElasticModulusParams {
   double intercept = 0;
-  double alginate_concentration = 0;
   double crosslinker_density = 0;
   double alginate_molecular_weight = 0;
-  double alginate_crosslinker_interaction = 0;
-  double alginate_mw_interaction = 0;
-  double mw_crosslinker_interaction = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ElasticModulusParams, intercept,
-                                   alginate_concentration, crosslinker_density,
-                                   alginate_molecular_weight,
-                                   alginate_crosslinker_interaction,
-                                   alginate_mw_interaction,
-                                   mw_crosslinker_interaction)
+                                   crosslinker_density,
+                                   alginate_molecular_weight)
 
 struct PoreSizeParams {
   double crosslinker_effect = 0;

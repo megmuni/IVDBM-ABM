@@ -161,18 +161,10 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
 
   const auto &bm = cfg.biomaterial;
   BMWorld::ElasticMod[BMWorld::ELASTIC_INTERCEPT] = static_cast<float>(bm.elastic_modulus.intercept);
-  BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_CONCENTRATION] =
-      static_cast<float>(bm.elastic_modulus.alginate_concentration);
   BMWorld::ElasticMod[BMWorld::ELASTIC_CROSSLINKER_DENSITY] =
       static_cast<float>(bm.elastic_modulus.crosslinker_density);
   BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_MOLECULAR_WEIGHT] =
       static_cast<float>(bm.elastic_modulus.alginate_molecular_weight);
-  BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_CROSSLINKER_INTERACTION] =
-      static_cast<float>(bm.elastic_modulus.alginate_crosslinker_interaction);
-  BMWorld::ElasticMod[BMWorld::ELASTIC_ALGINATE_MW_INTERACTION] =
-      static_cast<float>(bm.elastic_modulus.alginate_mw_interaction);
-  BMWorld::ElasticMod[BMWorld::ELASTIC_MW_CROSSLINKER_INTERACTION] =
-      static_cast<float>(bm.elastic_modulus.mw_crosslinker_interaction);
   BMWorld::PoreSize[BMWorld::PORE_CROSSLINKER_EFFECT] = static_cast<float>(bm.pore_size.crosslinker_effect);
   BMWorld::PoreSize[BMWorld::PORE_BASELINE] = static_cast<float>(bm.pore_size.baseline);
   BMWorld::MassLoss[BMWorld::MASSLOSS_BASELINE] = static_cast<float>(bm.mass_loss.baseline);
