@@ -28,6 +28,8 @@ struct SpeciesDescriptor
     int concentration_channel = -1;
     /** Grid channel for per-tick delta / diffusion output (e.g. dTNF). */
     int diffused_channel = -1;
+    /** Grid channel for per-tick cell secretion (e.g. sTNF) */
+    int secretion_channel = -1;
     DiffusivityModelConfig diffusivity_model;
     /** per-tick cytokine clearance terms, they are inert unless a half-life was configured./
     DecayConstants decay;

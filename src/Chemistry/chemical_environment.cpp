@@ -195,10 +195,10 @@ SpeciesChannelViews ChemicalEnvironment::channels(SpeciesId id) const {
   const SpeciesDescriptor &desc = registry_.descriptor(id);
   SpeciesChannelViews views;
   views.concentration =
-      const_cast<float *>(channel_row(desc.concentration_channel));
+      const_cast<float*>(channel_row(desc.concentration_channel));
   views.secretion_delta =
-      const_cast<float *>(channel_row(desc.diffused_channel));
-  views.diffused = views.secretion_delta;
+      const_cast<float*>(channel_row(desc.secretion_channel));
+  views.diffused = const_cast<float*>(channel_row(desc.diffused_channel));
   return views;
 }
 
@@ -218,7 +218,7 @@ float ChemicalEnvironment::concentration_at(int patch_index,
 void ChemicalEnvironment::accumulate_secretion(int patch_index,
                                                SpeciesId species, float delta) {
   const SpeciesDescriptor &desc = registry_.descriptor(species);
-  channel_row(desc.diffused_channel)[patch_index] += delta;
+  channel_row(desc.secretion_channel)[patch_index] += delta;
 }
 
 float ChemicalEnvironment::concentration_at_channel(
@@ -252,15 +252,22 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   const int o2_ch = concentration_channel_for("o2");
   const int chemo_src =
       registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
+  
+  const double dt = config_.tick_interval_minutes;
 
-  struct MergeRow { float* p; float* d; float retain; };
+  struct MergeRow {
+      float* p; float* d; float* s;
+      float retain; float src_factor;
+  };
   std::vector<MergeRow> rows;
   rows.reserve(diffusing.size());
   for (SpeciesId id : diffusing) {
       const SpeciesDescriptor& desc = registry_.descriptor(id);
       rows.push_back({ channel_row(desc.concentration_channel),
                       channel_row(desc.diffused_channel),
-                      static_cast<float>(desc.decay.retain) });
+                      channel_row(desc.secretion_channel),
+                      static_cast<float>(desc.decay.retain),
+                      static_cast<float>(desc.decay.src_factor / dt) });
   }
 
   for (int zi = 0; zi < nz_; ++zi) {
@@ -269,9 +276,10 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
         const int in = xi + yi * nx_ + zi * nx_ * ny_;
 
         for (MergeRow& r : rows) {
-            r.p[in] = (r.d[in] + r.p[in]) * r.retain;
+            r.p[in] = (r.p[in] + r.d[in]) * r.retain + r.s[in] * r.src_factor;
             r.p[in] = std::max(r.p[in], 0.f);
             r.d[in] = 0.f;
+            r.s[in] = 0.f;
         }
 
         if (chemotaxis_channel_ >= 0) {
