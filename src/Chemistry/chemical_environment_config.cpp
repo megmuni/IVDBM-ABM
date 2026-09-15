@@ -157,6 +157,15 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
 
         s.diffusivity_model = parse_diffusivity_model(entry, s.name);
 
+        if (entry.contains("half_life_minutes"))
+        {
+            s.half_life_minutes = entry.at("half_life_minutes").get<double>();
+            if (s.half_life_minutes <= 0.0)
+                throw std::invalid_argument(
+                    "chemical environment config: half_life_minutes must be > 0 "
+                    "when present for " + s.name);
+        }
+
         cfg.species.push_back(s);
     }
 

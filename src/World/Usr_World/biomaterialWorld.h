@@ -416,9 +416,6 @@ public:
 
   /* CALIBRATION Variables */
   static float thresholdTNFdamage; // The threshold for TNF damage
-  static float cytokineDecay[6];   // The decay rates of the cytokines
-  static float
-      halfLifes_static[6]; // The half lifes of the cytokines in minutes
 
   /* Calibration Variables */
   enum ElasticModIdx {

@@ -47,6 +47,7 @@ struct SpeciesConfigEntry {
   int concentration_channel = -1;
   int diffused_channel = -1;
   DiffusivityModelConfig diffusivity_model;
+  double half_life_minutes = 0.0;
 };
 
 /**

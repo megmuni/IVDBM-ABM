@@ -253,18 +253,25 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   const int chemo_src =
       registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
 
+  struct MergeRow { float* p; float* d; float retain; };
+  std::vector<MergeRow> rows;
+  rows.reserve(diffusing.size());
+  for (SpeciesId id : diffusing) {
+      const SpeciesDescriptor& desc = registry_.descriptor(id);
+      rows.push_back({ channel_row(desc.concentration_channel),
+                      channel_row(desc.diffused_channel),
+                      static_cast<float>(desc.decay.retain) });
+  }
+
   for (int zi = 0; zi < nz_; ++zi) {
     for (int yi = 0; yi < ny_; ++yi) {
       for (int xi = 0; xi < nx_; ++xi) {
         const int in = xi + yi * nx_ + zi * nx_ * ny_;
 
-        for (SpeciesId id : diffusing) {
-          const SpeciesDescriptor &desc = registry_.descriptor(id);
-          float *p = channel_row(desc.concentration_channel);
-          float *d = channel_row(desc.diffused_channel);
-          p[in] = d[in] + p[in];
-          p[in] = std::max(p[in], 0.f);
-          d[in] = 0.f;
+        for (MergeRow& r : rows) {
+            r.p[in] = (r.d[in] + r.p[in]) * r.retain;
+            r.p[in] = std::max(r.p[in], 0.f);
+            r.d[in] = 0.f;
         }
 
         if (chemotaxis_channel_ >= 0) {

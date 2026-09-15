@@ -88,6 +88,8 @@ SpeciesRegistry SpeciesRegistry::from_config(const ChemicalEnvironmentConfig &cf
         desc.concentration_channel = s.concentration_channel;
         desc.diffused_channel = s.diffused_channel;
         desc.diffusivity_model = s.diffusivity_model;
+        desc.decay = DecayConstants::from_half_life(s.half_life_minutes,
+                                                    cfg.tick_interval_minutes);
         registry.register_species(desc);
     }
 

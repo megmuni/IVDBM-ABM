@@ -11,6 +11,7 @@
 
 #include "chemical_environment_config.h"
 #include "species_id.h"
+#include "decay_constants.h"
 
 #include <map>
 #include <string>
@@ -28,6 +29,8 @@ struct SpeciesDescriptor
     /** Grid channel for per-tick delta / diffusion output (e.g. dTNF). */
     int diffused_channel = -1;
     DiffusivityModelConfig diffusivity_model;
+    /** per-tick cytokine clearance terms, they are inert unless a half-life was configured./
+    DecayConstants decay;
 };
 
 /**
