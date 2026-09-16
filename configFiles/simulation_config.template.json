@@ -17,7 +17,7 @@
     "tick_interval_minutes": 30,
     "channels": {
       "count": 13,
-      "chemotaxis": 6,
+      "chemotaxis": 12,
       "channel_names": {
         "0": "pTNF",
         "1": "pTGF",
