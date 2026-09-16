@@ -16,8 +16,8 @@
     "description": "Diffusion, baselines, and tick length.",
     "tick_interval_minutes": 30,
     "channels": {
-      "count": 9,
-      "chemotaxis": 6,
+      "count": 13,
+      "chemotaxis": 12,
       "channel_names": {
         "0": "pTNF",
         "1": "pTGF",
@@ -27,7 +27,11 @@
         "5": "dTGF",
         "6": "dIL1beta",
         "7": "do2",
-        "8": "pcellgrad"
+        "8": "sTNF",
+        "9": "sTGF",
+        "10": "sIL1beta",
+        "11": "so2",
+        "12": "pcellgrad"
       }
     },
     "merge": {
@@ -45,21 +49,27 @@
         "name": "TNF",
         "base_diffusivity_mm2_per_min": 0.00018,
         "concentration_channel": 0,
-        "diffused_channel": 4
+        "diffused_channel": 4,
+        "secretion_channel": 8,
+        "half_life_minutes": 30
       },
       {
         "id": 1,
         "name": "TGF",
         "base_diffusivity_mm2_per_min": 0.000156,
         "concentration_channel": 1,
-        "diffused_channel": 5
+        "diffused_channel": 5,
+        "secretion_channel": 9,
+        "half_life_minutes": 10
       },
       {
         "id": 2,
         "name": "IL1beta",
         "base_diffusivity_mm2_per_min": 0.00018,
         "concentration_channel": 2,
-        "diffused_channel": 6
+        "diffused_channel": 6,
+        "secretion_channel": 10,
+        "half_life_minutes": 150
       },
       {
         "id": 3,
@@ -67,6 +77,7 @@
         "base_diffusivity_mm2_per_min": 0.02172,
         "concentration_channel": 3,
         "diffused_channel": 7,
+        "secretion_channel": 11,
         "diffusivity_model": {
           "type": "logarithmic_stiffness",
           "slope": -0.002,

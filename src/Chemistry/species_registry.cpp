@@ -25,7 +25,7 @@ void SpeciesRegistry::register_species(const SpeciesDescriptor &desc)
         throw std::invalid_argument("SpeciesRegistry: species id must be >= 0");
     if (desc.base_diffusivity <= 0.0)
         throw std::invalid_argument("SpeciesRegistry: base_diffusivity must be > 0");
-    if (desc.concentration_channel < 0 || desc.diffused_channel < 0)
+    if (desc.concentration_channel < 0 || desc.diffused_channel < 0 || desc.secretion_channel < 0)
         throw std::invalid_argument("SpeciesRegistry: channel indices must be >= 0");
 
     if (species_.find(desc.id) == species_.end())
@@ -87,7 +87,10 @@ SpeciesRegistry SpeciesRegistry::from_config(const ChemicalEnvironmentConfig &cf
         desc.base_diffusivity = s.base_diffusivity_mm2_per_min;
         desc.concentration_channel = s.concentration_channel;
         desc.diffused_channel = s.diffused_channel;
+        desc.secretion_channel = s.secretion_channel;
         desc.diffusivity_model = s.diffusivity_model;
+        desc.decay = DecayConstants::from_half_life(s.half_life_minutes,
+                                                    cfg.tick_interval_minutes);
         registry.register_species(desc);
     }
 

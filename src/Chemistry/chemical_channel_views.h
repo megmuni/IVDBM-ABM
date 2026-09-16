@@ -5,8 +5,8 @@
  * @file chemical_channel_views.h
  * @brief Named views into per-species patch chemistry buffers.
  *
- * Within one tick, the delta row holds diffusion output and cell secretion
- * before merge adds it to the concentration row.
+ * Within one tick, the secretion_delta and diffused rows hold cell secretion and 
+ * diffusion output respectively, before merge adds it to the concentration row.
  */
 
 #include <memory>
@@ -19,8 +19,8 @@ using ChemicalFieldBuffer = std::shared_ptr<std::vector<float>>;
 struct SpeciesChannelViews
 {
     float *concentration = nullptr;   /**< Stored level (p* channel). */
-    float *secretion_delta = nullptr; /**< Per-tick accumulator (d* channel). */
-    float *diffused = nullptr;        /**< Same as secretion_delta until channels are split. */
+    float *secretion_delta = nullptr; /**< Cell secretion this tick (s* channel). */
+    float *diffused = nullptr;        /**< Diffusion delta this tick (d* channel). */
 };
 
 #endif

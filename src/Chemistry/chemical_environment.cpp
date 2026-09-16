@@ -8,7 +8,11 @@
 #include "../enums.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <stdexcept>
+#include <vector>
+
+static long g_secretion_calls = 0;
 
 ChemicalEnvironment::ChemicalEnvironment(int nx, int ny, int nz,
                                          double grid_spacing_mm)
@@ -195,10 +199,10 @@ SpeciesChannelViews ChemicalEnvironment::channels(SpeciesId id) const {
   const SpeciesDescriptor &desc = registry_.descriptor(id);
   SpeciesChannelViews views;
   views.concentration =
-      const_cast<float *>(channel_row(desc.concentration_channel));
+      const_cast<float*>(channel_row(desc.concentration_channel));
   views.secretion_delta =
-      const_cast<float *>(channel_row(desc.diffused_channel));
-  views.diffused = views.secretion_delta;
+      const_cast<float*>(channel_row(desc.secretion_channel));
+  views.diffused = const_cast<float*>(channel_row(desc.diffused_channel));
   return views;
 }
 
@@ -217,8 +221,9 @@ float ChemicalEnvironment::concentration_at(int patch_index,
 
 void ChemicalEnvironment::accumulate_secretion(int patch_index,
                                                SpeciesId species, float delta) {
+  ++g_secretion_calls;
   const SpeciesDescriptor &desc = registry_.descriptor(species);
-  channel_row(desc.diffused_channel)[patch_index] += delta;
+  channel_row(desc.secretion_channel)[patch_index] += delta;
 }
 
 float ChemicalEnvironment::concentration_at_channel(
@@ -252,19 +257,44 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   const int o2_ch = concentration_channel_for("o2");
   const int chemo_src =
       registry_.descriptor(merge_chemotaxis_species_).concentration_channel;
+  
+  const double dt = config_.tick_interval_minutes;
+
+  struct MergeRow {
+      float* p; float* d; float* s;
+      float retain; float src_factor;
+  };
+
+  std::vector<MergeRow> rows;
+  std::vector<const char*> row_names;
+  rows.reserve(diffusing.size());
+  row_names.reserve(diffusing.size());
+  for (SpeciesId id : diffusing) {
+      const SpeciesDescriptor& desc = registry_.descriptor(id);
+      rows.push_back({ channel_row(desc.concentration_channel),
+                       channel_row(desc.diffused_channel),
+                       channel_row(desc.secretion_channel),
+                       static_cast<float>(desc.decay.retain),
+                       static_cast<float>(desc.decay.src_factor / dt) });
+      row_names.push_back(desc.name.c_str());
+  }
+
+  std::vector<double> injected(rows.size(), 0.0);
 
   for (int zi = 0; zi < nz_; ++zi) {
     for (int yi = 0; yi < ny_; ++yi) {
       for (int xi = 0; xi < nx_; ++xi) {
         const int in = xi + yi * nx_ + zi * nx_ * ny_;
 
-        for (SpeciesId id : diffusing) {
-          const SpeciesDescriptor &desc = registry_.descriptor(id);
-          float *p = channel_row(desc.concentration_channel);
-          float *d = channel_row(desc.diffused_channel);
-          p[in] = d[in] + p[in];
-          p[in] = std::max(p[in], 0.f);
-          d[in] = 0.f;
+        for (std::size_t ri = 0; ri < rows.size(); ++ri) {
+            MergeRow& r = rows[ri];
+            const float v =
+                (r.p[in] + r.d[in]) * r.retain + r.s[in] * r.src_factor;
+            if (v < 0.f)
+                injected[ri] += -static_cast<double>(v);
+            r.p[in] = std::max(v, 0.f);
+            r.d[in] = 0.f;
+            r.s[in] = 0.f;
         }
 
         if (chemotaxis_channel_ >= 0) {
@@ -279,4 +309,10 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
       }
     }
   }
+  for (std::size_t ri = 0; ri < rows.size(); ++ri) {
+      if (injected[ri] > 0.0)
+          std::printf("[clamp] %s injected %.6g\n", row_names[ri], injected[ri]);
+  }
+  std::printf("[sec] calls %ld\n", g_secretion_calls);
+  g_secretion_calls = 0;
 }

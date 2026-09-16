@@ -80,8 +80,6 @@ float BMWorld::totalVolumeML;
 #endif
 
 float BMWorld::thresholdTNFdamage = 10.0; // ng //unused in IVDBM-ABM
-float BMWorld::cytokineDecay[6] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.5};  // 0.2, 0.2,
-float BMWorld::halfLifes_static[6] = {33.6, 2.7, 46, 103, 24, 60}; // 13, 13,
 
 #ifdef MODEL_SCAFFOLD
 float BMWorld::ElasticMod[BMWorld::ELASTIC_MOD_COUNT] = {};

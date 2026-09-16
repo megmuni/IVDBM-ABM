@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <stdexcept>
+#include <set>
 
 namespace
 {
@@ -140,24 +141,52 @@ ChemicalEnvironmentConfig load_chemical_environment_config(const std::string &pa
             entry.at("base_diffusivity_mm2_per_min").get<double>();
         s.concentration_channel = entry.at("concentration_channel").get<int>();
         s.diffused_channel = entry.at("diffused_channel").get<int>();
+        s.secretion_channel = entry.at("secretion_channel").get<int>();
 
         if (s.base_diffusivity_mm2_per_min <= 0.0)
             throw std::invalid_argument(
                 "chemical environment config: base_diffusivity must be > 0 for " +
                 s.name);
-        if (s.concentration_channel < 0 || s.diffused_channel < 0)
+        if (s.concentration_channel < 0 || s.diffused_channel < 0 || s.secretion_channel < 0)
             throw std::invalid_argument(
                 "chemical environment config: channel indices must be >= 0 for " +
                 s.name);
         if (s.concentration_channel >= cfg.channel_count ||
-            s.diffused_channel >= cfg.channel_count)
+            s.diffused_channel >= cfg.channel_count ||
+            s.secretion_channel >= cfg.channel_count)
             throw std::invalid_argument(
                 "chemical environment config: channel index out of range for " +
                 s.name);
 
         s.diffusivity_model = parse_diffusivity_model(entry, s.name);
 
+        if (entry.contains("half_life_minutes"))
+        {
+            s.half_life_minutes = entry.at("half_life_minutes").get<double>();
+            if (s.half_life_minutes <= 0.0)
+                throw std::invalid_argument(
+                    "chemical environment config: half_life_minutes must be > 0 "
+                    "when present for " + s.name);
+        }
+
         cfg.species.push_back(s);
+    }
+
+    {
+        std::set<int> used;
+        auto claim = [&used](int ch, const std::string& who) {
+            if (!used.insert(ch).second)
+                throw std::invalid_argument(
+                    "chemical environment config: channel " +
+                    std::to_string(ch) + " claimed more than once (" + who + ")");
+            };
+        for (const SpeciesConfigEntry& s : cfg.species)
+        {
+            claim(s.concentration_channel, s.name + ".concentration");
+            claim(s.diffused_channel, s.name + ".diffused");
+            claim(s.secretion_channel, s.name + ".secretion");
+        }
+        claim(cfg.chemotaxis_channel, "channels.chemotaxis");
     }
 
     for (const SpeciesConfigEntry &s : cfg.species)
