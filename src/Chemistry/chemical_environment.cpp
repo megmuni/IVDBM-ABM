@@ -313,4 +313,6 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
       if (injected[ri] > 0.0)
           std::printf("[clamp] %s injected %.6g\n", row_names[ri], injected[ri]);
   }
+  std::printf("[sec] calls %ld\n", g_secretion_calls);
+  g_secretion_calls = 0;
 }
