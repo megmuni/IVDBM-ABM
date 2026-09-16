@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <vector>
 
+static long g_secretion_calls = 0;
+
 ChemicalEnvironment::ChemicalEnvironment(int nx, int ny, int nz,
                                          double grid_spacing_mm)
     : nx_(nx), ny_(ny), nz_(nz), grid_size_(nx * ny * nz),
@@ -219,6 +221,7 @@ float ChemicalEnvironment::concentration_at(int patch_index,
 
 void ChemicalEnvironment::accumulate_secretion(int patch_index,
                                                SpeciesId species, float delta) {
+  ++g_secretion_calls;
   const SpeciesDescriptor &desc = registry_.descriptor(species);
   channel_row(desc.secretion_channel)[patch_index] += delta;
 }
