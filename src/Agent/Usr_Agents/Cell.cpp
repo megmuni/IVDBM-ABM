@@ -260,7 +260,7 @@ void Cell::cellFunction() {
 	float patchO2 = this->patchChemConcentration(o2, in);
 
 	if (this->alive[read_t] == false) return;
-	if (rollDice(40)) { random_act = true; }
+	if (rollDice(20)) { random_act = true; }
 	if (this->alive[read_t] == true && (((meanO2 + patchO2) > this->get_OCR()) || random_act == true)) {
 		this->proliferate();
 		this->differentiate();
