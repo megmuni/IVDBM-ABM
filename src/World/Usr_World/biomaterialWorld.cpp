@@ -1794,8 +1794,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
 
   void BMWorld::count_env(map<string, float> & env_counts) {
     for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
-      env_counts["ncollagen"] += this->worldECM[in].ncollagen[read_t];
-      env_counts["naggrecan"] += this->worldECM[in].naggrecan[read_t];
+      env_counts["ncollagen"] += this->worldECM[in].ncollagen[read_t] / 1000.0;
+      env_counts["naggrecan"] += this->worldECM[in].naggrecan[read_t] / 1000.0;
     }
   }
 
