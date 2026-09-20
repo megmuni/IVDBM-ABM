@@ -36,6 +36,8 @@ SIMULATION_CONFIG="${SIMULATION_CONFIG}"
 TESTRUN_REL="${IVDBM_DEFAULT_TESTRUN}"
 OUTPUT_DIR=""
 OUTPUTFILE=""
+KEEP_NAME=""
+KEEP_WHY=""
 DRY_RUN=0
 PARAVIEW=0
 GPUS_EXPLICIT=0
@@ -72,6 +74,11 @@ Options:
   --wxw MM              World X width in mm (default: 1)
   --wyw MM              World Y width in mm (default: 1)
   --wzw MM              World Z width in mm (default: 1)
+  --keep NAME           Archive the finished run to the shared results directory
+                        ($IVDBM_RESULTS_DIR) as YYYY-MM-DD_<jobid>_NAME with a manifest.
+                        NAME: letters, digits, dot, dash, underscore. Only successful runs archive.
+  --why TEXT            One comma-free sentence on what the run is for, recorded in the
+                        archived manifest (requires --keep)
   --paraview            Writes <output-dir>/paraview/patches_t*.vti, chem_t*.vti, and ecm_t*.vti every 12 ticks
   --quiet-mail          Suppresses slurm mail notifications for this job (e.g. for large batches)
   --dry-run             Print sbatch command without submitting
@@ -231,6 +238,16 @@ while [[ $# -gt 0 ]]; do
       OUTPUT_DIR="$2"
       shift 2
       ;;
+    --keep)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      KEEP_NAME="$2"
+      shift 2
+      ;;
+    --why)
+      [[ $# -ge 2 ]] || die "missing value for $1"
+      KEEP_WHY="$2"
+      shift 2
+      ;;
     --paraview)
       PARAVIEW=1
       shift
@@ -265,6 +282,18 @@ done
 [[ -n "${EMAIL}" ]] || die "EMAIL is required (positional or --email)"
 valid_email "${EMAIL}" || die "invalid email address: ${EMAIL}"
 
+RUN_COMMIT=""
+if [[ -n "${KEEP_NAME}" ]]; then
+  [[ "${KEEP_NAME}" =~ ^[A-Za-z0-9._-]+$ ]] || die "--keep NAME may only contain letters, digits, dot, dash, underscore: ${KEEP_NAME}"
+  [[ "${KEEP_WHY}" != *,* ]] || die "--why cannot contain commas"
+  RUN_COMMIT="$(git -C "${REPO_ROOT}" describe --always --dirty 2>/dev/null || echo unknown)"
+  if [[ "${RUN_COMMIT}" == *-dirty ]]; then
+    warn "repo has uncommitted changes; manifest will record commit ${RUN_COMMIT}"
+  fi
+elif [[ -n "${KEEP_WHY}" ]]; then
+  die "--why requires --keep"
+fi
+
 if [[ "${GPUS_EXPLICIT}" -eq 0 ]]; then
   apply_profile
 fi
@@ -291,6 +320,9 @@ if [[ -n "${OUTPUT_DIR}" ]]; then
 fi
 if [[ -n "${OUTPUTFILE}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUTFILE=${OUTPUTFILE}"
+fi
+if [[ -n "${KEEP_NAME}" ]]; then
+  EXPORT_VARS="${EXPORT_VARS},KEEP_NAME=${KEEP_NAME},KEEP_WHY=${KEEP_WHY},RUN_COMMIT=${RUN_COMMIT}"
 fi
 
 if [[ "${QUIET_MAIL}" -eq 1 ]]; then
@@ -339,6 +371,9 @@ if [[ -n "${OUTPUT_DIR}" ]]; then
   echo "Output dir (override): ${OUTPUT_DIR}"
 else
   echo "Output dir: output/job_<SLURM_JOB_ID> (set on compute node)"
+fi
+if [[ -n "${KEEP_NAME}" ]]; then
+  echo "Archive on success: ${IVDBM_RESULTS_DIR}/$(date +%F)_<jobid>_${KEEP_NAME}"
 fi
 if [[ "${QUIET_MAIL}" -eq 1 ]]; then
   echo "Mail notifications suppressed (--quiet-mail) for job ${JOB_ID}."
