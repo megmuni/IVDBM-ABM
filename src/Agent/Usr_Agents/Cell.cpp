@@ -546,7 +546,6 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 	int nz = Agent::nz;
 	int randInt, target, in;
 	vector <int> neighbors;
-	//vector <int> damagedneighbors;
 
 	// Make a list of neighboring patches
 #ifndef MODEL_3D
@@ -581,9 +580,11 @@ void Cell::makeOCollagen(float meanTGF, float meanIL1) {
 
 		// Move to new patch and sprout ocollagen
 		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
-		this->move(dx, dy, dz, read_index);
 
-		Agent::agentECMPtr[in].ocollagen[write_t] = Agent::agentECMPtr[in].ocollagen[read_t] + 1 + rand() % 2;
+#ifdef _OMP
+		#pragma omp atomic
+#endif
+		Agent::agentECMPtr[in].ocollagen[write_t] += 1;
 #ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
 #endif
@@ -646,9 +647,11 @@ void Cell::makeOAggrecan(float meanTNF, float meanTGF, float meanIL1) {
 
 		// Move to new patch and sprout oaggrecan
 		in = (x + dx) + (y + dy) * nx + (z + dz) * nx * ny;
-		this->move(dx, dy, dz, read_index);
 
-		Agent::agentECMPtr[in].oaggrecan[write_t] = Agent::agentECMPtr[in].oaggrecan[read_t] + 1 + rand() % 2;
+#ifdef _OMP
+#pragma omp atomic
+#endif
+		Agent::agentECMPtr[in].oaggrecan[write_t] += 1;
 #ifdef OPT_ECM
 		Agent::agentECMPtr[in].set_dirty();
 #endif
@@ -822,18 +825,18 @@ float Stem::get_diff_prob(float meanTGF,
 
 void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
-	Stem::collagenSynthRate = Stem::CollagenSynth[0]
-		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	Stem::collagenSynthRate = (Stem::CollagenSynth[0]
+		+ (log1(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
 
-	if (meanTGF < (Stem::AggrecanSynth[0] / patchesVolume)) {
+	if (meanTGF < (Stem::AggrecanSynth[0] * patchesVolume)) {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
 	}
 	else {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate * 1.2;
 	}
 #else
-	Stem::collagenSynthRate = 10
-		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	Stem::collagenSynthRate = (10
+		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0;
 
 	if (meanTGF < 100000) {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
@@ -846,13 +849,25 @@ void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF
 
 void Stem::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 	int in = this->index[read_t];
+	int tid = 0;
+
+#ifdef _OMP
+	tid = omp_get_thread_num();
+#endif
+	unsigned int* seed = &(agentWorldPtr->seeds[tid]);
+
+	// Round each rate up or down; P(rounding up) = fractional part of rate
+	int nCol = (int)Stem::collagenSynthRate;
+	if ((float)rand_r(seed) / RAND_MAX < Stem::collagenSynthRate - nCol) nCol++;
+	int nAgg = (int)Stem::aggrecanSynthRate;
+	if ((float)rand_r(seed) / RAND_MAX < Stem::aggrecanSynthRate - nAgg) nAgg++;
 
 #ifdef MODEL_SCAFFOLD
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 		// loops based on synth rates calculated in calculate_ecm_synth_rates()
-		for (int i = 0; i < Stem::collagenSynthRate; i++)
+		for (int i = 0; i < nCol; i++)
 			this->makeOCollagen(meanTGF, meanIL1);
-		for (int i = 0; i < Stem::aggrecanSynthRate; i++)
+		for (int i = 0; i < nAgg; i++)
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 	else {
@@ -860,8 +875,10 @@ void Stem::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 #else
-	this->makeOCollagen(meanTGF, meanIL1);
-	this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	for (int i = 0; i < nCol; i++)
+		this->makeOCollagen(meanTGF, meanIL1);
+	for (int i = 0; i < nAgg; i++)
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 #endif
 }
 
@@ -945,29 +962,38 @@ float Progen::get_diff_prob(float meanTGF,
 
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
-	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0]
-		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1));
+	Progen::aggrecanSynthRate = (Progen::AggrecanSynth[0]
+		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
 #else
-	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0];
+	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] / 48.0;
 #endif
 }
 
 void Progen::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 	int in = this->index[read_t];
+	int tid = 0;
+
+#ifdef _OMP
+	tid = omp_get_thread_num();
+#endif
+	unsigned int* seed = &(agentWorldPtr->seeds[tid]);
+
+	// Round each rate up or down; P(rounding up) = fractional part of rate
+	int nAgg = (int)Progen::aggrecanSynthRate;
+	if ((float)rand_r(seed) / RAND_MAX < Progen::aggrecanSynthRate - nAgg) nAgg++;
 
 #ifdef MODEL_SCAFFOLD
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 		// progen on scaffold only loops aggrecan, never collagen
-		for (int i = 0; i < Progen::aggrecanSynthRate; i++)
+		for (int i = 0; i < nAgg; i++)
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 	else {
-		this->makeOCollagen(meanTGF, meanIL1);
 		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 #else
-	this->makeOCollagen(meanTGF, meanIL1);
-	this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+	for (int i = 0; i < nAgg; i++)
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 #endif
 }
 

@@ -1789,14 +1789,24 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   int BMWorld::get_total_agent_count() { return cells.actualSize(); }
 
   vector<string> BMWorld::get_env_type_names() {
-    return {"ncollagen", "naggrecan"};
+    return {"collagen_total_ug", "aggrecan_total_ug"};
   }
 
   void BMWorld::count_env(map<string, float> & env_counts) {
-    for (int in = 0; in < (nx - 1) + (ny - 1) * nx + (nz - 1) * nx * ny; in++) {
-      env_counts["ncollagen"] += this->worldECM[in].ncollagen[read_t] / 1000.0;
-      env_counts["naggrecan"] += this->worldECM[in].naggrecan[read_t] / 1000.0;
+    double col_intact = 0.0;
+    double agg_intact = 0.0;
+    int nPatches = nx * ny * nz;
+
+    for (int in = 0; in < nPatches; in++) {
+        ECM& e = this->worldECM[in];
+        // 1 o-unit = 1 pg, 1 n-unit = 2 pg, 1 f-unit ≈ 1 pg
+        col_intact += e.ocollagen[read_t] + 2.0 * e.ncollagen[read_t];
+        agg_intact += e.oaggrecan[read_t] + 2.0 * e.naggrecan[read_t];
     }
+
+    //pg to ug conversion
+    env_counts["collagen_total_ug"] = (col_intact + col_frag) * 1e-6;
+    env_counts["aggrecan_total_ug"] = (agg_intact + agg_frag) * 1e-6;
   }
 
   void BMWorld::write_data_row(std::ofstream & file,
@@ -1808,8 +1818,9 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
          << this->world_total_tgf() << "," << this->world_total_o2() << ",";
 
     // ecm types
-    file << fixed << setprecision(5) << env_counts["ncollagen"] << ","
-         << env_counts["naggrecan"] << ",";
+    file << fixed << setprecision(5)
+        << env_counts["collagen_total_ug"] << ","
+        << env_counts["aggrecan_total_ug"] << ",";
 
     // agent counts
     file << get_total_agent_count() << "," << agent_counts["Stem"] << ","

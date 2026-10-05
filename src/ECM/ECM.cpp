@@ -24,8 +24,8 @@ using namespace std;
 //FIXME: Update max num of ECM on each patch 
 Patch* ECM::ECMPatchPtr = NULL; 
 BMWorld* ECM::ECMWorldPtr = NULL;
-int ECM::maxcollagen = 620*10^9;  
-int ECM::maxaggrecan = 500*10^9;  
+int ECM::maxcollagen = 100000;  // max in units
+int ECM::maxaggrecan = 100000;
 int ECM::maxHA = 0;
 int ECM::dx[27] = {-1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1};
 int ECM::dy[27] = {-1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1};
