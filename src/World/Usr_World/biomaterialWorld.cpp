@@ -1805,8 +1805,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     }
 
     //pg to ug conversion
-    env_counts["collagen_total"] = (col_intact + col_frag) * 1e-6;
-    env_counts["aggrecan_total"] = (agg_intact + agg_frag) * 1e-6;
+    env_counts["collagen_total"] = (col_intact) * 1e-6;
+    env_counts["aggrecan_total"] = (agg_intact) * 1e-6;
   }
 
   void BMWorld::write_data_row(std::ofstream & file,
