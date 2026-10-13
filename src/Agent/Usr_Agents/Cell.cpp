@@ -826,7 +826,7 @@ float Stem::get_diff_prob(float meanTGF,
 void Stem::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
 	Stem::collagenSynthRate = (Stem::CollagenSynth[0]
-		+ (log1(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
+		+ (log(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
 
 	if (meanTGF < (Stem::AggrecanSynth[0] * patchesVolume)) {
 		Stem::aggrecanSynthRate = Stem::collagenSynthRate / 1.2;
@@ -963,7 +963,7 @@ float Progen::get_diff_prob(float meanTGF,
 void Progen::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
 	Progen::aggrecanSynthRate = (Progen::AggrecanSynth[0]
-		+ (log10(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
+		+ (log(1 + meanTGF) / (1 + meanTNF + meanIL1))) / 48.0; // convert rate of pg/cell/day to pg/cell/tick by dividing by # of ticks per day
 #else
 	Progen::aggrecanSynthRate = Progen::AggrecanSynth[0] / 48.0;
 #endif
