@@ -1795,18 +1795,22 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   void BMWorld::count_env(map<string, float> & env_counts) {
     double col_intact = 0.0;
     double agg_intact = 0.0;
+    double col_frag = 0.0;
+    double agg_frag = 0.0;
     int nPatches = nx * ny * nz;
 
     for (int in = 0; in < nPatches; in++) {
         ECM& e = this->worldECM[in];
         // 1 o-unit = 1 pg, 1 n-unit = 2 pg, 1 f-unit ≈ 1 pg
         col_intact += e.ocollagen[read_t] + 2.0 * e.ncollagen[read_t];
+        col_frag += e.fcollagen[read_t];
         agg_intact += e.oaggrecan[read_t] + 2.0 * e.naggrecan[read_t];
+        agg_frag += e.faggrecan[read_t];
     }
 
     //pg to ug conversion
-    env_counts["collagen_total"] = (col_intact) * 1e-6;
-    env_counts["aggrecan_total"] = (agg_intact) * 1e-6;
+    env_counts["collagen_total"] = (col_intact + col_frag) * 1e-6;
+    env_counts["aggrecan_total"] = (agg_intact + agg_frag) * 1e-6;
   }
 
   void BMWorld::write_data_row(std::ofstream & file,
