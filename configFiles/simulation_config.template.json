@@ -125,7 +125,7 @@
         "il1beta_baseline": 0 // m10
       },
       "collagen_synthesis": {
-        "baseline_rate": 100 // m11
+        "baseline_rate": 80 // m11
       },
       "aggrecan_synthesis": {
         "tgf_threshold": 100000 // m12
