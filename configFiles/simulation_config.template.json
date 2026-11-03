@@ -115,7 +115,7 @@
       "apoptosis_chance": 0.1, // N/A
       "migration": {
         "description": "MSC migration speed vs hydrogel elasticity (CaAlg)",
-        "elasticity_effect": 0.11, // m1
+        "elasticity_effect": -0.11, // m1
         "baseline_speed": 0.35 // m2
       },
       "cytokine_synthesis": {
@@ -149,7 +149,7 @@
       "ocr_fmol_per_hour_per_cell": 30.46, // N/A
       "apoptosis_chance": 0.1, // N/A
       "migration": {
-        "elasticity_effect": 0.11, // p1
+        "elasticity_effect": -0.11, // p1
         "baseline_speed": 0.83 // p2
       },
       "cytokine_synthesis": {
@@ -168,7 +168,7 @@
       "ocr_fmol_per_hour_per_cell": 15.31, // N/A
       "apoptosis_chance": 5, // N/A
       "migration": {
-        "elasticity_effect": 0.11, // k0
+        "elasticity_effect": -0.11, // k0
         "baseline_speed": 1.3 // k1
       },
       "collagen_synthesis": {
