@@ -69,6 +69,7 @@ float BMWorld::E_0 = 0;
 float BMWorld::E_inf = 0;
 float BMWorld::t = 0;
 #endif
+float BMWorld::migrationMult = 1.0;
 
 #ifdef MODEL_SCAFFOLD
 float BMWorld::Ca_Mw = 3400; // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
@@ -92,10 +93,10 @@ float BMWorld::PoreSize[BMWorld::PORE_SIZE_COUNT] = {};
 
 #ifdef PEPTIDE_BM
 /* Experimental values for peptide biomaterial */
-peptideCondition MAL = {2.0031, 3.8757, 44.00};
-peptideCondition CHAD = {3.0180, 5.0709, 37.87};
-peptideCondition hA5G26 = {2.9628, 4.6913, 35.35};
-peptideCondition IKVAV = {2.9067, 5.4795, 42.56};
+peptideCondition MAL = {2.0031, 3.8757, 44.00. 1.0};
+peptideCondition CHAD = {3.0180, 5.0709, 37.87, 1.0};
+peptideCondition hA5G26 = {2.9628, 4.6913, 35.35, 1.0};
+peptideCondition IKVAV = {2.9067, 5.4795, 42.56, 2.06};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
@@ -360,18 +361,22 @@ void BMWorld::initializeCaAlg() {
     BMWorld::E_0 = MAL.E_init;
     BMWorld::E_inf = MAL.E_eq;
     BMWorld::t = MAL.t_stress;
+    BMWorld::migrationMult = MAL.migrationMult;
   } else if (this->peptide.compare("CHAD") == 0) {
     BMWorld::E_0 = CHAD.E_init;
     BMWorld::E_inf = CHAD.E_eq;
     BMWorld::t = CHAD.t_stress;
+    BMWorld::migrationMult = CHAD.migrationMult;
   } else if (this->peptide.compare("hA5G26") == 0) {
     BMWorld::E_0 = hA5G26.E_init;
     BMWorld::E_inf = hA5G26.E_eq;
     BMWorld::t = hA5G26.t_stress;
+    BMWorld::migrationMult = hA5G26.migrationMult;
   } else if (this->peptide.compare("IKVAV") == 0) {
     BMWorld::E_0 = IKVAV.E_init;
     BMWorld::E_inf = IKVAV.E_eq;
     BMWorld::t = IKVAV.t_stress;
+    BMWorld::migrationMult = IKVAV.migrationMult;
   }
   cout << "Peptide: " << this->peptide
        << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf

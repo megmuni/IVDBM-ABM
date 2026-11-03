@@ -690,6 +690,7 @@ struct peptideCondition {
   float E_init;   // initial modulus, represents elastic portion of model
   float E_eq;     // 'equilibrium' modulus, represents viscous portion of model
   float t_stress; // stress relaxation time (t = t_half/ln(2))
+  float migrationMult; // paxillan intensity relative to MAL control 
 };
 extern peptideCondition MAL, CHAD, hA5G26,
     IKVAV; // names of the peptide structs

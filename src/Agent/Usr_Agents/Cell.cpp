@@ -901,7 +901,7 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 float Stem::get_migration_speed() {
 	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Stem::CaAlgMigration[Stem::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Stem::CaAlgMigration[Stem::MIGRATION_BASELINE_SPEED]; // um/min
+		float migration_ummin = BMWorld::migrationMult * Stem::CaAlgMigration[Stem::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Stem::CaAlgMigration[Stem::MIGRATION_BASELINE_SPEED]; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -1016,7 +1016,7 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 float Progen::get_migration_speed() {
 	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Progen::CaAlgMigration[Progen::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Progen::CaAlgMigration[Progen::MIGRATION_BASELINE_SPEED]; // um/min
+		float migration_ummin = BMWorld::migrationMult * Progen::CaAlgMigration[Progen::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Progen::CaAlgMigration[Progen::MIGRATION_BASELINE_SPEED]; // um/min
 
 		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
@@ -1125,7 +1125,7 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 
 float NP::get_migration_speed() {
 #ifdef CALIBRATION
-	float migration_ummin = NP::CaAlgMigration[NP::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + NP::CaAlgMigration[NP::MIGRATION_BASELINE_SPEED]; // um/min
+	float migration_ummin = BMWorld::migrationMult * NP::CaAlgMigration[NP::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + NP::CaAlgMigration[NP::MIGRATION_BASELINE_SPEED]; // um/min
 
 	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
 		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
