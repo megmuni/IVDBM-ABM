@@ -77,6 +77,8 @@
 #define MODEL_3D // Run in 3D
 #define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
 
+#define DEBUG_LINE_OUTPUT // writes extra output like tgf_line.csv and o2_line.csv
+
 // Initialize Alg/Ca Scaffold (for in vitro case define MODEL_SCAFFOLD, in vivo
 // case define MODEL_VOCALFOLD && MODEL_SCAFFOLD)
 #define MODEL_SCAFFOLD

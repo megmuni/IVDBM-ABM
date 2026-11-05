@@ -992,17 +992,19 @@ void BMWorld::updateChemCPU() {
   this->updateO2(); // call O2 update
   chemical_environment_->merge_and_reset_secretion();
 
+#ifdef DEBUG_LINE_OUTPUT
   // temp for TGF output for diffusion debugging
-  for (int xi = 0; xi < nx / 2; xi++) {
+  for (int xi = 0; xi <= nx / 2; xi++) {
     int in = xi + lineY * nx + lineZ * nx * ny;
     tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
   }
 
   // temp for O2 output for diffusion debugging
-  for (int xi = 0; xi < nx / 2; xi++) {
+  for (int xi = 0; xi <= nx / 2; xi++) {
     int in = xi + lineY * nx + lineZ * nx * ny;
     o2Line[xi] = chemical_environment_->concentration_at(in, o2);
   }
+#endif
 }
 
 void BMWorld::updateChem() { updateChemCPU(); }
@@ -1916,6 +1918,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   // lines measuring TGF and O2 for
   // debugging purposes
   void BMWorld::write_auxiliary_header() {
+#ifdef DEBUG_LINE_OUTPUT
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
     remove(tgf_path);
@@ -1931,19 +1934,20 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
-  }
-
-  // [LOGGING] decision log header
-  if (BMWorld::logDecisions) {
-      char dec_path[512];
-      util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
-      remove(dec_path);
-      ofstream dec_file(dec_path, ios::app);
-      dec_file << "tick,stage,event,TNF,TGF,IL1beta,E,prob\n";
-      dec_file.close();
+#endif
+    // [LOGGING] decision log header
+    if (BMWorld::logDecisions) {
+        char dec_path[512];
+        util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+        remove(dec_path);
+        ofstream dec_file(dec_path, ios::app);
+        dec_file << "tick,stage,event,TNF,TGF,IL1beta,E,prob\n";
+        dec_file.close();
+    }
   }
 
   void BMWorld::write_auxiliary_outputs() {
+#ifdef DEBUG_LINE_OUTPUT
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
     ofstream tgf_file(tgf_path, ios::app);
@@ -1959,28 +1963,28 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
-  }
-
-  // [LOGGING] flush every thread's decision buffer, then clear it
-  if (BMWorld::logDecisions) {
-      char dec_path[512];
-      util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
-      ofstream dec_file(dec_path, ios::app);
-      dec_file << setprecision(6) << defaultfloat;
-      for (auto& buf : BMWorld::decisionBuffers) {
-          for (const DecisionRecord& r : buf) {
-              const char* stage = r.stage == stem ? "Stem"
-                  : r.stage == progen ? "Progen"
-                  : r.stage == np ? "NP"
-                  : "Other";
-              dec_file << r.tick << "," << stage << ","
-                  << (r.event == 'P' ? "prolif" : "diff") << "," << r.tnf
-                  << "," << r.tgf << "," << r.il1 << "," << r.E << ","
-                  << r.prob << "\n";
-          }
-          buf.clear();
-      }
-      dec_file.close();
+#endif
+    // [LOGGING] flush every thread's decision buffer, then clear it
+    if (BMWorld::logDecisions) {
+        char dec_path[512];
+        util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+        ofstream dec_file(dec_path, ios::app);
+        dec_file << setprecision(6) << defaultfloat;
+        for (auto& buf : BMWorld::decisionBuffers) {
+            for (const DecisionRecord& r : buf) {
+                const char* stage = r.stage == stem ? "Stem"
+                    : r.stage == progen ? "Progen"
+                    : r.stage == np ? "NP"
+                    : "Other";
+                dec_file << r.tick << "," << stage << ","
+                    << (r.event == 'P' ? "prolif" : "diff") << "," << r.tnf
+                    << "," << r.tgf << "," << r.il1 << "," << r.E << ","
+                    << r.prob << "\n";
+            }
+            buf.clear();
+        }
+        dec_file.close();
+    }
   }
 
   void BMWorld::patchassign_csv() {
