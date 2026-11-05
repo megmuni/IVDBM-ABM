@@ -406,6 +406,7 @@ public:
   static float E_inf; // Equilibrium modulus (peptide-conjugated BM)
   static float t;     // Stress relaxation time (seconds)
 #endif
+  static float migrationMult; // migration multiplier set to a non-default value when peptide mode is on, representing the influence of diff peptide types on migration speed
 
   // Crosslinked Ca-Alg Hydrogel Parameters
   //  Ca Crosslinker:

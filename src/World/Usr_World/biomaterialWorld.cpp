@@ -93,7 +93,7 @@ float BMWorld::PoreSize[BMWorld::PORE_SIZE_COUNT] = {};
 
 #ifdef PEPTIDE_BM
 /* Experimental values for peptide biomaterial */
-peptideCondition MAL = {2.0031, 3.8757, 44.00. 1.0};
+peptideCondition MAL = {2.0031, 3.8757, 44.00, 1.0};
 peptideCondition CHAD = {3.0180, 5.0709, 37.87, 1.0};
 peptideCondition hA5G26 = {2.9628, 4.6913, 35.35, 1.0};
 peptideCondition IKVAV = {2.9067, 5.4795, 42.56, 2.06};
