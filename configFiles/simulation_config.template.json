@@ -1,5 +1,9 @@
 {
   "description": "Combined IVDBM simulation config (chemistry + biology). Copy to simulation_config.json and edit.",
+  "output": {
+    "description": "Optional extra outputs. log_cell_decisions writes output/cell_decisions.csv (one row per proliferation/differentiation attempt).",
+    "log_cell_decisions": true
+  },
   "world_init": {
     "description": "Scaffold seeding and alginate hydrogel composition.",
     "msc_count": 0, // MSCs; 0 = seed at default density (1e6 cells/mL)
@@ -9,7 +13,7 @@
       "low_mw_ratio": 0, // lowMW_Ratio
       "ca_mm": 15 // Ca_(mM)
     },
-    "peptide": "" // Only used when compiled with PEPTIDE_BM
+    "peptide": "MAL" // Only used when compiled with PEPTIDE_BM
   },
   "chemistry": {
     "model": "IVDBM",

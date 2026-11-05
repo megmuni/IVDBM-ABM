@@ -71,6 +71,18 @@ float BMWorld::t = 0;
 #endif
 float BMWorld::migrationMult = 1.0;
 
+// [LOGGING] decision logging state (see biomaterialWorld.h)
+bool BMWorld::logDecisions = false;
+std::vector<std::vector<BMWorld::DecisionRecord>> BMWorld::decisionBuffers;
+
+void BMWorld::recordDecision(const DecisionRecord& rec) {
+    int tid = 0;
+#ifdef _OMP
+    tid = omp_get_thread_num();
+#endif
+    decisionBuffers[tid].push_back(rec);
+}
+
 #ifdef MODEL_SCAFFOLD
 float BMWorld::Ca_Mw = 3400; // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
 float BMWorld::Alg_Mn =
@@ -1762,6 +1774,19 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     cout << "Type of peptide conjugation = " << this->peptide << endl;
 #endif // PEPTIDE_BM
 
+    // [LOGGING] optional per-decision logging
+    const OutputParams outCfg = load_output_config(config_path);
+    BMWorld::logDecisions = outCfg.log_cell_decisions;
+    {
+        int nthreads = 1;
+#ifdef _OMP
+        nthreads = omp_get_max_threads();
+#endif
+        BMWorld::decisionBuffers.assign(nthreads, {});
+    }
+    cout << "Cell decision logging = "
+        << (BMWorld::logDecisions ? "ON" : "off") << endl;
+
     cout << "-------------------------------------------" << endl;
 
     return 0;
@@ -1908,6 +1933,16 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     o2_file.close();
   }
 
+  // [LOGGING] decision log header
+  if (BMWorld::logDecisions) {
+      char dec_path[512];
+      util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+      remove(dec_path);
+      ofstream dec_file(dec_path, ios::app);
+      dec_file << "tick,stage,event,TNF,TGF,IL1beta,E,prob\n";
+      dec_file.close();
+  }
+
   void BMWorld::write_auxiliary_outputs() {
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
@@ -1924,6 +1959,28 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
+  }
+
+  // [LOGGING] flush every thread's decision buffer, then clear it
+  if (BMWorld::logDecisions) {
+      char dec_path[512];
+      util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+      ofstream dec_file(dec_path, ios::app);
+      dec_file << setprecision(6) << defaultfloat;
+      for (auto& buf : BMWorld::decisionBuffers) {
+          for (const DecisionRecord& r : buf) {
+              const char* stage = r.stage == stem ? "Stem"
+                  : r.stage == progen ? "Progen"
+                  : r.stage == np ? "NP"
+                  : "Other";
+              dec_file << r.tick << "," << stage << ","
+                  << (r.event == 'P' ? "prolif" : "diff") << "," << r.tnf
+                  << "," << r.tgf << "," << r.il1 << "," << r.E << ","
+                  << r.prob << "\n";
+          }
+          buf.clear();
+      }
+      dec_file.close();
   }
 
   void BMWorld::patchassign_csv() {

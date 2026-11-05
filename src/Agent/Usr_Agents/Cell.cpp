@@ -424,6 +424,11 @@ void Cell::proliferate() {
 
 	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF); // get the proliferation probability for the cell type
 
+	if (BMWorld::logDecisions) { // [LOGGING]
+		BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'P',
+			meanTNF, meanTGF, meanIL1, BMWorld::E, prob });
+	}
+
 	if (rollDice(prob)) {
 		this->hatchnewcell(1, this->type[read_t]);
 		this->doublings[write_t] = this->doublings[read_t] + 1;
@@ -445,6 +450,11 @@ void Cell::differentiate() {
 	float prob = get_diff_prob(meanTGF, meanIL1, meanTNF);
 	int daughterType = get_daughter_type();
 	if (daughterType == -1) return; // base Cell has no daughter type; skip 
+
+	if (BMWorld::logDecisions) { // [LOGGING]
+		BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'D',
+			meanTNF, meanTGF, meanIL1, BMWorld::E, prob });
+	}
 
 	if (rollDice(prob)) {
 		if (rollDice(Stem::differentiation[Stem::DIFFERENTIATION_ASYMMETRIC_PROBABILITY]*100)) { // check for asymmetric differentiation; more likely

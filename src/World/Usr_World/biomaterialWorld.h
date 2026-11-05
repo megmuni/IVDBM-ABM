@@ -408,6 +408,21 @@ public:
 #endif
   static float migrationMult; // migration multiplier set to a non-default value when peptide mode is on, representing the influence of diff peptide types on migration speed
 
+  // [LOGGING] Per-decision logging (output/cell_decisions.csv).
+  // Off unless "output": {"log_cell_decisions": true} is in the config.
+  struct DecisionRecord {
+      int tick;            // BMWorld::clock at the decision
+      int stage;           // agent_t of the deciding cell (stem/progen/np)
+      char event;          // 'P' = proliferation, 'D' = differentiation
+      float tnf, tgf, il1; // neighbourhood means passed to the prob function
+      float E;             // BMWorld::E at the decision
+      float prob;          // probability (%) passed to rollDice
+  };
+  static bool logDecisions;
+  // One buffer per OpenMP thread; flushed and cleared each tick in write_auxiliary_outputs()
+  static std::vector<std::vector<DecisionRecord>> decisionBuffers;
+  static void recordDecision(const DecisionRecord& rec);
+
   // Crosslinked Ca-Alg Hydrogel Parameters
   //  Ca Crosslinker:
   static float Ca_Mw; // Molecular Weight
