@@ -112,13 +112,15 @@ peptideCondition IKVAV = {2.9067, 5.4795, 42.56, 2.06};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
-  // Generate random seeds:
-  for (int i = 0; i < NUM_THREAD; i++)
-    seeds[i] = 25234 + 17 * i;
-
-  // Allocate memory for local lists of cell pointers to add:
-  for (int i = 0; i < MAX_NUM_THREADS; i++)
-    localNewCells[i] = new vector<Cell *>;
+  // Generate random seeds. IVDBM_SEED gets set by testrun.sbatch
+  // based on slurm array task ID
+    unsigned seedOffset = 0;
+    if (const char* seedEnv = getenv("IVDBM_SEED"))
+        seedOffset = static_cast<unsigned>(strtoul(seedEnv, nullptr, 10));
+    for (int i = 0; i < NUM_THREAD; i++)
+        seeds[i] = 25234 + 17 * i + 1000003u * seedOffset; // per-thread rand_r streams
+    srand(27000 + seedOffset); // global rand(): random_shuffle, rand() % n, ...
+    cout << "Random seed offset (IVDBM_SEED) = " << seedOffset << endl;
 
   /* --------------------------------------------------------------------------
    */
