@@ -379,8 +379,8 @@ void BMWorld::initializeCaAlg() {
     BMWorld::migrationMult = IKVAV.migrationMult;
   }
   cout << "Peptide: " << this->peptide
-       << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf
-       << BMWorld::t << endl;
+       << ". Parameters being used are: " << BMWorld::E_0 << ", " << BMWorld::E_inf
+       << ", " << BMWorld::t << endl;
   BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) *
                                     exp(-(BMWorld::clock * 30 * 60) /
                                         BMWorld::t); // converts tick to seconds
