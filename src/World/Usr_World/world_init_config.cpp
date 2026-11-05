@@ -68,3 +68,26 @@ WorldInitParams load_world_init_config(const std::string &path)
 
   return cfg;
 }
+
+// [LOGGING] Optional "output" section; absent -> logging off.
+OutputParams load_output_config(const std::string& path)
+{
+    std::ifstream in(path);
+    if (!in)
+        throw std::runtime_error("Cannot open simulation config: " + path);
+    json root;
+    try {
+        root = json::parse(in, nullptr, true, /*ignore_comments=*/true);
+    }
+    catch (const json::parse_error& e) {
+        throw std::runtime_error(std::string("Invalid JSON in ") + path + ": " + e.what());
+    }
+    OutputParams cfg;
+    if (!root.contains("output"))
+        return cfg;
+    const json& section = root.at("output");
+    reject_unknown_keys(section, { "description", "log_cell_decisions" }, "output");
+    if (section.contains("log_cell_decisions"))
+        cfg.log_cell_decisions = section.at("log_cell_decisions").get<bool>();
+    return cfg;
+}
