@@ -278,6 +278,7 @@ class Cell: public Agent {
 
       // Movement-related hook functions
       virtual float get_migration_speed(); // calculates the migration speed for each cell type and passes it to the [celltype]::migrationSpeed variable
+      int stochasticRound(float x); // floor(x), plus 1 with probability = fractional part of x
       virtual bool can_tgf_excite() { return false; } // used only for NP cell to check if TGF can excite the cell into moving
 
       // Death-related hook functions
