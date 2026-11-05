@@ -53,12 +53,6 @@ public:
    */
   virtual ~Agent();
 
-  enum agenttype_t {
-    stem,
-    progen,
-    np
-  }; // Enumic type to keep track of the type of agent
-
   /*
    * Description:	Determines whether an agent is alive or not and updates
    * the agent's properties for the end of the current tick.

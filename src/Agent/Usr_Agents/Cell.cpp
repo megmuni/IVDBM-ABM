@@ -234,11 +234,26 @@ Cell::Cell(int x, int y, int z) {
 	//Cell::numOfCells++;  
 }
 
-Stem::Stem(int x, int y, int z) : Cell(x, y, z) {}
+Stem::Stem(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = stem;
+	this->type[read_t] = stem;
+	this->color[write_t] = cstem;
+	this->color[read_t] = cstem;
+}
 
-Progen::Progen(int x, int y, int z) : Cell(x, y, z) {}
+Progen::Progen(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = progen;
+	this->type[read_t] = progen;
+	this->color[write_t] = cprogen;
+	this->color[read_t] = cprogen;
+}
 
-NP::NP(int x, int y, int z) : Cell(x, y, z) {}
+NP::NP(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = np;
+	this->type[read_t] = np;
+	this->color[write_t] = cnp;
+	this->color[read_t] = cnp;
+}
 
 //DESTRUCTORS
 Cell::~Cell() {}
