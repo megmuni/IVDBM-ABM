@@ -285,6 +285,19 @@ warn_profile_binary_mismatch
 
 mkdir -p "${REPO_ROOT}/logs"
 
+# Freeze the config at submission time. Jobs read SIMULATION_CONFIG when they
+# START, not when they're submitted, so editing a shared config while jobs are
+# queued would silently change what they run. Point the job at a read-only copy.
+if [[ "${DRY_RUN}" -eq 0 ]]; then
+  SNAP_DIR_REL="configFiles/snapshots"
+  mkdir -p "${REPO_ROOT}/${SNAP_DIR_REL}"
+  SNAP_REL="${SNAP_DIR_REL}/$(basename "${SIMULATION_CONFIG%.json}")_$(date +%Y%m%d_%H%M%S)_$$.json"
+  cp "${REPO_ROOT}/${SIMULATION_CONFIG}" "${REPO_ROOT}/${SNAP_REL}"
+  chmod a-w "${REPO_ROOT}/${SNAP_REL}"
+  echo "Config snapshot: ${SNAP_REL} (from ${SIMULATION_CONFIG})"
+  SIMULATION_CONFIG="${SNAP_REL}"
+fi
+
 EXPORT_VARS="NONE,REPO_ROOT=${REPO_ROOT},TESTRUN=${TESTRUN},NUMTICKS=${NUMTICKS},WXW=${WXW},WYW=${WYW},WZW=${WZW},SIMULATION_CONFIG=${SIMULATION_CONFIG},IVDBM_PROFILE=${PROFILE},PARAVIEW=${PARAVIEW}"
 if [[ -n "${OUTPUT_DIR}" ]]; then
   EXPORT_VARS="${EXPORT_VARS},OUTPUT_DIR=${OUTPUT_DIR}"
