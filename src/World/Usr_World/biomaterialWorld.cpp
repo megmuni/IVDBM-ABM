@@ -1056,10 +1056,10 @@ void BMWorld::updateCells() {
   cout << " previous tick's cells " << prevCells << endl;
   cerr << "	removing dead cells" << endl;
   int cellsSize = cells.size();
-  liveCells = 0;
+  int nLive = 0;
   int dcells = 0;
-  deletedCells = 0;
-#pragma omp parallel for
+  int nDeleted = 0;
+#pragma omp parallel for reduction(+ : nLive, dcells, nDeleted) // ensure thread safety during counting
   for (int i = 0; i < cellsSize; i++) {
 #ifdef _OMP
     int tid = omp_get_thread_num();
@@ -1077,7 +1077,7 @@ void BMWorld::updateCells() {
     }
 
     if (cell->isAlive() == true) {
-      liveCells++;
+      nLive++;
       // Update cell stage counts
       /* Added by MM to check types of cell stages and add to respective
        * counters: */
@@ -1107,9 +1107,11 @@ void BMWorld::updateCells() {
       }
       cells.deleteData(i, tid);
       delete cell;
-      deletedCells++;
+      nDeleted++;
     }
   }
+  liveCells = nLive;
+  deletedCells = nDeleted;
   // if (BMWorld::clock == 0) {
   //	prevCells = this->initialCells[0];
   // }
@@ -1117,12 +1119,12 @@ void BMWorld::updateCells() {
   //	prevCells = liveCells;
   // }
 
-  // deadCells += dcells;
-  if (prevCells - cells.actualSize() >= 0) {
-    deadCells += prevCells - cells.actualSize();
-  } else if (prevCells - cells.actualSize() < 0) {
-    deadCells += 0;
-  }
+  deadCells += dcells;
+  //if (prevCells - cells.actualSize() >= 0) {
+  //  deadCells += prevCells - cells.actualSize();
+  //} else if (prevCells - cells.actualSize() < 0) {
+  //  deadCells += 0;
+  //}
   // deadCells += prevCells - cells.actualSize();
   Cell::numOfCells = cells.actualSize();
   // cout << " number of dead cells in this tick " << prevCells -

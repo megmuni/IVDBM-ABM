@@ -2,7 +2,7 @@
   "description": "Combined IVDBM simulation config (chemistry + biology). Copy to simulation_config.json and edit.",
   "output": {
     "description": "Optional extra outputs. log_cell_decisions writes output/cell_decisions.csv (one row per proliferation/differentiation attempt).",
-    "log_cell_decisions": true
+    "log_cell_decisions": false
   },
   "world_init": {
     "description": "Scaffold seeding and alginate hydrogel composition.",
@@ -116,7 +116,7 @@
     },
     "stem": {
       "ocr_fmol_per_hour_per_cell": 104.65, // N/A
-      "apoptosis_chance": 0.1, // N/A
+      "apoptosis_chance": 0.01, // N/A
       "migration": {
         "description": "MSC migration speed vs hydrogel elasticity (CaAlg)",
         "elasticity_effect": -0.11, // m1
@@ -136,14 +136,14 @@
       },
       "proliferation": {
         "tgf_threshold": 10, // m3
-        "static_probability": 10, // m4
+        "static_probability": 2, // m4
         "tnf_effect": 0.8, // m5
         "il1beta_effect": 0.001, // m6
         "elasticity_effect": 0.5 // m7
       },
       "differentiation": {
         "asymmetric_probability": 0.6, // m13
-        "static_probability": 5, // m14
+        "static_probability": 3, // m14
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
         "hours_between_attempts": 48 // m17
@@ -151,7 +151,7 @@
     },
     "progen": {
       "ocr_fmol_per_hour_per_cell": 30.46, // N/A
-      "apoptosis_chance": 0.1, // N/A
+      "apoptosis_chance": 0.01, // N/A
       "migration": {
         "elasticity_effect": -0.11, // p1
         "baseline_speed": 0.83 // p2
@@ -165,12 +165,12 @@
         "baseline_rate": 100 // p7
       },
       "differentiation": {
-        "static_probability": 20 // N/A
+        "static_probability": 8 // N/A
       }
     },
     "np": {
       "ocr_fmol_per_hour_per_cell": 15.31, // N/A
-      "apoptosis_chance": 5, // N/A
+      "apoptosis_chance": 0.5, // N/A
       "migration": {
         "elasticity_effect": -0.11, // k0
         "baseline_speed": 1.3 // k1
