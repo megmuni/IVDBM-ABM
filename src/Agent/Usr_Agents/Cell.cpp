@@ -387,6 +387,7 @@ void Cell::apoptose() {
 #else
 	if (rollDice(1)) { // from Netlogo model
 		this->die();
+		this->realDeath[write_t] = true;
 		return;
 	}
 #endif
