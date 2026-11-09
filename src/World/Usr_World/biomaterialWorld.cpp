@@ -69,6 +69,19 @@ float BMWorld::E_0 = 0;
 float BMWorld::E_inf = 0;
 float BMWorld::t = 0;
 #endif
+float BMWorld::migrationMult = 1.0;
+
+// [LOGGING] decision logging state (see biomaterialWorld.h)
+bool BMWorld::logDecisions = false;
+std::vector<std::vector<BMWorld::DecisionRecord>> BMWorld::decisionBuffers;
+
+void BMWorld::recordDecision(const DecisionRecord& rec) {
+    int tid = 0;
+#ifdef _OMP
+    tid = omp_get_thread_num();
+#endif
+    decisionBuffers[tid].push_back(rec);
+}
 
 #ifdef MODEL_SCAFFOLD
 float BMWorld::Ca_Mw = 3400; // Ca Molecular Weight (Mw ≈ 3,400 = g/mol)
@@ -92,20 +105,22 @@ float BMWorld::PoreSize[BMWorld::PORE_SIZE_COUNT] = {};
 
 #ifdef PEPTIDE_BM
 /* Experimental values for peptide biomaterial */
-peptideCondition MAL = {2.0031, 3.8757, 44.00};
-peptideCondition CHAD = {3.0180, 5.0709, 37.87};
-peptideCondition hA5G26 = {2.9628, 4.6913, 35.35};
-peptideCondition IKVAV = {2.9067, 5.4795, 42.56};
+peptideCondition MAL = {2.0031, 3.8757, 44.00, 1.0};
+peptideCondition CHAD = {3.0180, 5.0709, 37.87, 1.0};
+peptideCondition hA5G26 = {2.9628, 4.6913, 35.35, 1.0};
+peptideCondition IKVAV = {2.9067, 5.4795, 42.56, 2.06};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
-  // Generate random seeds:
-  for (int i = 0; i < NUM_THREAD; i++)
-    seeds[i] = 25234 + 17 * i;
-
-  // Allocate memory for local lists of cell pointers to add:
-  for (int i = 0; i < MAX_NUM_THREADS; i++)
-    localNewCells[i] = new vector<Cell *>;
+  // Generate random seeds. IVDBM_SEED gets set by testrun.sbatch
+  // based on slurm array task ID
+    unsigned seedOffset = 0;
+    if (const char* seedEnv = getenv("IVDBM_SEED"))
+        seedOffset = static_cast<unsigned>(strtoul(seedEnv, nullptr, 10));
+    for (int i = 0; i < NUM_THREAD; i++)
+        seeds[i] = 25234 + 17 * i + 1000003u * seedOffset; // per-thread rand_r streams
+    srand(27000 + seedOffset); // global rand(): random_shuffle, rand() % n, ...
+    cout << "Random seed offset (IVDBM_SEED) = " << seedOffset << endl;
 
   /* --------------------------------------------------------------------------
    */
@@ -360,22 +375,26 @@ void BMWorld::initializeCaAlg() {
     BMWorld::E_0 = MAL.E_init;
     BMWorld::E_inf = MAL.E_eq;
     BMWorld::t = MAL.t_stress;
+    BMWorld::migrationMult = MAL.migrationMult;
   } else if (this->peptide.compare("CHAD") == 0) {
     BMWorld::E_0 = CHAD.E_init;
     BMWorld::E_inf = CHAD.E_eq;
     BMWorld::t = CHAD.t_stress;
+    BMWorld::migrationMult = CHAD.migrationMult;
   } else if (this->peptide.compare("hA5G26") == 0) {
     BMWorld::E_0 = hA5G26.E_init;
     BMWorld::E_inf = hA5G26.E_eq;
     BMWorld::t = hA5G26.t_stress;
+    BMWorld::migrationMult = hA5G26.migrationMult;
   } else if (this->peptide.compare("IKVAV") == 0) {
     BMWorld::E_0 = IKVAV.E_init;
     BMWorld::E_inf = IKVAV.E_eq;
     BMWorld::t = IKVAV.t_stress;
+    BMWorld::migrationMult = IKVAV.migrationMult;
   }
   cout << "Peptide: " << this->peptide
-       << ". Parameters being used are: " << BMWorld::E_0 << BMWorld::E_inf
-       << BMWorld::t << endl;
+       << ". Parameters being used are: " << BMWorld::E_0 << ", " << BMWorld::E_inf
+       << ", " << BMWorld::t << endl;
   BMWorld::E = BMWorld::E_inf + (BMWorld::E_0 - BMWorld::E_inf) *
                                     exp(-(BMWorld::clock * 30 * 60) /
                                         BMWorld::t); // converts tick to seconds
@@ -975,17 +994,19 @@ void BMWorld::updateChemCPU() {
   this->updateO2(); // call O2 update
   chemical_environment_->merge_and_reset_secretion();
 
+#ifdef DEBUG_LINE_OUTPUT
   // temp for TGF output for diffusion debugging
-  for (int xi = 0; xi < nx / 2; xi++) {
+  for (int xi = 0; xi <= nx / 2; xi++) {
     int in = xi + lineY * nx + lineZ * nx * ny;
     tgfLine[xi] = chemical_environment_->concentration_at(in, TGF);
   }
 
   // temp for O2 output for diffusion debugging
-  for (int xi = 0; xi < nx / 2; xi++) {
+  for (int xi = 0; xi <= nx / 2; xi++) {
     int in = xi + lineY * nx + lineZ * nx * ny;
     o2Line[xi] = chemical_environment_->concentration_at(in, o2);
   }
+#endif
 }
 
 void BMWorld::updateChem() { updateChemCPU(); }
@@ -1757,6 +1778,19 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     cout << "Type of peptide conjugation = " << this->peptide << endl;
 #endif // PEPTIDE_BM
 
+    // [LOGGING] optional per-decision logging
+    const OutputParams outCfg = load_output_config(config_path);
+    BMWorld::logDecisions = outCfg.log_cell_decisions;
+    {
+        int nthreads = 1;
+#ifdef _OMP
+        nthreads = omp_get_max_threads();
+#endif
+        BMWorld::decisionBuffers.assign(nthreads, {});
+    }
+    cout << "Cell decision logging = "
+        << (BMWorld::logDecisions ? "ON" : "off") << endl;
+
     cout << "-------------------------------------------" << endl;
 
     return 0;
@@ -1886,6 +1920,7 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
   // lines measuring TGF and O2 for
   // debugging purposes
   void BMWorld::write_auxiliary_header() {
+#ifdef DEBUG_LINE_OUTPUT
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
     remove(tgf_path);
@@ -1901,9 +1936,20 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       o2_file << "x=" << xi << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
+#endif
+    // [LOGGING] decision log header
+    if (BMWorld::logDecisions) {
+        char dec_path[512];
+        util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+        remove(dec_path);
+        ofstream dec_file(dec_path, ios::app);
+        dec_file << "tick,stage,event,TNF,TGF,IL1beta,E,prob\n";
+        dec_file.close();
+    }
   }
 
   void BMWorld::write_auxiliary_outputs() {
+#ifdef DEBUG_LINE_OUTPUT
     char tgf_path[512];
     util::makeOutputPath(tgf_path, sizeof(tgf_path), "tgf_line.csv");
     ofstream tgf_file(tgf_path, ios::app);
@@ -1919,6 +1965,28 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     for (int xi = 0; xi <= nx / 2; xi++)
       o2_file << o2Line[xi] << (xi < nx / 2 ? "," : "\n");
     o2_file.close();
+#endif
+    // [LOGGING] flush every thread's decision buffer, then clear it
+    if (BMWorld::logDecisions) {
+        char dec_path[512];
+        util::makeOutputPath(dec_path, sizeof(dec_path), "cell_decisions.csv");
+        ofstream dec_file(dec_path, ios::app);
+        dec_file << setprecision(6) << defaultfloat;
+        for (auto& buf : BMWorld::decisionBuffers) {
+            for (const DecisionRecord& r : buf) {
+                const char* stage = r.stage == stem ? "Stem"
+                    : r.stage == progen ? "Progen"
+                    : r.stage == np ? "NP"
+                    : "Other";
+                dec_file << r.tick << "," << stage << ","
+                    << (r.event == 'P' ? "prolif" : "diff") << "," << r.tnf
+                    << "," << r.tgf << "," << r.il1 << "," << r.E << ","
+                    << r.prob << "\n";
+            }
+            buf.clear();
+        }
+        dec_file.close();
+    }
   }
 
   void BMWorld::patchassign_csv() {

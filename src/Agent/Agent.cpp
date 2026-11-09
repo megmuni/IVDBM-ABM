@@ -84,9 +84,14 @@ bool Agent::rollDice(float percent) {
 		#ifdef _OMP
 			tid = omp_get_thread_num();	// Get thread id in order to access the seed that belongs to this thread
 		#endif
-	int randNum = rand_r(&(agentWorldPtr->seeds[tid]))%100;
-	if (randNum < percent) return 1;
-	else return 0;
+	//int randNum = rand_r(&(agentWorldPtr->seeds[tid]))%100;
+	//if (randNum < percent) return 1;
+	//else return 0;
+	
+	//NEW random draw behaviour: continuous draw in [0, 100) so that probabilities below 1%
+	//are followed exactly
+	double randNum = 100.0 * rand_r(&(agentWorldPtr->seeds[tid])) / ((double)RAND_MAX + 1.0);
+	return randNum < percent;
 }
 
 bool Agent::move(int dX, int dY, int dZ, int read_index) {
@@ -371,17 +376,12 @@ bool Agent::moveTowardChemotaxis() {
 
 	#ifdef MODEL_SCAFFOLD
 	int radius;
-		switch (this->type[read_t]) {
-			case stem: {
-				int radius = Stem::migrationSpeed;
-			}
-			case progen: {
-				int radius = Progen::migrationSpeed;
-			}
-			case np: {
-				int radius = NP::migrationSpeed;
-			}
-		}
+	switch (this->type[read_t]) {
+		case stem:   radius = static_cast<int>(ceil(Stem::migrationSpeed));   break;
+		case progen: radius = static_cast<int>(ceil(Progen::migrationSpeed)); break;
+		case np:     radius = static_cast<int>(ceil(NP::migrationSpeed));     break;
+		default:     radius = 1;
+	}
 
 		for (int deltaz = -radius; deltaz <= radius; deltaz++) {
 			for (int deltay = -radius; deltay <= radius; deltay++) {

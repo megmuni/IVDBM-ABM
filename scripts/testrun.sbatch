@@ -17,10 +17,19 @@ JOB_DEFAULTS="${REPO_ROOT}/scripts/job_defaults.env"
 # shellcheck source=job_defaults.env
 source "${JOB_DEFAULTS}"
 
-OUTPUT_DIR="${OUTPUT_DIR:-output/job_${SLURM_JOB_ID}}"
-OUTPUTFILE="${OUTPUTFILE:-${OUTPUT_DIR}/Output_Biomarkers.csv}"
+# One folder per job submission that is shared by all array tasks (falls back to the
+# plain job ID when not run as an array)
+RUN_ID="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID}}"
+REP="${SLURM_ARRAY_TASK_ID:-0}"
 
-mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
+OUTPUT_DIR="${OUTPUT_DIR:-output/job_${RUN_ID}}"
+REP_DIR="${OUTPUT_DIR}/rep${REP}"
+OUTPUTFILE="${OUTPUTFILE:-${OUTPUT_DIR}/Output_Biomarkers${REP}.csv}"
+
+# Different random seed per replicate (read by BMWorld); override with IVDBM_SEED.
+export IVDBM_SEED="${IVDBM_SEED:-${REP}}"
+
+mkdir -p "${OUTPUT_DIR}" "${REP_DIR}" logs || fail "cannot create ${REP_DIR} or logs/"
 
 [[ -x "${TESTRUN:?Set TESTRUN when submitting this job.}" ]] \
   || fail "testRun not executable: ${TESTRUN}"
@@ -29,8 +38,8 @@ mkdir -p "${OUTPUT_DIR}" logs || fail "cannot create ${OUTPUT_DIR} or logs/"
 
 export LD_LIBRARY_PATH="${REPO_ROOT}/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-${SLURM_CPUS_PER_TASK:-1}}"
-export IVDBM_OUTPUT_DIR="${OUTPUT_DIR}"
-export IVDBM_RUN_PARAMS_JSON="${OUTPUT_DIR}/run_params.json"
+export IVDBM_OUTPUT_DIR="${REP_DIR}"
+export IVDBM_RUN_PARAMS_JSON="${REP_DIR}/run_params.json"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then
   # shellcheck disable=SC1091
@@ -49,14 +58,15 @@ fi
 echo "Job ${SLURM_JOB_ID:-?} starting on $(hostname) at $(date -Iseconds)"
 echo "  REPO_ROOT=${REPO_ROOT}"
 echo "  TESTRUN=${TESTRUN}"
-echo "  OUTPUT_DIR=${OUTPUT_DIR}"
+echo "  OUTPUT_DIR=${OUTPUT_DIR}  (replicate ${REP}: ${REP_DIR})"
+echo "  IVDBM_SEED=${IVDBM_SEED}"
 echo "  SIMULATION_CONFIG=${SIMULATION_CONFIG}"
 echo "  OUTPUTFILE=${OUTPUTFILE}"
 echo "  NUMTICKS=${NUMTICKS}  OMP_NUM_THREADS=${OMP_NUM_THREADS}  PROFILE=${IVDBM_PROFILE:-cpu}"
 
 set +e
 "${TESTRUN}" \
-  --output-dir "${OUTPUT_DIR}" \
+  --output-dir "${REP_DIR}" \
   --numticks "${NUMTICKS}" \
   --config "${SIMULATION_CONFIG}" \
   --outputfile "${OUTPUTFILE}" \

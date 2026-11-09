@@ -234,11 +234,26 @@ Cell::Cell(int x, int y, int z) {
 	//Cell::numOfCells++;  
 }
 
-Stem::Stem(int x, int y, int z) : Cell(x, y, z) {}
+Stem::Stem(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = stem;
+	this->type[read_t] = stem;
+	this->color[write_t] = cstem;
+	this->color[read_t] = cstem;
+}
 
-Progen::Progen(int x, int y, int z) : Cell(x, y, z) {}
+Progen::Progen(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = progen;
+	this->type[read_t] = progen;
+	this->color[write_t] = cprogen;
+	this->color[read_t] = cprogen;
+}
 
-NP::NP(int x, int y, int z) : Cell(x, y, z) {}
+NP::NP(int x, int y, int z) : Cell(x, y, z) {
+	this->type[write_t] = np;
+	this->type[read_t] = np;
+	this->color[write_t] = cnp;
+	this->color[read_t] = cnp;
+}
 
 //DESTRUCTORS
 Cell::~Cell() {}
@@ -313,7 +328,7 @@ void Cell::cellSniff() {
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
 		if (rollDice(80) && this->moveTowardChemotaxis() == true){
 			#ifdef MODEL_SCAFFOLD
-			if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 				// Move up to "migrationSpeed" patches per tick:
 				for (int dx = 0; dx < speed; dx++) this->wiggle();
 			}
@@ -328,7 +343,7 @@ void Cell::cellSniff() {
 	} else {
 		// not in damage zone
 #ifdef MODEL_SCAFFOLD
-		if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			for (int dx = 0; dx < speed; dx++) this->wiggle();
 		}
 		else if (rollDice(0.25)) {
@@ -342,7 +357,7 @@ void Cell::cellSniff() {
 	// TGF can excite NP cell and overcome gradient: //NOTE MM: double check this for MSCs
 	if (can_tgf_excite()) {
 #ifdef MODEL_SCAFFOLD
-		if (speed > 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
 			for (int dx = 0; dx < speed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
 		}
 		else if (rollDice(0.25)) {
@@ -424,6 +439,11 @@ void Cell::proliferate() {
 
 	float prob = get_prolif_prob(meanTGF, meanIL1, meanTNF); // get the proliferation probability for the cell type
 
+	if (BMWorld::logDecisions) { // [LOGGING]
+		BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'P',
+			meanTNF, meanTGF, meanIL1, BMWorld::E, prob });
+	}
+
 	if (rollDice(prob)) {
 		this->hatchnewcell(1, this->type[read_t]);
 		this->doublings[write_t] = this->doublings[read_t] + 1;
@@ -445,6 +465,11 @@ void Cell::differentiate() {
 	float prob = get_diff_prob(meanTGF, meanIL1, meanTNF);
 	int daughterType = get_daughter_type();
 	if (daughterType == -1) return; // base Cell has no daughter type; skip 
+
+	if (BMWorld::logDecisions) { // [LOGGING]
+		BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'D',
+			meanTNF, meanTGF, meanIL1, BMWorld::E, prob });
+	}
 
 	if (rollDice(prob)) {
 		if (rollDice(Stem::differentiation[Stem::DIFFERENTIATION_ASYMMETRIC_PROBABILITY]*100)) { // check for asymmetric differentiation; more likely
@@ -662,6 +687,11 @@ void Cell::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 
 bool Cell::isProliferative() {
 	return this->doublings[read_t] < get_max_doublings();
+}
+
+int Cell::stochasticRound(float x) {
+	int whole = static_cast<int>(floor(x));
+	return whole + (rollDice(100.0f * (x - whole)) ? 1 : 0);
 }
 
 int Cell::get_max_doublings() { return 50; } //base default
@@ -899,29 +929,15 @@ void Stem::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) 
 }
 
 float Stem::get_migration_speed() {
-	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Stem::CaAlgMigration[Stem::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Stem::CaAlgMigration[Stem::MIGRATION_BASELINE_SPEED]; // um/min
-
-		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
-		else {
-			Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
+	float migration_ummin = BMWorld::migrationMult * (Stem::CaAlgMigration[Stem::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Stem::CaAlgMigration[Stem::MIGRATION_BASELINE_SPEED]); // um/min
 #else
-		float migration_ummin = 0.1096 * log(BMWorld::E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-			Stem::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
-		else {
-			Stem::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
+	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.35; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
 #endif
-		cout << "        Stem cell migration Speed (patch/tick) = " << Stem::migrationSpeed << endl;
-	}
-	return Stem::migrationSpeed;
+	migration_ummin = std::max(0.0f, migration_ummin); // no negative speeds
+	Stem::migrationSpeed = migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * 1000);
+	//cout << "        Stem cell migration Speed (patch/tick) = " << stochasticRound(Stem::migrationSpeed) << endl;
+	return stochasticRound(Stem::migrationSpeed);
 }
 
 float Stem::get_apoptosis_chance() {
@@ -1014,29 +1030,15 @@ void Progen::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF
 }
 
 float Progen::get_migration_speed() {
-	if (BMWorld::clock == 0) {
 #ifdef CALIBRATION
-		float migration_ummin = Progen::CaAlgMigration[Progen::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Progen::CaAlgMigration[Progen::MIGRATION_BASELINE_SPEED]; // um/min
-
-		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
-		else {
-			Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
+	float migration_ummin = BMWorld::migrationMult * (Progen::CaAlgMigration[Progen::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + Progen::CaAlgMigration[Progen::MIGRATION_BASELINE_SPEED]); // um/min
 #else
-		float migration_ummin = 0.1096 * log(BMWorld::E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-		if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-			Progen::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
-		else {
-			Progen::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-		}
+	float migration_ummin = 0.1096 * log(BMWorld::E) + ((NP::migrationSpeed - Stem::migrationSpeed) / 2); // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
 #endif
-		cout << "        Progenitor cell migration Speed (patch/tick) = " << Progen::migrationSpeed << endl;
-	}
-	return Progen::migrationSpeed;
+	migration_ummin = std::max(0.0f, migration_ummin); // no negative speeds
+	Progen::migrationSpeed = migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * 1000);
+	//cout << "        Progenitor cell migration Speed (patch/tick) = " << stochasticRound(Progen::migrationSpeed) << endl;
+	return stochasticRound(Progen::migrationSpeed);
 }
 
 float Progen::get_apoptosis_chance() {
@@ -1125,26 +1127,15 @@ void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
 
 float NP::get_migration_speed() {
 #ifdef CALIBRATION
-	float migration_ummin = NP::CaAlgMigration[NP::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + NP::CaAlgMigration[NP::MIGRATION_BASELINE_SPEED]; // um/min
-
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
-	else {
-		NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
+	float migration_ummin = BMWorld::migrationMult * (NP::CaAlgMigration[NP::MIGRATION_ELASTICITY_EFFECT] * log(BMWorld::E) + NP::CaAlgMigration[NP::MIGRATION_BASELINE_SPEED]); // um/min
 #else
 	float migration_ummin = 0.1096 * log(BMWorld::E) + 0.2431; // um/min //float migration_ummin =  0.1213*log10(Agent::agentWorldPtr->E) + 0.223; // um/min
-
-	if (rollDice(0.5)) {  // Convert migration speed in um/min to patches/tick where default patchlength is 10um and default tick is 30 min
-		NP::migrationSpeed = ceil(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
-	else {
-		NP::migrationSpeed = floor(migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * pow(10, 3)));    //patch/tick 
-	}
 #endif
-	cout << "        NP cell migration Speed (patch/tick) = " << NP::migrationSpeed << endl;
-	return NP::migrationSpeed;
+	migration_ummin = std::max(0.0f, migration_ummin); // no negative speeds
+	// um/min -> patches/tick (patchlength in mm; 30 min per tick)
+	NP::migrationSpeed = migration_ummin * 30 / (Agent::agentWorldPtr->patchlength * 1000);
+	//cout << "        NP cell migration Speed (patch/tick) = " << stochasticRound(NP::migrationSpeed) << endl;
+	return stochasticRound(NP::migrationSpeed);
 }
 
 bool NP::can_tgf_excite() {

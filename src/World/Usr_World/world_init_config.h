@@ -34,4 +34,10 @@ struct WorldInitParams {
  */
 WorldInitParams load_world_init_config(const std::string &path);
 
+/** [LOGGING] Optional output switches, from the @c output section. */
+struct OutputParams {
+	bool log_cell_decisions = false;
+};
+OutputParams load_output_config(const std::string& path);
+
 #endif
