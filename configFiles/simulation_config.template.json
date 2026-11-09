@@ -136,14 +136,14 @@
       },
       "proliferation": {
         "tgf_threshold": 10, // m3
-        "static_probability": 3, // m4
+        "static_probability": 2, // m4
         "tnf_effect": 0.8, // m5
         "il1beta_effect": 0.001, // m6
         "elasticity_effect": 0.5 // m7
       },
       "differentiation": {
         "asymmetric_probability": 0.6, // m13
-        "static_probability": 5, // m14
+        "static_probability": 3, // m14
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
         "hours_between_attempts": 48 // m17
@@ -165,7 +165,7 @@
         "baseline_rate": 100 // p7
       },
       "differentiation": {
-        "static_probability": 10 // N/A
+        "static_probability": 8 // N/A
       }
     },
     "np": {
