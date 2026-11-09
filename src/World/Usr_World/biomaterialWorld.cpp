@@ -112,6 +112,10 @@ peptideCondition IKVAV = {2.9067, 5.4795, 42.56, 2.06};
 #endif
 
 BMWorld::BMWorld(double length, double width, double height, double plength) {
+
+    for (int i = 0; i < MAX_NUM_THREADS; i++)
+        localNewCells[i] = new vector<Cell*>();
+
   // Generate random seeds. IVDBM_SEED gets set by testrun.sbatch
   // based on slurm array task ID
     unsigned seedOffset = 0;
