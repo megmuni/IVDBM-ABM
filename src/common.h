@@ -75,7 +75,7 @@
  *****************************************************************************/
 #define BIOMARKER_OUTPUT // Enable Biomarker Output
 #define MODEL_3D // Run in 3D
-#define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
+//#define PEPTIDE_BM // Enable the time-dependent calculations of effective stiffness (E) for the new peptide-conjugated ASC biomaterial
 
 //#define DEBUG_LINE_OUTPUT // writes extra output like tgf_line.csv and o2_line.csv
 

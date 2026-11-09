@@ -13,7 +13,7 @@
       "low_mw_ratio": 0, // lowMW_Ratio
       "ca_mm": 15 // Ca_(mM)
     },
-    "peptide": "MAL" // Only used when compiled with PEPTIDE_BM
+    "peptide": "" // Only used when compiled with PEPTIDE_BM
   },
   "chemistry": {
     "model": "IVDBM",
@@ -136,14 +136,14 @@
       },
       "proliferation": {
         "tgf_threshold": 10, // m3
-        "static_probability": 20, // m4
+        "static_probability": 10, // m4
         "tnf_effect": 0.8, // m5
         "il1beta_effect": 0.001, // m6
         "elasticity_effect": 0.5 // m7
       },
       "differentiation": {
-        "asymmetric_probability": 0.7, // m13
-        "static_probability": 10, // m14
+        "asymmetric_probability": 0.6, // m13
+        "static_probability": 5, // m14
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
         "hours_between_attempts": 48 // m17
