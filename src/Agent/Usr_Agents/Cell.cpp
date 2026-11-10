@@ -1083,31 +1083,53 @@ float NP::get_prolif_prob(float meanTGF,
 
 void NP::calculate_ecm_synth_rates(float meanTGF, float meanIL1, float meanTNF, float patchesVolume) {
 #ifdef CALIBRATION
+	// rates are in pg/cell/day, converted to pg/cell/tick (divided by 48.0 ticks per day at the end of this eq)
 	NP::collagenSynthRate = NP::CollagenSynth[NP::COLLAGEN_SCALING_FACTOR]
-		* (NP::CollagenSynth[NP::COLLAGEN_TIME_EFFECT] * BMWorld::reportDay() + NP::CollagenSynth[NP::COLLAGEN_BASELINE_RATE]);
+		* (NP::CollagenSynth[NP::COLLAGEN_TIME_EFFECT] * BMWorld::reportDay() + NP::CollagenSynth[NP::COLLAGEN_BASELINE_RATE]) / 48.0;
 	NP::aggrecanSynthRate = NP::AggrecanSynth[NP::AGGRECAN_SCALING_FACTOR]
-		* (NP::AggrecanSynth[NP::AGGRECAN_TIME_EFFECT] * BMWorld::reportDay() + NP::AggrecanSynth[NP::AGGRECAN_BASELINE_RATE]);
+		* (NP::AggrecanSynth[NP::AGGRECAN_TIME_EFFECT] * BMWorld::reportDay() + NP::AggrecanSynth[NP::AGGRECAN_BASELINE_RATE]) / 48.0;
 #else
-	NP::collagenSynthRate = 10 * (6.45 * BMWorld::reportDay() + 3.6);
-	NP::aggrecanSynthRate = 20 * (38 * BMWorld::reportDay() + 16.6);
+	// constant rates from the slopes of accumulated ECM in IVD cells in alginate
+	// (collagen 6.45 ug/mL/day at 2x10^6 cells/mL; GAG 38 ug/10^6 cells/day), in pg/cell/day
+	NP::collagenSynthRate = 3.2 / 48.0;
+	NP::aggrecanSynthRate = 38.0 / 48.0;
 #endif
 }
 
 void NP::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
-	// Active cell adhered to Ca-Alg synthesis ECM according the substrate mechanical properties:
+
 	int in = this->index[read_t];
+	int tid = 0;
+
+#ifdef _OMP
+	tid = omp_get_thread_num();
+#endif
+	unsigned int* seed = &(agentWorldPtr->seeds[tid]);
+
+	// Round each rate up or down; P(rounding up) = fractional part of rate
+	int nCol = (int)NP::collagenSynthRate;
+	if ((float)rand_r(seed) / RAND_MAX < NP::collagenSynthRate - nCol) nCol++;
+	int nAgg = (int)NP::aggrecanSynthRate;
+	if ((float)rand_r(seed) / RAND_MAX < NP::aggrecanSynthRate - nAgg) nAgg++;
+
+#ifdef MODEL_SCAFFOLD
 	if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
-		for (int i = 0; i < NP::collagenSynthRate; i++) {
+		// loops based on synth rates calculated in calculate_ecm_synth_rates()
+		for (int i = 0; i < nCol; i++)
 			this->makeOCollagen(meanTGF, meanIL1);
-		}
-		for (int i = 0; i < NP::aggrecanSynthRate; i++) {
+		for (int i = 0; i < nAgg; i++)
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
-		}
 	}
 	else {
 		this->makeOCollagen(meanTGF, meanIL1);
 		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
+#else
+	for (int i = 0; i < nCol; i++)
+		this->makeOCollagen(meanTGF, meanIL1);
+	for (int i = 0; i < nAgg; i++)
+		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+#endif
 }
 
 void NP::create_cytokines(float patchTGF, float patchIL1beta, float patchTNF) {
