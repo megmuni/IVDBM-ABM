@@ -527,10 +527,7 @@ void Cell::ecm_synthesis() {
 	float patchesVolume = patchVolume * neighborCount;
 
 	calculate_ecm_synth_rates(meanTGF, meanIL1, meanTNF, patchesVolume);
-
-	if (fmod(((Agent::agentWorldPtr)->reportHour()), 12) == 0) {
-		create_ecm(meanTGF, meanIL1, meanTNF);
-	}
+	create_ecm(meanTGF, meanIL1, meanTNF);
 }
 
 void Cell::cytokine_synthesis() {
