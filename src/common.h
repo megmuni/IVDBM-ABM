@@ -79,9 +79,12 @@
 
 //#define DEBUG_LINE_OUTPUT // writes extra output like tgf_line.csv and o2_line.csv
 
+// for the leftover wound healing stuff
+//#define MODEL_WOUND
 // Initialize Alg/Ca Scaffold (for in vitro case define MODEL_SCAFFOLD, in vivo
 // case define MODEL_VOCALFOLD && MODEL_SCAFFOLD)
 #define MODEL_SCAFFOLD
+
 // #define PEVOC_SCALE // Use PEVOC scale parameters 	(Obsolete?)
 #define PDE_DIFFUSE // Use PDE based chemical diffusion
 // #define COLLECT_CELL_INS_DEL_STATS // TODO(Nuttiiya)

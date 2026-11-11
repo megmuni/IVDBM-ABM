@@ -206,7 +206,9 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
   /* Define initial attributes of patches, damage, ECM, chem and cells based on
    * user defined values (in config file) and traits of native tissue */
   this->initializePatches();
+#ifdef MODEL_WOUND
   this->initializeECM();
+#endif
   this->initializeCells();
 #ifdef MODEL_SCAFFOLD
   this->initializeCaAlg();
@@ -225,8 +227,9 @@ BMWorld::BMWorld(double length, double width, double height, double plength) {
     this->sync_baseline_chem_from_config();
     this->initializeChemBaseline();
   }
+#ifdef MODEL_WOUND
   this->initializeDamage();
-
+#endif
   /* Calling update functions to synchronize read and write portion of the
    * attributes */
   // this->updateChemCPU();
