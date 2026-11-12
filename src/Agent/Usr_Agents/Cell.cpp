@@ -18,6 +18,9 @@
 
 using namespace std;
 int Cell::numOfCells = 0;
+int Cell::o2PassCount = 0;
+int Cell::o2RandomCount = 0;
+int Cell::o2SkipCount = 0;
 float Cell::proliferation[Cell::PROLIFERATION_COUNT] = {};
 float Cell::cytokineSynthesis[Cell::CYTOKINE_SYNTHESIS_COUNT] = {};
 
@@ -25,8 +28,8 @@ int Stem::numOfStem = 0;
 float Stem::migrationSpeed = 1; // patch/tick. Not an input parameter
 float Stem::OCR = 0;
 float Stem::apoptosisChance = 0;
-float Stem::collagenSynthRate = 1; // placeholder values which will be recalculated
-float Stem::aggrecanSynthRate = 0.5; // placeholder values which will be recalculated
+thread_local float Stem::collagenSynthRate = 1;
+thread_local float Stem::aggrecanSynthRate = 0.5;
 
 float Stem::CaAlgMigration[Stem::MIGRATION_COUNT] = {};
 float Stem::cytokineSynthesis[Stem::CYTOKINE_SYNTHESIS_COUNT] = {};
@@ -39,7 +42,7 @@ int Progen::numOfProgen = 0;
 float Progen::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float Progen::OCR = 0;
 float Progen::apoptosisChance = 0;
-float Progen::aggrecanSynthRate = 1;
+thread_local float Progen::aggrecanSynthRate = 1;
 
 float Progen::CaAlgMigration[Progen::MIGRATION_COUNT] = {};
 float Progen::cytokineSynthesis[Progen::CYTOKINE_SYNTHESIS_COUNT] = {};
@@ -51,8 +54,8 @@ int NP::numOfNP = 0;
 float NP::migrationSpeed = 1;    // patch/tick. Not an input parameter
 float NP::OCR = 0;
 float NP::apoptosisChance = 0;
-float NP::collagenSynthRate = 1;
-float NP::aggrecanSynthRate = 1.5;
+thread_local float NP::collagenSynthRate = 1;
+thread_local float NP::aggrecanSynthRate = 1.5;
 
 float NP::CaAlgMigration[NP::MIGRATION_COUNT] = {};
 float NP::CollagenSynth[NP::COLLAGEN_SYNTH_COUNT] = {};
@@ -276,6 +279,26 @@ void Cell::cellFunction() {
 
 	if (this->alive[read_t] == false) return;
 	if (rollDice(20)) { random_act = true; }
+	// tracking of cells that are passing or not passing the O2 gate
+	bool o2ok = (meanO2 + patchO2) > this->get_OCR();
+	if (o2ok) {
+#ifdef _OMP
+#pragma omp atomic
+#endif
+		Cell::o2PassCount++;
+	}
+	else if (random_act) {
+#ifdef _OMP
+#pragma omp atomic
+#endif
+		Cell::o2RandomCount++;
+	}
+	else {
+#ifdef _OMP
+#pragma omp atomic
+#endif
+		Cell::o2SkipCount++;
+	}
 	if (this->alive[read_t] == true && (((meanO2 + patchO2) > this->get_OCR()) || random_act == true)) {
 		this->proliferate();
 		this->differentiate();

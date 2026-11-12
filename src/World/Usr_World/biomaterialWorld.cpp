@@ -28,6 +28,7 @@
 #include "../../Utilities/input_utils.h"
 #include "../../Utilities/timer.h"
 #include "../../enums.h"
+#include "../../Agent/Usr_Agents/Cell.h"
 #include "biomaterialWorld.h"
 #include "world_init_config.h"
 #include <omp.h>
@@ -876,6 +877,9 @@ void BMWorld::runCells() {
   int cellsSize =
       cells.size(); /* This is only an upper bound on cell list size. It is NOT
                        an actual count of cells (some entries are NULL) */
+  Cell::o2PassCount = 0;
+  Cell::o2RandomCount = 0;
+  Cell::o2SkipCount = 0;
 #pragma omp parallel for
   for (int i = 0; i < cellsSize; i++) {
     Cell *cell = cells.getDataAt(i);
@@ -1881,10 +1885,12 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     // scaffold-specific columns
 #ifdef MODEL_SCAFFOLD
     file << this->E << "," << this->Q << "," << this->w << "," << this->Alg_wv
-         << "," << this->Alg_Mn << "," << this->pXL << "," << viability << ","
-         << perDiff << endl;
+        << "," << this->Alg_Mn << "," << this->pXL << "," << viability << ","
+        << perDiff << "," << Cell::o2PassCount << "," << Cell::o2RandomCount
+        << "," << Cell::o2SkipCount << endl;
 #else
-  file << viability << "," << perDiff << endl;
+    file << viability << "," << perDiff << "," << Cell::o2PassCount << ","
+        << Cell::o2RandomCount << "," << Cell::o2SkipCount << endl;
 #endif
   }
 
@@ -1922,7 +1928,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
          << "Alginate_Mw(kDa)" << ","
          << "Ca_XL(M)" << ","
          << "Viability Rate(%)" << ","
-         << "Differentiation (%)" << endl;
+         << "Differentiation (%)" << ","
+         << "O2 Pass" << "," << "O2 Random" << "," << "O2 Skip" << endl;
   }
 
   // extra output - for IVDBM-ABM,

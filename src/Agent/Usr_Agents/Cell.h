@@ -218,6 +218,9 @@ class Cell: public Agent {
     /*                              STATIC VARIABLES                              */
     /* -------------------------------------------------------------------------- */
     static int numOfCells;  // Keeps track of the quantitiy of living cells.
+    static int o2PassCount;    // cells that passed the O2 condition this tick
+    static int o2RandomCount;  // cells that failed O2 but acted via the 20% random chance
+    static int o2SkipCount;    // cells that did not act this tick
 
     /* -------------------------- Calibration variables ------------------------- */
     enum ProliferationIdx {
@@ -339,8 +342,8 @@ class Stem: public Cell {
   static float migrationSpeed;    // Speed (patch/tick) stem cells move in world
 
   static float OCR; // Stem cell oxygen consumption rate in fmol/h/cell
-  static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
-  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+  static thread_local float collagenSynthRate; // pg/cell/tick
+  static thread_local float aggrecanSynthRate; // pg/cell/tick
   static float apoptosisChance;
   static float divisionNum; // number of cell divisions the cell has undertaken
 
@@ -467,7 +470,7 @@ class Progen: public Cell {
   static float divisionNum; // number of cell divisions the cell has undertaken
   static float OCR; // Pre-NP cell oxygen consumption rate in fmol/h/cell
   //static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug) // may not be applicable to Pre-NP
-  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+  static thread_local float aggrecanSynthRate; // pg/cell/tick
 
   /* -------------------------- Calibration variables ------------------------- */
   enum MigrationIdx { MIGRATION_ELASTICITY_EFFECT = 0, MIGRATION_BASELINE_SPEED, MIGRATION_COUNT };
@@ -571,8 +574,8 @@ class NP: public Cell {
   static float divisionNum; // number of cell divisions the cell has undertaken
 
   static float OCR; // NP cell oxygen consumption rate in fmol/h/cell
-  static float collagenSynthRate; // Amount of collagen synthesized in Ca-Alg(10^-4 ug)
-  static float aggrecanSynthRate; // Amount of aggrecan synthesized in Ca-Alg(10^-4 ug)
+  static thread_local float collagenSynthRate; // pg/cell/tick
+  static thread_local float aggrecanSynthRate; // pg/cell/tick
 
   /* -------------------------- Calibration variables ------------------------- */
   enum MigrationIdx { MIGRATION_ELASTICITY_EFFECT = 0, MIGRATION_BASELINE_SPEED, MIGRATION_COUNT };
