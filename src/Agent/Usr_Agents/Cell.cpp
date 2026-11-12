@@ -511,17 +511,28 @@ void Cell::differentiate() {
 	}
 
 	if (rollDice(prob)) {
-		if (rollDice(Stem::differentiation[Stem::DIFFERENTIATION_ASYMMETRIC_PROBABILITY]*100)) { // check for asymmetric differentiation; more likely
-			this->hatchnewcell(1, daughterType);
+		if (rollDice(Stem::differentiation[Stem::DIFFERENTIATION_DIVISION_PROBABILITY] * 100)) {
+			// differentiation with division (adds one cell)
+			if (rollDice(Stem::differentiation[Stem::DIFFERENTIATION_ASYMMETRIC_PROBABILITY] * 100)) { // asymmetric; more likely
+				this->hatchnewcell(1, daughterType);
+			}
+			else { // symmetric; less likely
+				Agent::agentPatchPtr[in].clearOccupied();
+				Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
+
+				this->hatchnewcell(1, daughterType, 1); // 'change' cell here to next cell stage
+				this->doublings[write_t] = this->doublings[read_t] + 1;
+				this->hatchnewcell(1, daughterType); // create new cell in next stage nearby
+				this->die(); // 'kill' current cell
+			}
 		}
-		else { // check for symmetric differentiation; less likely
+		else {
+			// differentiation without division: the cell changes type in place (no new cell)
 			Agent::agentPatchPtr[in].clearOccupied();
 			Agent::agentPatchPtr[in].occupiedby[write_t] = nothing;
 
-			this->hatchnewcell(1, daughterType, 1); // 'change' cell here to next cell stage
-			this->doublings[write_t] = this->doublings[read_t] + 1;
-			this->hatchnewcell(1, daughterType); // create new cell in next stage nearby
-			this->die(); // 'kill' current cell
+			this->hatchnewcell(1, daughterType, 1); // next-stage cell in this cell's place
+			this->die(); // remove the original
 		}
 	}
 }

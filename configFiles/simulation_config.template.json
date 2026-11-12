@@ -146,7 +146,8 @@
         "static_probability": 3, // m14
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
-        "hours_between_attempts": 48 // m17
+        "hours_between_attempts": 48, // m17
+        "division_probability": 1
       }
     },
     "progen": {

@@ -130,6 +130,8 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
   Stem::differentiation[Stem::DIFFERENTIATION_TGF_EFFECT] = static_cast<float>(st.differentiation.tgf_effect);
   Stem::differentiation[Stem::DIFFERENTIATION_HOURS_BETWEEN_ATTEMPTS] =
       static_cast<float>(st.differentiation.hours_between_attempts);
+  Stem::differentiation[Stem::DIFFERENTIATION_DIVISION_PROBABILITY] =
+      static_cast<float>(st.differentiation.division_probability);
 
   const auto &pg = cfg.progen;
   Progen::OCR = static_cast<float>(pg.ocr_fmol_per_hour_per_cell);
