@@ -49,8 +49,12 @@ float BMWorld::liveCells = 0;
 float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
-float BMWorld::initialO2 = 200;   // Initial concentration of oxygen (umol/L)
-float BMWorld::incrementO2 = 0.6; // fraction of the gap to medium O₂ refilled per tick (0–1)
+float BMWorld::initialO2 = 200;              // O2 the gel starts at (umol/L)
+float BMWorld::mediumO2 = 200;               // medium O2 refilled toward (umol/L); ~21% O2 at 37 °C
+float BMWorld::o2OcrReference_uM = 200;      // OCRs measured under normoxia (~21% O2)
+float BMWorld::incrementO2 = 0.6;            // fraction of the gap to medium O2 refilled per tick (0–1)
+float BMWorld::o2Km_uM = 212;                // hMSC Km, Curcio et al. 2014 (2.12e-7 mol/cm3)
+float BMWorld::o2HypoxiaThreshold_uM = 10;   // ~1% O2; matrix synthesis lowest at 1% O2 in disc tissue
 
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;

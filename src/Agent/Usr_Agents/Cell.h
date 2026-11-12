@@ -289,6 +289,7 @@ class Cell: public Agent {
 
       // OCR-related hook functions
       virtual float get_OCR(); // gets the cell-specific OCR 
+      void consumeO2(float o2_uM);   // Michaelis-Menten O2 consumption, every live cell every tick
 };
 
 /*

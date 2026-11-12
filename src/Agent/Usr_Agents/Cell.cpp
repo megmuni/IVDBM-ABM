@@ -273,12 +273,15 @@ void Cell::cellFunction() {
 	int in = this->index[read_t];
 	bool random_act = false; // identifier to allow cells to sometimes 'act' by random chance, even if they don't meet the O2 condition
 
-	//Measure mean & patch oxygen 
-	float meanO2 = this->meanNeighborConcentration(o2);
-	float patchO2 = this->patchChemConcentration(o2, in);
+	// Local O2 as a concentration: fmol per patch / patch volume (L) -> µM (x 1e-9)
+	const double patchVol_L = (BMWorld::totalVolumeML / (Agent::nx * Agent::ny * Agent::nz)) / 1000.0;
+	const float meanO2 = this->meanNeighborConcentration(o2);
+	const float patchO2 = this->patchChemConcentration(o2, in);
+	const float o2_uM = std::max(0.0f, static_cast<float>(0.5 * (meanO2 + patchO2) / patchVol_L * 1e-9));
 
-	if (this->alive[read_t] == false) return;
-	if (rollDice(20)) { random_act = true; }
+	const bool random_act = rollDice(20);   // cells may still act by chance when hypoxic
+	const bool o2ok = o2_uM > BMWorld::o2HypoxiaThreshold_uM;
+
 	// tracking of cells that are passing or not passing the O2 gate
 	bool o2ok = (meanO2 + patchO2) > this->get_OCR();
 	if (o2ok) {
@@ -299,7 +302,7 @@ void Cell::cellFunction() {
 #endif
 		Cell::o2SkipCount++;
 	}
-	if (this->alive[read_t] == true && (((meanO2 + patchO2) > this->get_OCR()) || random_act == true)) {
+	if (o2ok || random_act) {
 		this->proliferate();
 		this->differentiate();
 		this->cellSniff();
@@ -307,39 +310,38 @@ void Cell::cellFunction() {
 		this->cytokine_synthesis();
 		this->apoptose();
 
-		// Finally, subtract 'consumed' O2 from current and neighbor patches IF it 
-		// was an O2-driven cell activation
-
-		if (!random_act) {
-			// Location of agent in x,y,z dimensions of world.
-			int x = this->ix[read_t];
-			int y = this->iy[read_t];
-			int z = this->iz[read_t];
-
-			// Number of patches in x,y,z dimensions of world
-			int nx = Agent::nx;
-			int ny = Agent::ny;
-			int nz = Agent::nz;
-
-			float oxDecrease = this->get_OCR() / 27; // divide OCR across 27 patches (current + neighbors)
-			this->addPatchChemSecretion(o2, in, -1 * oxDecrease);
-			// Count number of patches of neighbors inside world dimensions:
-			for (int dZ = -1; dZ <= 1; dZ++) {
-				for (int dY = -1; dY <= 1; dY++) {
-					for (int dX = -1; dX <= 1; dX++) {
-						if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
-						int in = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
-						if (Agent::agentPatchPtr[in].type[read_t] == CaAlg) (this->addPatchChemSecretion(o2, in, -1 * oxDecrease));
-					}
-				}
-			}
-		}
-
-		// last thing to do: increase age + 1 tick 
+		// last thing to do: increase age + 1 tick
 		if (this->life[read_t] >= 0) {
 			this->life[write_t] = this->life[read_t] + 1;
 		}
 	}
+	// Every live cell consumes O2 every tick, scaled by local O2 (Michaelis-Menten)
+	this->consumeO2(o2_uM);
+}
+
+void Cell::consumeO2(float o2_uM) {
+	const float Km = BMWorld::o2Km_uM;
+	const float Cref = BMWorld::o2OcrReference_uM;   // O2 at which OCR was measured
+	// Scale so that consumption equals the configured OCR at the reference (normoxic) O2
+	const float scale = (o2_uM / (Km + o2_uM)) / (Cref / (Km + Cref));
+	const float total = this->get_OCR() * scale;   // fmol this tick
+	if (total <= 0.0f) return;
+
+	const int x = this->ix[read_t], y = this->iy[read_t], z = this->iz[read_t];
+	const int nx = Agent::nx, ny = Agent::ny, nz = Agent::nz;
+
+	// Spread evenly over the cell's own patch and in-bounds neighbors (each counted once)
+	int targets[27], n = 0;
+	for (int dZ = -1; dZ <= 1; dZ++)
+		for (int dY = -1; dY <= 1; dY++)
+			for (int dX = -1; dX <= 1; dX++) {
+				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+				targets[n++] = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+			}
+
+	const float share = total / n;
+	for (int i = 0; i < n; i++)
+		this->addPatchChemSecretion(o2, targets[i], -share);
 }
 
 void Cell::cellSniff() {
