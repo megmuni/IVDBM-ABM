@@ -101,7 +101,7 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
       static_cast<float>(cs.il1beta_feedback_tgf_denom);
 
   const auto &st = cfg.stem;
-  Stem::OCR = static_cast<float>(st.ocr_fmol_per_hour_per_cell / 2.0);
+  Stem::OCR = static_cast<float>(st.ocr_fmol_per_hour_per_cell);
   Stem::apoptosisChance = static_cast<float>(st.apoptosis_chance);
   Stem::CaAlgMigration[Stem::MIGRATION_ELASTICITY_EFFECT] = static_cast<float>(st.migration.elasticity_effect);
   Stem::CaAlgMigration[Stem::MIGRATION_BASELINE_SPEED] = static_cast<float>(st.migration.baseline_speed);
@@ -132,7 +132,7 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
       static_cast<float>(st.differentiation.hours_between_attempts);
 
   const auto &pg = cfg.progen;
-  Progen::OCR = static_cast<float>(pg.ocr_fmol_per_hour_per_cell / 2.0);
+  Progen::OCR = static_cast<float>(pg.ocr_fmol_per_hour_per_cell);
   Progen::apoptosisChance = static_cast<float>(pg.apoptosis_chance);
   Progen::CaAlgMigration[Progen::MIGRATION_ELASTICITY_EFFECT] =
       static_cast<float>(pg.migration.elasticity_effect);
@@ -149,7 +149,7 @@ void apply_biology_parameters(const BiologyParametersConfig &cfg) {
       static_cast<float>(pg.differentiation.static_probability);
 
   const auto &np = cfg.np;
-  NP::OCR = static_cast<float>(np.ocr_fmol_per_hour_per_cell / 2.0);
+  NP::OCR = static_cast<float>(np.ocr_fmol_per_hour_per_cell);
   NP::apoptosisChance = static_cast<float>(np.apoptosis_chance);
   NP::CaAlgMigration[NP::MIGRATION_ELASTICITY_EFFECT] = static_cast<float>(np.migration.elasticity_effect);
   NP::CaAlgMigration[NP::MIGRATION_BASELINE_SPEED] = static_cast<float>(np.migration.baseline_speed);

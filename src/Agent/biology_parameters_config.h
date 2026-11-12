@@ -168,7 +168,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CellParams, proliferation,
                                    cytokine_synthesis)
 
 struct StemParams {
-  /** OCR in fmol/h/cell (converted to per-tick in apply). */
+  /** OCR in fmol/h/cell (converted to per-tick in get_OCR in Cell). */
   double ocr_fmol_per_hour_per_cell = 0;
   double apoptosis_chance = 0;
   MigrationParams migration;
