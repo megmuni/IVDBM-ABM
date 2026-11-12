@@ -147,10 +147,10 @@ void ChemicalEnvironment::update_chemotaxis_from_species(SpeciesId species) {
 }
 
 void ChemicalEnvironment::recompute_world_totals() {
-  total_tnf_ = 0.f;
-  total_tgf_ = 0.f;
-  total_il1beta_ = 0.f;
-  total_o2_ = 0.f;
+  total_tnf_ = 0.0;
+  total_tgf_ = 0.0;
+  total_il1beta_ = 0.0;
+  total_o2_ = 0.0;
 
   if (channel_data_.empty() || registry_.empty())
     return;
@@ -245,10 +245,10 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   if (registry_.empty() || channel_data_.empty())
     return;
 
-  total_tnf_ = 0.f;
-  total_tgf_ = 0.f;
-  total_il1beta_ = 0.f;
-  total_o2_ = 0.f;
+  total_tnf_ = 0.0;
+  total_tgf_ = 0.0;
+  total_il1beta_ = 0.0;
+  total_o2_ = 0.0;
 
   const std::vector<SpeciesId> diffusing = registry_.diffusing_species();
   const int tnf_ch = concentration_channel_for("TNF");

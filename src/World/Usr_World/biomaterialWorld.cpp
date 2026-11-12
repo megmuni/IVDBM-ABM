@@ -812,25 +812,25 @@ const ChemicalEnvironment *BMWorld::chemical_environment() const {
   return chemical_environment_.get();
 }
 
-float BMWorld::world_total_tnf() const {
+double BMWorld::world_total_tnf() const {
   if (chemical_environment_)
     return chemical_environment_->total_tnf();
   return 0.f;
 }
 
-float BMWorld::world_total_tgf() const {
+double BMWorld::world_total_tgf() const {
   if (chemical_environment_)
     return chemical_environment_->total_tgf();
   return 0.f;
 }
 
-float BMWorld::world_total_il1beta() const {
+double BMWorld::world_total_il1beta() const {
   if (chemical_environment_)
     return chemical_environment_->total_il1beta();
   return 0.f;
 }
 
-float BMWorld::world_total_o2() const {
+double BMWorld::world_total_o2() const {
   if (chemical_environment_)
     return chemical_environment_->total_o2();
   return 0.f;

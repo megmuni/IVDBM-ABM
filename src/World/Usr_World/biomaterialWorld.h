@@ -266,12 +266,12 @@ public:
   const ChemicalEnvironment *chemical_environment() const;
 
   /** Integrated cytokine masses (from environment when available). */
-  float world_total_tnf() const;
-  float world_total_tgf() const;
-  float world_total_il1beta() const;
+  double world_total_tnf() const;
+  double world_total_tgf() const;
+  double world_total_il1beta() const;
 
   /** Integrated O2 mass */
-  float world_total_o2() const;
+  double world_total_o2() const;
 
   float chem_concentration(SpeciesId species, int patch_index) const;
   void chem_add_secretion(SpeciesId species, int patch_index,

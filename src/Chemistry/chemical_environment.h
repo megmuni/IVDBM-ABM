@@ -130,10 +130,10 @@ public:
   /** Chemotaxis channel index from config, or -1 before allocation. */
   int chemotaxis_channel_index() const { return chemotaxis_channel_; }
 
-  float total_tnf() const { return total_tnf_; }
-  float total_tgf() const { return total_tgf_; }
-  float total_il1beta() const { return total_il1beta_; }
-  float total_o2() const { return total_o2_; }
+  double total_tnf() const { return total_tnf_; }
+  double total_tgf() const { return total_tgf_; }
+  double total_il1beta() const { return total_il1beta_; }
+  double total_o2() const { return total_o2_; }
 
 private:
   void sync_diffusion_registry();
@@ -158,10 +158,10 @@ private:
   std::vector<std::vector<float>> channel_data_;
   int chemotaxis_channel_ = -1;
 
-  float total_tnf_ = 0.f;
-  float total_tgf_ = 0.f;
-  float total_il1beta_ = 0.f;
-  float total_o2_ = 0.f;
+  double total_tnf_ = 0.f;
+  double total_tgf_ = 0.f;
+  double total_il1beta_ = 0.f;
+  double total_o2_ = 0.f;
 };
 
 #endif
