@@ -1,4 +1,4 @@
-/*
+﻿/*
  * biomaterialWorld.h
  *
  * File Contents: Contains declarations for the BMWorld class.
@@ -398,8 +398,7 @@ public:
   static float E; // Effective stiffness
 
   static float initialO2;   // Initial concentration of oxygen (umol/L)
-  static float incrementO2; // Percentage of initial patch O2 to add every tick
-                            // as replenishment from external source
+  static float incrementO2; // fraction of the gap to medium O₂ refilled per tick (0–1)
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)

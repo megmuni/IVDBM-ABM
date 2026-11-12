@@ -50,8 +50,8 @@ float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
 float BMWorld::initialO2 = 200;   // Initial concentration of oxygen (umol/L)
-float BMWorld::incrementO2 = 0.6; // Fraction of initial patch O2 to add every
-                                  // tick as replenishment from external source
+float BMWorld::incrementO2 = 0.6; // fraction of the gap to medium O₂ refilled per tick (0–1)
+
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
 float BMWorld::E = 0;     // Effective stiffness
@@ -929,74 +929,22 @@ void BMWorld::requestECMfragments() {
 void BMWorld::updateO2() {
   // TO-DO: move this O2 boundary update to somewhere within the chem
   // environment, not directly in BMWorld
-  const int countCaAlg = this->countPatchType(CaAlg);
-  const int countBoundary =
-      nx * ny * nz -
-      (nx - 2) * (ny - 2) *
-          (nz - 2); // boundary patches = all patches - interior patches
-  const double volumeBoundary =
-      (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000 *
-      countBoundary; // volume of all boundary patches in L
-  const double molO2 = this->initialO2 * pow(10, 9) *
-                       volumeBoundary; // total fmol of O2 needed to distribute
-                                       // across all boundary patches
-  
-  const double uni_molO2 = this->initialO2 * pow(10, 9) * (BMWorld::totalVolumeML / 1000); //total fmol of O2 for across all patches (uniform distribution)
+  // Influx from the medium, proportional to the gap between medium and local O2.
+  // incrementO2 = fraction of that gap closed per tick (0-1).
+    const double patchVol_L = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000.0;
+    const float c_med = static_cast<float>(this->initialO2 * 1e9 * patchVol_L); // fmol/patch at 200 µM
+    const float f = this->incrementO2;
 
-
-  const double incrO2 =
-      this->incrementO2 *
-      (molO2 / countBoundary); // oxygen increment for each patch
-
-  const double uni_incrO2 =
-      this->incrementO2 * (uni_molO2 / countCaAlg); // oxygen increment for each patch - uniform method
-
-  for (int iz = 0; iz < nz; iz++) {
+    for (int iz = 0; iz < nz; iz++) {
 #pragma omp parallel for
-      for (int iy = 0; iy < ny; iy++) {
-          for (int ix = 0; ix < nx; ix++) {
-              int in = ix + iy * nx + iz * nx * ny;
-              this->chem_add_secretion(o2, in, uni_incrO2);
-          }
-      }
-  }
-
-//  // update boundary O2 across Z faces
-//  for (int zi : {0, nz - 1}) {
-//#pragma omp parallel for
-//    for (int yi = 0; yi < ny; yi++) {
-//#pragma omp simd
-//      for (int xi = 0; xi < nx; xi++) {
-//        int in = xi + yi * nx + zi * nx * ny;
-//        chemical_environment_->accumulate_secretion(in, o2, incrO2);
-//      }
-//    }
-//  }
-//
-//  // update boundary O2 across Y faces
-//  for (int yi : {0, ny - 1}) {
-//#pragma omp parallel for
-//    for (int zi = 1; zi < nz - 1; zi++) {
-//      // zi starts at 1 and ends at nz-2 to exclude patches
-//      // already counted by the Z face loops above
-//#pragma omp simd
-//      for (int xi = 0; xi < nx; xi++) {
-//        int in = xi + yi * nx + zi * nx * ny;
-//        chemical_environment_->accumulate_secretion(in, o2, incrO2);
-//      }
-//    }
-//  }
-//
-//  // update boundary O2 across X faces
-//  for (int xi : {0, nx - 1}) {
-//#pragma omp parallel for
-//    for (int zi = 1; zi < nz - 1; zi++) {
-//      for (int yi = 1; yi < ny - 1; yi++) {
-//        int in = xi + yi * nx + zi * nx * ny;
-//        chemical_environment_->accumulate_secretion(in, o2, incrO2);
-//      }
-//    }
-//  }
+        for (int iy = 0; iy < ny; iy++) {
+            for (int ix = 0; ix < nx; ix++) {
+                const int in = ix + iy * nx + iz * nx * ny;
+                const float c = chemical_environment_->concentration_at(in, o2);
+                this->chem_add_secretion(o2, in, f * (c_med - c));
+            }
+        }
+    }
 }
 
 void BMWorld::updateChemCPU() {
