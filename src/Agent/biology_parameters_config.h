@@ -81,12 +81,14 @@ struct StemDifferentiationParams {
   double static_probability = 0;
   double baseline_probability = 0;
   double tgf_effect = 0;
-  /** Hours between differentiation attempts. */
+  /** Hours between differentiation attempts */
   double hours_between_attempts = 0;
+  /** Fraction of differentiation events that include a division (1 = always, 0 = never) */
+  double division_probability = 1;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StemDifferentiationParams,
                                    asymmetric_probability, static_probability, baseline_probability,
-                                   tgf_effect, hours_between_attempts)
+                                   tgf_effect, hours_between_attempts, division_probability)
 
 struct ProgenDifferentiationParams {
   double static_probability = 0;
