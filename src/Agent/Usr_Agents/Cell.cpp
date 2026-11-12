@@ -271,7 +271,7 @@ NP::~NP() {}
 void Cell::cellFunction() {
 	// Calls the individual cell stage functions
 	int in = this->index[read_t];
-	bool random_act = false; // identifier to allow cells to sometimes 'act' by random chance, even if they don't meet the O2 condition
+	if (this->alive[read_t] == false) return;
 
 	// Local O2 as a concentration: fmol per patch / patch volume (L) -> µM (x 1e-9)
 	const double patchVol_L = (BMWorld::totalVolumeML / (Agent::nx * Agent::ny * Agent::nz)) / 1000.0;
@@ -282,8 +282,6 @@ void Cell::cellFunction() {
 	const bool random_act = rollDice(20);   // cells may still act by chance when hypoxic
 	const bool o2ok = o2_uM > BMWorld::o2HypoxiaThreshold_uM;
 
-	// tracking of cells that are passing or not passing the O2 gate
-	bool o2ok = (meanO2 + patchO2) > this->get_OCR();
 	if (o2ok) {
 #ifdef _OMP
 #pragma omp atomic

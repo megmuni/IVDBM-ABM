@@ -936,7 +936,7 @@ void BMWorld::updateO2() {
   // Influx from the medium, proportional to the gap between medium and local O2.
   // incrementO2 = fraction of that gap closed per tick (0-1).
     const double patchVol_L = (BMWorld::totalVolumeML / (nx * ny * nz)) / 1000.0;
-    const float c_med = static_cast<float>(this->initialO2 * 1e9 * patchVol_L); // fmol/patch at 200 µM
+    const float c_med = static_cast<float>(this->mediumO2 * 1e9 * patchVol_L); // fmol/patch at medium O2
     const float f = this->incrementO2;
 
     for (int iz = 0; iz < nz; iz++) {
