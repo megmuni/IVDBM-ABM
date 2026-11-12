@@ -939,12 +939,14 @@ void BMWorld::updateO2() {
     const float c_med = static_cast<float>(this->mediumO2 * 1e9 * patchVol_L); // fmol/patch at medium O2
     const float f = this->incrementO2;
 
+    const SpeciesChannelViews ov = chemical_environment_->channels(o2);
+
     for (int iz = 0; iz < nz; iz++) {
 #pragma omp parallel for
         for (int iy = 0; iy < ny; iy++) {
             for (int ix = 0; ix < nx; ix++) {
                 const int in = ix + iy * nx + iz * nx * ny;
-                const float c = chemical_environment_->concentration_at(in, o2);
+                const float c = ov.concentration[in] + ov.diffused[in];   // level after this tick's diffusion
                 this->chem_add_secretion(o2, in, f * (c_med - c));
             }
         }

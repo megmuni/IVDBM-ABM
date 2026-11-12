@@ -11,6 +11,7 @@
  */
 
 #include "Cell.h"
+#include "../../Chemistry/chemical_environment.h"
 #include "../../enums.h"
 #include <iostream>
 #include <algorithm>      
@@ -275,8 +276,22 @@ void Cell::cellFunction() {
 
 	// Local O2 as a concentration: fmol per patch / patch volume (L) -> µM (x 1e-9)
 	const double patchVol_L = (BMWorld::totalVolumeML / (Agent::nx * Agent::ny * Agent::nz)) / 1000.0;
-	const float meanO2 = this->meanNeighborConcentration(o2);
-	const float patchO2 = this->patchChemConcentration(o2, in);
+	// Local O2 after this tick's diffusion (stored level + diffusion increment), so a
+	// cell's own consumption from last tick has already spread out before it's read
+	const SpeciesChannelViews ov = Agent::chemicalEnvironment()->channels(o2);
+	const int x = this->ix[read_t], y = this->iy[read_t], z = this->iz[read_t];
+	const int nx = Agent::nx, ny = Agent::ny, nz = Agent::nz;
+	float sumO2 = 0.f; int nO2 = 0;
+	for (int dZ = -1; dZ <= 1; dZ++)
+		for (int dY = -1; dY <= 1; dY++)
+			for (int dX = -1; dX <= 1; dX++) {
+				if (x + dX < 0 || x + dX >= nx || y + dY < 0 || y + dY >= ny || z + dZ < 0 || z + dZ >= nz) continue;
+				const int j = (x + dX) + (y + dY) * nx + (z + dZ) * nx * ny;
+				sumO2 += ov.concentration[j] + ov.diffused[j];
+				nO2++;
+			}
+	const float meanO2 = sumO2 / nO2;
+	const float patchO2 = ov.concentration[in] + ov.diffused[in];
 	const float o2_uM = std::max(0.0f, static_cast<float>(0.5 * (meanO2 + patchO2) / patchVol_L * 1e-9));
 
 	const bool random_act = rollDice(20);   // cells may still act by chance when hypoxic
