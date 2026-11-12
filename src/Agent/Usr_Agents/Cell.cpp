@@ -899,8 +899,10 @@ void Stem::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 	else {
-		this->makeOCollagen(meanTGF, meanIL1);
-		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+		for (int i = 0; i < nCol; i++)
+			this->makeOCollagen(meanTGF, meanIL1);
+		for (int i = 0; i < nAgg; i++)
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 #else
 	for (int i = 0; i < nCol; i++)
@@ -1003,7 +1005,8 @@ void Progen::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 	else {
-		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+		for (int i = 0; i < nAgg; i++)
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 #else
 	for (int i = 0; i < nAgg; i++)
@@ -1118,8 +1121,10 @@ void NP::create_ecm(float meanTGF, float meanIL1, float meanTNF) {
 			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 	else {
-		this->makeOCollagen(meanTGF, meanIL1);
-		this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
+		for (int i = 0; i < nCol; i++)
+			this->makeOCollagen(meanTGF, meanIL1);
+		for (int i = 0; i < nAgg; i++)
+			this->makeOAggrecan(meanTNF, meanTGF, meanIL1);
 	}
 #else
 	for (int i = 0; i < nCol; i++)
