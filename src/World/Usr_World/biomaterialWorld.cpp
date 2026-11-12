@@ -55,6 +55,7 @@ float BMWorld::o2OcrReference_uM = 200;      // OCRs measured under normoxia (~2
 float BMWorld::incrementO2 = 0.6;            // fraction of the gap to medium O2 refilled per tick (0–1)
 float BMWorld::o2Km_uM = 212;                // hMSC Km, Curcio et al. 2014 (2.12e-7 mol/cm3)
 float BMWorld::o2HypoxiaThreshold_uM = 10;   // ~1% O2; matrix synthesis lowest at 1% O2 in disc tissue
+float BMWorld::o2VesselDecay_mm = 0;          // 0 = uniform medium exchange (current behavior)
 
 #ifdef MODEL_SCAFFOLD
 int BMWorld::initialCaAlg = 0;
@@ -941,13 +942,22 @@ void BMWorld::updateO2() {
 
     const SpeciesChannelViews ov = chemical_environment_->channels(o2);
 
+    // Patch width (mm) from patch volume (L): V_mm3 = V_L * 1e6
+    const double h_mm = std::cbrt(patchVol_L * 1e6);
+    const double lambda = this->o2VesselDecay_mm;
+
     for (int iz = 0; iz < nz; iz++) {
+        // Vessel mode: refill weakens with distance from the low-z face
+        const float w = (lambda > 0.0)
+            ? static_cast<float>(std::exp(-((iz + 0.5) * h_mm) / lambda))
+            : 1.0f;
+        const float fz = f * w;
 #pragma omp parallel for
         for (int iy = 0; iy < ny; iy++) {
             for (int ix = 0; ix < nx; ix++) {
                 const int in = ix + iy * nx + iz * nx * ny;
                 const float c = ov.concentration[in] + ov.diffused[in];   // level after this tick's diffusion
-                this->chem_add_secretion(o2, in, f * (c_med - c));
+                this->chem_add_secretion(o2, in, fz * (c_med - c));
             }
         }
     }

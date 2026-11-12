@@ -397,12 +397,14 @@ public:
 
   static float E; // Effective stiffness
 
+  //*** Oxygen-related parameters ***//
   static float initialO2;              // O2 the gel starts at (µM)
   static float mediumO2;               // medium O2 the gel is refilled toward (µM)
   static float o2OcrReference_uM;      // O2 at which configured OCRs were measured (µM; normoxia)
   static float incrementO2;            // fraction of the gap to medium O2 refilled per tick (0–1)
   static float o2Km_uM;                // Michaelis-Menten constant for O2 consumption (µM)
   static float o2HypoxiaThreshold_uM;  // below this local O2, cells only act on random ticks (µM)
+  static float o2VesselDecay_mm;       // > 0: refill decays as exp(-z/λ) from the low-z face (vessel); <= 0: uniform
 
 #ifdef PEPTIDE_BM
   static float E_0;   // Initial elastic modulus (peptide-conjugated BM)
