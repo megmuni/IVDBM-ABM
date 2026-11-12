@@ -263,6 +263,7 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
   struct MergeRow {
       float* p; float* d; float* s;
       float retain; float src_factor;
+      bool clamp;
   };
 
   std::vector<MergeRow> rows;
@@ -275,7 +276,8 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
                        channel_row(desc.diffused_channel),
                        channel_row(desc.secretion_channel),
                        static_cast<float>(desc.decay.retain),
-                       static_cast<float>(desc.decay.src_factor / dt) });
+                       static_cast<float>(desc.decay.src_factor / dt),
+                       desc.concentration_channel != o2_ch });  // O2: no clamp (consumption deficit diffuses next tick)    
       row_names.push_back(desc.name.c_str());
   }
 
@@ -290,9 +292,9 @@ void ChemicalEnvironment::merge_and_reset_secretion() {
             MergeRow& r = rows[ri];
             const float v =
                 (r.p[in] + r.d[in]) * r.retain + r.s[in] * r.src_factor;
-            if (v < 0.f)
+            if (r.clamp && v < 0.f)
                 injected[ri] += -static_cast<double>(v);
-            r.p[in] = std::max(v, 0.f);
+            r.p[in] = r.clamp ? std::max(v, 0.f) : v;
             r.d[in] = 0.f;
             r.s[in] = 0.f;
         }
