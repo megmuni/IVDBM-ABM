@@ -147,7 +147,7 @@
         "baseline_probability": 0.5, // m15
         "tgf_effect": 0.001, // m16
         "hours_between_attempts": 48, // m17
-        "division_probability": 1
+        "division_probability": 1 //m18
       }
     },
     "progen": {
@@ -179,12 +179,12 @@
       "collagen_synthesis": {
         "scaling_factor": 1, // k18
         "time_effect": 0, // k19
-        "baseline_rate": 38 // k20
+        "baseline_rate": 3.2 // k20
       },
       "aggrecan_synthesis": {
         "scaling_factor": 1, // k21
         "time_effect": 0, // k22
-        "baseline_rate": 3.2 // k23
+        "baseline_rate": 38 // k23
       }
     },
     "biomaterial": {
