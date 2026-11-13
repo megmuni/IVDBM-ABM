@@ -367,7 +367,7 @@ void Cell::cellSniff() {
 	if ((Agent::agentPatchPtr[in]).inDamzone == true) {
 		if (rollDice(80) && this->moveTowardChemotaxis() == true){
 			#ifdef MODEL_SCAFFOLD
-			if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+			if (speed >= 1) {
 				// Move up to "migrationSpeed" patches per tick:
 				for (int dx = 0; dx < speed; dx++) this->wiggle();
 			}
@@ -382,7 +382,7 @@ void Cell::cellSniff() {
 	} else {
 		// not in damage zone
 #ifdef MODEL_SCAFFOLD
-		if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (speed >= 1) {
 			for (int dx = 0; dx < speed; dx++) this->wiggle();
 		}
 		else if (rollDice(0.25)) {
@@ -396,7 +396,7 @@ void Cell::cellSniff() {
 	// TGF can excite NP cell and overcome gradient: //NOTE MM: double check this for MSCs
 	if (can_tgf_excite()) {
 #ifdef MODEL_SCAFFOLD
-		if (speed >= 1 && Agent::agentPatchPtr[in].type[read_t] == CaAlg) {
+		if (speed >= 1) {
 			for (int dx = 0; dx < speed; dx++) this->wiggle(); // Move up to "migrationSpeed" patches per tick:
 		}
 		else if (rollDice(0.25)) {
@@ -468,7 +468,6 @@ void Cell::copyAndInitialize(Agent* original, int dx, int dy, int dz) {
 
 void Cell::proliferate() {
 	int in = this->index[read_t];
-	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
 	if (!(this->life[read_t] > 0 && this->life[read_t] % static_cast<int>(Cell::proliferation[Cell::PROLIFERATION_HOURS_BETWEEN]) == 0)) return; // check for 24-hour mark (of the cell's life) to try division
 	if (!isProliferative()) return; // check if cell is proliferative; i.e., under the max # of divisions for its type
 
@@ -493,15 +492,8 @@ void Cell::proliferate() {
 
 void Cell::differentiate() {
 	int in = this->index[read_t];
-	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) {
-		if (BMWorld::logDecisions) BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'c',
-			0, 0, 0, BMWorld::E, static_cast<float>(Agent::agentPatchPtr[in].type[read_t]) });   // prob column = patch type
-		return; // check for being on a biomaterial patch
-	}
 	if (!(this->life[read_t] > 0 && this->life[read_t] % static_cast<int>(Stem::differentiation[Stem::DIFFERENTIATION_HOURS_BETWEEN_ATTEMPTS]) == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
 	if (!isProliferative()) {
-		if (BMWorld::logDecisions) BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'x',
-			0, 0, 0, BMWorld::E, static_cast<float>(this->doublings[read_t]) });
 		return;
 	}
 
