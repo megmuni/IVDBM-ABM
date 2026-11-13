@@ -46,6 +46,11 @@ unsigned BMWorld::seed = 27000; // initial number of cells
 bool BMWorld::highTNFdamage = false;
 float BMWorld::patchpermm = 0;
 float BMWorld::liveCells = 0;
+//debug
+int BMWorld::noAgeCells = 0;
+int BMWorld::offGelCells = 0;
+int BMWorld::maxDoubledCells = 0;
+//
 float BMWorld::deadCells = 0;
 float BMWorld::deletedCells = 0;
 float BMWorld::prevCells = 0;
@@ -1034,7 +1039,8 @@ void BMWorld::updateCells() {
   int nLive = 0;
   int dcells = 0;
   int nDeleted = 0;
-#pragma omp parallel for reduction(+ : nLive, dcells, nDeleted) // ensure thread safety during counting
+  int nNoAge = 0, nOffGel = 0, nMaxDoubled = 0;
+#pragma omp parallel for reduction(+ : nLive, dcells, nDeleted, nNoAge, nOffGel, nMaxDoubled) // ensure thread safety during counting
   for (int i = 0; i < cellsSize; i++) {
 #ifdef _OMP
     int tid = omp_get_thread_num();
@@ -1053,6 +1059,10 @@ void BMWorld::updateCells() {
 
     if (cell->isAlive() == true) {
       nLive++;
+      // diagnostics: conditions that block scheduled proliferation/differentiation
+      if (cell->life[read_t] <= 0) nNoAge++;
+      if (worldPatch[cell->getIndex()].type[read_t] != CaAlg) nOffGel++;
+      if (!cell->isProliferative()) nMaxDoubled++;
       // Update cell stage counts
       /* Added by MM to check types of cell stages and add to respective
        * counters: */
@@ -1086,6 +1096,11 @@ void BMWorld::updateCells() {
     }
   }
   liveCells = nLive;
+  //debug
+  noAgeCells = nNoAge;
+  offGelCells = nOffGel;
+  maxDoubledCells = nMaxDoubled;
+  //
   deletedCells = nDeleted;
   // if (BMWorld::clock == 0) {
   //	prevCells = this->initialCells[0];
@@ -1851,10 +1866,13 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
     file << this->E << "," << this->Q << "," << this->w << "," << this->Alg_wv
         << "," << this->Alg_Mn << "," << this->pXL << "," << viability << ","
         << perDiff << "," << Cell::o2PassCount << "," << Cell::o2RandomCount
-        << "," << Cell::o2SkipCount << endl;
+        << "," << Cell::o2SkipCount << "," << noAgeCells << "," << offGelCells
+        << "," << maxDoubledCells << endl;
 #else
     file << viability << "," << perDiff << "," << Cell::o2PassCount << ","
-        << Cell::o2RandomCount << "," << Cell::o2SkipCount << endl;
+        << Cell::o2RandomCount << "," << Cell::o2SkipCount << ","
+        << noAgeCells << "," << offGelCells
+        << "," << maxDoubledCells << endl;
 #endif
   }
 
@@ -1893,7 +1911,8 @@ void BMWorld::sproutAgentInWorld(int num, int patchType,
          << "Ca_XL(M)" << ","
          << "Viability Rate(%)" << ","
          << "Differentiation (%)" << ","
-         << "O2 Pass" << "," << "O2 Random" << "," << "O2 Skip" << endl;
+         << "O2 Pass" << "," << "O2 Random" << "," << "O2 Skip" << ","
+         << "Age<=0 Cells" << "," << "Off-Gel Cells" << "," << "Max-Doubled Cells" << endl;
   }
 
   // extra output - for IVDBM-ABM,

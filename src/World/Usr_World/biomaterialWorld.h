@@ -390,6 +390,11 @@ public:
                              // in ECM fragmentation)
   static float patchpermm; // The number of patches per millimeter in the world
   static float liveCells;
+  // debug
+  static int noAgeCells;     // live cells with life <= 0 (age not advancing)
+  static int offGelCells;    // live cells not on a Ca-alginate patch
+  static int maxDoubledCells;// live cells at or above their division limit
+  //
   static float deadCells;
   static float deletedCells;
   static float prevCells;

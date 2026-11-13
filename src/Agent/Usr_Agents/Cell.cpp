@@ -493,9 +493,17 @@ void Cell::proliferate() {
 
 void Cell::differentiate() {
 	int in = this->index[read_t];
-	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) return; // check for being on a biomaterial patch
+	if (!(Agent::agentPatchPtr[in].type[read_t] == CaAlg)) {
+		if (BMWorld::logDecisions) BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'c',
+			0, 0, 0, BMWorld::E, static_cast<float>(Agent::agentPatchPtr[in].type[read_t]) });   // prob column = patch type
+		return; // check for being on a biomaterial patch
+	}
 	if (!(this->life[read_t] > 0 && this->life[read_t] % static_cast<int>(Stem::differentiation[Stem::DIFFERENTIATION_HOURS_BETWEEN_ATTEMPTS]) == 0)) return; // check for 48-hour mark (of the cell's life) to try differentiation
-	if (!isProliferative()) return;
+	if (!isProliferative()) {
+		if (BMWorld::logDecisions) BMWorld::recordDecision({ static_cast<int>(Agent::agentWorldPtr->clock), this->type[read_t], 'x',
+			0, 0, 0, BMWorld::E, static_cast<float>(this->doublings[read_t]) });
+		return;
+	}
 
 	// calculating local cytokines
 	float meanTNF = this->meanNeighborConcentration(TNF);
