@@ -322,12 +322,13 @@ void Cell::cellFunction() {
 		this->ecm_synthesis();
 		this->cytokine_synthesis();
 		this->apoptose();
-
-		// last thing to do: increase age + 1 tick
-		if (this->life[read_t] >= 0) {
-			this->life[write_t] = this->life[read_t] + 1;
-		}
 	}
+
+	// last thing to do: increase age + 1 tick
+	if (this->life[read_t] >= 0) {
+		this->life[write_t] = this->life[read_t] + 1;
+	}
+
 	// Every live cell consumes O2 every tick, scaled by local O2 (Michaelis-Menten)
 	this->consumeO2(o2_uM);
 }
