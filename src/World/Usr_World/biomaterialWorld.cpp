@@ -1062,7 +1062,7 @@ void BMWorld::updateCells() {
       // diagnostics: conditions that block scheduled proliferation/differentiation
       if (cell->life[read_t] <= 0) nNoAge++;
       if (worldPatch[cell->getIndex()].type[read_t] != CaAlg) nOffGel++;
-      if (!cell->isProliferative()) nMaxDoubled++;
+      if (!cell->canDivide()) nMaxDoubled++;
       // Update cell stage counts
       /* Added by MM to check types of cell stages and add to respective
        * counters: */

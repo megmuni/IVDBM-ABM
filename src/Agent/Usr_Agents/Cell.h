@@ -213,6 +213,8 @@ class Cell: public Agent {
     */
     virtual void hatchnewcell(int number, int agentType, int here = 0);
 
+    // public read-only check for diagnostics (isProliferative itself is protected)
+    bool canDivide() { return isProliferative(); }
 
     /* -------------------------------------------------------------------------- */
     /*                              STATIC VARIABLES                              */
